@@ -1,5 +1,29 @@
 # Georgia campaign finance — implementation plan
 
+## October 2026 finance-gap follow-up
+
+This follow-up stays in one Georgia PR under the current task's one-state-per-PR requirement. Flags are passed inline; do not read, copy or edit environment files. Existing source observations below retain their original dates.
+
+The ordinary batch already fetches PeachFile independent expenditures and calls the outside aggregator. The remaining failure boundary is direct-finance acquisition/reconciliation before the outside write. A failed direct ledger can therefore prevent otherwise available independent expenditures from refreshing. Outside-spender funder acquisition already degrades separately. An independent component must preserve direct amounts and their acquisition/write clocks, active/manual receiving links, genuine source failures and qualified zeros.
+
+The current official bulk data key distinguishes **Contributor Type** from the receiving filer's **Registration Type/Subtype**. Explicit reported committee classes can support an honestly labelled committee-contribution component; business codes and names containing PAC cannot establish that role. A genuine current export is retained privately for structural, return, scope and amendment qualification. Diagnostic sums are not accepted financial data. Preserve the current JSON occupation path; bulk contributor-role coverage is a separate feature.
+
+The first implementation step strengthens the existing IE client: check native `totalItems` when supplied, require complete consecutive financial payloads rather than ID-set equality, reject conflicting duplicate IDs and malformed target arrays, and accept only safe exact cents. Retain valid timed-only rows, the unchanged ordinary request shape, and the empty-store failure guard. No transaction-date cutoff is inferred from a current election year.
+
+The native contribution adapter selects **Non-Candidate Committee** and **Candidate / Candidate Committee**, candidate-campaign receivers, `Contribution` / `Itemized Contribution`, and the explicit allocated election year. It preserves distinct native occurrences and reported amended/timed-only records. Loans, in-kind receipts, unitemized/anonymous money, other allocated years and separately reported returns stay outside this gross contribution measure. The mixed **Corporation / Business / Unregistered Committee** class stays excluded. This is reported committee money before returns, not verified legal PAC identity or a net/current-effective ledger claim.
+
+The observed Windows-1252 CSV dialect includes literal Excel guards and proper quoted multiline cells. Closing-quote errors, attributable malformed continuations and a NUL in a known receiver's record quarantine that receiver's entire component; unknown boundaries, undefined encoding bytes, bad headers and truncated endings make the source unavailable. Original values are never repaired or reconstructed. Unrelated loan-detail duplicate IDs do not gate committee contributions; relevant duplicate IDs hold affected receivers.
+
+`georgia-reported-finance:sources:refresh` is the ordinary acquisition command. Each enabled source installs exact originals in an immutable generation, validates before publishing an atomic pointer, and retains the prior generation on failure. Cache readers verify manifest and original hashes and rerun the native parser/client. Source observation and completion clocks survive cached replay. New reported IE and committee-contribution flags default off under both finance parents; force cannot enable them. The raw-refresh gate is separate. Acquisition performs no canonical financial writes.
+
+The [current official filing schedule](https://ethics.ga.gov/filing-schedule/), checked October 15, distinguishes these deadlines:
+
+- CCDR all-filer and PAC tables each show August 1–October 20 reporting periods, **October 20 due**, and **October 27 end of grace**.
+- Independent Committees' general-election 14-day report is separately **due October 20**. That section does not publish a separate period or grace date.
+- Fresh acquisition and ordinary sync must rerun **October 21 and October 28**, with **November 2, November 4 and November 6** late/timed-report checks, allowing for the actual source publication clock and two-business-day filing interval. These are planned checks, not scheduled automations or finality guarantees.
+
+Before this PR opens, run the committed acquisition path over an ordinary due cohort, verify canonical counts and a candidate's amounts, then inspect the production API and actual candidate card. Source-parser replay, old stored groups, preservation-only results or fixture money do not satisfy that proof.
+
 Date: 2026-08-06. Governs the Georgia state-finance build. Read alongside
 `plan.md` ("Pause point — add new states") and
 `docs/finance-module-capability-matrix.md` — their rules apply to every PR

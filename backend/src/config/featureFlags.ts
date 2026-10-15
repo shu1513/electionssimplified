@@ -249,6 +249,15 @@ const georgiaFinance = defineStateFinanceFlagPair("GEORGIA_CAMPAIGN_FINANCE");
 export const isGeorgiaCampaignFinanceEnabled = georgiaFinance.isEnabled;
 export const isGeorgiaCampaignFinanceSyncEnabled = georgiaFinance.isSyncEnabled;
 export const isGeorgiaEthicsRawDataRefreshEnabled = georgiaFinance.gate("GEORGIA_ETHICS_RAW_DATA_REFRESH_ENABLED");
+// Reported components have their own publication gates. Force may request a
+// sync, but cannot authorize a new source or bypass either parent flag.
+export function isGeorgiaReportedIeEnabled(_force = false): boolean {
+  return isCandidateFinanceEnabled() && georgiaFinance.isEnabled() && readBooleanEnv("GEORGIA_REPORTED_IE_ENABLED", false);
+}
+export function isGeorgiaReportedCommitteeContributionsEnabled(_force = false): boolean {
+  return isCandidateFinanceEnabled() && georgiaFinance.isEnabled() &&
+    readBooleanEnv("GEORGIA_REPORTED_COMMITTEE_CONTRIBUTIONS_ENABLED", false);
+}
 
 const maineFinance = defineStateFinanceFlagPair("MAINE_CAMPAIGN_FINANCE");
 export const isMaineCampaignFinanceEnabled = maineFinance.isEnabled;

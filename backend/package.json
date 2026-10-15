@@ -350,6 +350,7 @@
     "north-carolina-candidates:finance:scheduler:worker": "tsx src/scripts/runNorthCarolinaCandidateFinanceSyncSchedulerWorker.ts",
     "north-carolina-candidates:finance:scheduler:trigger": "tsx src/scripts/triggerNorthCarolinaCandidateFinanceSync.ts",
     "georgia-candidates:finance:sync-due": "tsx src/scripts/syncDueGeorgiaCandidateFinance.ts",
+    "georgia-reported-finance:sources:refresh": "tsx src/scripts/refreshGeorgiaReportedFinanceSources.ts",
     "georgia-candidates:finance:scheduler:upsert": "tsx src/scripts/upsertGeorgiaCandidateFinanceSyncScheduler.ts",
     "georgia-candidates:finance:scheduler:worker": "tsx src/scripts/runGeorgiaCandidateFinanceSyncSchedulerWorker.ts",
     "georgia-candidates:finance:scheduler:trigger": "tsx src/scripts/triggerGeorgiaCandidateFinanceSync.ts",
