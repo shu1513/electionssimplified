@@ -320,38 +320,72 @@ export function compareMarylandLegacyCommitteeReceiptOccurrences(input: {
   const knownPdf = pdfRows.filter(r => !held.has(fiscalKey(r.date, r.amountCents)));
   const adapt = (r: MarylandLegacyReceiptOccurrence): MarylandPdfReceiptOccurrence => ({pageNumber: r.pageNumber, ordinal: r.ordinal,
     role: "gift", schedule: r.tableKind === "in_kind" ? "gift_in_kind" : "gift_monetary", date: r.date, amountCents: r.amountCents, nameAddress: r.nameAddress});
-  const giftComparison = compareMarylandReceiptOccurrences({nativeRows: knownNative.filter(r => !["other_receipts","in_kind"].includes(nativeFamily(r))), pdfRows: knownPdf.filter(r => r.tableKind !== "other_receipts").map(adapt)});
-  const otherReceiptComparison = compareMarylandReceiptOccurrences({nativeRows: knownNative.filter(r => nativeFamily(r) === "other_receipts"), pdfRows: knownPdf.filter(r => r.tableKind === "other_receipts").map(adapt)});
-  const index = new Map<string, {classes: Set<unknown>; confirmedPostal: boolean}>();
-  const identityKey = (family: LegacyFamily, date: string, amount: number, name: string) => JSON.stringify([family, date, amount, name]);
-  for (const r of knownNative) {
-    if (["anonymous","in_kind"].includes(nativeFamily(r))) continue;
-    let name = normalize(`${r.contributorName} ${nativeAddress(r)}`), confirmedPostal = false;
-    const postal = normalize(r.contributorZipCode as string | null ?? ""), match = /(\d{5})\s*-\s*([a-z]{4})$/.exec(name);
-    if (match && /^\d{5}-[a-z]{4}$/.test(postal) && `${match[1]}-${match[2]}` === postal) {name = name.slice(0, match.index) + postal; confirmedPostal = true;}
-    const key = identityKey(nativeFamily(r), day(r), cents(r), name), group = index.get(key) ?? {classes: new Set(), confirmedPostal: false};
-    group.classes.add(r.contributorTypeCode); group.confirmedPostal ||= confirmedPostal; index.set(key, group);
+  const giftBase = compareMarylandReceiptOccurrences({nativeRows: knownNative.filter(r => !["other_receipts","in_kind"].includes(nativeFamily(r))), pdfRows: knownPdf.filter(r => r.tableKind !== "other_receipts").map(adapt)});
+  const otherBase = compareMarylandReceiptOccurrences({nativeRows: knownNative.filter(r => nativeFamily(r) === "other_receipts"), pdfRows: knownPdf.filter(r => r.tableKind === "other_receipts").map(adapt)});
+  const identityKey = (date: string, amount: number, text: string) => JSON.stringify([date, amount, text]);
+  type IdentityRecord={row:typeof knownNative[number];family:LegacyFamily;group:string;contact:string|null;confirmedPostal:boolean;capacityKey:string;contactKey:string|null};
+  const records:IdentityRecord[]=[],names=new Map<string,number[]>(),contacts=new Map<string,number[]>();
+  const append=(index:Map<string,number[]>,key:string,value:number)=>{const values=index.get(key)??[];values.push(value);index.set(key,values);};
+  for(const r of knownNative) {
+    const family=nativeFamily(r);if(family==="anonymous" || family==="in_kind" || typeof r.contributorName!=="string" || !r.contributorName.trim())continue;
+    const name=normalize(r.contributorName),group=JSON.stringify([r.contributorTypeCode,name,family]);
+    let contact:string|null=null,confirmedPostal=false;
+    if(typeof r.contributorFullAddress==="string" && r.contributorFullAddress.trim() &&
+      (r.contributorZipCode===null || typeof r.contributorZipCode==="string")) {
+      contact=normalize(`${r.contributorName} ${nativeAddress(r)}`);
+      const postal=normalize(r.contributorZipCode as string|null??""),match=/(\d{5})\s*-\s*([a-z]{4})$/.exec(contact);
+      if(match && /^\d{5}-[a-z]{4}$/.test(postal) && `${match[1]}-${match[2]}`===postal){contact=contact.slice(0,match.index)+postal;confirmedPostal=true;}
+    }
+    const capacityKey=JSON.stringify([day(r),cents(r),group]),contactKey=contact===null?null:JSON.stringify([capacityKey,contact]);
+    const index=records.length;records.push({row:r,family,group,contact,confirmedPostal,capacityKey,contactKey});
+    append(names,identityKey(day(r),cents(r),name),index);
+    if(contact!==null)append(contacts,identityKey(day(r),cents(r),contact),index);
   }
   const eligiblePdf: MarylandLegacyReceiptOccurrence[] = [];
   let unresolvedEligibleFiscalPdfOccurrences = 0,unresolvedEligibleOtherFiscalPdfOccurrences=0;
-  for (const r of knownPdf) {
-    const name = normalize(r.nameAddress), groups = [];
-    const exact = index.get(identityKey(pdfFamily(r), r.date, r.amountCents, name)); if (exact) groups.push(exact);
-    const match = /(\d{5})\s*-\s*([a-z]{4})$/.exec(name);
-    if (match) {const compact = name.slice(0, match.index) + `${match[1]}-${match[2]}`;
-      if (compact !== name) {const group = index.get(identityKey(pdfFamily(r), r.date, r.amountCents, compact)); if (group?.confirmedPostal) groups.push(group);}}
-    const classes = new Set(groups.flatMap(g => [...g.classes]));
-    if ([...classes].some(c => legacyCommitteeClasses.has(c as string))) {
-      if (classes.size !== 1) fail("ambiguous_identity");
-      eligiblePdf.push(r);
-    } else if (!classes.size && nativeCohorts.get(fiscalKey(r.date, r.amountCents))?.some(eligible)) {
-      if(pdfFamily(r)==="monetary")unresolvedEligibleFiscalPdfOccurrences++;
-      else unresolvedEligibleOtherFiscalPdfOccurrences++;
-    }
+  type SourceIdentity={row:MarylandLegacyReceiptOccurrence;key:string};
+  const fullContactSources:SourceIdentity[]=[],wholeNameSources:SourceIdentity[]=[];
+  for(const r of knownPdf) {
+    const text=normalize(r.nameAddress),nameMatches=names.get(identityKey(r.date,r.amountCents,text))??[];
+    const contactMatches=[...(contacts.get(identityKey(r.date,r.amountCents,text))??[])];
+    const terminal=/(\d{5})\s*-\s*([a-z]{4})$/.exec(text);
+    if(terminal){const compact=text.slice(0,terminal.index)+`${terminal[1]}-${terminal[2]}`;
+      if(compact!==text)contactMatches.push(...(contacts.get(identityKey(r.date,r.amountCents,compact))??[]).filter(i=>records[i]!.confirmedPostal));}
+    // Evaluate BOTH exact alternatives before allocating anything. Class alone
+    // cannot resolve a complete name that equals another donor's full contact.
+    const candidates=[...new Set([...nameMatches,...contactMatches])];
+    if(new Set(candidates.map(i=>records[i]!.group)).size>1)fail("ambiguous_identity");
+    const family=pdfFamily(r),sameFamily=candidates.filter(i=>records[i]!.family===family);
+    if(!sameFamily.length){if(nativeCohorts.get(fiscalKey(r.date,r.amountCents))?.some(eligible)){
+      if(family==="monetary")unresolvedEligibleFiscalPdfOccurrences++;else unresolvedEligibleOtherFiscalPdfOccurrences++;}continue;}
+    if(eligible(records[sameFamily[0]!]!.row))eligiblePdf.push(r);
+    const exactContacts=[...new Set(contactMatches)].filter(i=>records[i]!.family===family);
+    if(exactContacts.length){const keys=new Set(exactContacts.map(i=>records[i]!.contactKey));
+      if(keys.size!==1)fail("ambiguous_identity");fullContactSources.push({row:r,key:records[exactContacts[0]!]!.contactKey!});}
+    else wholeNameSources.push({row:r,key:records[sameFamily[0]!]!.capacityKey});
   }
+  // A field containing an address can consume only that exact contact's
+  // physical capacity. Only an ENTIRE whole-name-only field may then consume
+  // a remaining matching-name occurrence, never an unmatched contact field.
+  const availableContacts=new Map<string,number[]>(),availableNames=new Map<string,number[]>(),used=new Set<number>();
+  records.forEach((r,i)=>{if(!["monetary","other_receipts"].includes(r.family))return;
+    append(availableNames,r.capacityKey,i);if(r.contactKey!==null)append(availableContacts,r.contactKey,i);});
+  const matched={monetary:0,other_receipts:0,eligibleMonetary:0,eligibleOther:0};
+  let fullContactIdentityMatches=0,wholeNameOnlyIdentityMatches=0;
+  const allocate=(sources:SourceIdentity[],available:Map<string,number[]>,wholeName:boolean)=>{
+    for(const source of sources){const capacity=available.get(source.key);while(capacity?.length && used.has(capacity.at(-1)!))capacity.pop();
+      const index=capacity?.pop();if(index===undefined)continue;used.add(index);const record=records[index]!;
+      if(record.family==="monetary"){matched.monetary++;if(eligible(record.row))matched.eligibleMonetary++;}
+      else if(record.family==="other_receipts"){matched.other_receipts++;if(eligible(record.row))matched.eligibleOther++;}
+      if(wholeName)wholeNameOnlyIdentityMatches++;else fullContactIdentityMatches++;}
+  };
+  allocate(fullContactSources,availableContacts,false);allocate(wholeNameSources,availableNames,true);
+  const withAllocatedIdentities=(base:ReturnType<typeof compareMarylandReceiptOccurrences>,count:number)=>({...base,
+    matchedIdentityOccurrences:count,missingIdentityOccurrences:base.nativeGifts-count,extraIdentityOccurrences:base.pdfGifts-count});
+  const giftComparison=withAllocatedIdentities(giftBase,matched.monetary),otherReceiptComparison=withAllocatedIdentities(otherBase,matched.other_receipts);
   const eligibleNative = nativeRows.filter(eligible);
-  const eligibleGiftComparison = compareMarylandReceiptOccurrences({nativeRows: eligibleNative.filter(r => nativeFamily(r) === "monetary"), pdfRows: eligiblePdf.filter(r => r.tableKind !== "other_receipts").map(adapt)});
-  const eligibleOtherReceiptComparison = compareMarylandReceiptOccurrences({nativeRows: eligibleNative.filter(r => nativeFamily(r) === "other_receipts"), pdfRows: eligiblePdf.filter(r => r.tableKind === "other_receipts").map(adapt)});
+  const eligibleGiftComparison = withAllocatedIdentities(compareMarylandReceiptOccurrences({nativeRows: eligibleNative.filter(r => nativeFamily(r) === "monetary"), pdfRows: eligiblePdf.filter(r => r.tableKind !== "other_receipts").map(adapt)}),matched.eligibleMonetary);
+  const eligibleOtherReceiptComparison = withAllocatedIdentities(compareMarylandReceiptOccurrences({nativeRows: eligibleNative.filter(r => nativeFamily(r) === "other_receipts"), pdfRows: eligiblePdf.filter(r => r.tableKind === "other_receipts").map(adapt)}),matched.eligibleOther);
   const cashControl = controls.receiptControls.filter(c => c.column !== "K").reduce((n, c) => add(n, c.amountCents), 0);
   const cashReceipts = add(add(sourceCents.contributions, sourceCents.transfers_in), sourceCents.other_receipts);
   return {nativeReportGifts: nativeRows.length, pdfReceiptOccurrences: pdfRows.length+inKindRows.length,stateDisplayProjectionCount,
@@ -365,7 +399,7 @@ export function compareMarylandLegacyCommitteeReceiptOccurrences(input: {
     unclassifiedContinuationCount: unknown.length, identityHeldFiscalCohorts: held.size,
     identityHeldNativeOccurrences: nativeRows.filter(r => held.has(fiscalKey(day(r), cents(r)))).length,
     identityHeldPdfOccurrences: pdfRows.filter(r => held.has(fiscalKey(r.date, r.amountCents))).length,
-    unresolvedEligibleFiscalPdfOccurrences, unresolvedEligibleOtherFiscalPdfOccurrences,
+    unresolvedEligibleFiscalPdfOccurrences, unresolvedEligibleOtherFiscalPdfOccurrences,fullContactIdentityMatches,wholeNameOnlyIdentityMatches,
     giftComparison, otherReceiptComparison, eligibleGiftComparison, eligibleOtherReceiptComparison,
     cashReceiptControlCents: cashControl, cashReceiptOccurrenceCents: cashReceipts,
     cashReceiptDifferenceCents: wholeNative.anonymousOccurrences ? null : add(cashReceipts, -cashControl),

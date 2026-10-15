@@ -171,11 +171,51 @@ describe("Maryland legacy reported committee receipt projection",()=>{
     for(const identity of [printed,"Example PAC","Example PAC 12 Example Street City, Maryland 12345-6789"]){
       const input=legacyInput([row],[legacyPdf({nameAddress:identity})]);input.stateDisplayDictionary=dictionary;
       const result=projectLegacy(input);expect(result.stateDisplayProjectionCount).toBe(1);
-      expect(result.eligibleGiftComparison.matchedIdentityOccurrences).toBe(identity===printed?1:0);
-      expect(result.unresolvedEligibleFiscalPdfOccurrences).toBe(identity===printed?0:1);
+      const exact=identity===printed||identity==="Example PAC";
+      expect(result.eligibleGiftComparison.matchedIdentityOccurrences).toBe(exact?1:0);
+      expect(result.unresolvedEligibleFiscalPdfOccurrences).toBe(exact?0:1);
     }
     const input=legacyInput([{...row,contributorState:"VA"}],[legacyPdf({nameAddress:printed})]);input.stateDisplayDictionary=dictionary;
     expect(projectLegacy(input)).toMatchObject({stateDisplayProjectionCount:0,unresolvedEligibleFiscalPdfOccurrences:1});
+  });
+  it("accepts only an entire whole-name-only field and does not count an absent contact twice",()=>{
+    for(const address of [null,"12 Example St City, MD 12345-6789"]){
+      const input=legacyInput([native(1,{contributorTypeCode:"TFED",contributorFullAddress:address})],[legacyPdf({nameAddress:"Example PAC"})]);
+      expect(projectLegacy(input)).toMatchObject({wholeNameOnlyIdentityMatches:1,fullContactIdentityMatches:0,
+        eligibleGiftComparison:{matchedIdentityOccurrences:1,missingIdentityOccurrences:0,extraIdentityOccurrences:0}});
+    }
+    for(const nameAddress of ["Example PAC TRAILING GLYPH","PREFIX Example PAC"]){
+      expect(projectLegacy(legacyInput([native(1,{contributorTypeCode:"TFED"})],[legacyPdf({nameAddress})])))
+        .toMatchObject({wholeNameOnlyIdentityMatches:0,unresolvedEligibleFiscalPdfOccurrences:1,eligibleGiftComparison:{missingIdentityOccurrences:1}});
+    }
+  });
+  it("holds collisions across whole-name and complete-contact alternatives, including the same class",()=>{
+    for(const code of ["TFED","TIND"]){
+      const rows=[native(1,{contributorTypeCode:"TFED",contributorName:"Example",contributorFullAddress:"PAC"}),
+        native(2,{contributorTypeCode:code,contributorName:"Example PAC",contributorFullAddress:null})];
+      expect(()=>projectLegacy(legacyInput(rows,[legacyPdf({nameAddress:"Example PAC"})]))).toThrow("ambiguous_identity");
+    }
+    const rows=[native(1,{contributorTypeCode:"TFED"}),native(2,{contributorTypeCode:"TFED",contributionTypeCode:"OTHRINCM"})];
+    expect(()=>projectLegacy(legacyInput(rows,[legacyPdf({nameAddress:"Example PAC"})]))).toThrow("ambiguous_identity");
+  });
+  it("allocates full contacts before whole-name-only fields and preserves contact capacity",()=>{
+    const rows=[native(1,{contributorTypeCode:"TFED",contributorFullAddress:"First Address"}),
+      native(2,{contributorTypeCode:"TFED",contributorFullAddress:"Second Address"})];
+    const input=legacyInput(rows,[legacyPdf({nameAddress:"Example PAC"}),legacyPdf({ordinal:1,nameAddress:"Example PAC First Address"})]);
+    expect(projectLegacy(input)).toMatchObject({fullContactIdentityMatches:1,wholeNameOnlyIdentityMatches:1,
+      eligibleGiftComparison:{matchedIdentityOccurrences:2,missingIdentityOccurrences:0,extraIdentityOccurrences:0}});
+    const duplicated=legacyInput(rows,[legacyPdf({nameAddress:"Example PAC First Address"}),legacyPdf({ordinal:1,nameAddress:"Example PAC First Address"})]);
+    expect(projectLegacy(duplicated)).toMatchObject({fullContactIdentityMatches:1,wholeNameOnlyIdentityMatches:0,
+      eligibleGiftComparison:{matchedIdentityOccurrences:1,missingIdentityOccurrences:1,extraIdentityOccurrences:1}});
+  });
+  it("retains equal occurrences and all financial/control deficits under whole-name-only presentation",()=>{
+    const rows=[native(1,{contributorTypeCode:"TFED"}),native(2,{contributorTypeCode:"TFED"})];
+    expect(projectLegacy(legacyInput(rows,[legacyPdf({nameAddress:"Example PAC"}),legacyPdf({ordinal:1,nameAddress:"Example PAC"})])))
+      .toMatchObject({wholeNameOnlyIdentityMatches:2,eligibleGiftComparison:{matchedIdentityOccurrences:2,missingIdentityOccurrences:0,extraIdentityOccurrences:0}});
+    const deficit=legacyInput(rows.slice(0,1),[legacyPdf({nameAddress:"Example PAC"}),legacyPdf({ordinal:1,nameAddress:"Example PAC"})]);
+    deficit.controls={...deficit.controls,receiptControls:[{schedule:"1",column:"A",printedLabel:"Contributions",amountCents:50000}]};
+    expect(projectLegacy(deficit)).toMatchObject({extraFiscalOccurrences:1,cashReceiptDifferenceCents:50000,
+      eligibleGiftComparison:{matchedIdentityOccurrences:1,missingIdentityOccurrences:0,extraIdentityOccurrences:1}});
   });
   it("keeps complete family/date/cents closure, transfers/in-kind kinds and Other Receipts separately",()=>{
     const rows=[native(1,{contributorTypeCode:"TPAC"}),native(2,{contributorTypeCode:"TFED",contributionTypeCode:"TRFR",transactionAmount:600}),
