@@ -2,6 +2,25 @@
 
 ## Current verification — October 15, 2026
 
+The separate whole-report cash-return family proof is committed in `c9ea8faea`.
+All three complete original Z schedules reconcile to their complete native
+report scopes: 164 returns/$302,670.55. Every covered native return has the
+reported `CMONT` mechanism. The proof requires complete day/cents multiplicity,
+printed Total, cash controls, closed purpose continuations, and native parent
+and lifetime checks. It establishes the universal report cash family without
+claiming a per-transaction PDF contact or physical row identity. The strict
+contact diagnostic remains held for Annual 2025. Its 82 focused tests and
+backend types pass; independent review is clear.
+
+The pure component consumer in `80f8a0d3b` rebinds all supplied current and
+historical report editions, checks every class's return count/cents, and keeps
+original gift kinds and signed balances. Its focused arithmetic suites pass
+71 tests. These plain facts confer no financial acceptance. The complete
+ordinary receipt packet still needs its unresolved financial and identity
+gaps closed before any component write. Research now checks the source's
+repeated Current/Amended/Deleted legend and adjacent painted swatches; no row
+has been excluded based on color or repetition.
+
 The normal saved inventory reader is committed in `b08e79fdf`. A genuine
 normal fetch and reopen verified seven published reports/fifteen editions,
 15,239 original bytes, observed October 15 at 08:12:07.099–08:12:08.279 UTC.
