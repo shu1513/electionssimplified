@@ -200,6 +200,9 @@ export const isMissouriCampaignFinanceRawDataRefreshEnabled = missouriFinance.ga
 // force-refresh must never bypass this independent publication gate.
 export const isMissouriCommitteeReceiptsEnabled = (): boolean =>
   isMissouriCampaignFinanceEnabled() && readBooleanEnv("MISSOURI_COMMITTEE_RECEIPTS_ENABLED", false);
+// Independent reported IE also remains unpublished pending Missouri review.
+export const isMissouriRegisteredIeEnabled = (): boolean =>
+  isMissouriCampaignFinanceEnabled() && readBooleanEnv("MISSOURI_REGISTERED_IE_ENABLED", false);
 
 const montanaFinance = defineStateFinanceFlagPair("MONTANA_CAMPAIGN_FINANCE");
 export const isMontanaCampaignFinanceEnabled = montanaFinance.isEnabled;

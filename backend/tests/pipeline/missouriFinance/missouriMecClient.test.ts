@@ -111,6 +111,23 @@ describe("missouriMecClient", () => {
     expect(requests).toHaveLength(1);
   });
 
+  it("stops queued and subsequent source legs after a session challenge", async () => {
+    const { fetchImpl, requests } = recordingFetch([htmlResponse(INCAPSULA_CHALLENGE_STUB)]);
+    const session = createMissouriMecSession({ fetchImpl, sleep: noSleep });
+    const results = await Promise.allSettled([
+      session.get(buildMissouriMecUrl(MISSOURI_MEC_PAGES.contributionSearch)),
+      session.get(buildMissouriMecUrl(MISSOURI_MEC_PAGES.contributionResults)),
+    ]);
+    expect(results).toEqual([
+      expect.objectContaining({ status: "rejected", reason: expect.objectContaining({ code: "waf_challenge" }) }),
+      expect.objectContaining({ status: "rejected", reason: expect.objectContaining({ code: "waf_challenge" }) }),
+    ]);
+    await expect(session.get(buildMissouriMecUrl(MISSOURI_MEC_PAGES.committeeInfo))).rejects.toMatchObject({
+      code: "waf_challenge",
+    });
+    expect(requests).toHaveLength(1);
+  });
+
   it("carries cookies from Set-Cookie into later requests in the same session", async () => {
     const first = htmlResponse("<html>ok</html>");
     first.headers.append("Set-Cookie", "ASP.NET_SessionId=abc123; path=/; HttpOnly");
