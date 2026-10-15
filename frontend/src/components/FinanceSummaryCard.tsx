@@ -120,13 +120,17 @@ function PacMoneyByInterest({ rows, basis, note }: { rows: FinancePacInterest[] 
   if (rows === undefined || !hasCommitteeMoneyContent({pac_money_by_interest: rows, pac_money_basis: basis})) {
     return null;
   }
-  const committees = basis === "reported_committee_monetary_positions";
+  const committees = basis !== undefined;
+  const heading = basis === "reported_committee_monetary_positions" ? "Committee money by interest"
+    : basis === "reported_itemized_committee_cash_contributions" ? "Committee cash by interest" : "PAC money by interest";
+  const emptyText = basis === "reported_committee_monetary_positions" ? "No committee cash positions reported."
+    : basis === "reported_itemized_committee_cash_contributions" ? "No itemized committee cash contributions reported." : "No PAC donations reported.";
   return (
     <div className="mt-3">
-      <h4 className="text-xs font-semibold uppercase tracking-wide text-ink-soft">{committees ? "Committee money by interest" : "PAC money by interest"}</h4>
+      <h4 className="text-xs font-semibold uppercase tracking-wide text-ink-soft">{heading}</h4>
       {note ? <p className="mt-1 text-xs text-ink-soft">{note}</p> : null}
       {rows.length === 0 ? (
-        <p className="mt-1 text-sm text-ink-soft">{committees ? "No committee cash positions reported." : "No PAC donations reported."}</p>
+        <p className="mt-1 text-sm text-ink-soft">{emptyText}</p>
       ) : (
         <ul className="mt-1 space-y-0.5">
           {rows.map((row) => (
@@ -141,7 +145,7 @@ function PacMoneyByInterest({ rows, basis, note }: { rows: FinancePacInterest[] 
                 </summary>
                 <ul className="mb-2 ml-3 mt-1 space-y-0.5 border-l border-line pl-3">
                   {row.pacs.map((pac) => (
-                    <li key={pac.committee_id} className="text-xs">
+                    <li key={JSON.stringify([pac.committee_id, pac.committee_name])} className="text-xs">
                       <div className="flex justify-between gap-3">
                         <span className="text-ink-mid">
                           {pac.source_url ? (

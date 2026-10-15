@@ -1,5 +1,10 @@
 import type { Pool, PoolClient } from "pg";
 import {
+  validateMinnesotaCommitteeCashSnapshot,
+  writeMinnesotaCommitteeCash,
+  type MinnesotaCommitteeCashSnapshot,
+} from "./minnesotaCommitteeCashWriter.js";
+import {
   MANUAL_PROTECTED_LINK_RETURNING,
   assertLinkWriteNotBlocked,
   manualProtectedLinkAssignments,
@@ -69,6 +74,8 @@ export type MinnesotaFinanceSnapshotInput = {
   summary?: MinnesotaFinanceSummaryInput;
   outsideGroups?: readonly MinnesotaFinanceOutsideGroupInput[];
   outsideGroupBreakdowns?: readonly MinnesotaFinanceOutsideGroupBreakdownInput[];
+  /** Omit when unavailable; supplied snapshots replace only this component. */
+  reportedCommitteeCash?: MinnesotaCommitteeCashSnapshot;
 };
 
 export type MinnesotaFinanceSnapshotWriteResult = {
@@ -160,6 +167,7 @@ function validateMinnesotaFinanceLinkInput(link: MinnesotaFinanceLinkInput): voi
 
 function validateMinnesotaFinanceSnapshotInput(input: MinnesotaFinanceSnapshotInput): void {
   validateMinnesotaFinanceLinkInput(input.link);
+  if (input.reportedCommitteeCash !== undefined) validateMinnesotaCommitteeCashSnapshot(input.reportedCommitteeCash);
   const outsideBreakdownCount = input.outsideGroupBreakdowns?.length ?? 0;
   const outsideGroupCount = input.outsideGroups?.length ?? 0;
   if (outsideBreakdownCount > 0 && outsideGroupCount === 0) {
@@ -507,6 +515,10 @@ export async function replaceMinnesotaCandidateFinanceSnapshot(
     }
     if (input.outsideGroups) {
       await deleteStaleOutsideGroups({ db, linkId, electionYear, groups: input.outsideGroups });
+    }
+
+    if (input.reportedCommitteeCash !== undefined) {
+      await writeMinnesotaCommitteeCash({ db, linkId, electionYear, snapshot: input.reportedCommitteeCash, syncedAt });
     }
 
     return {

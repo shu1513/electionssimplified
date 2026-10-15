@@ -289,4 +289,83 @@ describe("minnesotaFinanceWriter", () => {
     ]);
     expect(client.release).toHaveBeenCalledTimes(1);
   });
+  function cashSnapshot(): import("../../../src/pipeline/minnesotaFinance/minnesotaCommitteeCashWriter.js").MinnesotaCommitteeCashSnapshot {
+    return {
+      aggregate: {
+        donors: [{ reportedCommitteeId: "100", reportedCommitteeName: "Example Fund", amountCents: 50000, contributionCount: 2 }],
+        totalAmountCents: 50000, matchedContributionRowCount: 3, includedContributionRowCount: 2,
+        excludedContributionRowCount: 1, zeroContributionRowCount: 0, excludedUnknownClassRowCount: 1,
+      },
+      source: {
+        observedAt: "2026-05-31T12:00:00.000Z", sha256: "a".repeat(64), byteCount: 1200, rowCount: 8,
+        url: "https://register.cfb.mn.gov/reports-and-data/self-help/data-downloads/campaign-finance/",
+      },
+    };
+  }
+
+  it("leaves committee cash rows and observation/sync times untouched when omitted", async () => {
+    const db = {
+      query: vi.fn().mockImplementation(async (sql: string) => ({
+        rows: sql.includes("INSERT INTO public.mn_candidate_finance_links") ? [{ id: "link-1" }] : [],
+      })),
+    };
+    await replaceMinnesotaCandidateFinanceSnapshot({ db, link: linkInput(), syncedAt: NOW });
+    expect(db.query.mock.calls.map((call) => String(call[0]).trim().split(/\s+/).slice(0, 3).join(" "))).toEqual([
+      "BEGIN", "INSERT INTO public.mn_candidate_finance_links", "COMMIT",
+    ]);
+    expect(db.query.mock.calls.some((call) => String(call[0]).includes("mn_candidate_finance_pac_"))).toBe(false);
+  });
+
+  it("validates the whole cash component before opening a transaction", async () => {
+    const db = { connect: vi.fn(), query: vi.fn() };
+    const reportedCommitteeCash = cashSnapshot();
+    reportedCommitteeCash.aggregate.totalAmountCents += 1;
+    await expect(replaceMinnesotaCandidateFinanceSnapshot({
+      db, link: linkInput(), syncedAt: NOW, reportedCommitteeCash,
+    })).rejects.toThrow("donor agreement");
+    expect(db.connect).not.toHaveBeenCalled();
+    expect(db.query).not.toHaveBeenCalled();
+  });
+
+  it("writes the optional cash component inside the protected-link snapshot transaction", async () => {
+    const client = {
+      query: vi.fn().mockImplementation(async (sql: string) => ({
+        rows: sql.includes("INSERT INTO public.mn_candidate_finance_links") ? [{ id: "link-1" }] : [],
+      })),
+      release: vi.fn(),
+    };
+    const db = { connect: vi.fn().mockResolvedValue(client), query: vi.fn() };
+    await replaceMinnesotaCandidateFinanceSnapshot({
+      db, link: linkInput(), syncedAt: NOW, summary: { totalReceipts: 1000 }, reportedCommitteeCash: cashSnapshot(),
+    });
+    const sql = client.query.mock.calls.map((call) => String(call[0]));
+    expect(sql.map((value) => value.trim().split(/\s+/).slice(0, 3).join(" "))).toEqual([
+      "BEGIN", "INSERT INTO public.mn_candidate_finance_links", "INSERT INTO public.mn_candidate_finance_summaries",
+      "DELETE FROM public.mn_candidate_finance_pac_donors", "INSERT INTO public.mn_candidate_finance_pac_sources",
+      "INSERT INTO public.mn_candidate_finance_pac_donors", "COMMIT",
+    ]);
+    expect(db.query).not.toHaveBeenCalled();
+    expect(client.release).toHaveBeenCalledTimes(1);
+  });
+
+  it("rolls back summary, donor deletion and provenance when the donor insert fails", async () => {
+    const client = {
+      query: vi.fn().mockImplementation(async (sql: string) => {
+        if (sql.includes("INSERT INTO public.mn_candidate_finance_pac_donors")) throw new Error("cash insert failed");
+        return { rows: sql.includes("INSERT INTO public.mn_candidate_finance_links") ? [{ id: "link-1" }] : [] };
+      }),
+      release: vi.fn(),
+    };
+    const db = { connect: vi.fn().mockResolvedValue(client), query: vi.fn() };
+    await expect(replaceMinnesotaCandidateFinanceSnapshot({
+      db, link: linkInput(), syncedAt: NOW, summary: { totalReceipts: 1000 }, reportedCommitteeCash: cashSnapshot(),
+    })).rejects.toThrow("cash insert failed");
+    const sql = client.query.mock.calls.map((call) => String(call[0]));
+    expect(sql).toContainEqual(expect.stringContaining("INSERT INTO public.mn_candidate_finance_summaries"));
+    expect(sql).toContainEqual(expect.stringContaining("INSERT INTO public.mn_candidate_finance_pac_sources"));
+    expect(sql.at(-1)).toBe("ROLLBACK");
+    expect(sql).not.toContain("COMMIT");
+    expect(client.release).toHaveBeenCalledTimes(1);
+  });
+
 });
