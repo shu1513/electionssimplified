@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { resolveMissouriCandidateFinanceCycleWindow, syncMissouriCandidateFinance } from "../../../src/pipeline/missouriFinance/missouriCandidateFinanceSync.js";
 import type { MissouriCandidateFinanceArtifacts } from "../../../src/pipeline/missouriFinance/missouriCandidateFinanceSync.js";
+import * as financeWriter from "../../../src/pipeline/missouriFinance/missouriFinanceWriter.js";
 
 const artifacts: MissouriCandidateFinanceArtifacts = {
   committeeInfo: {
@@ -27,7 +28,7 @@ const artifacts: MissouriCandidateFinanceArtifacts = {
   expenditureSourceUrl: "https://example.test/expenditures",
 };
 
-afterEach(() => vi.unstubAllEnvs());
+afterEach(() => { vi.unstubAllEnvs(); vi.restoreAllMocks(); });
 
 function receiptSyncInput() {
   const source = { ...artifacts, contributionRows: [{ ...artifacts.contributionRows[0]!,
@@ -57,6 +58,71 @@ function receiptDb() {
 }
 
 describe("missouriCandidateFinanceSync", () => {
+  function registeredIeInput() {
+    const input = receiptSyncInput();
+    const rows = [{ candidateNameAndAddress: "Jane Doe 10 Example St", officeSought: "State Representative District 1",
+      supportOppose: "Support" as const, expenditureDate: "2026-09-01", amountCents: 25000,
+      reportingCommittee: "Example Committee", report: "8 Day Before General Election" }];
+    return { ...input, db: receiptDb().db, registeredIeArtifacts: {
+      rows, identities: [{ reportingCommittee: "Example Committee", mecid: null }],
+      sourceUrl: "https://www.mec.mo.gov/MEC/Campaign_Finance/CF_SearchDirExp.aspx",
+      sourceRetrievedAt: "2026-10-15T00:00:00.000Z", sourceSha256: "c".repeat(64), sourceByteSize: 100,
+      sourceRowCount: 1, sourcePageCount: 1, sourceControls: [],
+    } };
+  }
+
+  function recordSnapshotWrite() {
+    return vi.spyOn(financeWriter, "replaceMissouriCandidateFinanceSnapshot").mockResolvedValue({
+      linkId: "33333333-3333-4333-8333-333333333333", linkWritten: true, summaryWritten: true,
+      directBreakdownsWritten: 0, outsideGroupsWritten: 0, outsideGroupBreakdownsWritten: 0,
+      classificationsWritten: 0,
+    } as never);
+  }
+
+  it("writes qualified reported IE alone when recipient finance is unavailable", async () => {
+    vi.stubEnv("MISSOURI_CAMPAIGN_FINANCE_ENABLED", "true");
+    vi.stubEnv("MISSOURI_REGISTERED_IE_ENABLED", "true");
+    const write = recordSnapshotWrite();
+    const input = registeredIeInput();
+    const result = await syncMissouriCandidateFinance({ ...input, directArtifactsUnavailable: true });
+    expect(result).toMatchObject({ summaryWritten: false, registeredIeGroupsWritten: 1,
+      registeredIe: { status: "qualified", supportAmountCents: 25000, opposeAmountCents: 0 } });
+    expect(write).toHaveBeenCalledTimes(1);
+    const saved = write.mock.calls[0]![0];
+    expect(saved.registeredIe?.aggregation.status).toBe("qualified");
+    expect(saved.summary).toBeUndefined();
+    expect(saved.directBreakdowns).toBeUndefined();
+    expect(saved.outsideGroups).toBeUndefined();
+    expect(saved.outsideGroupBreakdowns).toBeUndefined();
+    expect(saved.committeeMonetaryReceipts).toBeUndefined();
+  });
+
+  it("keeps qualified IE independent of unavailable spender funders", async () => {
+    vi.stubEnv("MISSOURI_CAMPAIGN_FINANCE_ENABLED", "true");
+    vi.stubEnv("MISSOURI_REGISTERED_IE_ENABLED", "true");
+    const write = recordSnapshotWrite();
+    const input = registeredIeInput();
+    const unavailableFunders = vi.fn(async () => { throw new Error("unavailable funder source"); });
+    const result = await syncMissouriCandidateFinance({ ...input, outsideArtifacts: {
+      ...input.registeredIeArtifacts, identities: [{ reportingCommittee: "Example Committee", mecid: "C123456" }],
+    }, refreshOutsideSpenderArtifacts: unavailableFunders });
+    expect(result.registeredIeGroupsWritten).toBe(1);
+    expect(unavailableFunders).not.toHaveBeenCalled();
+    const saved = write.mock.calls[0]![0];
+    expect(saved.summary).toBeDefined();
+    expect(saved.registeredIe?.aggregation.status).toBe("qualified");
+    expect(saved.outsideGroups).toBeUndefined();
+    expect(saved.outsideGroupBreakdowns).toBeUndefined();
+  });
+
+  it("does not retry a failed protected transaction as an independent write", async () => {
+    vi.stubEnv("MISSOURI_CAMPAIGN_FINANCE_ENABLED", "true");
+    vi.stubEnv("MISSOURI_REGISTERED_IE_ENABLED", "true");
+    const write = recordSnapshotWrite().mockRejectedValue(new Error("protected transaction failed"));
+    await expect(syncMissouriCandidateFinance(registeredIeInput())).rejects.toThrow("protected transaction failed");
+    expect(write).toHaveBeenCalledTimes(1);
+  });
+
   it.each([false, true])("keeps an operator-disabled manual due link disabled (receipt-only=%s)", async (receiptOnly) => {
     vi.stubEnv("MISSOURI_CAMPAIGN_FINANCE_ENABLED", "true");
     vi.stubEnv("MISSOURI_COMMITTEE_RECEIPTS_ENABLED", "true");

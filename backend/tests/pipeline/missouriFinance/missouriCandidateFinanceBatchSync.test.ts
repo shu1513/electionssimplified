@@ -15,6 +15,37 @@ function due(candidate: string, committee: string) {
 }
 
 describe("syncDueMissouriCandidateFinance", () => {
+  it("continues independent IE after recipient exports fail without refreshing old cash", async () => {
+    vi.stubEnv("MISSOURI_CAMPAIGN_FINANCE_ENABLED", "true");
+    vi.stubEnv("MISSOURI_CAMPAIGN_FINANCE_RAW_DATA_REFRESH_ENABLED", "true");
+    vi.stubEnv("MISSOURI_REGISTERED_IE_ENABLED", "true");
+    const sync = vi.fn().mockResolvedValue({ summaryWritten: false, registeredIeGroupsWritten: 1 });
+    const result = await syncDueMissouriCandidateFinance({
+      db: { query: vi.fn().mockResolvedValue({ rows: [due("c1", "C263985")] }), connect: vi.fn() } as never,
+      now: new Date("2026-10-15T00:00:00Z"), autoLinkMissingLinks: false,
+      acquireArtifactsFn: vi.fn().mockRejectedValue(new Error("recipient export unavailable")),
+      acquireOutsideArtifactsFn: vi.fn().mockResolvedValue({}) as never,
+      syncCandidateFn: sync as never, session: {} as never,
+    });
+    expect(sync).toHaveBeenCalledWith(expect.objectContaining({ directArtifactsUnavailable: true, receiptArtifacts: null }));
+    expect(result).toMatchObject({ syncedCandidateCount: 1, failedCandidateCount: 0 });
+  });
+
+  it("marks both outside readers unavailable after a failed fresh annual acquisition", async () => {
+    vi.stubEnv("MISSOURI_CAMPAIGN_FINANCE_ENABLED", "true");
+    vi.stubEnv("MISSOURI_CAMPAIGN_FINANCE_RAW_DATA_REFRESH_ENABLED", "true");
+    vi.stubEnv("MISSOURI_REGISTERED_IE_ENABLED", "true");
+    const sync = vi.fn().mockResolvedValue({});
+    await syncDueMissouriCandidateFinance({
+      db: { query: vi.fn().mockResolvedValue({ rows: [due("c1", "C263985")] }), connect: vi.fn() } as never,
+      now: new Date("2026-10-15T00:00:00Z"), autoLinkMissingLinks: false,
+      acquireArtifactsFn: vi.fn().mockResolvedValue({}) as never,
+      acquireOutsideArtifactsFn: vi.fn().mockRejectedValue(new Error("annual source unavailable")),
+      syncCandidateFn: sync as never, session: {} as never,
+    });
+    expect(sync).toHaveBeenCalledWith(expect.objectContaining({ outsideArtifacts: null, registeredIeArtifacts: null }));
+  });
+
   it("passes independent receipt availability through when explicitly enabled", async () => {
     vi.stubEnv("MISSOURI_CAMPAIGN_FINANCE_ENABLED", "true");
     vi.stubEnv("MISSOURI_CAMPAIGN_FINANCE_RAW_DATA_REFRESH_ENABLED", "true");

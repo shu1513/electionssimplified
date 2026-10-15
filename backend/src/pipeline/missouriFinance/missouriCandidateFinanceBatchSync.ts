@@ -1,6 +1,6 @@
 import type { Pool, PoolClient } from "pg";
 
-import { isMissouriCampaignFinanceRawDataRefreshEnabled, isMissouriCommitteeReceiptsEnabled } from "../../config/featureFlags.js";
+import { isMissouriCampaignFinanceRawDataRefreshEnabled, isMissouriCommitteeReceiptsEnabled, isMissouriRegisteredIeEnabled } from "../../config/featureFlags.js";
 import {
   autoLinkMissingMissouriCandidateFinanceLinks,
   listMissouriCandidateElectionsMissingFinanceLinks,
@@ -141,11 +141,20 @@ export async function syncDueMissouriCandidateFinance(
   for (const row of due.rows) {
     try {
       let directArtifactsUnavailable = false;
+      let receiptArtifactsUnavailable = false;
       if (rawDataRefreshEnabled) {
-        const acquired = await acquire({ mecid: row.committeeId, year: row.electionYear, cacheDir: input.cacheDir, session, now });
-        if (acquired.directArtifactsAvailable === false) {
+        try {
+          const acquired = await acquire({ mecid: row.committeeId, year: row.electionYear, cacheDir: input.cacheDir, session, now });
+          if (acquired.directArtifactsAvailable === false) {
+            directArtifactsUnavailable = true;
+            if (!isMissouriCommitteeReceiptsEnabled() && !isMissouriRegisteredIeEnabled()) throw new Error(acquired.directArtifactsSkippedReason);
+          }
+        } catch (error) {
+          if (!isMissouriRegisteredIeEnabled()) throw error;
+          // The independently saved profile can establish IE cycle bounds even
+          // when receipt/direct exports fail. Never relabel old cash as fresh.
           directArtifactsUnavailable = true;
-          if (!isMissouriCommitteeReceiptsEnabled()) throw new Error(acquired.directArtifactsSkippedReason);
+          receiptArtifactsUnavailable = true;
         }
       }
       const result = await sync({
@@ -168,8 +177,9 @@ export async function syncDueMissouriCandidateFinance(
         now,
         dryRun,
         directArtifactsUnavailable,
+        ...(receiptArtifactsUnavailable ? { receiptArtifacts: null } : {}),
         ...(rawDataRefreshEnabled && outsideAvailableByYear.get(row.electionYear) === false
-          ? { outsideArtifacts: null }
+          ? { outsideArtifacts: null, registeredIeArtifacts: null }
           : {}),
         ...(rawDataRefreshEnabled && outsideAvailableByYear.get(row.electionYear) === true
           ? {
