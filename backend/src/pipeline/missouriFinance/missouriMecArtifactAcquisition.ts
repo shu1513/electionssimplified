@@ -8,7 +8,7 @@ import {
   type MissouriMecResponse,
   type MissouriMecSession,
 } from "./missouriMecClient.js";
-import { storeMissouriMecArtifact, storeMissouriMecCandidateArtifactBundle, storeMissouriMecOutsideSpendingArtifacts } from "./missouriMecArtifactCache.js";
+import { storeMissouriMecArtifact, storeMissouriMecCandidateArtifactBundle, storeMissouriMecCommitteeReceiptArtifactBundle, storeMissouriMecOutsideSpendingArtifacts } from "./missouriMecArtifactCache.js";
 import {
   MISSOURI_MEC_CONTRIBUTION_EXPORT_HEADER,
   MISSOURI_MEC_EXPENDITURE_EXPORT_HEADER,
@@ -335,13 +335,28 @@ export async function acquireMissouriMecOutsideSpendingArtifacts(input: {
   };
 }
 
+export type MissouriMecCandidateFinanceArtifactAcquisitionResult = {
+  mecid: string;
+  year: number;
+  reportCount: number;
+  contributionCount: number;
+  receiptArtifactsAvailable: true;
+} & ({
+  directArtifactsAvailable: true;
+  expenditureCount: number;
+} | {
+  directArtifactsAvailable: false;
+  expenditureCount: null;
+  directArtifactsSkippedReason: "Missouri MEC direct artifacts unavailable after receipt capture";
+});
+
 export async function acquireMissouriMecCandidateFinanceArtifacts(input: {
   mecid: string;
   year: number;
   cacheDir?: string;
   session?: MissouriMecSession;
   now?: Date;
-}): Promise<{ mecid: string; year: number; reportCount: number; contributionCount: number; expenditureCount: number }> {
+}): Promise<MissouriMecCandidateFinanceArtifactAcquisitionResult> {
   const mecid = input.mecid.trim().toUpperCase();
   if (!/^[A-Z]\d{6}$/.test(mecid)) throw new Error(`Invalid Missouri MECID: ${input.mecid}`);
   if (!Number.isSafeInteger(input.year) || input.year < 2002 || input.year > 2100) throw new Error(`Invalid Missouri MEC year: ${input.year}`);
@@ -367,32 +382,48 @@ export async function acquireMissouriMecCandidateFinanceArtifacts(input: {
   }, { referer: committeeUrl }), "expanded report inventory");
   const inventory = safeReportInventory(reportHtml);
   const contributions = await fetchTransactionExport({ session, mecid, year: input.year, mode: "contributions" });
-  const expenditures = await fetchTransactionExport({ session, mecid, year: input.year, mode: "expenditures" });
-
-  const closingInventoryBody = await requireUnchangedClosingInventory({ session, committeeUrl, year: input.year, opening: inventory });
-
-  const artifacts = [
+  const receiptClosingInventoryBody = await requireUnchangedClosingInventory({ session, committeeUrl, year: input.year, opening: inventory });
+  const receiptArtifacts = [
     { type: "committee_info" as const, body: committeeHtml, sourceUrl: committeeUrl },
     { type: "report_inventory" as const, body: reportHtml, sourceUrl: committeeUrl },
     { type: "contributions" as const, ...contributions },
-    { type: "expenditures" as const, ...expenditures },
   ];
-  await storeMissouriMecCandidateArtifactBundle({
+  await storeMissouriMecCommitteeReceiptArtifactBundle({
     cacheDir: input.cacheDir,
     mecid,
     year: input.year,
     retrievedAt,
-    artifacts,
-    transactionResultBodies: { contributions: contributions.resultsBody, expenditures: expenditures.resultsBody },
-    closingInventoryBody,
+    artifacts: receiptArtifacts,
+    transactionResultBodies: { contributions: contributions.resultsBody },
+    closingInventoryBody: receiptClosingInventoryBody,
   });
-  return {
+  // Availability describes this acquisition, never a prior cache generation.
+  const receiptResult = {
     mecid,
     year: input.year,
     reportCount: inventory.length,
     contributionCount: transactionExportCount("contributions", contributions.body),
-    expenditureCount: transactionExportCount("expenditures", expenditures.body),
+    receiptArtifactsAvailable: true as const,
   };
+  try {
+    const expenditures = await fetchTransactionExport({ session, mecid, year: input.year, mode: "expenditures" });
+    const closingInventoryBody = await requireUnchangedClosingInventory({ session, committeeUrl, year: input.year, opening: inventory });
+    await storeMissouriMecCandidateArtifactBundle({
+      cacheDir: input.cacheDir,
+      mecid,
+      year: input.year,
+      retrievedAt,
+      artifacts: [...receiptArtifacts, { type: "expenditures" as const, ...expenditures }],
+      transactionResultBodies: { contributions: contributions.resultsBody, expenditures: expenditures.resultsBody },
+      closingInventoryBody,
+    });
+    return { ...receiptResult, directArtifactsAvailable: true,
+      expenditureCount: transactionExportCount("expenditures", expenditures.body) };
+  } catch {
+    // A separately committed receipt source remains usable; no raw source diagnostics escape.
+    return { ...receiptResult, directArtifactsAvailable: false, expenditureCount: null,
+      directArtifactsSkippedReason: "Missouri MEC direct artifacts unavailable after receipt capture" };
+  }
 }
 
 export async function acquireMissouriMecOutsideSpenderContributionArtifacts(input: {

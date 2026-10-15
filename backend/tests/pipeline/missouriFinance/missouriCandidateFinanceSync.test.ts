@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { resolveMissouriCandidateFinanceCycleWindow, syncMissouriCandidateFinance } from "../../../src/pipeline/missouriFinance/missouriCandidateFinanceSync.js";
 import type { MissouriCandidateFinanceArtifacts } from "../../../src/pipeline/missouriFinance/missouriCandidateFinanceSync.js";
@@ -27,7 +27,76 @@ const artifacts: MissouriCandidateFinanceArtifacts = {
   expenditureSourceUrl: "https://example.test/expenditures",
 };
 
+afterEach(() => vi.unstubAllEnvs());
+
+function receiptSyncInput() {
+  const source = { ...artifacts, contributionRows: [{ ...artifacts.contributionRows[0]!,
+    contributorCommittee: "Example Committee", contributorLastName: null, contributorFirstName: null }] };
+  return {
+    candidateId: "11111111-1111-4111-8111-111111111111", electionId: "22222222-2222-4222-8222-222222222222",
+    candidateName: "Jane Doe", electionYear: 2026, electionDate: "2026-11-03", officeScope: "state_lower",
+    officeName: "State Lower Chamber Legislator", district: "1",
+    committee: { committeeId: "C263985", committeeName: "Jane for Missouri", linkSource: "mec_portal" as const },
+    artifacts: source, outsideArtifacts: null,
+    receiptArtifacts: { committeeInfo: source.committeeInfo, inventory: source.inventory, contributionRows: source.contributionRows,
+      contributionSourceUrl: "https://www.mec.mo.gov/MEC/Campaign_Finance/CF12_ContrExpend.aspx",
+      sourceRetrievedAt: "2026-10-15T00:00:00.000Z", sourceSha256: "a".repeat(64), sourceByteSize: 100,
+      reportInventorySha256: "b".repeat(64) },
+    now: new Date("2026-10-15T01:00:00Z"),
+  };
+}
+
+function receiptDb() {
+  const linkId = "33333333-3333-4333-8333-333333333333";
+  const client = { query: vi.fn((sql: unknown) =>
+    String(sql).includes("INSERT INTO public.mo_candidate_finance_links") ||
+    String(sql).includes("WHERE id=$1::uuid AND election_year=$2 AND committee_id=$3")
+      ? Promise.resolve({ rows: [{ id: linkId }], rowCount: 1 })
+      : Promise.resolve({ rows: [], rowCount: 0 })), release: vi.fn() };
+  return { client, db: { query: vi.fn().mockResolvedValue({ rows: [] }), connect: vi.fn().mockResolvedValue(client) } };
+}
+
 describe("missouriCandidateFinanceSync", () => {
+  it("writes qualified receipts alone after unrelated expenditure data fails", async () => {
+    vi.stubEnv("MISSOURI_CAMPAIGN_FINANCE_ENABLED", "true");
+    vi.stubEnv("MISSOURI_COMMITTEE_RECEIPTS_ENABLED", "true");
+    const input = receiptSyncInput();
+    input.artifacts.expenditureRows = [{ ...artifacts.expenditureRows[0]!, expenditureType: "Unknown source kind" }];
+    const { db, client } = receiptDb();
+    const result = await syncMissouriCandidateFinance({ ...input, db: db as never });
+    expect(result).toMatchObject({ summaryWritten: false, directBreakdownsWritten: 0, aggregation: null,
+      committeeReceiptGroupsWritten: 1, committeeMonetaryReceipts: { status: "qualified", totalAmountCents: 12500 } });
+    const statements = client.query.mock.calls.map(([sql]) => String(sql));
+    expect(statements.some(sql => sql.includes("INSERT INTO public.mo_candidate_finance_committee_receipts"))).toBe(true);
+    expect(statements.some(sql => /(?:INSERT INTO|UPDATE|DELETE FROM) public\.mo_candidate_finance_(?:summaries|direct_breakdowns|outside_groups|outside_group_breakdowns)\b/.test(sql))).toBe(false);
+    expect(statements.filter(sql => sql === "BEGIN")).toHaveLength(1);
+    expect(statements).toContain("COMMIT");
+  });
+
+  it("shares the protected transaction when direct and receipt sources both qualify", async () => {
+    vi.stubEnv("MISSOURI_CAMPAIGN_FINANCE_ENABLED", "true");
+    vi.stubEnv("MISSOURI_COMMITTEE_RECEIPTS_ENABLED", "true");
+    const { db, client } = receiptDb();
+    const result = await syncMissouriCandidateFinance({ ...receiptSyncInput(), db: db as never });
+    expect(result).toMatchObject({ summaryWritten: true, committeeReceiptGroupsWritten: 1 });
+    const statements = client.query.mock.calls.map(([sql]) => String(sql));
+    expect(statements.filter(sql => sql === "BEGIN")).toHaveLength(1);
+    expect(statements.some(sql => sql.includes("INSERT INTO public.mo_candidate_finance_summaries"))).toBe(true);
+    expect(statements.some(sql => sql.includes("INSERT INTO public.mo_candidate_finance_committee_receipts"))).toBe(true);
+  });
+
+  it("dry-runs a receipt-only acquisition without loading stale direct money or writing", async () => {
+    vi.stubEnv("MISSOURI_CAMPAIGN_FINANCE_ENABLED", "true");
+    vi.stubEnv("MISSOURI_COMMITTEE_RECEIPTS_ENABLED", "true");
+    const db = { query: vi.fn(), connect: vi.fn() };
+    const result = await syncMissouriCandidateFinance({ ...receiptSyncInput(), db: db as never,
+      directArtifactsUnavailable: true, dryRun: true });
+    expect(result).toMatchObject({ aggregation: null, committeeReceiptGroupsWritten: 0,
+      committeeMonetaryReceipts: { status: "qualified", totalAmountCents: 12500 } });
+    expect(db.query).not.toHaveBeenCalled();
+    expect(db.connect).not.toHaveBeenCalled();
+  });
+
   it("starts the general cycle the day after the same-year primary", () => {
     expect(resolveMissouriCandidateFinanceCycleWindow({ electionDate: "2026-11-03", committeeInfo: artifacts.committeeInfo })).toEqual({
       cycleStart: "2026-08-05", cycleEnd: "2026-11-03", primaryElectionDate: "2026-08-04",

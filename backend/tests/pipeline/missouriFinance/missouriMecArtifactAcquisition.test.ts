@@ -1,4 +1,4 @@
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -10,9 +10,11 @@ import {
 } from "../../../src/pipeline/missouriFinance/missouriMecArtifactAcquisition.js";
 import {
   readMissouriMecCandidateFinanceArtifacts,
+  readMissouriMecCommitteeReceiptArtifacts,
   readMissouriMecOutsideSpenderContributionArtifacts,
   readMissouriMecOutsideSpendingArtifacts,
 } from "../../../src/pipeline/missouriFinance/missouriMecArtifactCache.js";
+import * as artifactCache from "../../../src/pipeline/missouriFinance/missouriMecArtifactCache.js";
 import type { MissouriMecResponse, MissouriMecSession } from "../../../src/pipeline/missouriFinance/missouriMecClient.js";
 import { MISSOURI_MEC_CONTRIBUTION_EXPORT_HEADER, MISSOURI_MEC_EXPENDITURE_EXPORT_HEADER } from "../../../src/pipeline/missouriFinance/missouriMecParsers.js";
 
@@ -44,7 +46,7 @@ function emptyTransactionExportRedirect(filename: string): MissouriMecResponse {
 }
 
 const newTempDirs: string[] = [];
-afterEach(async () => { await Promise.all(newTempDirs.splice(0).map((path) => rm(path, { recursive: true, force: true }))); });
+afterEach(async () => { vi.restoreAllMocks(); await Promise.all(newTempDirs.splice(0).map((path) => rm(path, { recursive: true, force: true }))); });
 async function candidateCacheDir() {
   const dir = await mkdtemp(join(tmpdir(), "mo-acquire-qualified-")); newTempDirs.push(dir); return dir;
 }
@@ -62,6 +64,8 @@ type SessionOptions = {
   results?: Partial<Record<TransactionMode, string>>;
   exports?: Partial<Record<TransactionMode, MissouriMecResponse>>;
   closingInventory?: string;
+  directClosingInventory?: string;
+  expenditureError?: Error;
   profile?: string;
 };
 function candidateSession(options: SessionOptions = {}) {
@@ -78,9 +82,13 @@ function candidateSession(options: SessionOptions = {}) {
     if (url.includes("CommInfo.aspx")) {
       if (fields.__EVENTTARGET?.endsWith("lbtnReports")) return response(reports);
       inventoryReads += 1;
-      return response(inventoryReads === 1 ? inventory : options.closingInventory ?? inventory);
+      return response(inventoryReads === 1 ? inventory : inventoryReads === 3
+        ? options.directClosingInventory ?? options.closingInventory ?? inventory : options.closingInventory ?? inventory);
     }
-    if (url.includes("CF12_ContrExpendResults.aspx")) return options.exports?.[mode] ?? response(exportTable(mode, 1), "application/vnd.ms-excel");
+    if (url.includes("CF12_ContrExpendResults.aspx")) {
+      if (mode === "expenditures" && options.expenditureError) throw options.expenditureError;
+      return options.exports?.[mode] ?? response(exportTable(mode, 1), "application/vnd.ms-excel");
+    }
     if (fields.__EVENTTARGET?.endsWith("lbtnContr")) mode = "contributions";
     if (fields.__EVENTTARGET?.endsWith("lbtnExpend")) mode = "expenditures";
     if (fields["ctl00$ctl00$ContentPlaceHolder$ContentPlaceHolder1$btnSearch"]) return response("CF12_ContrExpendResults.aspx");
@@ -93,14 +101,18 @@ function acquireCandidate(cacheDir: string, options: SessionOptions = {}) {
     session: candidateSession(options), now: new Date("2026-08-19T00:00:00Z") });
 }
 
+const partialResult = { receiptArtifactsAvailable: true, directArtifactsAvailable: false, expenditureCount: null,
+  directArtifactsSkippedReason: "Missouri MEC direct artifacts unavailable after receipt capture" };
+
 describe("acquireMissouriMecCandidateFinanceArtifacts", () => {
   it("reconciles both Full Disclosure counts and closes inventory before installing", async () => {
     const cacheDir = await candidateCacheDir();
     const session = candidateSession();
     expect(await acquireMissouriMecCandidateFinanceArtifacts({ mecid: "C263985", year: 2026, cacheDir, session }))
-      .toEqual({ mecid: "C263985", year: 2026, reportCount: 1, contributionCount: 1, expenditureCount: 1 });
-    expect(session.get).toHaveBeenCalledTimes(6);
-    expect(session.postForm).toHaveBeenCalledTimes(12);
+      .toEqual({ mecid: "C263985", year: 2026, reportCount: 1, contributionCount: 1, expenditureCount: 1,
+        receiptArtifactsAvailable: true, directArtifactsAvailable: true });
+    expect(session.get).toHaveBeenCalledTimes(7);
+    expect(session.postForm).toHaveBeenCalledTimes(14);
     expect(session.postForm).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({
       "ctl00$ctl00$ContentPlaceHolder$ContentPlaceHolder1$txtCommID": "C263985",
       "ctl00$ctl00$ContentPlaceHolder$ContentPlaceHolder1$ddYear": "2026",
@@ -112,22 +124,37 @@ describe("acquireMissouriMecCandidateFinanceArtifacts", () => {
 
   it.each(["contributions", "expenditures"] as const)("rejects missing %s Full Disclosure count", async (mode) => {
     const cacheDir = await candidateCacheDir();
-    await expect(acquireCandidate(cacheDir, { results: { [mode]: `${state}<span>48 Hour > $5000 Reports (1)</span>` } }))
-      .rejects.toThrow("Missing Missouri MEC full-disclosure result count");
+    const pending = acquireCandidate(cacheDir, { results: { [mode]: `${state}<span>48 Hour > $5000 Reports (1)</span>` } });
+    if (mode === "contributions") await expect(pending).rejects.toThrow("Missing Missouri MEC full-disclosure result count");
+    else expect(await pending).toMatchObject(partialResult);
   });
 
   it.each(["contributions", "expenditures"] as const)("rejects contradictory %s advertised counts", async (mode) => {
     const cacheDir = await candidateCacheDir();
-    await expect(acquireCandidate(cacheDir, { results: { [mode]: `${state}<span>Full Disclosure Reports (1)</span><span>Full Disclosure Reports (2)</span>` } }))
-      .rejects.toThrow("Conflicting Missouri MEC full-disclosure result counts");
+    const pending = acquireCandidate(cacheDir, { results: { [mode]: `${state}<span>Full Disclosure Reports (1)</span><span>Full Disclosure Reports (2)</span>` } });
+    if (mode === "contributions") await expect(pending).rejects.toThrow("Conflicting Missouri MEC full-disclosure result counts");
+    else expect(await pending).toMatchObject(partialResult);
   });
 
   it.each(["contributions", "expenditures"] as const)("rejects short %s exports and keeps previous complete source", async (mode) => {
     const cacheDir = await candidateCacheDir();
     await acquireCandidate(cacheDir);
     const before = await readMissouriMecCandidateFinanceArtifacts({ cacheDir, mecid: "C263985", year: 2026 });
-    await expect(acquireCandidate(cacheDir, { exports: { [mode]: response(exportTable(mode, 0), "application/vnd.ms-excel") } }))
-      .rejects.toThrow("Missouri MEC transaction export count mismatch");
+    const receiptsBefore = await readMissouriMecCommitteeReceiptArtifacts({ cacheDir, mecid: "C263985", year: 2026 });
+    const pointer = join(cacheDir, "C263985", "2026", "candidate-current.json");
+    const pointerBefore = await readFile(pointer, "utf8");
+    const receiptPointer = join(cacheDir, "C263985", "2026", "committee-receipts-current.json");
+    const receiptPointerBefore = await readFile(receiptPointer, "utf8");
+    const pending = acquireCandidate(cacheDir, { exports: { [mode]: response(exportTable(mode, 0), "application/vnd.ms-excel") } });
+    if (mode === "contributions") {
+      await expect(pending).rejects.toThrow("Missouri MEC transaction export count mismatch");
+      expect(await readFile(receiptPointer, "utf8")).toBe(receiptPointerBefore);
+    } else {
+      expect(await pending).toMatchObject(partialResult);
+      expect(await readFile(receiptPointer, "utf8")).not.toBe(receiptPointerBefore);
+    }
+    expect(await readFile(pointer, "utf8")).toBe(pointerBefore);
+    expect(await readMissouriMecCommitteeReceiptArtifacts({ cacheDir, mecid: "C263985", year: 2026 })).toEqual(receiptsBefore);
     expect(await readMissouriMecCandidateFinanceArtifacts({ cacheDir, mecid: "C263985", year: 2026 })).toEqual(before);
   });
 
@@ -145,7 +172,7 @@ describe("acquireMissouriMecCandidateFinanceArtifacts", () => {
       (shape === "grid" ? '<table id="ContentPlaceHolder_grvExpendSearch"></table>' : "");
     const exported = emptyTransactionExportRedirect("Expenditure_Search.xls");
     if (shape === "wrong_redirect") exported.redirectLocation = "/unexpected";
-    await expect(acquireCandidate(cacheDir, { results: { expenditures: results }, exports: { expenditures: exported } })).rejects.toThrow();
+    expect(await acquireCandidate(cacheDir, { results: { expenditures: results }, exports: { expenditures: exported } })).toMatchObject(partialResult);
   });
 
   it("rejects a zero count contradicting a nonempty valid export", async () => {
@@ -163,6 +190,49 @@ describe("acquireMissouriMecCandidateFinanceArtifacts", () => {
     await expect(acquireCandidate(cacheDir, { closingInventory: changed }))
       .rejects.toThrow("Missouri MEC report inventory changed during acquisition");
     expect(await readMissouriMecCandidateFinanceArtifacts({ cacheDir, mecid: "C263985", year: 2026 })).toEqual(before);
+  });
+
+  it.each(["transport", "malformed_export", "closing_inventory", "full_publish"] as const)(
+    "keeps freshly qualified receipts and the prior direct pointer after %s failure", async (failure) => {
+      const cacheDir = await candidateCacheDir();
+      await acquireCandidate(cacheDir);
+      const before = await readMissouriMecCandidateFinanceArtifacts({ cacheDir, mecid: "C263985", year: 2026 });
+      const directPointer = join(cacheDir, "C263985", "2026", "candidate-current.json");
+      const pointerBefore = await readFile(directPointer, "utf8");
+      const receiptPointer = join(cacheDir, "C263985", "2026", "committee-receipts-current.json");
+      const receiptBefore = await readFile(receiptPointer, "utf8");
+      const options: SessionOptions = { exports: { contributions: response(exportTable("contributions", 1).replace("$10.00", "$20.00"), "application/vnd.ms-excel") } };
+      if (failure === "transport") options.expenditureError = new Error("SYNTHETIC_PRIVATE_ERROR");
+      if (failure === "malformed_export") options.exports!.expenditures = response(exportTable("expenditures", 1).replace("$10.00", "SYNTHETIC_PRIVATE_AMOUNT"), "application/vnd.ms-excel");
+      if (failure === "closing_inventory") options.directClosingInventory = inventory.replace('data-CPID="1"', 'data-CPID="2"');
+      if (failure === "full_publish") vi.spyOn(artifactCache, "storeMissouriMecCandidateArtifactBundle").mockRejectedValueOnce(new Error("SYNTHETIC_PRIVATE_IO_ERROR"));
+      expect(await acquireCandidate(cacheDir, options)).toEqual({ mecid: "C263985", year: 2026, reportCount: 1, contributionCount: 1, ...partialResult });
+      expect(await readFile(directPointer, "utf8")).toBe(pointerBefore);
+      expect(await readFile(receiptPointer, "utf8")).not.toBe(receiptBefore);
+      expect(await readMissouriMecCandidateFinanceArtifacts({ cacheDir, mecid: "C263985", year: 2026 })).toEqual(before);
+      const receipts = await readMissouriMecCommitteeReceiptArtifacts({ cacheDir, mecid: "C263985", year: 2026 });
+      expect(receipts.contributionRows.map((row) => row.amountCents)).toEqual([2000]);
+    });
+
+  it("returns partial receipt availability on a fresh cache with no direct artifacts", async () => {
+    const cacheDir = await candidateCacheDir();
+    expect(await acquireCandidate(cacheDir, { expenditureError: new Error("private transport error") })).toMatchObject(partialResult);
+    expect((await readMissouriMecCommitteeReceiptArtifacts({ cacheDir, mecid: "C263985", year: 2026 })).contributionRows).toHaveLength(1);
+    await expect(readMissouriMecCandidateFinanceArtifacts({ cacheDir, mecid: "C263985", year: 2026 })).rejects.toThrow();
+  });
+
+  it("throws on receipt publication failure even when an older qualified receipt exists", async () => {
+    const cacheDir = await candidateCacheDir();
+    await acquireCandidate(cacheDir);
+    const receiptPointer = join(cacheDir, "C263985", "2026", "committee-receipts-current.json");
+    const directPointer = join(cacheDir, "C263985", "2026", "candidate-current.json");
+    const before = await Promise.all([readFile(receiptPointer, "utf8"), readFile(directPointer, "utf8")]);
+    vi.spyOn(artifactCache, "storeMissouriMecCommitteeReceiptArtifactBundle").mockRejectedValueOnce(new Error("receipt publication failed"));
+    const session = candidateSession();
+    await expect(acquireMissouriMecCandidateFinanceArtifacts({ mecid: "C263985", year: 2026, cacheDir, session })).rejects.toThrow("receipt publication failed");
+    expect(await Promise.all([readFile(receiptPointer, "utf8"), readFile(directPointer, "utf8")])).toEqual(before);
+    expect(session.get).toHaveBeenCalledTimes(4);
+    expect(session.postForm).toHaveBeenCalledTimes(8);
   });
 
   it("does not leak malformed source cells through export errors", async () => {

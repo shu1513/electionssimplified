@@ -15,6 +15,41 @@ function due(candidate: string, committee: string) {
 }
 
 describe("syncDueMissouriCandidateFinance", () => {
+  it("passes independent receipt availability through when explicitly enabled", async () => {
+    vi.stubEnv("MISSOURI_CAMPAIGN_FINANCE_ENABLED", "true");
+    vi.stubEnv("MISSOURI_CAMPAIGN_FINANCE_RAW_DATA_REFRESH_ENABLED", "true");
+    vi.stubEnv("MISSOURI_COMMITTEE_RECEIPTS_ENABLED", "true");
+    const sync = vi.fn().mockResolvedValue({ summaryWritten: false, committeeReceiptGroupsWritten: 1 });
+    const result = await syncDueMissouriCandidateFinance({
+      db: { query: vi.fn().mockResolvedValue({ rows: [due("c1", "C263985")] }), connect: vi.fn() } as never,
+      now: new Date("2026-10-15T00:00:00Z"), autoLinkMissingLinks: false,
+      acquireArtifactsFn: vi.fn().mockResolvedValue({ receiptArtifactsAvailable: true, directArtifactsAvailable: false,
+        expenditureCount: null, directArtifactsSkippedReason: "Missouri MEC direct artifacts unavailable after receipt capture" }) as never,
+      acquireOutsideArtifactsFn: vi.fn().mockResolvedValue({}) as never,
+      syncCandidateFn: sync as never, session: {} as never,
+    });
+    expect(sync).toHaveBeenCalledWith(expect.objectContaining({ directArtifactsUnavailable: true }));
+    expect(result).toMatchObject({ syncedCandidateCount: 1, failedCandidateCount: 0 });
+  });
+
+  it("does not refresh a stale direct snapshot after only receipts were captured", async () => {
+    vi.stubEnv("MISSOURI_CAMPAIGN_FINANCE_ENABLED", "true");
+    vi.stubEnv("MISSOURI_CAMPAIGN_FINANCE_RAW_DATA_REFRESH_ENABLED", "true");
+    const query = vi.fn().mockResolvedValue({ rows: [due("c1", "C263985")] });
+    const sync = vi.fn();
+    const result = await syncDueMissouriCandidateFinance({
+      db: { query, connect: vi.fn() } as never,
+      now: new Date("2026-10-15T00:00:00Z"), autoLinkMissingLinks: false,
+      acquireArtifactsFn: vi.fn().mockResolvedValue({ receiptArtifactsAvailable: true,
+        directArtifactsAvailable: false, expenditureCount: null,
+        directArtifactsSkippedReason: "Missouri MEC direct artifacts unavailable after receipt capture" }) as never,
+      acquireOutsideArtifactsFn: vi.fn().mockResolvedValue({}) as never,
+      syncCandidateFn: sync as never, session: {} as never,
+    });
+    expect(sync).not.toHaveBeenCalled();
+    expect(result).toMatchObject({ syncedCandidateCount: 0, failedCandidateCount: 1 });
+  });
+
   it("refreshes then syncs each due candidate independently", async () => {
     vi.stubEnv("MISSOURI_CAMPAIGN_FINANCE_ENABLED", "true");
     vi.stubEnv("MISSOURI_CAMPAIGN_FINANCE_RAW_DATA_REFRESH_ENABLED", "true");

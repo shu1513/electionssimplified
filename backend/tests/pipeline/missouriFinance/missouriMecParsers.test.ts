@@ -193,6 +193,10 @@ describe("missouriMecParsers", () => {
       trailingCommitteeField: "Candidate",
     })]);
     expect(parseMissouriMecContributionExport(contributions)[0]).not.toHaveProperty("address1");
+    for (const malformed of ["$1,23.45", "$12,34,567.89", "$1,.00"]) {
+      expect(() => parseMissouriMecContributionExport(contributions.replace("$1,234.56", malformed)))
+        .toThrow("Invalid Missouri MEC contribution amount");
+    }
 
     const expenditures = `<table><tr>${[
       "MECID", "Committee Name", "Report", "Expenditure-Last Name", "Expenditure-First Name", "Expenditure-Company",

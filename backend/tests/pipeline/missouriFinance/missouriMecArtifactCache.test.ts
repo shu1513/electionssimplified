@@ -6,9 +6,11 @@ import { describe, expect, it } from "vitest";
 import {
   readMissouriMecArtifact,
   readMissouriMecCandidateFinanceArtifacts,
+  readMissouriMecCommitteeReceiptArtifacts,
   readMissouriMecOutsideSpendingArtifacts,
   storeMissouriMecArtifact,
   storeMissouriMecCandidateArtifactBundle,
+  storeMissouriMecCommitteeReceiptArtifactBundle,
   storeMissouriMecOutsideSpendingArtifacts,
 } from "../../../src/pipeline/missouriFinance/missouriMecArtifactCache.js";
 import { MISSOURI_MEC_CONTRIBUTION_EXPORT_HEADER, MISSOURI_MEC_EXPENDITURE_EXPORT_HEADER } from "../../../src/pipeline/missouriFinance/missouriMecParsers.js";
@@ -33,6 +35,54 @@ function candidateBundle(cacheDir: string, date = "2026-10-15T12:00:00Z") {
 }
 
 describe("missouriMecArtifactCache", () => {
+  it("qualifies receipts without an expenditure source and preserves them after a failed full refresh", async () => {
+    const cacheDir = await mkdtemp(join(tmpdir(), "mo-mec-receipts-"));
+    const bundle = candidateBundle(cacheDir);
+    await storeMissouriMecCommitteeReceiptArtifactBundle({ ...bundle,
+      artifacts: bundle.artifacts.filter((artifact) => artifact.type !== "expenditures"),
+      transactionResultBodies: { contributions: bundle.transactionResultBodies.contributions },
+    });
+    bundle.artifacts[3]!.body = "Unavailable expenditure source";
+    await expect(storeMissouriMecCandidateArtifactBundle(bundle)).rejects.toThrow("failed source qualification");
+    await expect(readMissouriMecCommitteeReceiptArtifacts(bundle)).resolves.toMatchObject({
+      contributionRows: [], sourceRetrievedAt: bundle.retrievedAt.toISOString(),
+    });
+    await expect(readMissouriMecCandidateFinanceArtifacts(bundle)).rejects.toThrow("Missing Missouri MEC artifact");
+  });
+
+  it("requires independent receipt controls and preserves their prior pointer on failure", async () => {
+    const cacheDir = await mkdtemp(join(tmpdir(), "mo-mec-receipts-"));
+    const full = candidateBundle(cacheDir);
+    await storeMissouriMecCandidateArtifactBundle(full);
+    await expect(readMissouriMecCommitteeReceiptArtifacts(full)).rejects.toThrow("Missing qualified Missouri MEC committee receipt source");
+    const receipts = { ...full, artifacts: full.artifacts.filter((artifact) => artifact.type !== "expenditures"),
+      transactionResultBodies: { contributions: full.transactionResultBodies.contributions } };
+    await storeMissouriMecCommitteeReceiptArtifactBundle(receipts);
+    const pointerPath = join(cacheDir, "C263985/2026/committee-receipts-current.json");
+    const before = await readFile(pointerPath, "utf8");
+    await expect(storeMissouriMecCommitteeReceiptArtifactBundle({ ...receipts,
+      transactionResultBodies: { contributions: "Full Disclosure Reports (1)" },
+    })).rejects.toThrow("failed source qualification");
+    expect(await readFile(pointerPath, "utf8")).toBe(before);
+    const pointer = JSON.parse(before) as { generation: string };
+    await writeFile(join(cacheDir, "C263985/2026/committee-receipts-generations", pointer.generation, "closing_inventory.html"), "missing inventory");
+    await expect(readMissouriMecCommitteeReceiptArtifacts(receipts)).rejects.toThrow("failed source qualification");
+  });
+
+  it("rejects an invalid source observation timestamp", async () => {
+    const cacheDir = await mkdtemp(join(tmpdir(), "mo-mec-receipts-"));
+    const full = candidateBundle(cacheDir);
+    await storeMissouriMecCommitteeReceiptArtifactBundle({ ...full,
+      artifacts: full.artifacts.filter((artifact) => artifact.type !== "expenditures"),
+      transactionResultBodies: { contributions: full.transactionResultBodies.contributions },
+    });
+    const pointer = JSON.parse(await readFile(join(cacheDir, "C263985/2026/committee-receipts-current.json"), "utf8")) as { generation: string };
+    const manifestPath = join(cacheDir, "C263985/2026/committee-receipts-generations", pointer.generation, "C263985/2026/contributions.xls.html.manifest.json");
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+    await writeFile(manifestPath, JSON.stringify({ ...manifest, retrievedAt: "invalid" }));
+    await expect(readMissouriMecCommitteeReceiptArtifacts(full)).rejects.toThrow("Stale or invalid Missouri MEC artifact");
+  });
+
   it("publishes one private immutable candidate generation and ignores later legacy partial writes", async () => {
     const cacheDir = await mkdtemp(join(tmpdir(), "mo-mec-bundle-"));
     const bundle = candidateBundle(cacheDir);

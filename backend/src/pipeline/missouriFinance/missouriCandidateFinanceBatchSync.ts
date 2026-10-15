@@ -1,6 +1,6 @@
 import type { Pool, PoolClient } from "pg";
 
-import { isMissouriCampaignFinanceRawDataRefreshEnabled } from "../../config/featureFlags.js";
+import { isMissouriCampaignFinanceRawDataRefreshEnabled, isMissouriCommitteeReceiptsEnabled } from "../../config/featureFlags.js";
 import {
   autoLinkMissingMissouriCandidateFinanceLinks,
   listMissouriCandidateElectionsMissingFinanceLinks,
@@ -140,8 +140,13 @@ export async function syncDueMissouriCandidateFinance(
   const results: MissouriCandidateFinanceBatchSyncResult["results"] = [];
   for (const row of due.rows) {
     try {
+      let directArtifactsUnavailable = false;
       if (rawDataRefreshEnabled) {
-        await acquire({ mecid: row.committeeId, year: row.electionYear, cacheDir: input.cacheDir, session, now });
+        const acquired = await acquire({ mecid: row.committeeId, year: row.electionYear, cacheDir: input.cacheDir, session, now });
+        if (acquired.directArtifactsAvailable === false) {
+          directArtifactsUnavailable = true;
+          if (!isMissouriCommitteeReceiptsEnabled()) throw new Error(acquired.directArtifactsSkippedReason);
+        }
       }
       const result = await sync({
         db: input.db,
@@ -162,6 +167,7 @@ export async function syncDueMissouriCandidateFinance(
         cacheDir: input.cacheDir,
         now,
         dryRun,
+        directArtifactsUnavailable,
         ...(rawDataRefreshEnabled && outsideAvailableByYear.get(row.electionYear) === false
           ? { outsideArtifacts: null }
           : {}),

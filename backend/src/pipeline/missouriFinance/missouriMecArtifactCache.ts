@@ -176,6 +176,8 @@ async function readArtifactFromRoot(input: {
   if (
     manifest.version !== MISSOURI_MEC_ARTIFACT_SCHEMA_VERSION ||
     manifest.parserVersion !== MISSOURI_MEC_PARSER_VERSION ||
+    typeof manifest.retrievedAt !== "string" ||
+    !Number.isFinite(Date.parse(manifest.retrievedAt)) ||
     !sameKey(manifest.key, key) ||
     manifest.sha256 !== sha256 ||
     manifest.byteSize !== bytes.byteLength ||
@@ -187,23 +189,26 @@ async function readArtifactFromRoot(input: {
 }
 
 const CANDIDATE_BUNDLE_TYPES = ["committee_info", "report_inventory", "contributions", "expenditures"] as const;
+const RECEIPT_BUNDLE_TYPES = ["committee_info", "report_inventory", "contributions"] as const;
 type CandidateBundleType = typeof CANDIDATE_BUNDLE_TYPES[number];
 type CandidateBundleArtifact = { type: CandidateBundleType; body: string; sourceUrl: string };
 type CandidateBundleControls = {
-  transactionResultBodies: { contributions: string; expenditures: string };
+  transactionResultBodies: { contributions: string; expenditures?: string };
   closingInventoryBody: string;
 };
 const CONTROL_FILES = ["contribution_results.html", "expenditure_results.html", "closing_inventory.html"] as const;
+const RECEIPT_CONTROL_FILES = ["contribution_results.html", "closing_inventory.html"] as const;
 
-function candidateBundlePaths(input: { cacheDir?: string; mecid: string; year: number }) {
+function candidateBundlePaths(input: { cacheDir?: string; mecid: string; year: number }, receiptsOnly = false) {
   const key = normalizeKey({ type: "committee_info", mecid: input.mecid, year: input.year });
   if (isOutsideArtifactKey(key)) throw new Error("Invalid Missouri MEC candidate bundle key");
   const base = resolve(input.cacheDir ?? DEFAULT_MISSOURI_MEC_CACHE_DIR, key.mecid, String(key.year));
-  return { base, pointer: resolve(base, "candidate-current.json"), generations: resolve(base, "candidate-generations") };
+  const name = receiptsOnly ? "committee-receipts" : "candidate";
+  return { base, pointer: resolve(base, `${name}-current.json`), generations: resolve(base, `${name}-generations`) };
 }
 
-async function publishedCandidateRoot(input: { cacheDir?: string; mecid: string; year: number }): Promise<string | null> {
-  const paths = candidateBundlePaths(input);
+async function publishedCandidateRoot(input: { cacheDir?: string; mecid: string; year: number }, receiptsOnly = false): Promise<string | null> {
+  const paths = candidateBundlePaths(input, receiptsOnly);
   let raw: string;
   try { raw = await readFile(paths.pointer, "utf8"); }
   catch (error) {
@@ -219,17 +224,18 @@ async function publishedCandidateRoot(input: { cacheDir?: string; mecid: string;
 
 function qualifyCandidateBundle(input: {
   mecid: string; artifacts: readonly CandidateBundleArtifact[];
-} & CandidateBundleControls): void {
+} & CandidateBundleControls, receiptsOnly = false): void {
   try {
-    if (input.artifacts.length !== 4 || new Set(input.artifacts.map((artifact) => artifact.type)).size !== 4) throw new Error();
+    const types = receiptsOnly ? RECEIPT_BUNDLE_TYPES : CANDIDATE_BUNDLE_TYPES;
+    if (input.artifacts.length !== types.length || new Set(input.artifacts.map((artifact) => artifact.type)).size !== types.length) throw new Error();
     const bodies = new Map(input.artifacts.map((artifact) => [artifact.type, artifact.body]));
-    for (const type of CANDIDATE_BUNDLE_TYPES) if (!bodies.has(type)) throw new Error();
+    for (const type of types) if (!bodies.has(type)) throw new Error();
     const profile = parseMissouriMecCommitteeInfo(bodies.get("committee_info")!);
     const contributions = parseMissouriMecContributionExport(bodies.get("contributions")!);
-    const expenditures = parseMissouriMecExpenditureExport(bodies.get("expenditures")!);
+    const expenditures = receiptsOnly ? [] : parseMissouriMecExpenditureExport(bodies.get("expenditures")!);
     if (profile.mecid !== input.mecid || [...contributions, ...expenditures].some((row) => row.mecid !== input.mecid)) throw new Error();
     if (contributions.length !== parseMissouriMecFullDisclosureCount(input.transactionResultBodies.contributions) ||
-      expenditures.length !== parseMissouriMecFullDisclosureCount(input.transactionResultBodies.expenditures)) throw new Error();
+      (!receiptsOnly && expenditures.length !== parseMissouriMecFullDisclosureCount(input.transactionResultBodies.expenditures!))) throw new Error();
     const canonical = (body: string) => parseMissouriMecReportInventory(body)
       .map((row) => JSON.stringify([row.reportId, row.report, row.dateFiled, row.isAmended, row.lineageKey])).sort();
     if (JSON.stringify(canonical(bodies.get("report_inventory")!)) !== JSON.stringify(canonical(input.closingInventoryBody))) throw new Error();
@@ -240,10 +246,29 @@ function qualifyCandidateBundle(input: {
 export async function storeMissouriMecCandidateArtifactBundle(input: {
   cacheDir?: string; mecid: string; year: number; retrievedAt: Date;
   artifacts: readonly CandidateBundleArtifact[];
-} & CandidateBundleControls): Promise<void> {
+  transactionResultBodies: { contributions: string; expenditures: string };
+  closingInventoryBody: string;
+}): Promise<void> {
+  return storeCandidateBundle(input, false);
+}
+
+/** A separately qualified receipt source survives an unavailable expenditure export. */
+export async function storeMissouriMecCommitteeReceiptArtifactBundle(input: {
+  cacheDir?: string; mecid: string; year: number; retrievedAt: Date;
+  artifacts: readonly { type: typeof RECEIPT_BUNDLE_TYPES[number]; body: string; sourceUrl: string }[];
+  transactionResultBodies: { contributions: string };
+  closingInventoryBody: string;
+}): Promise<void> {
+  return storeCandidateBundle(input, true);
+}
+
+async function storeCandidateBundle(input: {
+  cacheDir?: string; mecid: string; year: number; retrievedAt: Date;
+  artifacts: readonly CandidateBundleArtifact[];
+} & CandidateBundleControls, receiptsOnly: boolean): Promise<void> {
   const mecid = input.mecid.trim().toUpperCase();
-  const paths = candidateBundlePaths({ ...input, mecid });
-  qualifyCandidateBundle({ ...input, mecid });
+  const paths = candidateBundlePaths({ ...input, mecid }, receiptsOnly);
+  qualifyCandidateBundle({ ...input, mecid }, receiptsOnly);
   if (Number.isNaN(input.retrievedAt.getTime())) throw new Error("Invalid Missouri MEC artifact timestamp");
   const generation = randomUUID();
   const root = resolve(paths.generations, generation);
@@ -253,16 +278,18 @@ export async function storeMissouriMecCandidateArtifactBundle(input: {
       cacheDir: root, key: { type: artifact.type, mecid, year: input.year },
       sourceUrl: artifact.sourceUrl, body: artifact.body, retrievedAt: input.retrievedAt,
     });
-    const controls = [input.transactionResultBodies.contributions, input.transactionResultBodies.expenditures, input.closingInventoryBody];
+    const controls = receiptsOnly
+      ? [input.transactionResultBodies.contributions, input.closingInventoryBody]
+      : [input.transactionResultBodies.contributions, input.transactionResultBodies.expenditures!, input.closingInventoryBody];
     const files = [];
-    for (const [index, file] of CONTROL_FILES.entries()) {
+    for (const [index, file] of (receiptsOnly ? RECEIPT_CONTROL_FILES : CONTROL_FILES).entries()) {
       const body = controls[index]!;
       await writeFile(resolve(root, file), body, { encoding: "utf8", mode: 0o600, flag: "wx" });
       files.push({ file, sha256: createHash("sha256").update(body, "utf8").digest("hex"), byteSize: Buffer.byteLength(body, "utf8") });
     }
     await writeFile(resolve(root, "qualification.json"), JSON.stringify({ version: 1, files }), { encoding: "utf8", mode: 0o600, flag: "wx" });
     // Read the generation back before publishing; the current pointer remains untouched on any failure.
-    await readCandidateBundleAtRoot({ ...input, cacheDir: root, mecid }, true);
+    await readCandidateBundleAtRoot({ ...input, cacheDir: root, mecid }, true, receiptsOnly);
     await atomicWrite(paths.pointer, `${JSON.stringify({ version: 1, generation })}\n`, 0o600);
   } catch (error) {
     await rm(root, { recursive: true, force: true }).catch(() => {});
@@ -279,8 +306,10 @@ export async function readMissouriMecArtifact(input: { cacheDir?: string; key: M
   return readArtifactFromRoot({ ...input, cacheDir: root ?? input.cacheDir, key });
 }
 
-async function readCandidateBundleAtRoot(input: { cacheDir?: string; mecid: string; year: number }, qualified: boolean) {
-  const artifacts = await Promise.all(CANDIDATE_BUNDLE_TYPES.map((type) => readArtifactFromRoot({
+async function readCandidateBundleAtRoot(input: { cacheDir?: string; mecid: string; year: number }, qualified: boolean, receiptsOnly = false) {
+  const types = receiptsOnly ? RECEIPT_BUNDLE_TYPES : CANDIDATE_BUNDLE_TYPES;
+  const files = receiptsOnly ? RECEIPT_CONTROL_FILES : CONTROL_FILES;
+  const artifacts = await Promise.all(types.map((type) => readArtifactFromRoot({
     cacheDir: input.cacheDir, key: { type, mecid: input.mecid, year: input.year },
   })));
   if (qualified) {
@@ -289,8 +318,8 @@ async function readCandidateBundleAtRoot(input: { cacheDir?: string; mecid: stri
       const metadata = JSON.parse(await readFile(resolve(root, "qualification.json"), "utf8")) as {
         version: number; files: { file: string; sha256: string; byteSize: number }[];
       };
-      if (metadata.version !== 1 || metadata.files.length !== CONTROL_FILES.length) throw new Error();
-      const controls = await Promise.all(CONTROL_FILES.map(async (file, index) => {
+      if (metadata.version !== 1 || metadata.files.length !== files.length) throw new Error();
+      const controls = await Promise.all(files.map(async (file, index) => {
         const body = await readFile(resolve(root, file), "utf8");
         const expected = metadata.files[index]!;
         if (expected.file !== file || expected.byteSize !== Buffer.byteLength(body, "utf8") ||
@@ -298,12 +327,33 @@ async function readCandidateBundleAtRoot(input: { cacheDir?: string; mecid: stri
         return body;
       }));
       qualifyCandidateBundle({ mecid: input.mecid.trim().toUpperCase(),
-        artifacts: artifacts.map((artifact, index) => ({ type: CANDIDATE_BUNDLE_TYPES[index]!, body: artifact.body, sourceUrl: artifact.manifest.sourceUrl })),
-        transactionResultBodies: { contributions: controls[0]!, expenditures: controls[1]! }, closingInventoryBody: controls[2]!,
-      });
+        artifacts: artifacts.map((artifact, index) => ({ type: types[index]!, body: artifact.body, sourceUrl: artifact.manifest.sourceUrl })),
+        transactionResultBodies: { contributions: controls[0]!, ...(receiptsOnly ? {} : { expenditures: controls[1]! }) },
+        closingInventoryBody: controls[receiptsOnly ? 1 : 2]!,
+      }, receiptsOnly);
     } catch { throw new Error("Missouri MEC candidate bundle failed source qualification"); }
   }
   return artifacts;
+}
+
+export async function readMissouriMecCommitteeReceiptArtifacts(input: { cacheDir?: string; mecid: string; year: number }) {
+  const root = await publishedCandidateRoot(input, true);
+  if (root === null) throw new Error("Missing qualified Missouri MEC committee receipt source");
+  const artifacts = await readCandidateBundleAtRoot({ ...input, cacheDir: root }, true, true);
+  if (new Set(artifacts.map((artifact) => artifact.manifest.retrievedAt)).size !== 1) {
+    throw new Error("Mixed-vintage Missouri MEC committee receipt source");
+  }
+  const [profile, inventory, contributions] = artifacts;
+  return {
+    committeeInfo: parseMissouriMecCommitteeInfo(profile!.body),
+    inventory: parseMissouriMecReportInventory(inventory!.body),
+    contributionRows: parseMissouriMecContributionExport(contributions!.body),
+    contributionSourceUrl: contributions!.manifest.sourceUrl,
+    sourceRetrievedAt: contributions!.manifest.retrievedAt,
+    sourceSha256: contributions!.manifest.sha256,
+    sourceByteSize: contributions!.manifest.byteSize,
+    reportInventorySha256: inventory!.manifest.sha256,
+  };
 }
 
 export async function readMissouriMecCandidateFinanceArtifacts(input: {

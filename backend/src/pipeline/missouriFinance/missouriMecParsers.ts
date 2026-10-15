@@ -318,7 +318,7 @@ function nullableText(value: string): string | null {
 
 function parseMecCurrencyCents(value: string, label: string): number {
   const normalized = value.trim();
-  const match = /^(\()?(-)?\$([\d,]+)\.(\d{2})(\))?$/.exec(normalized);
+  const match = /^(\()?(-)?\$((?:\d+|\d{1,3}(?:,\d{3})+))\.(\d{2})(\))?$/.exec(normalized);
   if (match === null || Boolean(match[1]) !== Boolean(match[5]) || (match[1] && match[2])) {
     throw new Error(`Invalid Missouri MEC ${label}`);
   }

@@ -1,5 +1,7 @@
 import type { Pool, PoolClient } from "pg";
 
+import { isMissouriCommitteeReceiptsEnabled } from "../../config/featureFlags.js";
+
 import { classifyFinanceLabel, type FinanceLabelClassification } from "../finance/financeLabelClassifier.js";
 import {
   buildFinanceIndustryBreakdownsFromClassifications,
@@ -9,6 +11,7 @@ import {
 import { aggregateMissouriDirectFinance, type MissouriDirectFinanceAggregationResult } from "./missouriDirectContributionAggregator.js";
 import {
   readMissouriMecCandidateFinanceArtifacts,
+  readMissouriMecCommitteeReceiptArtifacts,
   readMissouriMecOutsideSpenderContributionArtifacts,
   readMissouriMecOutsideSpendingArtifacts,
 } from "./missouriMecArtifactCache.js";
@@ -37,6 +40,14 @@ import type {
   MissouriMecReportInventoryRow,
 } from "./missouriMecParsers.js";
 import type { MissouriFinanceOutsideGroupBreakdownInput } from "./missouriFinanceWriter.js";
+import {
+  aggregateMissouriCommitteeMonetaryReceipts,
+  type MissouriCommitteeMonetaryReceiptAggregation,
+} from "./missouriCommitteeMonetaryReceiptAggregator.js";
+import {
+  prepareMissouriCommitteeMonetaryReceiptComponent,
+  type MissouriCommitteeMonetaryReceiptComponent,
+} from "./missouriCommitteeMonetaryReceiptWriter.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 type ConnectableQueryable = Queryable & { connect: () => Promise<PoolClient> };
@@ -67,7 +78,11 @@ export type MissouriCandidateFinanceSyncResult = {
   linkWritten: boolean;
   summaryWritten: boolean;
   directBreakdownsWritten: number;
-  aggregation: MissouriDirectFinanceAggregationResult;
+  aggregation: MissouriDirectFinanceAggregationResult | null;
+  directSkippedReason?: string | null;
+  committeeMonetaryReceipts?: Omit<MissouriCommitteeMonetaryReceiptAggregation, "committees"> | null;
+  committeeReceiptGroupsWritten?: number;
+  committeeReceiptsSkippedReason?: string | null;
   outsideGroupsWritten: number;
   outsideGroupBreakdownsWritten: number;
   outsideSupportTotal: number | null;
@@ -182,7 +197,7 @@ export function resolveMissouriCandidateFinanceCycleWindow(input: {
   return { cycleStart: nextIsoDate(primary.electionDate), cycleEnd: input.electionDate, primaryElectionDate: primary.electionDate };
 }
 
-export async function syncMissouriCandidateFinance(input: {
+export type MissouriCandidateFinanceSyncInput = {
   db: ConnectableQueryable;
   candidateId: string;
   electionId: string;
@@ -208,6 +223,75 @@ export async function syncMissouriCandidateFinance(input: {
   outsideArtifacts?: MissouriOutsideSpendingArtifacts | null;
   outsideSpenderArtifactsByMecid?: ReadonlyMap<string, MissouriOutsideSpenderContributionArtifacts>;
   refreshOutsideSpenderArtifacts?: (mecid: string) => Promise<void>;
+  directArtifactsUnavailable?: boolean;
+  receiptArtifacts?: Awaited<ReturnType<typeof readMissouriMecCommitteeReceiptArtifacts>> | null;
+};
+
+/** Keep the new receipt component independent while retaining the ordinary
+ * protected transaction when the existing finance snapshot also qualifies. */
+export async function syncMissouriCandidateFinance(input: MissouriCandidateFinanceSyncInput): Promise<MissouriCandidateFinanceSyncResult> {
+  if (!isMissouriCommitteeReceiptsEnabled()) {
+    if (input.directArtifactsUnavailable) throw new Error("Missouri MEC direct artifacts unavailable after receipt capture");
+    return syncMissouriCandidateFinanceCore(input);
+  }
+  const now = input.now ?? new Date();
+  if (!Number.isFinite(now.getTime())) throw new Error("Invalid Missouri finance sync timestamp");
+  const committeeId = input.committee.committeeId.trim().toUpperCase();
+  let component: MissouriCommitteeMonetaryReceiptComponent | undefined;
+  let receipts: MissouriCommitteeMonetaryReceiptAggregation | null = null;
+  let skippedReason: string | null = null;
+  try {
+    if (!isMissouriDirectFinanceEligibleOffice({ officeScope: input.officeScope, officeCanonicalName: input.officeName }) ||
+      !Number.isSafeInteger(input.electionYear) || input.electionYear < 2024 || input.electionYear > 2100 ||
+      !/^[A-Z]\d{6}$/.test(committeeId)) throw new Error();
+    const source = input.receiptArtifacts === undefined
+      ? await readMissouriMecCommitteeReceiptArtifacts({ cacheDir: input.cacheDir, mecid: committeeId, year: input.electionYear })
+      : input.receiptArtifacts;
+    if (!source || source.committeeInfo.mecid !== committeeId ||
+      source.contributionRows.some((row) => row.mecid !== committeeId)) throw new Error();
+    const window = resolveMissouriCandidateFinanceCycleWindow({ electionDate: input.electionDate, committeeInfo: source.committeeInfo });
+    receipts = aggregateMissouriCommitteeMonetaryReceipts({ inventory: source.inventory, contributionRows: source.contributionRows, ...window });
+    if (receipts.status === "qualified") {
+      component = prepareMissouriCommitteeMonetaryReceiptComponent({ receivingCommitteeId: committeeId,
+        electionYear: input.electionYear, syncedAt: now, component: {
+        receivingCommitteeId: committeeId, cycleStart: window.cycleStart, cycleEnd: window.cycleEnd,
+        aggregation: receipts, sourceRetrievedAt: new Date(source.sourceRetrievedAt), sourceUrl: source.contributionSourceUrl,
+        sourceSha256: source.sourceSha256, sourceByteSize: source.sourceByteSize, reportInventorySha256: source.reportInventorySha256 } });
+    } else skippedReason = receipts.reason;
+  } catch { skippedReason = "qualified receipt source or cycle unavailable"; }
+  const safeReceipts = receipts === null ? null : (({ committees: _groups, ...safe }) => safe)(
+    receipts.status === "qualified" ? receipts : { ...receipts, committees: undefined });
+  const receiptResult = { committeeMonetaryReceipts: safeReceipts,
+    committeeReceiptGroupsWritten: !input.dryRun && component?.aggregation.status === "qualified" ? component.aggregation.committees.length : 0,
+    committeeReceiptsSkippedReason: skippedReason };
+  try {
+    if (input.directArtifactsUnavailable) throw new Error("Missouri MEC direct artifacts unavailable after receipt capture");
+    return { ...await syncMissouriCandidateFinanceCore({ ...input, now, committeeMonetaryReceipts: component }), ...receiptResult };
+  } catch (error) {
+    if (!component || component.aggregation.status !== "qualified") throw error;
+    // An unrelated direct/expenditure/outside failure cannot discard a qualified
+    // receipt source. This path supplies no legacy money slices or timestamps.
+    if (!input.dryRun) await replaceMissouriCandidateFinanceSnapshot({
+      db: input.db, syncedAt: now, committeeMonetaryReceipts: component,
+      link: { candidateId: input.candidateId, electionId: input.electionId, electionYear: input.electionYear,
+        candidateNameNormalized: normalizeMissouriCandidateNameForStorage(requireText(input.candidateName, "candidate name")),
+        officeName: requireText(input.officeName, "office name"), district: input.district ?? null,
+        committeeId, committeeName: requireText(input.committee.committeeName, "Missouri committee name"),
+        linkStatus: "active", linkSource: input.committee.linkSource,
+        sourceUrl: input.committee.sourceUrl ?? component.sourceUrl, lastVerifiedAt: now },
+    });
+    return { candidateId: input.candidateId, electionId: input.electionId, electionYear: input.electionYear, committeeId,
+      dryRun: input.dryRun === true, cycleStart: component.cycleStart, cycleEnd: component.cycleEnd,
+      linkWritten: !input.dryRun, summaryWritten: false, directBreakdownsWritten: 0, aggregation: null,
+      directSkippedReason: "direct finance component unavailable; prior snapshot preserved",
+      outsideGroupsWritten: 0, outsideGroupBreakdownsWritten: 0, outsideSupportTotal: null, outsideOpposeTotal: null,
+      outsideSpending: null, outsideSpendingSkippedReason: "legacy snapshot unavailable; prior outside data preserved",
+      outsideFunders: null, outsideFundersSkippedReason: "legacy snapshot unavailable; prior funder data preserved", ...receiptResult };
+  }
+}
+
+async function syncMissouriCandidateFinanceCore(input: MissouriCandidateFinanceSyncInput & {
+  committeeMonetaryReceipts?: MissouriCommitteeMonetaryReceiptComponent;
 }): Promise<MissouriCandidateFinanceSyncResult> {
   const candidateId = requireText(input.candidateId, "candidate id");
   const electionId = requireText(input.electionId, "election id");
@@ -381,6 +465,7 @@ export async function syncMissouriCandidateFinance(input: {
       outsideGroups: outsideSnapshot?.outsideGroups,
       outsideGroupBreakdowns,
       classifications,
+      committeeMonetaryReceipts: input.committeeMonetaryReceipts,
     });
     summaryWritten = write.summaryWritten;
     directBreakdownsWritten = write.directBreakdownsWritten;
