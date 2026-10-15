@@ -67,6 +67,10 @@ export type MissouriOutsideSpendingArtifacts = {
   sourceUrl: string;
 };
 
+type ReceiptSyncDiagnostics =
+  | Omit<Extract<MissouriCommitteeMonetaryReceiptAggregation, { status: "qualified" }>, "committees">
+  | Extract<MissouriCommitteeMonetaryReceiptAggregation, { status: "held" }>;
+
 export type MissouriCandidateFinanceSyncResult = {
   candidateId: string;
   electionId: string;
@@ -80,7 +84,7 @@ export type MissouriCandidateFinanceSyncResult = {
   directBreakdownsWritten: number;
   aggregation: MissouriDirectFinanceAggregationResult | null;
   directSkippedReason?: string | null;
-  committeeMonetaryReceipts?: Omit<MissouriCommitteeMonetaryReceiptAggregation, "committees"> | null;
+  committeeMonetaryReceipts?: ReceiptSyncDiagnostics | null;
   committeeReceiptGroupsWritten?: number;
   committeeReceiptsSkippedReason?: string | null;
   outsideGroupsWritten: number;
@@ -259,8 +263,11 @@ export async function syncMissouriCandidateFinance(input: MissouriCandidateFinan
         sourceSha256: source.sourceSha256, sourceByteSize: source.sourceByteSize, reportInventorySha256: source.reportInventorySha256 } });
     } else skippedReason = receipts.reason;
   } catch { skippedReason = "qualified receipt source or cycle unavailable"; }
-  const safeReceipts = receipts === null ? null : (({ committees: _groups, ...safe }) => safe)(
-    receipts.status === "qualified" ? receipts : { ...receipts, committees: undefined });
+  let safeReceipts: ReceiptSyncDiagnostics | null = receipts?.status === "held" ? receipts : null;
+  if (receipts?.status === "qualified") {
+    const { committees: _groups, ...safe } = receipts;
+    safeReceipts = safe;
+  }
   const receiptResult = { committeeMonetaryReceipts: safeReceipts,
     committeeReceiptGroupsWritten: !input.dryRun && component?.aggregation.status === "qualified" ? component.aggregation.committees.length : 0,
     committeeReceiptsSkippedReason: skippedReason };
