@@ -99,12 +99,29 @@ function attach(rows: Row[], existing?: BallotLookupFinanceSummary): BallotLooku
   const top=(stance:"support"|"oppose")=>groups.filter(g=>g.support_oppose===stance)
     .sort((a,b)=>b.amount-a.amount || a.committee_id.localeCompare(b.committee_id)).slice(0,5);
   const summary=existing ?? emptySummary(src);
-  const note=`Registered-committee reported itemized independent expenditures from ${start} through ${end}; source observed ${new Date(instant(src.source_retrieved_at)).toISOString().slice(0,10)}. Grouped by reported committee name. Non-committee CF14 reports (§ 130.047) are excluded. Committee-cycle funder details were not refreshed with this IE observation.`;
+  const note=`Registered-committee reported itemized independent expenditures in the official export snapshot during ${start} through ${end}; source observed ${new Date(instant(src.source_retrieved_at)).toISOString().slice(0,10)}. Grouped by reported committee name. Non-committee CF14 reports (§ 130.047) are excluded. Committee-cycle funder details were not refreshed with this IE observation.`;
   return {...summary,outside_spending:{...summary.outside_spending,support_total:support/100,oppose_total:oppose/100,
     top_supporting_groups:top("support"),top_opposing_groups:top("oppose"),top_supporting_industries:[],top_opposing_industries:[],outside_coverage_note:note},
     backing_summary:{...summary.backing_summary,top_outside_supporting_industries:[],
       ...(summary.backing_summary.top_pac_backed_industries ? {top_pac_backed_industries:[]} : {}),
       ...(summary.backing_summary.top_supporting_committee_industries ? {top_supporting_committee_industries:[]} : {})}};
+}
+
+function retainPreviouslyStoredOutside(existing?: BallotLookupFinanceSummary): BallotLookupFinanceSummary | undefined {
+  if (!existing || existing.source !== "MISSOURI_MEC") return existing;
+  const outside = existing.outside_spending;
+  const backing = existing.backing_summary;
+  if (outside.support_total === null && outside.oppose_total === null &&
+    outside.top_supporting_groups.length === 0 && outside.top_opposing_groups.length === 0 &&
+    outside.top_supporting_industries.length === 0 && outside.top_opposing_industries.length === 0 &&
+    backing.top_outside_supporting_industries.length === 0 &&
+    !backing.top_pac_backed_industries?.length && !backing.top_supporting_committee_industries?.length) return existing;
+  const note = "Previously stored registered-committee spending is retained; its acquisition date is unavailable. The update date may reflect campaign receipts. Non-committee CF14 reports (§ 130.047) are excluded. Committee funder details are not shown.";
+  return {...existing, outside_spending: {...outside, outside_coverage_note: note,
+    top_supporting_industries: [], top_opposing_industries: []},
+    backing_summary: {...backing, top_outside_supporting_industries: [],
+      ...(backing.top_pac_backed_industries ? {top_pac_backed_industries: []} : {}),
+      ...(backing.top_supporting_committee_industries ? {top_supporting_committee_industries: []} : {})}};
 }
 
 /** A single source per candidate/election is universal across receiving links.
@@ -136,6 +153,14 @@ export async function attachMissouriRegisteredIeFinance(input: {
   for(const row of result.rows){const key=candidateElectionKey(row.candidate_id,row.election_id);if(!requested.has(key))continue;
     const rows=candidates.get(key)??[];rows.push(row);candidates.set(key,rows);}
   const output=new Map(input.summaries);
-  for(const [key,rows]of candidates){try{output.set(key,attach(rows,output.get(key)));}catch{/* Hold this component without changing prior money or age. */}}
+  for (const key of requested) {
+    const rows = candidates.get(key);
+    if (rows) {
+      try { output.set(key, attach(rows, output.get(key))); continue; }
+      catch { /* Retain prior money and age without presenting stale funder details as current. */ }
+    }
+    const retained = retainPreviouslyStoredOutside(output.get(key));
+    if (retained) output.set(key, retained);
+  }
   return output;
 }

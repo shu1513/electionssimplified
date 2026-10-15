@@ -84,9 +84,42 @@ describe("independent registered IE reader",()=>{
     expect(original.backing_summary.top_outside_supporting_industries).toHaveLength(1);
     expect(result.outside_spending.outside_coverage_note).toContain("funder details were not refreshed");
   });
-  it("leaves missing/held candidate components and old outside view unchanged",async()=>{
-    const original=await existing();expect((await read([],new Map([[key,original]]))).get(key)).toBe(original);
+  it("retains prior amounts, groups, headline and cash while explaining missing acquisition age",async()=>{
+    const original=await existing();
+    original.backing_summary.top_pac_backed_industries=[{category_name:"Old industry",amount:9,contributor_count:1,source_url:null}];
+    original.backing_summary.top_supporting_committee_industries=[{category_name:"Old industry",amount:9,contributor_count:1,source_url:null,supporting_committee_name:"Example committee"}];
+    const result=(await read([],new Map([[key,original]]))).get(key)!;
+    expect(result.last_synced_at).toBe(original.last_synced_at);
+    expect(result.direct_campaign).toBe(original.direct_campaign);
+    expect(result.outside_spending.support_total).toBe(original.outside_spending.support_total);
+    expect(result.outside_spending.oppose_total).toBe(original.outside_spending.oppose_total);
+    expect(result.outside_spending.top_supporting_groups).toBe(original.outside_spending.top_supporting_groups);
+    expect(result.outside_spending.top_opposing_groups).toBe(original.outside_spending.top_opposing_groups);
+    expect(result.outside_spending.top_supporting_industries).toEqual([]);
+    expect(result.outside_spending.top_opposing_industries).toEqual([]);
+    expect(result.backing_summary.top_outside_supporting_industries).toEqual([]);
+    expect(result.backing_summary.top_pac_backed_industries).toEqual([]);
+    expect(result.backing_summary.top_supporting_committee_industries).toEqual([]);
+    expect(result.outside_spending.outside_coverage_note).toContain("Previously stored registered-committee spending is retained");
+    expect(result.outside_spending.outside_coverage_note).toContain("acquisition date is unavailable");
+    expect(result.outside_spending.outside_coverage_note).toContain("update date may reflect campaign receipts");
+    expect(result.outside_spending.outside_coverage_note).toContain("CF14");
+    expect(original.outside_spending.top_supporting_industries).toHaveLength(1);
+    expect(original.backing_summary.top_pac_backed_industries).toHaveLength(1);
+  });
+  it("does not fabricate a summary or outside zero when no stored outside content exists",async()=>{
     expect((await read([])).size).toBe(0);
+    const original=await existing();original.outside_spending={support_total:null,oppose_total:null,
+      top_supporting_groups:[],top_opposing_groups:[],top_supporting_industries:[],top_opposing_industries:[]};
+    original.backing_summary.top_outside_supporting_industries=[];
+    expect((await read([],new Map([[key,original]]))).get(key)).toBe(original);
+  });
+  it("leaves existing outside presentation exactly unchanged when the independent gate is off",async()=>{
+    const original=await existing(),summaries=new Map([[key,original]]),database=db([]);
+    vi.stubEnv("MISSOURI_REGISTERED_IE_ENABLED","false");
+    expect(await attach({db:database,requests,summaries})).toBe(summaries);
+    expect(summaries.get(key)).toBe(original);expect(original.outside_spending.top_supporting_industries).toHaveLength(1);
+    expect(database.query).not.toHaveBeenCalled();
   });
   it.each(["total","count","occurrences","duplicate","key","stance","receiver","foreign_candidate","foreign_election","link_year","inactive",
     "source_year","basis","cycle","hash","bytes","time","source_url","source_counts","matched_counts","negative","lineage","timely","pages","unsafe","repeated_metadata"] as const)(
@@ -119,7 +152,15 @@ describe("independent registered IE reader",()=>{
       if(mode==="pages")all("source_page_count",0);
       if(mode==="unsafe")data[1]!.amount_cents="9007199254740992";
       if(mode==="repeated_metadata")data[1]!.source_byte_size="1235";
-      expect((await read(data,new Map([[key,original]]))).get(key)).toBe(original);expect((await read(data)).size).toBe(0);
+      const retained=(await read(data,new Map([[key,original]]))).get(key)!;
+      expect(retained.last_synced_at).toBe(original.last_synced_at);expect(retained.direct_campaign).toBe(original.direct_campaign);
+      expect(retained.outside_spending.support_total).toBe(original.outside_spending.support_total);
+      expect(retained.outside_spending.oppose_total).toBe(original.outside_spending.oppose_total);
+      expect(retained.outside_spending.top_supporting_groups).toBe(original.outside_spending.top_supporting_groups);
+      expect(retained.outside_spending.top_supporting_industries).toEqual([]);
+      expect(retained.backing_summary.top_outside_supporting_industries).toEqual([]);
+      expect(retained.outside_spending.outside_coverage_note).toContain("acquisition date is unavailable");
+      expect((await read(data)).size).toBe(0);
     });
   it("rejects a corrupt group beyond the display cap and keeps other candidates available",async()=>{
     const bad=rows([600,500,400,300,200,100]);bad[5]!.amount_cents="101";
