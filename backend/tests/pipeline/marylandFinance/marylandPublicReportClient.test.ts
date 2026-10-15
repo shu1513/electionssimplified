@@ -1,14 +1,17 @@
-import { mkdtemp, readFile, rm, stat } from "node:fs/promises";
+import { mkdtemp, readFile, rm, stat, writeFile, chmod, symlink } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { createHash } from "node:crypto";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   buildMarylandPublicReportInventoryRequest, buildMarylandPublishedReportPdfRequest,
   decodeMarylandPublicReportInventory, fetchMarylandCurrentReportInventory, fetchMarylandPublishedReportPdf,
+  readMarylandCurrentReportInventory,
 } from "../../../src/pipeline/marylandFinance/marylandPublicReportClient.js";
 import {
   captureMarylandPublicReportInventoryPost, captureMarylandPublishedReportPdfPost,
 } from "../../../src/pipeline/marylandFinance/marylandCurrentCycleExportClient.js";
+import type { MarylandCurrentCycleCapture } from "../../../src/pipeline/marylandFinance/marylandCurrentCycleExportClient.js";
 
 const OWNER = "11111111-1111-4111-8111-111111111111";
 const id = (n: number) => `${String(n).padStart(8, "0")}-2222-4222-8222-222222222222`;
@@ -41,6 +44,76 @@ const response = (value: unknown) => new Response(JSON.stringify(value));
 const dirs: string[] = [];
 async function directory() { const d = await mkdtemp(join(tmpdir(), "md-report-")); dirs.push(d); return d; }
 afterEach(async () => { vi.restoreAllMocks(); await Promise.all(dirs.splice(0).map(d => rm(d, { recursive: true, force: true }))); });
+
+async function savedInventory(multiple=false,empty=false){
+  const outputDirectory=await directory(),captures:MarylandCurrentCycleCapture<unknown>[]=[];
+  const pages=empty?[envelope([])]:multiple?[envelope(Array.from({length:10},(_,i)=>parent(i+1)),11),envelope([amended(11)],11)]:[envelope([amended()])];
+  const fetchImpl=vi.fn<typeof fetch>();for(const page of pages)fetchImpl.mockResolvedValueOnce(response(page));
+  await fetchMarylandCurrentReportInventory({...scope,outputDirectory,fetchImpl,onCapture:c=>{captures.push(structuredClone(c));}});
+  const journal=join(outputDirectory,"captures.private.jsonl");
+  const save=()=>writeFile(journal,captures.map(c=>JSON.stringify(c)).join("\n")+"\n",{mode:0o600});
+  await save();return{outputDirectory,captures,journal,save};
+}
+
+describe("Maryland saved report inventory",()=>{
+  it("reopens every untouched page and private lineage without granting currentness",async()=>{
+    const saved=await savedInventory(true),result=await readMarylandCurrentReportInventory({...scope,outputDirectory:saved.outputDirectory});
+    expect(result.sourceFacts).toMatchObject({totalItems:11,physicalCount:11,childCount:2});
+    expect(result.privateReports).toHaveLength(11);
+    expect(Object.isFrozen(result.privateReports)).toBe(true);
+    expect(result.sourceFacts.startedAt).toBe(saved.captures[0]!.startedAt);
+    expect(result.sourceFacts.completedAt).toBe(saved.captures[1]!.completedAt);
+    expect(result).not.toHaveProperty("qualified");expect(result).not.toHaveProperty("current");
+    expect(JSON.stringify(result.sourceFacts)).not.toMatch(/Published report|11111111|requestBody/);
+  });
+  it("retains an explicitly empty inventory as source structure only",async()=>{
+    const saved=await savedInventory(false,true);
+    expect((await readMarylandCurrentReportInventory({...scope,outputDirectory:saved.outputDirectory})).sourceFacts.physicalCount).toBe(0);
+  });
+  it.each(["owner","cycle","filter","url","method","path","status","eof","error","bytes","hash","time","extra"])("holds changed %s metadata",async kind=>{
+    const saved=await savedInventory(),capture=saved.captures[0] as unknown as Record<string,unknown>;
+    const body=capture.requestBody as Record<string,unknown>;
+    if(kind==="owner")body.filerRegistrationGuid=id(99);
+    if(kind==="cycle")body.electionCycleId="12019";
+    if(kind==="filter")body.reportName="subset";
+    if(kind==="url")capture.url="https://example.invalid/inventory";
+    if(kind==="method")capture.method="GET";
+    if(kind==="path")capture.outputPath=join(saved.outputDirectory,"other.json");
+    if(kind==="status")capture.httpStatus=403;
+    if(kind==="eof")capture.bodyComplete=false;
+    if(kind==="error")capture.errorCode="fetch_failed";
+    if(kind==="bytes")capture.byteCount=1;
+    if(kind==="hash")capture.sha256="0".repeat(64);
+    if(kind==="time")capture.completedAt="2000-01-01T00:00:00.000Z";
+    if(kind==="extra")capture.accepted=true;
+    await saved.save();await expect(readMarylandCurrentReportInventory({...scope,outputDirectory:saved.outputDirectory})).rejects.toMatchObject({code:"invalid_report_inventory"});
+  });
+  it.each(["truncated_journal","missing_page","extra_file","body_change","file_mode","directory_mode","symlink","order"])("holds incomplete or unsafe saved originals: %s",async kind=>{
+    const saved=await savedInventory(true),first=saved.captures[0]!.outputPath;
+    if(kind==="truncated_journal")await writeFile(saved.journal,(await readFile(saved.journal,"utf8")).trimEnd());
+    if(kind==="missing_page"){saved.captures.pop();await saved.save();}
+    if(kind==="extra_file")await writeFile(join(saved.outputDirectory,"unexpected.json"),"{}",{mode:0o600});
+    if(kind==="body_change")await writeFile(first,"{}");
+    if(kind==="file_mode")await chmod(first,0o644);
+    if(kind==="directory_mode")await chmod(saved.outputDirectory,0o755);
+    if(kind==="symlink"){const raw=await readFile(first);await rm(first);const target=join(await directory(),"target.json");await writeFile(target,raw,{mode:0o600});await symlink(target,first);}
+    if(kind==="order"){saved.captures.reverse();await saved.save();}
+    await expect(readMarylandCurrentReportInventory({...scope,outputDirectory:saved.outputDirectory})).rejects.toMatchObject({code:"invalid_report_inventory"});
+  });
+  it.each(["missing_original","missing_journal","invalid_body_utf8","invalid_journal_utf8"])("normalizes saved-source failure without exposing private paths: %s",async kind=>{
+    const saved=await savedInventory(),capture=saved.captures[0] as unknown as Record<string,unknown>,path=saved.captures[0]!.outputPath;
+    if(kind==="missing_original")await rm(path);
+    if(kind==="missing_journal")await rm(saved.journal);
+    if(kind==="invalid_journal_utf8")await writeFile(saved.journal,Buffer.from([255,10]));
+    if(kind==="invalid_body_utf8"){
+      const raw=Buffer.from([255]);await writeFile(path,raw);
+      capture.byteCount=raw.length;capture.sha256=createHash("sha256").update(raw).digest("hex");await saved.save();
+    }
+    const error=await readMarylandCurrentReportInventory({...scope,outputDirectory:saved.outputDirectory}).catch(e=>e);
+    expect(error).toMatchObject({code:"invalid_report_inventory",message:"Maryland current-cycle source: invalid_report_inventory"});
+    expect(error.message).not.toContain(saved.outputDirectory);expect(error).not.toHaveProperty("cause");
+  });
+});
 
 describe("Maryland published report inventory", () => {
   it("uses the exact unrestricted profile request and projects no creator/IP/paths", () => {

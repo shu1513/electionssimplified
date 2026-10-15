@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
-import { mkdir, readFile, stat } from "node:fs/promises";
-import { join } from "node:path";
+import { mkdir, readFile, stat, lstat, readdir } from "node:fs/promises";
+import { join, resolve } from "node:path";
 import {
   captureMarylandPublicReportInventoryPost,
   captureMarylandPublishedReportPdfPost,
@@ -201,6 +201,76 @@ export async function fetchMarylandCurrentReportInventory(input: Omit<Scope, "pa
     } catch { throw new MarylandCurrentCycleExportError("invalid_report_inventory", capture); }
   }
   return fail();
+}
+
+/** Reopens the complete original inventory journal without making a request.
+ * Private report metadata establishes source structure, not currentness or
+ * financial authority. Do not serialize privateReports into ordinary logs. */
+export async function readMarylandCurrentReportInventory(input: Omit<Scope,"pageNumber"> & {
+  outputDirectory:string;
+}) {
+  try {
+  const initial=buildMarylandPublicReportInventoryRequest({...input,pageNumber:1});
+  if(typeof input.outputDirectory!=="string" || !input.outputDirectory.trim()) return fail();
+  const directory=resolve(input.outputDirectory),journalPath=join(directory,"captures.private.jsonl");
+  const privateFile=async(path:string,maximum:number)=>{
+    const info=await lstat(path);
+    if(!info.isFile() || info.isSymbolicLink() || (info.mode&0o777)!==0o600 || info.size<1 || info.size>maximum) return fail();
+    return readFile(path);
+  };
+  const directoryInfo=await lstat(directory);
+  if(!directoryInfo.isDirectory() || directoryInfo.isSymbolicLink() || (directoryInfo.mode&0o777)!==0o700) return fail();
+  const lines=new TextDecoder("utf-8",{fatal:true}).decode(await privateFile(journalPath,1024*1024));
+  if(!lines.endsWith("\n") || lines.includes("\r")) return fail();
+  const entries=lines.slice(0,-1).split("\n");
+  if(entries.length<1 || entries.length>100 || entries.some(line=>!line)) return fail();
+  const expectedFiles=new Set(["captures.private.jsonl"]),seen=new Set<string>(),lineage=new Set<string>();
+  const reports:MarylandPublishedReport[]=[],captures:Omit<InventoryCapture,"requestBody">[]=[];
+  const keys=["url","method","requestBody","outputPath","startedAt","completedAt","httpStatus","byteCount","sha256","bodyComplete","errorCode"];
+  const timestamp=(value:unknown):value is string=>typeof value==="string" &&
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value) &&
+    Number.isFinite(Date.parse(value)) && new Date(value).toISOString()===value;
+  const json=(value:string):unknown=>{try{return JSON.parse(value);}catch{return fail();}};
+  let totalItems:number|undefined,childCount=0,previousCompletedAt:string|undefined,capturedBytes=0;
+  for(let index=0;index<entries.length;index++){
+    const entry=json(entries[index]!);
+    if(!record(entry) || Object.keys(entry).length!==keys.length || keys.some(key=>!Object.hasOwn(entry,key))) return fail();
+    const request=buildMarylandPublicReportInventoryRequest({...initial,pageNumber:index+1});
+    const retainedRequest=entry.requestBody;
+    if(!record(retainedRequest) || Object.keys(retainedRequest).length!==Object.keys(request).length ||
+      Object.entries(request).some(([key,value])=>retainedRequest[key]!==value)) return fail();
+    const filename=`page-${String(index+1).padStart(3,"0")}.original.json`,path=join(directory,filename);
+    expectedFiles.add(filename);
+    if(entry.url!=="https://api-campaignfinance.maryland.gov/api/PublicFilerDetails/GetCfPublicProfileFiling" ||
+      entry.method!=="POST" || entry.outputPath!==path || entry.httpStatus!==200 || entry.bodyComplete!==true || entry.errorCode!==null ||
+      !timestamp(entry.startedAt) || !timestamp(entry.completedAt) || entry.completedAt<entry.startedAt ||
+      (previousCompletedAt!==undefined && entry.startedAt<previousCompletedAt) ||
+      !positiveInteger(entry.byteCount) || entry.byteCount>4*1024*1024 || typeof entry.sha256!=="string" || !/^[a-f0-9]{64}$/.test(entry.sha256)) return fail();
+    const raw=await privateFile(path,4*1024*1024);
+    if(raw.byteLength!==entry.byteCount || createHash("sha256").update(raw).digest("hex")!==entry.sha256) return fail();
+    const page=decodeMarylandPublicReportInventory(json(new TextDecoder("utf-8",{fatal:true}).decode(raw)),request);
+    if(totalItems!==undefined && page.totalItems!==totalItems) return fail();
+    totalItems=page.totalItems;
+    if(entries.length!==Math.max(1,Math.ceil(totalItems/initial.pageSize))) return fail();
+    for(const report of page.reports){
+      const parent=report.reportGuid.toLowerCase();if(seen.has(parent)) return fail();seen.add(parent);
+      const editions=new Set([`${parent}:${report.reportVersionId}`,...(report.childResults??[]).map(c=>`${c.filerReportGuid.toLowerCase()}:${c.filerReportVersionID}`)]);
+      for(const edition of editions){if(lineage.has(edition)) return fail();lineage.add(edition);}
+      childCount+=report.childResults?.length??0;reports.push(report);
+    }
+    const {requestBody:_privateScope,...metadata}=entry as InventoryCapture;
+    captures.push(Object.freeze(metadata));previousCompletedAt=entry.completedAt;capturedBytes+=raw.byteLength;
+  }
+  const files=await readdir(directory);
+  if(files.length!==expectedFiles.size || files.some(file=>!expectedFiles.has(file)) || reports.length!==totalItems) return fail();
+  return Object.freeze({sourceFacts:Object.freeze({totalItems,physicalCount:reports.length,childCount,capturedBytes,
+    startedAt:captures[0]!.startedAt,completedAt:captures.at(-1)!.completedAt}),
+    captures:Object.freeze(captures),privateReports:Object.freeze(reports)});
+  } catch {
+    // Cache failures must not expose private paths, malformed source fragments
+    // or underlying decoder/filesystem errors to ordinary sync logs.
+    return fail();
+  }
 }
 
 /** Private original-byte download, never a PDF text or donor derivative. */
