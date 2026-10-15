@@ -1,3 +1,4 @@
+import { isMissouriRegisteredIeEnabled } from "../../config/featureFlags.js";
 import {
   buildMissouriMecUrl,
   createMissouriMecSession,
@@ -9,7 +10,7 @@ import {
   type MissouriMecResponse,
   type MissouriMecSession,
 } from "./missouriMecClient.js";
-import { storeMissouriMecArtifact, storeMissouriMecCandidateArtifactBundle, storeMissouriMecCommitteeReceiptArtifactBundle, storeMissouriMecOutsideSpendingArtifactBundle, parseMissouriMecOutsideSpendingResultCount, qualifyMissouriMecOutsideSpendingSource } from "./missouriMecArtifactCache.js";
+import { storeMissouriMecArtifact, storeMissouriMecCandidateArtifactBundle, storeMissouriMecCommitteeReceiptArtifactBundle, storeMissouriMecOutsideSpendingArtifactBundle, parseMissouriMecOutsideSpendingResultCount, qualifyMissouriMecOutsideSpendingSource, storeMissouriMecOutsideSpendingExportSnapshot } from "./missouriMecArtifactCache.js";
 import {
   MISSOURI_MEC_CONTRIBUTION_EXPORT_HEADER,
   MISSOURI_MEC_EXPENDITURE_EXPORT_HEADER,
@@ -165,43 +166,66 @@ function parseOutsideSpenderMecid(response: MissouriMecResponse): string {
   return match[1]!.toUpperCase();
 }
 
+export type MissouriMecOutsideSpendingArtifactAcquisitionResult =
+  | { year: number; rowCount: number; spenderCount: number; unresolvedSpenderCount: number }
+  | { year: number; rowCount: number; sourceKind: "native_export_snapshot";
+      registeredIeArtifactsAvailable: true; legacyOutsideArtifactsAvailable: false };
+
 export async function acquireMissouriMecOutsideSpendingArtifacts(input: {
   year: number;
   cacheDir?: string;
   session?: MissouriMecSession;
   now?: Date;
-}): Promise<{ year: number; rowCount: number; spenderCount: number; unresolvedSpenderCount: number }> {
+}): Promise<MissouriMecOutsideSpendingArtifactAcquisitionResult> {
   if (!Number.isSafeInteger(input.year) || input.year < 2019 || input.year > 2100) {
     throw new Error(`Invalid Missouri MEC outside-spending year: ${input.year}`);
   }
   const session = input.session ?? createMissouriMecSession();
   const retrievedAt = input.now ?? new Date();
+  const exportSnapshotEnabled = isMissouriRegisteredIeEnabled();
   if (Number.isNaN(retrievedAt.getTime())) throw new Error("Invalid Missouri MEC acquisition timestamp");
   const outsideUrl = buildMissouriMecUrl(MISSOURI_MEC_PAGES.outsideSpendingSearch);
   const searchPage = requireHtml(await session.get(outsideUrl), "outside-spending search page");
-  const resultsHtml = requireHtml(await session.postForm(outsideUrl, {
+  const resultsResponse = await session.postForm(outsideUrl, {
     ...hidden(searchPage, outsideUrl),
     [`${SEARCH}ddYear`]: String(input.year),
     [`${SEARCH}txtLastName`]: "",
     [`${SEARCH}txtOfficeSought`]: "",
     [`${SEARCH}SO`]: "",
     [`${SEARCH}btnSearch`]: "Search",
-  }, { referer: outsideUrl }), "outside-spending results");
+  }, { referer: outsideUrl });
+  let resultsHtml = requireHtml(resultsResponse, "outside-spending results");
+  if (exportSnapshotEnabled) {
+    try { resultsHtml = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(resultsResponse.body); }
+    catch { throw new Error("Missouri MEC export snapshot failed qualification"); }
+  }
   const recordCount = parseMissouriMecOutsideSpendingResultCount(resultsHtml);
   const exported = await session.postForm(outsideUrl, {
     ...hidden(resultsHtml, outsideUrl),
     [`${SEARCH}ddYear`]: String(input.year),
     [`${SEARCH}btnExport`]: "Export Results to Excel",
   }, { referer: outsideUrl });
-  if (!(exported.contentType ?? "").includes("application/vnd.ms-excel")) {
+  if (!exportSnapshotEnabled && !(exported.contentType ?? "").includes("application/vnd.ms-excel")) {
     throw new Error(`Unexpected Missouri MEC outside-spending export content type: ${exported.contentType}`);
   }
-  const exportBody = exported.text();
+  let exportBody = exported.text();
+  if (exportSnapshotEnabled) {
+    if (exported.status !== 200 || (exported.contentType ?? "").split(";")[0]!.trim().toLowerCase() !== "application/vnd.ms-excel") throw new Error("Missouri MEC export snapshot response unavailable");
+    try { exportBody = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(exported.body); }
+    catch { throw new Error("Missouri MEC export snapshot failed qualification"); }
+  }
   let exportRows: ReturnType<typeof parseMissouriMecOutsideSpendingExport>;
   try { exportRows = parseMissouriMecOutsideSpendingExport(exportBody); }
   catch { throw new Error("Missouri MEC yearly outside source failed qualification"); }
   if (exportRows.length !== recordCount) {
     throw new Error(`Missouri MEC outside-spending export count mismatch: export=${exportRows.length}, results=${recordCount}`);
+  }
+
+  if (exportSnapshotEnabled) {
+    await storeMissouriMecOutsideSpendingExportSnapshot({ cacheDir: input.cacheDir, year: input.year,
+      sourceUrl: outsideUrl, exportBody, resultsBody: resultsHtml, retrievedAt });
+    return { year: input.year, rowCount: exportRows.length, sourceKind: "native_export_snapshot",
+      registeredIeArtifactsAvailable: true, legacyOutsideArtifactsAvailable: false };
   }
 
   const identities = new Map<string, string | null>();

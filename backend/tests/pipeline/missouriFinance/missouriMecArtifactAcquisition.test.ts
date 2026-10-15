@@ -48,7 +48,7 @@ function emptyTransactionExportRedirect(filename: string): MissouriMecResponse {
 }
 
 const newTempDirs: string[] = [];
-afterEach(async () => { vi.restoreAllMocks(); await Promise.all(newTempDirs.splice(0).map((path) => rm(path, { recursive: true, force: true }))); });
+afterEach(async () => { vi.unstubAllEnvs(); vi.restoreAllMocks(); await Promise.all(newTempDirs.splice(0).map((path) => rm(path, { recursive: true, force: true }))); });
 async function candidateCacheDir() {
   const dir = await mkdtemp(join(tmpdir(), "mo-acquire-qualified-")); newTempDirs.push(dir); return dir;
 }
@@ -435,7 +435,7 @@ describe("annual financial capture independent of auxiliary identities",()=>{
     const cacheDir=await candidateCacheDir();const session=annualSession({identityError:new Error("synthetic identity transport detail"),directoryError:new Error("synthetic directory transport detail")});
     await expect(acquireMissouriMecOutsideSpendingArtifacts({cacheDir,year:2026,session})).resolves.toMatchObject({rowCount:2,spenderCount:1,unresolvedSpenderCount:1});
     const source=await readMissouriMecQualifiedOutsideSpendingArtifacts({cacheDir,year:2026});
-    expect(source.rows.map(r=>r.amountCents)).toEqual([2500,3000]);expect(source.identities[0]!.mecid).toBeNull();
+    expect(source.rows.map(r=>r.amountCents)).toEqual([2500,3000]);if(source.sourceKind!=="grid_reconciled_export")throw new Error("expected grid source");expect(source.identities[0]!.mecid).toBeNull();
   });
   it("stops host requests after an auxiliary directory WAF but publishes already complete financial source",async()=>{
     const cacheDir=await candidateCacheDir();const session=annualSession({directoryError:new MissouriMecClientError("waf_challenge","synthetic challenge")});
@@ -468,4 +468,51 @@ describe("annual financial capture independent of auxiliary identities",()=>{
     expect(session.get).toHaveBeenCalledTimes(1);
     await expect(readMissouriMecQualifiedOutsideSpendingArtifacts({cacheDir,year:2026})).rejects.toThrow("Missing qualified");
   });
+});
+
+function snapshotSession(options:{zero?:boolean;year?:number;badStatus?:boolean;badMime?:boolean;badExportUtf8?:boolean;badResultsUtf8?:boolean;badClosure?:boolean;conflictingCount?:boolean}={}){
+  const base=annualSession({zero:options.zero,wrongMoney:true,conflictingCount:options.conflictingCount,directoryError:new MissouriMecClientError("waf_challenge","unreached auxiliary challenge")});
+  const post=base.postForm;
+  const postForm=vi.fn(async(url:string,fields:Record<string,string>,requestOptions?:{referer?:string})=>{
+    let r=await post(url,fields,requestOptions as never);
+    if(fields["ctl00$ctl00$ContentPlaceHolder$ContentPlaceHolder1$btnSearch"]){
+      const body=`<select id="ctl00_ctl00_ContentPlaceHolder_ContentPlaceHolder1_ddYear"><option selected="selected" value="${options.year??2026}">${options.year??2026}</option></select>${r.text()}`;
+      r=response(body);if(options.badResultsUtf8)r={...r,body:Buffer.concat([r.body,Buffer.from([0xff])])};
+    }
+    if(fields["ctl00$ctl00$ContentPlaceHolder$ContentPlaceHolder1$btnExport"]){
+      if(options.badClosure)r=response(r.text().replace("</table>",""),r.contentType!);
+      if(options.badStatus)r={...r,status:302};if(options.badMime)r={...r,contentType:"text/html"};
+      if(options.badExportUtf8)r={...r,body:Buffer.concat([r.body,Buffer.from([0xff])])};
+    }return r;
+  });return{get:base.get,postForm} as MissouriMecSession&{get:typeof base.get;postForm:typeof postForm};
+}
+function enableSnapshot(){vi.stubEnv("MISSOURI_CAMPAIGN_FINANCE_ENABLED","true");vi.stubEnv("MISSOURI_REGISTERED_IE_ENABLED","true");}
+describe("gated ordinary three-request export snapshot acquisition",()=>{
+ it("publishes actual complete export before unreliable paging or identity work and reports separate availability",async()=>{
+  enableSnapshot();const cacheDir=await candidateCacheDir(),session=snapshotSession(),now=new Date("2026-10-15T12:00:00Z");
+  await expect(acquireMissouriMecOutsideSpendingArtifacts({cacheDir,year:2026,session,now})).resolves.toEqual({year:2026,rowCount:2,sourceKind:"native_export_snapshot",registeredIeArtifactsAvailable:true,legacyOutsideArtifactsAvailable:false});
+  expect(session.get).toHaveBeenCalledTimes(1);expect(session.postForm).toHaveBeenCalledTimes(2);
+  const source=await readMissouriMecQualifiedOutsideSpendingArtifacts({cacheDir,year:2026});expect(source.sourceKind).toBe("native_export_snapshot");
+  expect(source.rows.map(r=>r.amountCents)).toEqual([2500,3000]);expect(source.sourceRetrievedAt).toBe(now.toISOString());expect(source.sourcePageCount).toBeNull();expect("identities" in source).toBe(false);
+  await expect(readMissouriMecOutsideSpendingArtifacts({cacheDir,year:2026})).rejects.toThrow("Missing Missouri MEC artifact");
+ });
+ it("keeps native zero scoped to a complete export rather than a successful empty identity packet",async()=>{
+  enableSnapshot();const cacheDir=await candidateCacheDir(),session=snapshotSession({zero:true});
+  await expect(acquireMissouriMecOutsideSpendingArtifacts({cacheDir,year:2026,session})).resolves.toEqual({year:2026,rowCount:0,sourceKind:"native_export_snapshot",registeredIeArtifactsAvailable:true,legacyOutsideArtifactsAvailable:false});
+  expect(session.get).toHaveBeenCalledTimes(1);expect(session.postForm).toHaveBeenCalledTimes(2);
+  await expect(readMissouriMecQualifiedOutsideSpendingArtifacts({cacheDir,year:2026})).resolves.toMatchObject({sourceRowCount:0,sourcePageCount:null});
+ });
+ it.each(["year","status","mime","export_utf8","results_utf8","closure","conflicting_count"])("preserves the previous financial snapshot when native %s controls fail",async mode=>{
+  enableSnapshot();const cacheDir=await candidateCacheDir();await acquireMissouriMecOutsideSpendingArtifacts({cacheDir,year:2026,session:snapshotSession()});
+  const pointer=join(cacheDir,"_outside/2026/registered-ie-export-current.json"),before=await readFile(pointer,"utf8");
+  const session=snapshotSession({year:mode==="year"?2025:2026,badStatus:mode==="status",badMime:mode==="mime",badExportUtf8:mode==="export_utf8",badResultsUtf8:mode==="results_utf8",badClosure:mode==="closure",conflictingCount:mode==="conflicting_count"});
+  await expect(acquireMissouriMecOutsideSpendingArtifacts({cacheDir,year:2026,session})).rejects.toThrow();
+  expect(await readFile(pointer,"utf8")).toBe(before);expect(session.get).toHaveBeenCalledTimes(1);expect(session.postForm.mock.calls.length).toBeLessThanOrEqual(2);
+ });
+ it("keeps legacy behavior and shape when the registered source gate is off",async()=>{
+  vi.stubEnv("MISSOURI_CAMPAIGN_FINANCE_ENABLED","true");vi.stubEnv("MISSOURI_REGISTERED_IE_ENABLED","false");const cacheDir=await candidateCacheDir(),session=annualSession();
+  await expect(acquireMissouriMecOutsideSpendingArtifacts({cacheDir,year:2026,session})).resolves.toEqual({year:2026,rowCount:2,spenderCount:1,unresolvedSpenderCount:0});
+  expect(session.get).toHaveBeenCalledTimes(2);expect(session.postForm).toHaveBeenCalledTimes(6);
+  const source=await readMissouriMecQualifiedOutsideSpendingArtifacts({cacheDir,year:2026});expect(source.sourceKind).toBe("grid_reconciled_export");
+ });
 });

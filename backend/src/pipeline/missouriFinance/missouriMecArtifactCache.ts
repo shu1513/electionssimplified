@@ -414,13 +414,14 @@ function assertOutsideIdentityCoverage(input: {
 type OutsideSourceControls = { resultsBody: string; gridPageBodies: readonly string[] };
 export type MissouriMecOutsideSourceControl = { file: string; sha256: string; byteSize: number };
 
-function outsideBundlePaths(input: { cacheDir?: string; year: number }) {
+function outsideBundlePaths(input: { cacheDir?: string; year: number }, snapshot = false) {
   const key = normalizeKey({ type: "outside_spending", year: input.year });
   const base = resolve(input.cacheDir ?? DEFAULT_MISSOURI_MEC_CACHE_DIR, "_outside", String(key.year));
-  return { pointer: resolve(base, "registered-ie-current.json"), generations: resolve(base, "registered-ie-generations") };
+  const name = snapshot ? "registered-ie-export" : "registered-ie";
+  return { pointer: resolve(base, `${name}-current.json`), generations: resolve(base, `${name}-generations`) };
 }
-async function publishedOutsideRoot(input: { cacheDir?: string; year: number }): Promise<string | null> {
-  const paths = outsideBundlePaths(input);
+async function publishedOutsideRoot(input: { cacheDir?: string; year: number }, snapshot = false): Promise<string | null> {
+  const paths = outsideBundlePaths(input, snapshot);
   let raw: string;
   try { raw = await readFile(paths.pointer, "utf8"); }
   catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") return null; throw error; }
@@ -539,14 +540,84 @@ async function readQualifiedOutsideAtRoot(input: { cacheDir: string; year: numbe
     }));
     const identities = parseMissouriMecOutsideSpenderIdentities(identity!.body);
     qualifyOutsideBundle({ exportBody: outside!.body, identities, resultsBody: bodies[0]!, gridPageBodies: metadata.gridPageCount === 0 ? [] : bodies });
-    return { rows, identities, sourceUrl: outside!.manifest.sourceUrl, sourceRetrievedAt: outside!.manifest.retrievedAt,
+    return { rows, identities, sourceKind: "grid_reconciled_export" as const, sourceUrl: outside!.manifest.sourceUrl, sourceRetrievedAt: outside!.manifest.retrievedAt,
       sourceSha256: outside!.manifest.sha256, sourceByteSize: outside!.manifest.byteSize,
       sourceRowCount: rows.length, sourcePageCount: metadata.gridPageCount, sourceControls: metadata.files.map(({ file, sha256, byteSize }) => ({ file, sha256, byteSize })) };
   } catch { throw new Error("Missouri MEC yearly outside source failed qualification"); }
 }
 
+/** One native financial export response, tied to its advertised count/year.
+ * This does not certify amendment precedence or net economic effects. */
+export function qualifyMissouriMecOutsideSpendingExportSnapshot(input: { year: number; exportBody: string; resultsBody: string }): void {
+  try {
+    if (!Number.isSafeInteger(input.year) || input.year < 2019 || input.year > 2100) throw new Error();
+    const selects = [...input.resultsBody.matchAll(/<select\b[^>]*id="[^"]*ddYear"[^>]*>([\s\S]*?)<\/select>/gi)];
+    if (selects.length !== 1) throw new Error();
+    const selected = [...selects[0]![1]!.matchAll(/<option\b([^>]*)>[\s\S]*?<\/option>/gi)]
+      .filter(match => /\bselected(?:\s*=\s*(?:"selected"|'selected'|selected))?(?:\s|$)/i.test(match[1]!));
+    if (selected.length !== 1 || /\bvalue="([^"]*)"/i.exec(selected[0]![1]!)?.[1] !== String(input.year)) throw new Error();
+    // The observed native Excel response is one complete outer table. It must
+    // not silently accept a truncated table, trailing table or discarded cells.
+    if (!/^\s*<table\b[^>]*>[\s\S]*<\/table\s*>\s*$/i.test(input.exportBody) ||
+      [...input.exportBody.matchAll(/<table\b/gi)].length !== 1 || [...input.exportBody.matchAll(/<\/table\s*>/gi)].length !== 1) throw new Error();
+    for (const body of [input.exportBody, input.resultsBody]) {
+      const roundTrip = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(Buffer.from(body, "utf8"));
+      if (roundTrip !== body) throw new Error();
+    }
+    const rows = parseMissouriMecOutsideSpendingExport(input.exportBody);
+    if (rows.length !== parseMissouriMecOutsideSpendingResultCount(input.resultsBody)) throw new Error();
+  } catch { throw new Error("Missouri MEC export snapshot failed qualification"); }
+}
+
+/** Publish export-only financial authority separately from grid/identity packets. */
+export async function storeMissouriMecOutsideSpendingExportSnapshot(input: {
+  cacheDir?: string; year: number; sourceUrl: string; exportBody: string; resultsBody: string; retrievedAt: Date;
+}): Promise<void> {
+  const stable = structuredClone(input), paths = outsideBundlePaths(stable, true);
+  qualifyMissouriMecOutsideSpendingExportSnapshot(stable);
+  if (!Number.isFinite(stable.retrievedAt.getTime())) throw new Error("Invalid Missouri MEC artifact timestamp");
+  const generation = randomUUID(), root = resolve(paths.generations, generation);
+  await mkdir(root, { recursive: true, mode: 0o700 });
+  try {
+    await storeMissouriMecArtifact({ cacheDir: root, key: { type: "outside_spending", year: stable.year },
+      sourceUrl: stable.sourceUrl, body: stable.exportBody, retrievedAt: stable.retrievedAt });
+    await writeFile(resolve(root, "results.html"), stable.resultsBody, { encoding: "utf8", mode: 0o600, flag: "wx" });
+    const files = [{ file: "results.html", sha256: createHash("sha256").update(stable.resultsBody, "utf8").digest("hex"), byteSize: Buffer.byteLength(stable.resultsBody, "utf8") }];
+    await writeFile(resolve(root, "qualification.json"), JSON.stringify({ version: 1, sourceKind: "native_export_snapshot", year: stable.year, files }),
+      { encoding: "utf8", mode: 0o600, flag: "wx" });
+    await readOutsideExportSnapshotAtRoot({ cacheDir: root, year: stable.year });
+    await atomicWrite(paths.pointer, `${JSON.stringify({ version: 1, generation })}\n`, 0o600);
+  } catch { await rm(root, { recursive: true, force: true }).catch(() => {});
+    throw new Error("Missouri MEC export snapshot publication failed"); }
+}
+
+async function readOutsideExportSnapshotAtRoot(input: { cacheDir: string; year: number }) {
+  try {
+    const artifact = await readArtifactFromRoot({ ...input, key: { type: "outside_spending", year: input.year } });
+    const bytes = await readFile(artifactPaths(input.cacheDir, { type: "outside_spending", year: input.year }).file);
+    if (bytes.byteLength !== artifact.manifest.byteSize || createHash("sha256").update(bytes).digest("hex") !== artifact.manifest.sha256) throw new Error();
+    const exportBody = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(bytes);
+    const metadata = JSON.parse(await readFile(resolve(input.cacheDir, "qualification.json"), "utf8")) as {
+      version: number; sourceKind: string; year: number; files: MissouriMecOutsideSourceControl[];
+    };
+    if (metadata.version !== 1 || metadata.sourceKind !== "native_export_snapshot" || metadata.year !== input.year || !Array.isArray(metadata.files) || metadata.files.length !== 1) throw new Error();
+    const expected = metadata.files[0]!;
+    const resultBytes = await readFile(resolve(input.cacheDir, "results.html"));
+    if (expected.file !== "results.html" || expected.byteSize !== resultBytes.byteLength || expected.sha256 !== createHash("sha256").update(resultBytes).digest("hex")) throw new Error();
+    const resultsBody = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(resultBytes);
+    qualifyMissouriMecOutsideSpendingExportSnapshot({ year: input.year, exportBody, resultsBody });
+    const rows = parseMissouriMecOutsideSpendingExport(exportBody);
+    return { rows, sourceKind: "native_export_snapshot" as const, sourcePageCount: null,
+      sourceUrl: artifact.manifest.sourceUrl, sourceRetrievedAt: artifact.manifest.retrievedAt,
+      sourceSha256: artifact.manifest.sha256, sourceByteSize: artifact.manifest.byteSize, sourceRowCount: rows.length,
+      sourceControls: [{ file: expected.file, sha256: expected.sha256, byteSize: expected.byteSize }] };
+  } catch { throw new Error("Missouri MEC export snapshot failed qualification"); }
+}
+
 /** New independent IE money requires its own qualified generation, never a loose cache pair. */
 export async function readMissouriMecQualifiedOutsideSpendingArtifacts(input: { cacheDir?: string; year: number }) {
+  const snapshot = await publishedOutsideRoot(input, true);
+  if (snapshot !== null) return readOutsideExportSnapshotAtRoot({ cacheDir: snapshot, year: input.year });
   const root = await publishedOutsideRoot(input);
   if (root === null) throw new Error("Missing qualified Missouri MEC yearly outside source");
   return readQualifiedOutsideAtRoot({ cacheDir: root, year: input.year });

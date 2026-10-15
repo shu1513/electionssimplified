@@ -11,6 +11,8 @@ import {
   readMissouriMecOutsideSpendingArtifacts,
   readMissouriMecQualifiedOutsideSpendingArtifacts,
   storeMissouriMecOutsideSpendingArtifactBundle,
+  storeMissouriMecOutsideSpendingExportSnapshot,
+  qualifyMissouriMecOutsideSpendingExportSnapshot,
   parseMissouriMecOutsideSpendingResultCount,
   storeMissouriMecArtifact,
   storeMissouriMecCandidateArtifactBundle,
@@ -256,7 +258,7 @@ describe("qualified immutable Missouri yearly outside source", () => {
     const cacheDir = await mkdtemp(join(tmpdir(), "mo-ie-generation-")); const bundle = yearlyBundle(cacheDir, [2500, 2500]);
     await storeMissouriMecOutsideSpendingArtifactBundle(bundle);
     const source = await readMissouriMecQualifiedOutsideSpendingArtifacts(bundle);
-    expect(source.rows).toHaveLength(2); expect(source.identities[0]!.mecid).toBeNull();
+    expect(source.rows).toHaveLength(2); if (source.sourceKind !== "grid_reconciled_export") throw new Error("expected grid source"); expect(source.identities[0]!.mecid).toBeNull();
     expect(source.sourceRetrievedAt).toBe(bundle.retrievedAt.toISOString());
     expect(source.sourceSha256).toBe(createHash("sha256").update(bundle.exportBody).digest("hex"));
     expect(source.sourceByteSize).toBe(Buffer.byteLength(bundle.exportBody));
@@ -307,6 +309,7 @@ describe("qualified immutable Missouri yearly outside source", () => {
     const cacheDir=await mkdtemp(join(tmpdir(),"mo-ie-concurrent-"));
     await Promise.all([storeMissouriMecOutsideSpendingArtifactBundle(yearlyBundle(cacheDir,[2500],"C111111")),storeMissouriMecOutsideSpendingArtifactBundle(yearlyBundle(cacheDir,[3000],"C222222"))]);
     const read=await readMissouriMecQualifiedOutsideSpendingArtifacts({cacheDir,year:2026});
+    if (read.sourceKind !== "grid_reconciled_export") throw new Error("expected grid source");
     expect(read.identities[0]!.mecid).toBe(read.rows[0]!.amountCents===2500?"C111111":"C222222");
   });
   it("a reader already resolving one generation stays coherent across pointer replacement", async () => {
@@ -316,7 +319,7 @@ describe("qualified immutable Missouri yearly outside source", () => {
     io.beforeRead=async path=>{if(path===join(root,"_outside/2026/outside_spending.xls.html")){entered();await barrier;}};
     const pending=readMissouriMecQualifiedOutsideSpendingArtifacts(first);await waiting;
     await storeMissouriMecOutsideSpendingArtifactBundle(yearlyBundle(cacheDir,[3000],"C222222"));release();
-    const old=await pending;expect(old.rows[0]!.amountCents).toBe(2500);expect(old.identities[0]!.mecid).toBe("C111111");
+    const old=await pending;if (old.sourceKind !== "grid_reconciled_export") throw new Error("expected grid source");expect(old.rows[0]!.amountCents).toBe(2500);expect(old.identities[0]!.mecid).toBe("C111111");
     io.beforeRead=undefined;expect((await readMissouriMecQualifiedOutsideSpendingArtifacts(first)).rows[0]!.amountCents).toBe(3000);
   });
   it("revalidates exact raw controls and cannot fall back to loose artifacts after corruption", async () => {
@@ -331,5 +334,96 @@ describe("qualified immutable Missouri yearly outside source", () => {
     const cacheDir=await mkdtemp(join(tmpdir(),"mo-ie-legacy-"));const b=yearlyBundle(cacheDir);await storeMissouriMecOutsideSpendingArtifacts(b);
     await expect(readMissouriMecOutsideSpendingArtifacts(b)).resolves.toMatchObject({rows:[{amountCents:2500}]});
     await expect(readMissouriMecQualifiedOutsideSpendingArtifacts(b)).rejects.toThrow("Missing qualified");
+  });
+});
+
+function snapshotBundle(cacheDir: string, amounts = [2500]) {
+  const b=yearlyBundle(cacheDir,amounts);
+  return {...b,resultsBody:`<select id="ctl00_ContentPlaceHolder_ddYear"><option value="2025">2025</option><option selected="selected" value="2026">2026</option></select>${b.resultsBody}<input type="submit" value="Export Results to Excel">`};
+}
+async function snapshotRoot(cacheDir: string) {
+  const pointer=JSON.parse(await readFile(join(cacheDir,"_outside/2026/registered-ie-export-current.json"),"utf8"));
+  return join(cacheDir,"_outside/2026/registered-ie-export-generations",pointer.generation);
+}
+describe("native export snapshot financial source",()=>{
+  it("retains original occurrences/provenance without an identity or grid-enumeration claim",async()=>{
+    const cacheDir=await mkdtemp(join(tmpdir(),"mo-ie-export-"));const b=snapshotBundle(cacheDir,[2500,2500]);
+    await storeMissouriMecOutsideSpendingExportSnapshot(b);
+    const source=await readMissouriMecQualifiedOutsideSpendingArtifacts(b);
+    expect(source.sourceKind).toBe("native_export_snapshot");expect(source.rows.map(r=>r.amountCents)).toEqual([2500,2500]);
+    expect(source.sourcePageCount).toBeNull();expect("identities" in source).toBe(false);
+    expect(source.sourceRetrievedAt).toBe(b.retrievedAt.toISOString());expect(source.sourceSha256).toBe(createHash("sha256").update(b.exportBody).digest("hex"));
+    expect(source.sourceByteSize).toBe(Buffer.byteLength(b.exportBody));expect(source.sourceControls).toEqual([{file:"results.html",sha256:createHash("sha256").update(b.resultsBody).digest("hex"),byteSize:Buffer.byteLength(b.resultsBody)}]);
+    await expect(readMissouriMecOutsideSpendingArtifacts(b)).rejects.toThrow("Missing Missouri MEC artifact");
+    const root=await snapshotRoot(cacheDir);expect((await stat(root)).mode&0o777).toBe(0o700);expect((await stat(join(root,"results.html"))).mode&0o777).toBe(0o600);
+  });
+  it("supports explicit native zero with a complete header-only export",async()=>{
+    const cacheDir=await mkdtemp(join(tmpdir(),"mo-ie-export-zero-"));const b=snapshotBundle(cacheDir,[]);
+    await storeMissouriMecOutsideSpendingExportSnapshot(b);
+    await expect(readMissouriMecQualifiedOutsideSpendingArtifacts(b)).resolves.toMatchObject({sourceKind:"native_export_snapshot",rows:[],sourceRowCount:0,sourcePageCount:null});
+  });
+  it.each(["wrong_year","missing_year","duplicate_selected","duplicate_year_control","missing_count","conflicting_count","malformed_count","missing_table_close","extra_table","missing_cell_close","unsafe_cents","unknown_stance","invalid_unicode"])("rejects invalid original %s controls before replacing a snapshot",async mode=>{
+    const cacheDir=await mkdtemp(join(tmpdir(),"mo-ie-export-controls-"));const b=snapshotBundle(cacheDir);await storeMissouriMecOutsideSpendingExportSnapshot(b);
+    const pointer=await readFile(join(cacheDir,"_outside/2026/registered-ie-export-current.json"),"utf8");const bad=snapshotBundle(cacheDir);
+    if(mode==="wrong_year")bad.resultsBody=bad.resultsBody.replace('selected="selected" value="2026"','selected="selected" value="2025"');
+    if(mode==="missing_year")bad.resultsBody=bad.resultsBody.replace(/<select[\s\S]*?<\/select>/,"");
+    if(mode==="duplicate_selected")bad.resultsBody=bad.resultsBody.replace('value="2025"','selected="selected" value="2025"');
+    if(mode==="duplicate_year_control")bad.resultsBody+=bad.resultsBody.match(/<select[\s\S]*?<\/select>/)![0];
+    if(mode==="missing_count")bad.resultsBody=bad.resultsBody.replace("1 records found","count unavailable");
+    if(mode==="conflicting_count")bad.resultsBody+="<span>2 records found</span>";
+    if(mode==="malformed_count")bad.resultsBody=bad.resultsBody.replace("1 records found","1,0 records found");
+    if(mode==="missing_table_close")bad.exportBody=bad.exportBody.replace("</table>","");
+    if(mode==="extra_table")bad.exportBody+="<table></table>";
+    if(mode==="missing_cell_close")bad.exportBody=bad.exportBody.replace("</td>","");
+    if(mode==="unsafe_cents")bad.exportBody=bad.exportBody.replace("$25.00","$9007199254740992.00");
+    if(mode==="unknown_stance")bad.exportBody=bad.exportBody.replace(">Support<",">Unknown Stance<");
+    if(mode==="invalid_unicode")bad.resultsBody+="\ud800";
+    await expect(storeMissouriMecOutsideSpendingExportSnapshot(bad)).rejects.toThrow("export snapshot failed qualification");
+    expect(await readFile(join(cacheDir,"_outside/2026/registered-ie-export-current.json"),"utf8")).toBe(pointer);
+  });
+  it("accepts selected option attribute order while preserving strict one-year authority",()=>{
+    const b=snapshotBundle("unused");b.resultsBody=b.resultsBody.replace('selected="selected" value="2026"','value="2026" selected="selected"');
+    expect(()=>qualifyMissouriMecOutsideSpendingExportSnapshot(b)).not.toThrow();
+  });
+  it("does not weaken the separate strict grid financial guard",async()=>{
+    const cacheDir=await mkdtemp(join(tmpdir(),"mo-ie-separate-contract-"));const grid=yearlyBundle(cacheDir,[2500,3000]);
+    grid.gridPageBodies[1]=grid.gridPageBodies[1]!.replace("$30.00","$25.00");
+    await expect(storeMissouriMecOutsideSpendingArtifactBundle(grid)).rejects.toThrow("failed qualification");
+    await storeMissouriMecOutsideSpendingExportSnapshot(snapshotBundle(cacheDir,[2500,3000]));
+    await expect(readMissouriMecQualifiedOutsideSpendingArtifacts(grid)).resolves.toMatchObject({sourceKind:"native_export_snapshot",sourceRowCount:2});
+    await expect(readMissouriMecOutsideSpendingArtifacts(grid)).rejects.toThrow("Missing Missouri MEC artifact");
+  });
+  it("prefers a valid snapshot for financial reads but keeps legacy identity packet separate",async()=>{
+    const cacheDir=await mkdtemp(join(tmpdir(),"mo-ie-preference-"));await storeMissouriMecOutsideSpendingArtifactBundle(yearlyBundle(cacheDir,[2500],"C123456"));
+    await storeMissouriMecOutsideSpendingExportSnapshot(snapshotBundle(cacheDir,[3000]));
+    expect((await readMissouriMecQualifiedOutsideSpendingArtifacts({cacheDir,year:2026})).rows[0]!.amountCents).toBe(3000);
+    expect((await readMissouriMecOutsideSpendingArtifacts({cacheDir,year:2026})).rows[0]!.amountCents).toBe(2500);
+    const root=await snapshotRoot(cacheDir);await writeFile(join(root,"results.html"),"corrupt original control");
+    await expect(readMissouriMecQualifiedOutsideSpendingArtifacts({cacheDir,year:2026})).rejects.toThrow("export snapshot failed qualification");
+    expect((await readMissouriMecOutsideSpendingArtifacts({cacheDir,year:2026})).rows[0]!.amountCents).toBe(2500);
+  });
+  it.each(["results.html","qualification.json","registered-ie-export-current.json.tmp-"])("retains prior source on actual staging/publication fault at %s",async fragment=>{
+    const cacheDir=await mkdtemp(join(tmpdir(),"mo-ie-export-fault-"));const first=snapshotBundle(cacheDir);await storeMissouriMecOutsideSpendingExportSnapshot(first);
+    const pointer=await readFile(join(cacheDir,"_outside/2026/registered-ie-export-current.json"),"utf8");
+    io.beforeWrite=async path=>{if(path.includes(fragment))throw new Error("synthetic_disk_failure");};
+    try{await expect(storeMissouriMecOutsideSpendingExportSnapshot(snapshotBundle(cacheDir,[3000]))).rejects.toThrow("export snapshot publication failed");}finally{io.beforeWrite=undefined;}
+    expect(await readFile(join(cacheDir,"_outside/2026/registered-ie-export-current.json"),"utf8")).toBe(pointer);
+    expect((await readMissouriMecQualifiedOutsideSpendingArtifacts(first)).rows[0]!.amountCents).toBe(2500);
+  });
+  it("same-clock publishers and an in-flight reader see whole immutable snapshots",async()=>{
+    const cacheDir=await mkdtemp(join(tmpdir(),"mo-ie-export-concurrent-"));const first=snapshotBundle(cacheDir,[2500]);await storeMissouriMecOutsideSpendingExportSnapshot(first);
+    const root=await snapshotRoot(cacheDir);let release!:()=>void,entered!:()=>void;const barrier=new Promise<void>(r=>{release=r;}),waiting=new Promise<void>(r=>{entered=r;});
+    io.beforeRead=async path=>{if(path===join(root,"_outside/2026/outside_spending.xls.html")){entered();await barrier;}};
+    const pending=readMissouriMecQualifiedOutsideSpendingArtifacts(first);await waiting;
+    await Promise.all([storeMissouriMecOutsideSpendingExportSnapshot(snapshotBundle(cacheDir,[3000])),storeMissouriMecOutsideSpendingExportSnapshot(snapshotBundle(cacheDir,[4000]))]);release();
+    expect((await pending).rows[0]!.amountCents).toBe(2500);io.beforeRead=undefined;
+    const source=await readMissouriMecQualifiedOutsideSpendingArtifacts(first);expect([3000,4000]).toContain(source.rows[0]!.amountCents);
+    const expected=snapshotBundle(cacheDir,[source.rows[0]!.amountCents]);expect(source.sourceSha256).toBe(createHash("sha256").update(expected.exportBody).digest("hex"));
+  });
+  it("rejects invalid original UTF8 even when an internal control hash matches bytes",async()=>{
+    const cacheDir=await mkdtemp(join(tmpdir(),"mo-ie-export-utf8-"));const b=snapshotBundle(cacheDir);await storeMissouriMecOutsideSpendingExportSnapshot(b);
+    const root=await snapshotRoot(cacheDir),raw=Buffer.from([0xff]);await writeFile(join(root,"results.html"),raw);
+    const meta=JSON.parse(await readFile(join(root,"qualification.json"),"utf8"));meta.files[0].sha256=createHash("sha256").update(raw).digest("hex");meta.files[0].byteSize=raw.length;await writeFile(join(root,"qualification.json"),JSON.stringify(meta));
+    await expect(readMissouriMecQualifiedOutsideSpendingArtifacts(b)).rejects.toThrow("export snapshot failed qualification");
   });
 });
