@@ -284,7 +284,7 @@ export async function syncMissouriCandidateFinance(input: MissouriCandidateFinan
         candidateNameNormalized: normalizeMissouriCandidateNameForStorage(requireText(input.candidateName, "candidate name")),
         officeName: requireText(input.officeName, "office name"), district: input.district ?? null,
         committeeId, committeeName: requireText(input.committee.committeeName, "Missouri committee name"),
-        linkStatus: "active", linkSource: input.committee.linkSource,
+        linkStatus: "active", linkSource: "mec_portal",
         sourceUrl: input.committee.sourceUrl ?? component.sourceUrl, lastVerifiedAt: now },
     });
     return { candidateId: input.candidateId, electionId: input.electionId, electionYear: input.electionYear, committeeId,
@@ -454,7 +454,9 @@ async function syncMissouriCandidateFinanceCore(input: MissouriCandidateFinanceS
         committeeId,
         committeeName: requireText(input.committee.committeeName, "Missouri committee name"),
         linkStatus: "active",
-        linkSource: input.committee.linkSource,
+        // Refreshing a curated link is still automatic work. The protected
+        // writer retains manual provenance and rejects operator-disabled links.
+        linkSource: "mec_portal",
         sourceUrl: input.committee.sourceUrl ?? sourceUrl,
         lastVerifiedAt: now,
       },

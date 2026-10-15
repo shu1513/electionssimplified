@@ -57,6 +57,23 @@ function receiptDb() {
 }
 
 describe("missouriCandidateFinanceSync", () => {
+  it.each([false, true])("keeps an operator-disabled manual due link disabled (receipt-only=%s)", async (receiptOnly) => {
+    vi.stubEnv("MISSOURI_CAMPAIGN_FINANCE_ENABLED", "true");
+    vi.stubEnv("MISSOURI_COMMITTEE_RECEIPTS_ENABLED", "true");
+    const input = receiptSyncInput();
+    const client = { query: vi.fn(async (sql: unknown) => String(sql).includes("link_source='manual'")
+      ? { rows: [{ id: "33333333-3333-4333-8333-333333333333", committee_id: "C263985", link_status: "disabled", election_year: 2026 }], rowCount: 1 }
+      : { rows: [], rowCount: 0 }), release: vi.fn() };
+    const db = { query: vi.fn(), connect: vi.fn().mockResolvedValue(client) };
+    await expect(syncMissouriCandidateFinance({ ...input, db: db as never,
+      committee: { ...input.committee, linkSource: "manual" }, directArtifactsUnavailable: receiptOnly,
+    })).rejects.toThrow("operator-disabled manual link");
+    const statements = client.query.mock.calls.map(([sql]) => String(sql));
+    expect(statements.some(sql => /(?:INSERT INTO|UPDATE|DELETE FROM) public\.mo_candidate_finance_/.test(sql))).toBe(false);
+    expect(statements).toContain("ROLLBACK");
+    expect(statements).not.toContain("COMMIT");
+  });
+
   it("writes qualified receipts alone after unrelated expenditure data fails", async () => {
     vi.stubEnv("MISSOURI_CAMPAIGN_FINANCE_ENABLED", "true");
     vi.stubEnv("MISSOURI_COMMITTEE_RECEIPTS_ENABLED", "true");
