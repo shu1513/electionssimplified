@@ -4,7 +4,7 @@ const harness=vi.hoisted(()=>({pages:[] as MarylandPdfPage[], bytes:[] as number
 const controls=vi.hoisted(()=>({expenseControls:[{schedule:"2",column:"Z",printedLabel:"Returned Contribution – Schd 2, Col Z",amountCents:66500}],receiptControls:[],cashSummary:{priorBalanceCents:100000,totalReceiptsCents:0,totalExpendituresCents:66500,cashBalanceCents:33500},equations:{cashBalance:true,expensesSum:true,receiptsSum:true}}));
 vi.mock("../../../src/pipeline/marylandFinance/marylandReportPdfGeometry.js",()=>({readMarylandReportPdfGeometry:async(bytes:Uint8Array,onPage:(p:MarylandPdfPage)=>void)=>{if(harness.pause)await harness.pause();harness.bytes=[...bytes];for(const p of harness.pages)await onPage(p);return {sha256:"a".repeat(64),byteCount:bytes.length,pageCount:harness.pages.length,textItemCount:0};}}));
 vi.mock("../../../src/pipeline/marylandFinance/marylandLegacyReportFinancialControls.js",()=>({parseMarylandLegacyFinancialControls:()=>structuredClone(controls)}));
-import {readMarylandLegacyReturnedContributionFacts,readMarylandLegacyReturnedContributionObservations,compareMarylandLegacyCommitteeReturnOccurrences} from "../../../src/pipeline/marylandFinance/marylandLegacyReturnedContributionFacts.js";
+import {readMarylandLegacyReturnedContributionFacts,readMarylandLegacyReturnedContributionObservations,compareMarylandLegacyCommitteeReturnOccurrences,proveMarylandLegacyReturnCashFamilies} from "../../../src/pipeline/marylandFinance/marylandLegacyReturnedContributionFacts.js";
 import {buildMarylandPublicReportInventoryRequest} from "../../../src/pipeline/marylandFinance/marylandPublicReportClient.js";
 
 const owner="11111111-1111-4111-8111-111111111111",reportGuid="22222222-2222-4222-8222-222222222222";
@@ -54,6 +54,35 @@ describe("legacy committee economic occurrence comparison",()=>{
  it("holds eligible cohort ambiguity",async()=>{const f=await facts();const a={...f,sourceFacts:{...f.sourceFacts,returnCount:2,returnCents:133000,controls:{...f.sourceFacts.controls,expenseControls:[{...f.sourceFacts.controls.expenseControls[0]!,amountCents:133000}]}},privateOccurrences:[...f.privateOccurrences,{...f.privateOccurrences[0]!,ordinal:1}]};expect(()=>compareMarylandLegacyCommitteeReturnOccurrences({reports:[report],inventoryRequest:request,currentRows:[gift(),refund(),refund(3)],priorRows:[],pdfReports:[{report,facts:a}]})).toThrow();});
  it("holds omitted whole occurrence, duplicate physical row and altered name",async()=>{const f=await facts();for(const altered of [{...f,privateOccurrences:[]},{...f,privateOccurrences:[{...f.privateOccurrences[0]!,nameAddress:"Different Example"}]},{...f,privateOccurrences:[...f.privateOccurrences,...f.privateOccurrences]}])expect(()=>compareMarylandLegacyCommitteeReturnOccurrences({reports:[report],inventoryRequest:request,currentRows:[gift(),refund()],priorRows:[],pdfReports:[{report,facts:altered}]})).toThrow();});
  it("holds a printed conflicting eligible address",async()=>{const f=await facts(),altered={...f,privateOccurrences:[{...f.privateOccurrences[0]!,nameAddress:"Example Federal Committee Different printed address"}]};expect(()=>compareMarylandLegacyCommitteeReturnOccurrences({reports:[report],inventoryRequest:request,currentRows:[gift(),refund()],priorRows:[],pdfReports:[{report,facts:altered}]})).toThrow("identity");});
+ it("binds only a complete eligible contact using the source state presentation",async()=>{
+   const f=await facts(),contact={contributorState:"MD",contributorZipCode:"00000",contributorFullAddress:"100 Example Road Syntheticville MD 00000"};
+   const dictionary={sourceFacts:{sha256:"a".repeat(64),byteCount:1,dictionaryEntries:51,originalStartedAt:"2026-01-01",originalCompletedAt:"2026-01-01"},privateStateLabels:Object.freeze({MD:"Maryland"})};
+   const input={reports:[report],inventoryRequest:request,currentRows:[gift(1,contact),refund(2,contact)],priorRows:[],stateDisplayDictionary:dictionary};
+   const source=(nameAddress:string)=>({...f,privateOccurrences:[{...f.privateOccurrences[0]!,nameAddress}]});
+   const exact="Example Federal Committee 100 Example Road Syntheticville Maryland 00000";
+   expect(compareMarylandLegacyCommitteeReturnOccurrences({...input,pdfReports:[{report,facts:source(exact)}]}).sourceFacts.eligibleReturns).toBe(1);
+   for(const nameAddress of ["Example Federal Committee 100 Other Road Syntheticville Maryland 00000","Example Federal Committee 100 Example Road Syntheticville Maryland 00001","Example Federal Committee 100 Example Road Syntheticville Virginia 00000",exact+" Extra suffix","Example Federal Committee 100 Example Road Syntheticville MD 00000"])
+     expect(()=>compareMarylandLegacyCommitteeReturnOccurrences({...input,pdfReports:[{report,facts:source(nameAddress)}]})).toThrow("identity");
+ });
+ it("holds cross-alternative whole-name and projected-contact collisions",async()=>{
+   const f=await facts(),contact={contributorState:"MD",contributorZipCode:"00000",contributorFullAddress:"100 Example Road Syntheticville MD 00000"};
+   const dictionary={sourceFacts:{sha256:"a".repeat(64),byteCount:1,dictionaryEntries:51,originalStartedAt:"2026-01-01",originalCompletedAt:"2026-01-01"},privateStateLabels:Object.freeze({MD:"Maryland"})};
+   const expanded="Example Federal Committee 100 Example Road Syntheticville Maryland 00000",other={contributorName:expanded,contributorTypeCode:"TIND",contributorFullAddress:null};
+   const controls2={...f.sourceFacts.controls,expenseControls:[{...f.sourceFacts.controls.expenseControls[0]!,amountCents:133000}],cashSummary:{...f.sourceFacts.controls.cashSummary,totalExpendituresCents:133000,cashBalanceCents:-33000}};
+   const doubled={...f,privateScheduleTotal:{...f.privateScheduleTotal!,amountCents:133000},sourceFacts:{...f.sourceFacts,scheduleTotalCents:133000,returnCount:2,returnCents:133000,controls:controls2},privateOccurrences:[{...f.privateOccurrences[0]!,nameAddress:expanded},{...f.privateOccurrences[0]!,ordinal:1,rowTop:230,rowBottom:280}]};
+   expect(()=>compareMarylandLegacyCommitteeReturnOccurrences({reports:[report],inventoryRequest:request,currentRows:[gift(1,contact),refund(2,contact),gift(4,other),refund(3,{...other,parentTransactionId:4,parentTransactionGuid:id(4)})],priorRows:[],pdfReports:[{report,facts:doubled}],stateDisplayDictionary:dictionary})).toThrow("identity");
+ });
+ it("holds duplicate noneligible contact capacity inside a mixed eligible fiscal cohort",async()=>{
+   const f=await facts(),first="Other Example 100 Example Road",second="Other Example 200 Example Road";
+   const controls3={...f.sourceFacts.controls,expenseControls:[{...f.sourceFacts.controls.expenseControls[0]!,amountCents:199500}],cashSummary:{...f.sourceFacts.controls.cashSummary,totalExpendituresCents:199500,cashBalanceCents:-99500}};
+   const original=(n:number,contact:string)=>gift(n,{contributorName:"Other Example",contributorTypeCode:"TIND",contributorFullAddress:contact});
+   const returned=(n:number,parent:number,contact:string)=>refund(n,{contributorName:"Other Example",contributorTypeCode:"TIND",contributorFullAddress:contact,parentTransactionId:parent,parentTransactionGuid:id(parent)});
+   const currentRows=[gift(),refund(),original(4,"100 Example Road"),returned(3,4,"100 Example Road"),original(5,"200 Example Road"),returned(6,5,"200 Example Road")];
+   for(const repeated of [false,true]){
+     const triple={...f,privateScheduleTotal:{...f.privateScheduleTotal!,amountCents:199500},sourceFacts:{...f.sourceFacts,scheduleTotalCents:199500,returnCount:3,returnCents:199500,controls:controls3},privateOccurrences:[...f.privateOccurrences,{...f.privateOccurrences[0]!,ordinal:1,rowTop:230,rowBottom:280,nameAddress:first},{...f.privateOccurrences[0]!,ordinal:2,rowTop:280,rowBottom:330,nameAddress:repeated?first:second}]};
+     expect(()=>compareMarylandLegacyCommitteeReturnOccurrences({reports:[report],inventoryRequest:request,currentRows,priorRows:[],pdfReports:[{report,facts:triple}]})).toThrow("identity");
+   }
+ });
  it("holds current report-period mismatch and duplicate native identity",async()=>{await expect(compare({currentRows:[gift(),refund(2,{transactionDate:"2024-01-01T00:00:00"})]})).rejects.toThrow();await expect(compare({currentRows:[gift(),refund(),refund()]})).rejects.toThrow("duplicate");});
 
   it("retains duplicate noneligible whole cohorts with exact multiplicity",async()=>{
@@ -70,6 +99,10 @@ describe("legacy committee economic occurrence comparison",()=>{
     const other={contributorName:"Other Example",contributorTypeCode:"TIND",contributorAddressLine1:"100 Example Road",contributorFullAddress:"100 Example Road Syntheticville MD 00000"};
     const input={reports:[report],inventoryRequest:request,currentRows:[gift(),refund(),gift(4,other),refund(3,{...other,parentTransactionId:4,parentTransactionGuid:id(4)})],priorRows:[]};
     expect(compareMarylandLegacyCommitteeReturnOccurrences({...input,pdfReports:[{report,facts:source("Other Example 100 Example Road Syntheticville MD 00000")}]}).sourceFacts).toMatchObject({eligibleReturns:1,noneligibleUnknownIdentityOccurrences:0});
+    const dictionary={sourceFacts:{sha256:"a".repeat(64),byteCount:1,dictionaryEntries:51,originalStartedAt:"2026-01-01",originalCompletedAt:"2026-01-01"},privateStateLabels:Object.freeze({MD:"Maryland"})};
+    const projectedRows=input.currentRows.map(r=>r.contributorName==="Other Example"?{...r,contributorState:"MD",contributorZipCode:"00000"}:r);
+    expect(compareMarylandLegacyCommitteeReturnOccurrences({...input,currentRows:projectedRows,stateDisplayDictionary:dictionary,pdfReports:[{report,facts:source("Other Example 100 Example Road Syntheticville Maryland 00000")}]}).sourceFacts).toMatchObject({eligibleReturns:1,noneligibleUnknownIdentityOccurrences:0});
+
     for(const printed of ["Other Example 100 Example Road Conflicting locality","Other Example 100 Example Road","Other Example 100 Example Road Syntheticville MD 00000 Extra suffix"])
       expect(()=>compareMarylandLegacyCommitteeReturnOccurrences({...input,pdfReports:[{report,facts:source(printed)}]})).toThrow("identity");
   });
@@ -255,4 +288,56 @@ describe("legacy committee economic occurrence comparison",()=>{
     for(const altered of [{...f,privateScheduleTotal:null},{...f,sourceFacts:{...f.sourceFacts,scheduleTotalCents:null}}])expect(()=>compareMarylandLegacyCommitteeReturnOccurrences({reports:[report],inventoryRequest:request,currentRows:[gift(),refund()],priorRows:[],pdfReports:[{report,facts:altered}]})).toThrow("control");
   });
 
+});
+
+describe("legacy whole-report returned-contribution cash family",()=>{
+  it("proves the entire report family without claiming per-row PDF contact correspondence",async()=>{
+    const f=await facts(),altered={...f,privateOccurrences:[{...f.privateOccurrences[0]!,nameAddress:"Different complete printed contact"}]};
+    const input={reports:[report],inventoryRequest:request,currentRows:[gift(),refund()],priorRows:[],pdfReports:[{report,facts:altered}]};
+    expect(()=>compareMarylandLegacyCommitteeReturnOccurrences(input)).toThrow("identity");
+    const result=proveMarylandLegacyReturnCashFamilies(input);
+    expect(result.sourceFacts).toEqual({reportsCompared:1,nativeReturns:1,pdfReturns:1,returnCents:66500,documentFamily:"cash_outflow"});
+    expect(result.reports).toEqual([{report,pdfSha256:"a".repeat(64),pdfByteCount:3,pdfPageCount:4,returnCount:1,returnCents:66500,documentFamily:"cash_outflow"}]);
+    for(const field of ["transactionId","transactionGuid","pageNumber","ordinal","nameAddress","privateBoundReturns"])expect(JSON.stringify(result)).not.toContain(field);
+  });
+  it.each(["Returned In-Kind Contribution","Returned In Kind Contributions","Returned Noncash Contribution","Unknown Returned Contribution","In-Kind Contribution Returns","Noncash Contributions Returned"])("rejects another returned category %s anywhere in the document",async category=>{
+    for(const before of [true,false]){
+      const extra={...page(),cells:page().cells.map(c=>c.text==="Z - Returned Contribution"?{...c,text:category}:c)};
+      harness.pages=before?[empty(1),empty(2),extra,{...page(),pageNumber:4},ending(5)]:[empty(1),empty(2),page(),ending(4),{...extra,pageNumber:5}];
+      await expect(facts()).rejects.toThrow("header");
+    }
+  });
+  it("rejects a returned category under a non-expenditure source section",async()=>{
+    harness.pages[2]={...page(),cells:page().cells.map(c=>c.text==="Expenditures"?{...c,text:"Contributions"}:c)};
+    await expect(facts()).rejects.toThrow("header");
+  });
+  it("rejects reopened Z and later unclosed return financial content",async()=>{
+    harness.pages.push({...page(),pageNumber:5},ending(6));await expect(facts()).rejects.toThrow();
+    harness.pages=[empty(1),empty(2),page(),ending(4),{...page(),pageNumber:5,cells:page().cells.filter(c=>!["Expenditures","Z - Returned Contribution","Date","Name and Address of Payee","Special","Amount"].includes(c.text))}];
+    await expect(facts()).rejects.toThrow("control");
+  });
+  it("requires all noneligible and eligible native returns and physical fiscal multiplicities",async()=>{
+    const f=await facts(),controls2={...f.sourceFacts.controls,expenseControls:[{...f.sourceFacts.controls.expenseControls[0]!,amountCents:133000}],cashSummary:{...f.sourceFacts.controls.cashSummary,totalExpendituresCents:133000,cashBalanceCents:-33000}};
+    const doubled={...f,privateScheduleTotal:{...f.privateScheduleTotal!,amountCents:133000},sourceFacts:{...f.sourceFacts,scheduleTotalCents:133000,returnCount:2,returnCents:133000,controls:controls2},privateOccurrences:[...f.privateOccurrences,{...f.privateOccurrences[0]!,ordinal:1,rowTop:230,rowBottom:280,nameAddress:"Different unbound contact"}]};
+    const currentRows=[gift(),refund(),gift(4,{contributorTypeCode:"TIND"}),refund(3,{parentTransactionId:4,parentTransactionGuid:id(4)})];
+    const input={reports:[report],inventoryRequest:request,currentRows,priorRows:[],pdfReports:[{report,facts:doubled}]};
+    expect(proveMarylandLegacyReturnCashFamilies(input).sourceFacts).toMatchObject({nativeReturns:2,pdfReturns:2,returnCents:133000});
+    expect(()=>proveMarylandLegacyReturnCashFamilies({...input,currentRows:currentRows.slice(0,2)})).toThrow("comparison");
+    expect(()=>proveMarylandLegacyReturnCashFamilies({...input,pdfReports:[{report,facts:{...doubled,privateOccurrences:[doubled.privateOccurrences[0]!,{...doubled.privateOccurrences[1]!,date:"2023-06-02"}]}}]})).toThrow("comparison");
+  });
+  it.each([{parentTransactionGuid:id(9)},{contributorName:"Conflicting native giver"},{transactionDate:"2023-01-01T00:00:00"}])("preserves independent original parent ownership/name/date validation",async change=>{
+    const f=await facts();expect(()=>proveMarylandLegacyReturnCashFamilies({reports:[report],inventoryRequest:request,currentRows:[gift(),refund(2,change)],priorRows:[],pdfReports:[{report,facts:f}]})).toThrow("parent");
+  });
+  it("requires an explicit original giver class even when the entire source family is cash",async()=>{
+    const f=await facts();expect(()=>proveMarylandLegacyReturnCashFamilies({reports:[report],inventoryRequest:request,currentRows:[gift(1,{contributionTypeCode:"ANYMS",contributorTypeCode:null}),refund()],priorRows:[],pdfReports:[{report,facts:f}]})).toThrow("parent");
+  });
+  it("preserves committee lifetime bounds and complete family/footer controls",async()=>{
+    const f=await facts(),input={reports:[report],inventoryRequest:request,currentRows:[gift(),refund()],priorRows:[],pdfReports:[{report,facts:f}]};
+    expect(()=>proveMarylandLegacyReturnCashFamilies({...input,priorRows:[refund(3,{electionCycleId:12019,transactionAmount:400,transactionDate:"2023-03-01T00:00:00"})]})).toThrow("over_refund");
+    for(const altered of [{...f,privateScheduleTotal:null},{...f,sourceFacts:{...f.sourceFacts,returnedContributionSectionCount:2}},{...f,sourceFacts:{...f.sourceFacts,scheduleTotalCents:1}}])expect(()=>proveMarylandLegacyReturnCashFamilies({...input,pdfReports:[{report,facts:altered}]})).toThrow("control");
+  });
+  it("holds genuine unknown continuation roles for this narrow initial proof",async()=>{
+    observedContinuation();const f=await readMarylandLegacyReturnedContributionObservations(new Uint8Array([1,2,3]));
+    expect(()=>proveMarylandLegacyReturnCashFamilies({reports:[report],inventoryRequest:request,currentRows:[gift(1,{transactionAmount:2000}),refund(),refund(3,{transactionDate:"2023-06-02T00:00:00"})],priorRows:[],pdfReports:[{report,facts:f}]})).toThrow("continuation");
+  });
 });

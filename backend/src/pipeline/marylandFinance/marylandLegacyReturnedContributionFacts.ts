@@ -3,6 +3,7 @@ import { parseMarylandLegacyFinancialControls, type MarylandLegacyFinancialContr
 import { bindMarylandNativeReportOccurrences } from "./marylandNativeReportBinding.js";
 import { buildMarylandPublicReportInventoryRequest, decodeMarylandPublishedReport, type MarylandPublishedReport, type MarylandPublicReportInventoryRequest } from "./marylandPublicReportClient.js";
 import { parseMarylandCfsMoney } from "./marylandCfsArtifactReader.js";
+import {projectMarylandLegacyNativeFullAddress,type MarylandSourceStateDisplayDictionary} from "./marylandSourceStateDisplay.js";
 
 type Row = Readonly<Record<string, unknown>>;
 type ScheduleTotal = Readonly<{pageNumber:number;top:number;bottom:number;amountCents:number}>;
@@ -15,7 +16,7 @@ export type MarylandLegacyReturnedContributionOccurrence = Readonly<{
 }>;
 export type MarylandLegacyReturnedContributionFacts = Readonly<{
   sourceFacts: Readonly<{ sha256: string; byteCount: number; pageCount: number;
-    returnCount: number; returnCents: number; sectionStarts: number; unknownContinuationCount: number; purposeContinuationCount:number; scheduleTotalCents:number|null;
+    returnCount: number; returnCents: number; sectionStarts: number; returnedContributionSectionCount:number; unknownContinuationCount: number; purposeContinuationCount:number; scheduleTotalCents:number|null;
     controls: MarylandLegacyFinancialControls }>;
   /** Private transient source text. Never log or persist. */
   privateOccurrences: readonly MarylandLegacyReturnedContributionOccurrence[];
@@ -38,15 +39,18 @@ const apparentFinancial=/\$|\b\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\b|\b\d[\d,]*\.\d{2}\
 const near = (a: number, b: number) => Math.abs(a-b) < .02;
 const columns = [17.56, 89.31, 161.31, 305.31, 446.627, 503.31, 593.06];
 const sections = new Set(["Contributions", "Transfers in", "Other Receipts and In-Kind Contributions", "Expenditures"]);
+const returnedContributionCategory=(value:string)=>/\breturn(?:ed|s)?\b/i.test(value)&&/\bcontributions?\b/i.test(value);
 const committeeClasses = new Set(["TCC", "TFED", "TPAC", "TPCC", "TPOC", "TRNFC", "TUNFC", "TSLATE", "TPCLB"]);
 const allClasses = new Set([...committeeClasses, "TBSN", "TIND", "TLAB", "TNPO", "TSPDC"]);
 const guid = (v: unknown): v is string => typeof v === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v) && !/^0{8}-0{4}-0{4}-0{4}-0{12}$/.test(v);
 const positive = (v: unknown): v is number => Number.isSafeInteger(v) && (v as number)>0;
-function exactPrintedContact(identity: string, row: Row) {
+function exactPrintedContact(identity: string, row: Row, dictionary?:MarylandSourceStateDisplayDictionary) {
   const name=normalize(row.contributorName as string);
-  const address=typeof row.contributorFullAddress==="string"?normalize(row.contributorFullAddress):"";
+  const projected=dictionary?projectMarylandLegacyNativeFullAddress(row,dictionary):null;
+  const address=projected!==null?normalize(projected):typeof row.contributorFullAddress==="string"?normalize(row.contributorFullAddress):"";
   // The complete painted field must agree. A name/street prefix cannot
-  // license an arbitrary or conflicting printed address suffix.
+  // license an arbitrary or conflicting printed address suffix. A qualified
+  // state presentation replaces the address; raw contact is no alternate.
   return identity===name || Boolean(address && identity===`${name} ${address}`);
 }
 function add(a: number, b: number) { const n=a+b; if (!Number.isSafeInteger(n)) fail("amount"); return n; }
@@ -84,17 +88,27 @@ async function readReturnedContributions(bytes: Uint8Array, observeUnknown: bool
   const privateUnknownContinuations: MarylandLegacyReturnedContributionFacts["privateUnknownContinuations"][number][]=[];
   const privatePurposeContinuations:Continuation[]=[];
   let deferredPurposeLabel:Readonly<{predecessor:MarylandLegacyReturnedContributionOccurrence;strip:ContinuationStrip;cells:readonly SourceCell[];ledgerBottom:number}>|null=null;
-  let active=false, lastPage=0, sectionStarts=0, closed=false, afterReturnFooter=false, scheduleTotalCents:number|null=null;
+  let active=false, lastPage=0, sectionStarts=0, returnedContributionSectionCount=0, closed=false, afterReturnFooter=false, scheduleTotalCents:number|null=null;
   let pending: MarylandLegacyReturnedContributionOccurrence|undefined;
   let privateScheduleTotal:ScheduleTotal|null=null;
   let deferredTailIndex:Readonly<{index:number;purpose:boolean}>|null=null;
   const geometry=await readMarylandReportPdfGeometry(data,p=>{
     validatePage(p,++lastPage); if (p.pageNumber<=2) controlPages.push(p);
     const headings=p.cells.filter(c=>c.left>150 && c.left<350 && sections.has(clean(c.text))).sort((a,b)=>a.baselineTop-b.baselineTop);
+    // Inspect section/category roles throughout the document, including
+    // sections before or after Z. In-kind/unknown returned families cannot be
+    // silently omitted from a universal cash-outflow proof.
+    if(p.pageNumber>2)for(const heading of headings){
+      const category=p.cells.filter(c=>c.baselineTop>heading.baselineTop+1 && c.baselineTop<heading.baselineTop+18).sort((a,b)=>a.baselineTop-b.baselineTop || a.left-b.left).map(c=>clean(c.text)).join(" ");
+      if(returnedContributionCategory(category)){
+        returnedContributionSectionCount++;
+        if(clean(heading.text)!=="Expenditures"||category!=="Z - Returned Contribution")fail("header");
+      }
+    }
     const headers=p.cells.filter(c=>Math.abs(c.left-19.296)<.4 && clean(c.text)==="Date").map(anchor=>{
       const heading=headings.filter(c=>c.baselineTop<anchor.baselineTop-20).at(-1); if (!heading) return fail("header");
       const category=p.cells.filter(c=>c.baselineTop>heading.baselineTop+1 && c.baselineTop<heading.baselineTop+18).sort((a,b)=>a.baselineTop-b.baselineTop || a.left-b.left).map(c=>clean(c.text)).join(" ");
-      if (/Returned Contribution/i.test(category) && (clean(heading.text)!=="Expenditures" || category!=="Z - Returned Contribution")) fail("header");
+      if (returnedContributionCategory(category) && (clean(heading.text)!=="Expenditures" || category!=="Z - Returned Contribution")) fail("header");
       const returned=clean(heading.text)==="Expenditures" && category==="Z - Returned Contribution";
       if (returned) {
         sectionStarts++;
@@ -282,12 +296,12 @@ async function readReturnedContributions(bytes: Uint8Array, observeUnknown: bool
   });
   if(deferredTailIndex!==null || deferredPurposeLabel!==null)fail("continuation");
   if (pending) { if (active && !closed) fail("continuation");privateOccurrences.push(pending); }
-  if (sectionStarts!==1 || controlPages.length!==2) fail("header");
+  if (sectionStarts!==1 || returnedContributionSectionCount!==1 || controlPages.length!==2) fail("header");
   const controls=parseMarylandLegacyFinancialControls({page1:controlPages[0]!,page2:controlPages[1]!});
   const total=privateOccurrences.reduce((n,r)=>add(n,r.amountCents),0);
   const z=controls.expenseControls.filter(c=>c.schedule==="2" && c.column==="Z");
   if (z.length!==1 || z[0]!.amountCents!==total || scheduleTotalCents===null || scheduleTotalCents!==total || privateScheduleTotal===null) fail("control");
-  return Object.freeze({sourceFacts:Object.freeze({...geometry,returnCount:privateOccurrences.length,returnCents:total,sectionStarts,unknownContinuationCount:privateUnknownContinuations.length,purposeContinuationCount:privatePurposeContinuations.length,scheduleTotalCents,controls}),privateOccurrences:Object.freeze(privateOccurrences),privateScheduleTotal,privateUnknownContinuations:Object.freeze(privateUnknownContinuations),privatePurposeContinuations:Object.freeze(privatePurposeContinuations)});
+  return Object.freeze({sourceFacts:Object.freeze({...geometry,returnCount:privateOccurrences.length,returnCents:total,sectionStarts,returnedContributionSectionCount,unknownContinuationCount:privateUnknownContinuations.length,purposeContinuationCount:privatePurposeContinuations.length,scheduleTotalCents,controls}),privateOccurrences:Object.freeze(privateOccurrences),privateScheduleTotal,privateUnknownContinuations:Object.freeze(privateUnknownContinuations),privatePurposeContinuations:Object.freeze(privatePurposeContinuations)});
 }
 
 /** Strict facts require every identity continuation to be classified. */
@@ -310,11 +324,17 @@ export type MarylandLegacyBoundCommitteeReturn = Readonly<{
 /** Entire supplied collections and current inventory only. Prior rows provide
  * original-reference/lifetime facts, never invented historical period authority.
  * No legal donor-ID, acquisition-completeness or accepted-money claim follows. */
-export function compareMarylandLegacyCommitteeReturnOccurrences(input: {
+export type MarylandLegacyReturnComparisonInput={
   reports: readonly MarylandPublishedReport[]; inventoryRequest: MarylandPublicReportInventoryRequest;
   currentRows: readonly Row[]; priorRows: readonly Row[];
   pdfReports: readonly {report: MarylandPublishedReport;facts: MarylandLegacyReturnedContributionFacts}[];
-}) {
+  stateDisplayDictionary?:MarylandSourceStateDisplayDictionary;
+};
+export type MarylandLegacyReturnCashFamilyReport=Readonly<{
+  report:MarylandPublishedReport;pdfSha256:string;pdfByteCount:number;pdfPageCount:number;
+  returnCount:number;returnCents:number;documentFamily:"cash_outflow";
+}>;
+function compareReturnedContributionReports(input:MarylandLegacyReturnComparisonInput,mode:"identity"|"cash_family") {
   const retained=structuredClone(input), request=buildMarylandPublicReportInventoryRequest(retained.inventoryRequest);
   const reports=retained.reports.map(r=>decodeMarylandPublishedReport(r,request));
   const ids=new Set<number>(),guids=new Set<string>();
@@ -329,20 +349,20 @@ export function compareMarylandLegacyCommitteeReturnOccurrences(input: {
   const currentParentIds=new Set(current.filter(r=>r.row.isReturn).map(r=>r.row.parentTransactionId));
   const totals=new Map<unknown,number>();
   for (const refund of [...prior,...current]) if (refund.row.isReturn && currentParentIds.has(refund.row.parentTransactionId)) {
-    const parent=originals.get(refund.row.parentTransactionId);if (!parent) fail("parent");
+    const parent=originals.get(refund.row.parentTransactionId);if (!parent || typeof parent.row.contributorTypeCode!=="string" || !allClasses.has(parent.row.contributorTypeCode) || typeof parent.row.contributorName!=="string" || typeof refund.row.contributorName!=="string" || !clean(parent.row.contributorName) || !clean(refund.row.contributorName)) fail("parent");
     if ((refund.row.parentTransactionGuid!==null && (refund.row.parentTransactionGuid as string).toLowerCase()!==(parent.row.transactionGuid as string).toLowerCase()) || normalize(refund.row.contributorName as string)!==normalize(parent.row.contributorName as string) || (refund.row.transactionDate as string)<(parent.row.transactionDate as string)) fail("parent");
     const total=add(totals.get(parent.row.transactionId)??0,refund.cents);totals.set(parent.row.transactionId,total);
     if (committeeClasses.has(parent.row.contributorTypeCode as string) && total>parent.cents) fail("over_refund");
   }
   const bound=bindMarylandNativeReportOccurrences({reports,request,nativeRows:retained.currentRows});
-  const pdfKeys=new Set<string>(),privateBoundReturns: MarylandLegacyBoundCommitteeReturn[]=[];
+  const pdfKeys=new Set<string>(),privateBoundReturns: MarylandLegacyBoundCommitteeReturn[]=[],privateReportCashFamilies:MarylandLegacyReturnCashFamilyReport[]=[];
   let nativeReturns=0,pdfReturns=0,returnCents=0,eligibleReturns=0,eligibleReturnCents=0,noneligibleUnknownIdentityOccurrences=0;
   for (const {report:raw,facts} of retained.pdfReports) {
     const report=decodeMarylandPublishedReport(raw,request),key=`${report.reportGuid.toLowerCase()}:${report.reportVersionId}`;
     const bucket=bound.reports.find(b=>b.report.reportGuid.toLowerCase()===report.reportGuid.toLowerCase() && b.report.reportVersionId===report.reportVersionId);
     if (!bucket || JSON.stringify(bucket.report)!==JSON.stringify(report) || pdfKeys.has(key)) fail("report");pdfKeys.add(key);
     const rows=bucket.rows.filter(r=>r.isReturn), actual=facts.privateOccurrences;
-    if (!facts.sourceFacts || !/^[0-9a-f]{64}$/.test(facts.sourceFacts.sha256) || !positive(facts.sourceFacts.byteCount) || !positive(facts.sourceFacts.pageCount) || facts.sourceFacts.sectionStarts!==1 || facts.sourceFacts.returnCount!==actual.length || facts.sourceFacts.returnCents!==actual.reduce((n,r)=>add(n,r.amountCents),0) || facts.sourceFacts.controls.expenseControls.filter(c=>c.column==="Z" && c.schedule==="2" && c.amountCents===facts.sourceFacts.returnCents).length!==1 || !facts.sourceFacts.controls.equations.cashBalance || !facts.sourceFacts.controls.equations.expensesSum) fail("control");
+    if (!facts.sourceFacts || !/^[0-9a-f]{64}$/.test(facts.sourceFacts.sha256) || !positive(facts.sourceFacts.byteCount) || !positive(facts.sourceFacts.pageCount) || facts.sourceFacts.sectionStarts!==1 || facts.sourceFacts.returnedContributionSectionCount!==1 || facts.sourceFacts.returnCount!==actual.length || facts.sourceFacts.returnCents!==actual.reduce((n,r)=>add(n,r.amountCents),0) || facts.sourceFacts.controls.expenseControls.filter(c=>c.column==="Z" && c.schedule==="2" && c.amountCents===facts.sourceFacts.returnCents).length!==1 || !facts.sourceFacts.controls.equations.cashBalance || !facts.sourceFacts.controls.equations.expensesSum) fail("control");
     const footer=facts.privateScheduleTotal;
     if(footer===null || facts.sourceFacts.scheduleTotalCents===null)fail("control");
     if(!positive(footer.pageNumber) || footer.pageNumber>facts.sourceFacts.pageCount || !Number.isFinite(footer.top) || !Number.isFinite(footer.bottom) || footer.top>=footer.bottom || footer.amountCents!==facts.sourceFacts.scheduleTotalCents || footer.amountCents!==facts.sourceFacts.returnCents)fail("control");
@@ -367,6 +387,7 @@ export function compareMarylandLegacyCommitteeReturnOccurrences(input: {
     }
     if (expectedDates.size!==actualDates.size || [...expectedDates].some(([k,n])=>actualDates.get(k)!==n)) fail("comparison");
     if(!Array.isArray(facts.privateUnknownContinuations) || facts.sourceFacts.unknownContinuationCount!==facts.privateUnknownContinuations.length || !Array.isArray(facts.privatePurposeContinuations) || facts.sourceFacts.purposeContinuationCount!==facts.privatePurposeContinuations.length)fail("continuation");
+    if(mode==="cash_family"&&facts.privateUnknownContinuations.length!==0)fail("continuation");
     const isolatedFiscalCohorts=new Set<string>(),uncertainPhysical=new Set<string>();
     const continuedPhysical=new Set<string>();
     for(const {unknown,purpose} of [...facts.privateUnknownContinuations.map((unknown:Continuation)=>({unknown,purpose:false})),...facts.privatePurposeContinuations.map((unknown:Continuation)=>({unknown,purpose:true}))]){
@@ -417,6 +438,12 @@ export function compareMarylandLegacyCommitteeReturnOccurrences(input: {
       for(const row of fiscalCohort){const original=originals.get(row.parentTransactionId);if(!original || typeof original.row.contributorTypeCode!=="string" || !allClasses.has(original.row.contributorTypeCode) || committeeClasses.has(original.row.contributorTypeCode))fail("continuation");}
       isolatedFiscalCohorts.add(cohortKey);
     }
+    for(const p of actual)if((p.followingPageIdentityCells>0)!==uncertainPhysical.has(`${p.pageNumber}:${p.ordinal}`))fail("continuation");
+    if(mode==="cash_family"){
+      privateReportCashFamilies.push(Object.freeze({report,pdfSha256:facts.sourceFacts.sha256,pdfByteCount:facts.sourceFacts.byteCount,pdfPageCount:facts.sourceFacts.pageCount,returnCount:actual.length,returnCents:facts.sourceFacts.returnCents,documentFamily:"cash_outflow"}));
+      nativeReturns+=rows.length;pdfReturns+=actual.length;returnCents=add(returnCents,facts.sourceFacts.returnCents);
+      continue;
+    }
     // A painted source cell can have an unresolved native identity/address
     // boundary. Keep the entire fiscal cohort identity-held only if every
     // original class is explicitly noneligible; no prefix-only match is used.
@@ -425,14 +452,20 @@ export function compareMarylandLegacyCommitteeReturnOccurrences(input: {
       if(isolatedFiscalCohorts.has(key))continue;
       const identity=normalize(p.nameAddress);
       const fiscal=rows.filter(r=>dk((r.transactionDate as string).slice(0,10),Math.round((r.transactionAmount as number)*100))===key);
+      // A name multiset cannot prove capacity among repeated native names
+      // with different contacts. Only a wholly noneligible cohort may be held
+      // without qualifying those identities; mixed eligible cohorts stop.
+      if(new Set(fiscal.map(r=>normalize(r.contributorName as string))).size!==fiscal.length){
+        for(const r of fiscal){const original=originals.get(r.parentTransactionId);if(!original || typeof original.row.contributorTypeCode!=="string" || !allClasses.has(original.row.contributorTypeCode) || committeeClasses.has(original.row.contributorTypeCode))fail("identity");}
+        isolatedFiscalCohorts.add(key);continue;
+      }
       const names=new Set(fiscal.filter(r=>{
-        return exactPrintedContact(identity,r);
+        return exactPrintedContact(identity,r,retained.stateDisplayDictionary);
       }).map(r=>normalize(r.contributorName as string)));
       if(names.size===1)continue;
       for(const r of fiscal){const original=originals.get(r.parentTransactionId);if(!original || typeof original.row.contributorTypeCode!=="string" || !allClasses.has(original.row.contributorTypeCode) || committeeClasses.has(original.row.contributorTypeCode))fail("identity");}
       isolatedFiscalCohorts.add(key);
     }
-    for(const p of actual)if((p.followingPageIdentityCells>0)!==uncertainPhysical.has(`${p.pageNumber}:${p.ordinal}`))fail("continuation");
     noneligibleUnknownIdentityOccurrences+=rows.filter(r=>isolatedFiscalCohorts.has(dk((r.transactionDate as string).slice(0,10),Math.round((r.transactionAmount as number)*100)))).length;
     const expectedNames=new Map<string,number>(),actualNames=new Map<string,number>();
     const nk=(day:string,cents:number,name:string)=>JSON.stringify([day,cents,name]);
@@ -441,7 +474,7 @@ export function compareMarylandLegacyCommitteeReturnOccurrences(input: {
       if(isolatedFiscalCohorts.has(dk(p.date,p.amountCents)))continue;
       const identity=normalize(p.nameAddress);
       const candidates=rows.filter(r=>{
-        return (r.transactionDate as string).slice(0,10)===p.date && Math.round((r.transactionAmount as number)*100)===p.amountCents && exactPrintedContact(identity,r);
+        return (r.transactionDate as string).slice(0,10)===p.date && Math.round((r.transactionAmount as number)*100)===p.amountCents && exactPrintedContact(identity,r,retained.stateDisplayDictionary);
       });
       const names=new Set(candidates.map(r=>normalize(r.contributorName as string)));if(names.size!==1)fail("identity");
       const k=nk(p.date,p.amountCents,[...names][0]!);actualNames.set(k,(actualNames.get(k)??0)+1);
@@ -452,7 +485,7 @@ export function compareMarylandLegacyCommitteeReturnOccurrences(input: {
       if (!committeeClasses.has(parent.row.contributorTypeCode as string)) continue;
       const cents=Math.round((r.transactionAmount as number)*100),name=normalize(r.contributorName as string);
       const nativeCohort=rows.filter(q=>(q.transactionDate as string)===(r.transactionDate as string) && Math.round((q.transactionAmount as number)*100)===cents && normalize(q.contributorName as string)===name);
-      const candidates=actual.filter(p=>p.date===(r.transactionDate as string).slice(0,10) && p.amountCents===cents && normalize(p.nameAddress)===name);
+      const candidates=actual.filter(p=>p.date===(r.transactionDate as string).slice(0,10) && p.amountCents===cents && exactPrintedContact(normalize(p.nameAddress),r,retained.stateDisplayDictionary));
       if (nativeCohort.length!==1 || candidates.length!==1) fail("identity");
       const p=candidates[0]!;
       privateBoundReturns.push(Object.freeze({transactionId:r.transactionId as number,transactionGuid:r.transactionGuid as string,reportGuid:report.reportGuid,reportVersionId:report.reportVersionId,nativeReportGuid:r.reportGuid as string,nativeReportVersionId:r.reportVersionId as number,originalTransactionId:parent.row.transactionId as number,originalTransactionGuid:parent.row.transactionGuid as string,originalClass:parent.row.contributorTypeCode as string,originalKind:parent.row.contributionTypeCode as string,documentFamily:"cash_outflow",refundCents:cents,pageNumber:p.pageNumber,ordinal:p.ordinal}));eligibleReturns++;eligibleReturnCents=add(eligibleReturnCents,cents);
@@ -461,5 +494,23 @@ export function compareMarylandLegacyCommitteeReturnOccurrences(input: {
   }
   // A supplied legacy document is a complete report component; callers cannot
   // omit one of its native returns or select an eligible subset of its rows.
-  return Object.freeze({sourceFacts:Object.freeze({reportsCompared:pdfKeys.size,nativeReturns,pdfReturns,returnCents,eligibleReturns,eligibleReturnCents,noneligibleUnknownIdentityOccurrences}),privateBoundReturns:Object.freeze(privateBoundReturns)});
+  return Object.freeze({sourceFacts:Object.freeze({reportsCompared:pdfKeys.size,nativeReturns,pdfReturns,returnCents,eligibleReturns,eligibleReturnCents,noneligibleUnknownIdentityOccurrences}),privateBoundReturns:Object.freeze(privateBoundReturns),privateReportCashFamilies:Object.freeze(privateReportCashFamilies)});
+}
+
+/** Strict complete-contact occurrence correspondence, kept separate from the
+ * universal report cash-family fact. */
+export function compareMarylandLegacyCommitteeReturnOccurrences(input:MarylandLegacyReturnComparisonInput){
+  const {sourceFacts,privateBoundReturns}=compareReturnedContributionReports(input,"identity");
+  return Object.freeze({sourceFacts,privateBoundReturns});
+}
+
+/** Every physical Z row and every bound native TRCON in each supplied report
+ * closes by complete day/cents multiplicity, Total and cash controls. This
+ * proves a universal report family; it makes no per-transaction PDF identity,
+ * contact or page/ordinal claim. The normal packet must recompute from its
+ * same immutable complete sources; these plain facts grant no authority. */
+export function proveMarylandLegacyReturnCashFamilies(input:MarylandLegacyReturnComparisonInput){
+  const compared=compareReturnedContributionReports(input,"cash_family");
+  const {reportsCompared,nativeReturns,pdfReturns,returnCents}=compared.sourceFacts;
+  return Object.freeze({sourceFacts:Object.freeze({reportsCompared,nativeReturns,pdfReturns,returnCents,documentFamily:"cash_outflow" as const}),reports:compared.privateReportCashFamilies});
 }
