@@ -394,7 +394,7 @@ export type FinanceSummary = {
     /** FEC only: PAC contributions grouped by the interest the PAC speaks
      * for. Absent until the PAC list was loaded. */
     pac_money_by_interest?: FinancePacInterest[];
-    pac_money_basis?: "reported_committee_monetary_positions" | "reported_itemized_committee_cash_contributions";
+    pac_money_basis?: "reported_committee_monetary_positions" | "reported_committee_monetary_receipts" | "reported_itemized_committee_cash_contributions";
     pac_money_coverage_note?: string;
     direct_coverage_note?: string | null;
   };

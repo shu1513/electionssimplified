@@ -9,6 +9,7 @@ import {
   parseMissouriMecCommitteeInfo,
   parseMissouriMecContributionExport,
   parseMissouriMecExpenditureExport,
+  parseMissouriMecFullDisclosureCount,
   parseMissouriMecOutsideSpendingExport,
   parseMissouriMecOutsideSpendingGridPage,
   parseMissouriMecOutsideSpenderIdentities,
@@ -17,6 +18,17 @@ import {
 } from "../../../src/pipeline/missouriFinance/missouriMecParsers.js";
 
 describe("missouriMecParsers", () => {
+  it("requires an explicit consistent full-disclosure count, including zero", () => {
+    expect(parseMissouriMecFullDisclosureCount("<span>Full Disclosure Reports (1,234)</span>")).toBe(1234);
+    expect(parseMissouriMecFullDisclosureCount("Full Disclosure <b>Reports</b> (0)")).toBe(0);
+    expect(parseMissouriMecFullDisclosureCount("Full Disclosure Reports (12) Full Disclosure Reports (12)")).toBe(12);
+    expect(() => parseMissouriMecFullDisclosureCount("No records found")).toThrow("Missing Missouri MEC");
+    expect(() => parseMissouriMecFullDisclosureCount("Full Disclosure Reports (0) Full Disclosure Reports (1)")).toThrow("Conflicting Missouri MEC");
+    for (const value of ["-1", "1,23", "1.5", "9007199254740992", "private source value"]) {
+      expect(() => parseMissouriMecFullDisclosureCount(`Full Disclosure Reports (${value})`)).toThrow("Invalid Missouri MEC full-disclosure result count");
+    }
+  });
+
   it("parses the pinned candidate-by-election Excel export", () => {
     const html = `
       <table>
@@ -43,6 +55,16 @@ describe("missouriMecParsers", () => {
         "<table><tr><th>MECID</th><th>Candidate Name</th></tr><tr><td>C221944</td><td>Jeff Farnan</td></tr></table>"
       )
     ).toThrow("Unexpected Missouri MEC candidate export header");
+  });
+
+  it.each([
+    "<table><tr><th>MECID</th></tr>",
+    "<table><tr><th>MECID</th></tr><tr><td>private value</td></table>",
+    "<table><tr><th>MECID</th></tr><tr><td>private value</tr></table>",
+    "<table><tr><th>MECID</td></tr></table>",
+    "<table><tr><th><table></table></th></tr></table>",
+  ])("rejects an incomplete table before accepting its closed prefix", (html) => {
+    expect(() => parseMissouriMecContributionExport(html)).toThrow("Incomplete or malformed Missouri MEC export table");
   });
 
   it("counts but excludes candidate exemption registrations from committee resolution", () => {
@@ -168,8 +190,13 @@ describe("missouriMecParsers", () => {
     expect(parseMissouriMecContributionExport(contributions)).toEqual([expect.objectContaining({
       mecid: "C263985", report: "July Quarterly Report", contributionDate: "2026-08-05",
       amountCents: 123456, employer: "Example LLC", occupation: "Engineer",
+      trailingCommitteeField: "Candidate",
     })]);
     expect(parseMissouriMecContributionExport(contributions)[0]).not.toHaveProperty("address1");
+    for (const malformed of ["$1,23.45", "$12,34,567.89", "$1,.00"]) {
+      expect(() => parseMissouriMecContributionExport(contributions.replace("$1,234.56", malformed)))
+        .toThrow("Invalid Missouri MEC contribution amount");
+    }
 
     const expenditures = `<table><tr>${[
       "MECID", "Committee Name", "Report", "Expenditure-Last Name", "Expenditure-First Name", "Expenditure-Company",
@@ -228,6 +255,18 @@ describe("missouriMecParsers", () => {
         committeeEventTarget: "ctl00$grid$ctl02$lbtnCommittee",
       }],
     });
+    const nativePage = html.replace('<b><font color="White">2</font></b>', "2");
+    expect(parseMissouriMecOutsideSpendingGridPage(nativePage).currentPage).toBe(2);
+    for (const invalidPage of [
+      nativePage.replace('id="x_grvExpenditures_CurrentPage"', 'id="missing"'),
+      nativePage.replace('CurrentPage">2', 'CurrentPage">0'),
+      nativePage.replace('CurrentPage">2', 'CurrentPage">next'),
+      nativePage + '<span id="x_grvExpenditures_CurrentPage">2</span>',
+    ]) {
+      expect(() => parseMissouriMecOutsideSpendingGridPage(invalidPage)).toThrow(
+        "Invalid Missouri MEC outside-spending current page"
+      );
+    }
     expect(() => parseMissouriMecOutsideSpendingGridPage(html.replace("lblReport_0", "missing_0"))).toThrow(
       "Misaligned Missouri MEC outside-spending grid"
     );

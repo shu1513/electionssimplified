@@ -2,12 +2,15 @@ import type { Pool, PoolClient } from "pg";
 
 import { isMissouriCampaignFinanceEnabled } from "../../config/featureFlags.js";
 import {
+  buildStateFinanceSummaryRequests,
   officeInputFromElectionRow,
   type BallotLookupFinanceSummary,
   type StateFinanceRequestCandidateRow,
   type StateFinanceRequestElectionRow,
 } from "../address/ballotLookupFinanceShared.js";
 import { loadStandardStateFinanceSummariesByCandidateElection } from "../finance/standardStateFinanceBallotLookupLoader.js";
+import { attachMissouriRegisteredIeFinance } from "./missouriRegisteredIeReader.js";
+import { attachMissouriCommitteeMonetaryReceipts } from "./missouriCommitteeMonetaryReceiptReader.js";
 import { isMissouriFinanceEligibleOffice } from "./missouriFinanceEligibleOffices.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
@@ -25,7 +28,7 @@ export async function loadMissouriCandidateFinanceSummariesByCandidateElection(
   candidateRows: readonly StateFinanceRequestCandidateRow[],
   electionRows: readonly StateFinanceRequestElectionRow[]
 ): Promise<Map<string, BallotLookupFinanceSummary>> {
-  return loadStandardStateFinanceSummariesByCandidateElection({
+  const summaries = await loadStandardStateFinanceSummariesByCandidateElection({
     db,
     candidateRows,
     electionRows,
@@ -46,4 +49,8 @@ export async function loadMissouriCandidateFinanceSummariesByCandidateElection(
       outsideGroupBreakdowns: "mo_candidate_finance_outside_group_breakdowns",
     },
   });
+  const requests = buildStateFinanceSummaryRequests("MO", candidateRows, electionRows,
+    row => isMissouriFinanceEligibleOffice(officeInputFromElectionRow(row)));
+  const withReceipts = await attachMissouriCommitteeMonetaryReceipts({ db, summaries, requests });
+  return attachMissouriRegisteredIeFinance({ db, summaries: withReceipts, requests });
 }
