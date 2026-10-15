@@ -1,6 +1,7 @@
 import {
   buildMissouriMecUrl,
   createMissouriMecSession,
+  MissouriMecClientError,
   MISSOURI_MEC_PAGES,
   MISSOURI_MEC_RESULTS_FIELD_PREFIX,
   MISSOURI_MEC_SEARCH_FIELD_PREFIX,
@@ -8,7 +9,7 @@ import {
   type MissouriMecResponse,
   type MissouriMecSession,
 } from "./missouriMecClient.js";
-import { storeMissouriMecArtifact, storeMissouriMecCandidateArtifactBundle, storeMissouriMecCommitteeReceiptArtifactBundle, storeMissouriMecOutsideSpendingArtifacts } from "./missouriMecArtifactCache.js";
+import { storeMissouriMecArtifact, storeMissouriMecCandidateArtifactBundle, storeMissouriMecCommitteeReceiptArtifactBundle, storeMissouriMecOutsideSpendingArtifactBundle, parseMissouriMecOutsideSpendingResultCount, qualifyMissouriMecOutsideSpendingSource } from "./missouriMecArtifactCache.js";
 import {
   MISSOURI_MEC_CONTRIBUTION_EXPORT_HEADER,
   MISSOURI_MEC_EXPENDITURE_EXPORT_HEADER,
@@ -149,13 +150,6 @@ async function fetchTransactionExport(input: {
   return { body, sourceUrl: searchUrl, resultsBody: results };
 }
 
-function parseOutsideRecordCount(html: string): number {
-  const match = /([\d,]+)\s+records found/i.exec(html.replace(/<[^>]+>/g, " "));
-  if (!match) throw new Error("Missouri MEC outside-spending results have no record count");
-  const count = Number.parseInt(match[1]!.replace(/,/g, ""), 10);
-  if (!Number.isSafeInteger(count) || count < 0) throw new Error("Invalid Missouri MEC outside-spending record count");
-  return count;
-}
 
 function normalizeOutsideCommitteeLookupName(value: string): string {
   return value.trim().replace(/\s+/g, " ").toLocaleUpperCase("en-US");
@@ -193,7 +187,7 @@ export async function acquireMissouriMecOutsideSpendingArtifacts(input: {
     [`${SEARCH}SO`]: "",
     [`${SEARCH}btnSearch`]: "Search",
   }, { referer: outsideUrl }), "outside-spending results");
-  const recordCount = parseOutsideRecordCount(resultsHtml);
+  const recordCount = parseMissouriMecOutsideSpendingResultCount(resultsHtml);
   const exported = await session.postForm(outsideUrl, {
     ...hidden(resultsHtml, outsideUrl),
     [`${SEARCH}ddYear`]: String(input.year),
@@ -203,7 +197,9 @@ export async function acquireMissouriMecOutsideSpendingArtifacts(input: {
     throw new Error(`Unexpected Missouri MEC outside-spending export content type: ${exported.contentType}`);
   }
   const exportBody = exported.text();
-  const exportRows = parseMissouriMecOutsideSpendingExport(exportBody);
+  let exportRows: ReturnType<typeof parseMissouriMecOutsideSpendingExport>;
+  try { exportRows = parseMissouriMecOutsideSpendingExport(exportBody); }
+  catch { throw new Error("Missouri MEC yearly outside source failed qualification"); }
   if (exportRows.length !== recordCount) {
     throw new Error(`Missouri MEC outside-spending export count mismatch: export=${exportRows.length}, results=${recordCount}`);
   }
@@ -213,12 +209,16 @@ export async function acquireMissouriMecOutsideSpendingArtifacts(input: {
   const directResolvedRowsByName = new Map<string, number>();
   const gridRowsByCommittee = new Map<string, number>();
   let pageHtml = resultsHtml;
+  const gridPageBodies: string[] = [];
   let gridRowCount = 0;
   let expectedPage = 1;
   const maxPages = Math.ceil(exportRows.length / 25) + 1;
   while (gridRowCount < exportRows.length) {
     if (expectedPage > maxPages) throw new Error("Missouri MEC outside-spending paging exceeded expected bound");
-    const page = parseMissouriMecOutsideSpendingGridPage(pageHtml);
+    let page: ReturnType<typeof parseMissouriMecOutsideSpendingGridPage>;
+    try { page = parseMissouriMecOutsideSpendingGridPage(pageHtml); }
+    catch { throw new Error("Missouri MEC yearly outside source failed qualification"); }
+    gridPageBodies.push(pageHtml);
     if (page.currentPage !== expectedPage) {
       throw new Error(`Missouri MEC outside-spending page drift: expected=${expectedPage}, actual=${page.currentPage}`);
     }
@@ -229,6 +229,7 @@ export async function acquireMissouriMecOutsideSpendingArtifacts(input: {
       // to MEC's error page. Page 1 links remain valid; later identities use
       // the official MECID/name activity table below.
       if (page.currentPage === 1) {
+        try {
         const resolved = await session.postForm(outsideUrl, {
           ...hidden(pageHtml, outsideUrl),
           __EVENTTARGET: row.committeeEventTarget,
@@ -245,6 +246,11 @@ export async function acquireMissouriMecOutsideSpendingArtifacts(input: {
             (directResolvedRowsByName.get(row.reportingCommittee) ?? 0) + 1
           );
         }
+        } catch (error) {
+          // Auxiliary identity is not reported-spend authority. A challenge
+          // before complete financial capture still stops this acquisition.
+          if (error instanceof MissouriMecClientError && error.code === "waf_challenge") throw error;
+        }
       }
       gridRowCount += 1;
     }
@@ -260,19 +266,7 @@ export async function acquireMissouriMecOutsideSpendingArtifacts(input: {
     }, { referer: outsideUrl }), "outside-spending next page");
     expectedPage += 1;
   }
-  const exportRowsByCommittee = new Map<string, number>();
-  for (const row of exportRows) {
-    exportRowsByCommittee.set(row.reportingCommittee, (exportRowsByCommittee.get(row.reportingCommittee) ?? 0) + 1);
-  }
-  const committeeNames = new Set([...gridRowsByCommittee.keys(), ...exportRowsByCommittee.keys()]);
-  const mismatchedCommittees = [...committeeNames].filter(
-    (name) => gridRowsByCommittee.get(name) !== exportRowsByCommittee.get(name)
-  );
-  if (gridRowCount !== exportRows.length || mismatchedCommittees.length > 0) {
-    throw new Error(
-      `Missouri MEC outside-spending grid/export coverage mismatch: grid=${gridRowCount}, export=${exportRows.length}, committees=${mismatchedCommittees.length}`
-    );
-  }
+  qualifyMissouriMecOutsideSpendingSource({ exportBody, resultsBody: resultsHtml, gridPageBodies });
   for (const [committeeName, directMecids] of directMecidsByName) {
     // A row link proves only that row. Use link evidence by committee name
     // only when every occurrence was reachable and all resolved identically.
@@ -284,6 +278,7 @@ export async function acquireMissouriMecOutsideSpendingArtifacts(input: {
     }
   }
   if ([...identities.values()].some((mecid) => mecid === null)) {
+    try {
     const activityUrl = buildMissouriMecUrl(MISSOURI_MEC_PAGES.committeeActivity);
     const activityPage = requireHtml(await session.get(activityUrl), "committee-activity page");
     const advancedPage = requireHtml(await session.postForm(activityUrl, {
@@ -318,12 +313,18 @@ export async function acquireMissouriMecOutsideSpendingArtifacts(input: {
         identities.set(committeeName, [...exactMecids][0]!);
       }
     }
+    } catch {
+      // Complete native financial controls already qualify. No more host
+      // requests follow an auxiliary failure/challenge; unresolved IDs stay null.
+    }
   }
-  await storeMissouriMecOutsideSpendingArtifacts({
+  await storeMissouriMecOutsideSpendingArtifactBundle({
     cacheDir: input.cacheDir,
     year: input.year,
     sourceUrl: outsideUrl,
     exportBody,
+    resultsBody: resultsHtml,
+    gridPageBodies,
     identities: [...identities].map(([reportingCommittee, mecid]) => ({ reportingCommittee, mecid })),
     retrievedAt,
   });
@@ -366,7 +367,9 @@ export async function acquireMissouriMecCandidateFinanceArtifacts(input: {
   const committeeUrl = buildMissouriMecUrl(MISSOURI_MEC_PAGES.committeeInfo, { MECID: mecid });
   const committeeHtml = requireHtml(await session.get(committeeUrl), "committee-info page");
   const committeeInfo = parseMissouriMecCommitteeInfo(committeeHtml);
-  if (committeeInfo.mecid !== mecid) throw new Error(`Missouri MEC committee profile mismatch: expected ${mecid}, got ${committeeInfo.mecid}`);
+  if (committeeInfo.mecid !== mecid) throw new Error("Missouri MEC committee profile identity mismatch");
+  await storeMissouriMecArtifact({ cacheDir: input.cacheDir, key: { type: "committee_profile", mecid, year: input.year },
+    sourceUrl: committeeUrl, body: committeeHtml, retrievedAt });
 
   const reportsTab = requireHtml(await session.postForm(committeeUrl, {
     ...hidden(committeeHtml, committeeUrl),

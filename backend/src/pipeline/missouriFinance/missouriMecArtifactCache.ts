@@ -10,6 +10,7 @@ import {
   parseMissouriMecFullDisclosureCount,
   parseMissouriMecOutsideSpenderIdentities,
   parseMissouriMecOutsideSpendingExport,
+  parseMissouriMecOutsideSpendingGridPage,
   parseMissouriMecReportInventory,
   type MissouriMecOutsideSpenderIdentity,
 } from "./missouriMecParsers.js";
@@ -19,6 +20,7 @@ export const MISSOURI_MEC_ARTIFACT_SCHEMA_VERSION = 1;
 
 export type MissouriMecCandidateArtifactType =
   | "committee_info"
+  | "committee_profile"
   | "report_inventory"
   | "contributions"
   | "expenditures"
@@ -86,6 +88,7 @@ function artifactKeyLabel(key: MissouriMecArtifactKey): string {
 function validateBody(key: MissouriMecArtifactKey, body: string): number {
   switch (key.type) {
     case "committee_info":
+    case "committee_profile":
       return parseMissouriMecCommitteeInfo(body).electionHistory.length;
     case "report_inventory":
     case "outside_spender_report_inventory":
@@ -336,6 +339,14 @@ async function readCandidateBundleAtRoot(input: { cacheDir?: string; mecid: stri
   return artifacts;
 }
 
+/** Independently acquired nonfinancial boundary context, never money or a financial observation. */
+export async function readMissouriMecCommitteeProfile(input: { cacheDir?: string; mecid: string; year: number }) {
+  const artifact = await readArtifactFromRoot({ ...input, key: { type: "committee_profile", mecid: input.mecid, year: input.year } });
+  const profile = parseMissouriMecCommitteeInfo(artifact.body);
+  if (profile.mecid !== input.mecid.trim().toUpperCase()) throw new Error("Missouri MEC committee profile identity mismatch");
+  return profile;
+}
+
 export async function readMissouriMecCommitteeReceiptArtifacts(input: { cacheDir?: string; mecid: string; year: number }) {
   const root = await publishedCandidateRoot(input, true);
   if (root === null) throw new Error("Missing qualified Missouri MEC committee receipt source");
@@ -400,6 +411,147 @@ function assertOutsideIdentityCoverage(input: {
   }
 }
 
+type OutsideSourceControls = { resultsBody: string; gridPageBodies: readonly string[] };
+export type MissouriMecOutsideSourceControl = { file: string; sha256: string; byteSize: number };
+
+function outsideBundlePaths(input: { cacheDir?: string; year: number }) {
+  const key = normalizeKey({ type: "outside_spending", year: input.year });
+  const base = resolve(input.cacheDir ?? DEFAULT_MISSOURI_MEC_CACHE_DIR, "_outside", String(key.year));
+  return { pointer: resolve(base, "registered-ie-current.json"), generations: resolve(base, "registered-ie-generations") };
+}
+async function publishedOutsideRoot(input: { cacheDir?: string; year: number }): Promise<string | null> {
+  const paths = outsideBundlePaths(input);
+  let raw: string;
+  try { raw = await readFile(paths.pointer, "utf8"); }
+  catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") return null; throw error; }
+  try {
+    const pointer = JSON.parse(raw) as { version: number; generation: string };
+    if (pointer.version !== 1 || !/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/.test(pointer.generation)) throw new Error();
+    return resolve(paths.generations, pointer.generation);
+  } catch { throw new Error("Invalid Missouri MEC yearly outside source pointer"); }
+}
+export function parseMissouriMecOutsideSpendingResultCount(body: string): number {
+  try {
+  const labels = [...body.replace(/<[^>]+>/g, " ").matchAll(/(\S+)\s+records found/gi)];
+  if (!labels.length) throw new Error();
+  const counts = labels.map(label => {
+    const text = label[1]!;
+    if (!/^(?:0|[1-9]\d*|[1-9]\d{0,2}(?:,\d{3})+)$/.test(text)) throw new Error();
+    const count = Number(text.replace(/,/g, ""));
+    if (!Number.isSafeInteger(count)) throw new Error();
+    return count;
+  });
+  if (new Set(counts).size !== 1) throw new Error();
+  return counts[0]!;
+  } catch { throw new Error("Invalid Missouri MEC outside-spending result count"); }
+}
+/** Native full-year completeness controls; equal occurrences remain separate. */
+export function qualifyMissouriMecOutsideSpendingSource(input: { exportBody: string } & OutsideSourceControls): void {
+  try {
+    const rows = parseMissouriMecOutsideSpendingExport(input.exportBody);
+    if (parseMissouriMecOutsideSpendingResultCount(input.resultsBody) !== rows.length || !Array.isArray(input.gridPageBodies)) throw new Error();
+    if (rows.length === 0) {
+      if (input.gridPageBodies.length !== 0 || /grvExpenditures_lblName_\d+"/i.test(input.resultsBody)) throw new Error();
+      return;
+    }
+    if (input.gridPageBodies.length === 0 || input.gridPageBodies.length > Math.ceil(rows.length / 25) + 1 ||
+      input.gridPageBodies[0] !== input.resultsBody) throw new Error();
+    const key = (row: ReturnType<typeof parseMissouriMecOutsideSpendingExport>[number]) => JSON.stringify([
+      row.candidateNameAndAddress, row.officeSought, row.supportOppose, row.expenditureDate,
+      row.amountCents, row.reportingCommittee, row.report,
+    ]);
+    const occurrences = new Map<string, number>();
+    for (const row of rows) { const k = key(row); occurrences.set(k, (occurrences.get(k) ?? 0) + 1); }
+    let count = 0;
+    for (const [index, body] of input.gridPageBodies.entries()) {
+      const page = parseMissouriMecOutsideSpendingGridPage(body);
+      if (page.currentPage !== index + 1 || count >= rows.length) throw new Error();
+      for (const row of page.rows) {
+        count++; const k = key(row), remaining = occurrences.get(k) ?? 0;
+        if (remaining === 0) throw new Error(); occurrences.set(k, remaining - 1);
+      }
+      if (count < rows.length && !page.nextPageEventTarget) throw new Error();
+    }
+    if (count !== rows.length || [...occurrences.values()].some(n => n !== 0)) throw new Error();
+  } catch { throw new Error("Missouri MEC yearly outside source failed qualification"); }
+}
+function qualifyOutsideBundle(input: { exportBody: string; identities: readonly MissouriMecOutsideSpenderIdentity[] } & OutsideSourceControls): void {
+  qualifyMissouriMecOutsideSpendingSource(input);
+  try {
+    const rows = parseMissouriMecOutsideSpendingExport(input.exportBody);
+    const identities = parseMissouriMecOutsideSpenderIdentities(JSON.stringify(input.identities));
+    assertOutsideIdentityCoverage({ rows, identities });
+  } catch { throw new Error("Missouri MEC yearly outside source failed qualification"); }
+}
+
+/** The export and auxiliary identities publish as one immutable year generation.
+ * Null native identities remain valid source data; they do not erase reported spend. */
+export async function storeMissouriMecOutsideSpendingArtifactBundle(input: {
+  cacheDir?: string; year: number; sourceUrl: string; exportBody: string;
+  identities: readonly MissouriMecOutsideSpenderIdentity[]; retrievedAt: Date;
+} & OutsideSourceControls): Promise<void> {
+  const stable = structuredClone(input);
+  const paths = outsideBundlePaths(stable);
+  qualifyOutsideBundle(stable);
+  if (!Number.isFinite(stable.retrievedAt.getTime())) throw new Error("Invalid Missouri MEC artifact timestamp");
+  const generation = randomUUID(), root = resolve(paths.generations, generation);
+  await mkdir(root, { recursive: true, mode: 0o700 });
+  try {
+    const identityBody = `${JSON.stringify([...stable.identities].sort((a, b) => a.reportingCommittee.localeCompare(b.reportingCommittee)), null, 2)}\n`;
+    for (const artifact of [{ type: "outside_spending" as const, body: stable.exportBody },
+      { type: "outside_spender_identities" as const, body: identityBody }]) {
+      await storeMissouriMecArtifact({ cacheDir: root, key: { type: artifact.type, year: stable.year },
+        sourceUrl: stable.sourceUrl, body: artifact.body, retrievedAt: stable.retrievedAt });
+    }
+    const controls = [{ file: "results.html", body: stable.resultsBody },
+      ...stable.gridPageBodies.slice(1).map((body, index) => ({ file: `grid-${String(index + 2).padStart(3, "0")}.html`, body }))];
+    const files: MissouriMecOutsideSourceControl[] = [];
+    for (const control of controls) {
+      await writeFile(resolve(root, control.file), control.body, { encoding: "utf8", mode: 0o600, flag: "wx" });
+      files.push({ file: control.file, sha256: createHash("sha256").update(control.body, "utf8").digest("hex"), byteSize: Buffer.byteLength(control.body, "utf8") });
+    }
+    await writeFile(resolve(root, "qualification.json"), JSON.stringify({ version: 1, gridPageCount: stable.gridPageBodies.length, files }),
+      { encoding: "utf8", mode: 0o600, flag: "wx" });
+    await readQualifiedOutsideAtRoot({ cacheDir: root, year: stable.year });
+    await atomicWrite(paths.pointer, `${JSON.stringify({ version: 1, generation })}\n`, 0o600);
+  } catch { await rm(root, { recursive: true, force: true }).catch(() => {});
+    throw new Error("Missouri MEC yearly outside source publication failed"); }
+}
+
+async function readQualifiedOutsideAtRoot(input: { cacheDir: string; year: number }) {
+  try {
+    const [outside, identity] = await Promise.all(["outside_spending", "outside_spender_identities"].map(type =>
+      readArtifactFromRoot({ ...input, key: { type: type as MissouriMecOutsideArtifactType, year: input.year } })));
+    if (outside!.manifest.retrievedAt !== identity!.manifest.retrievedAt || outside!.manifest.sourceUrl !== identity!.manifest.sourceUrl) throw new Error();
+    const metadata = JSON.parse(await readFile(resolve(input.cacheDir, "qualification.json"), "utf8")) as {
+      version: number; gridPageCount: number; files: MissouriMecOutsideSourceControl[];
+    };
+    const rows = parseMissouriMecOutsideSpendingExport(outside!.body);
+    if (metadata.version !== 1 || !Number.isSafeInteger(metadata.gridPageCount) || metadata.gridPageCount < 0 ||
+      metadata.gridPageCount > Math.ceil(rows.length / 25) + 1 || !Array.isArray(metadata.files)) throw new Error();
+    const expectedFiles = ["results.html", ...Array.from({ length: Math.max(0, metadata.gridPageCount - 1) }, (_, index) => `grid-${String(index + 2).padStart(3, "0")}.html`)];
+    if (metadata.files.length !== expectedFiles.length) throw new Error();
+    const bodies = await Promise.all(expectedFiles.map(async (file, index) => {
+      const expected = metadata.files[index]!;
+      const bytes = await readFile(resolve(input.cacheDir, file));
+      if (expected.file !== file || expected.byteSize !== bytes.byteLength || expected.sha256 !== createHash("sha256").update(bytes).digest("hex")) throw new Error();
+      return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+    }));
+    const identities = parseMissouriMecOutsideSpenderIdentities(identity!.body);
+    qualifyOutsideBundle({ exportBody: outside!.body, identities, resultsBody: bodies[0]!, gridPageBodies: metadata.gridPageCount === 0 ? [] : bodies });
+    return { rows, identities, sourceUrl: outside!.manifest.sourceUrl, sourceRetrievedAt: outside!.manifest.retrievedAt,
+      sourceSha256: outside!.manifest.sha256, sourceByteSize: outside!.manifest.byteSize,
+      sourceRowCount: rows.length, sourcePageCount: metadata.gridPageCount, sourceControls: metadata.files.map(({ file, sha256, byteSize }) => ({ file, sha256, byteSize })) };
+  } catch { throw new Error("Missouri MEC yearly outside source failed qualification"); }
+}
+
+/** New independent IE money requires its own qualified generation, never a loose cache pair. */
+export async function readMissouriMecQualifiedOutsideSpendingArtifacts(input: { cacheDir?: string; year: number }) {
+  const root = await publishedOutsideRoot(input);
+  if (root === null) throw new Error("Missing qualified Missouri MEC yearly outside source");
+  return readQualifiedOutsideAtRoot({ cacheDir: root, year: input.year });
+}
+
 export async function storeMissouriMecOutsideSpendingArtifacts(input: {
   cacheDir?: string;
   year: number;
@@ -444,6 +596,9 @@ export async function readMissouriMecOutsideSpendingArtifacts(input: {
   identities: MissouriMecOutsideSpenderIdentity[];
   sourceUrl: string;
 }> {
+  const root = await publishedOutsideRoot(input);
+  if (root !== null) return readQualifiedOutsideAtRoot({ cacheDir: root, year: input.year });
+  // Legacy compatibility only: new independently stored IE must use the qualified reader.
   const [outside, identityArtifact] = await Promise.all([
     readMissouriMecArtifact({ ...input, key: { type: "outside_spending", year: input.year } }),
     readMissouriMecArtifact({ ...input, key: { type: "outside_spender_identities", year: input.year } }),
