@@ -1,4 +1,9 @@
 import type { Pool, PoolClient } from "pg";
+import {
+  prepareMissouriRegisteredIeComponent,
+  replaceMissouriRegisteredIeRows,
+  type MissouriRegisteredIeComponent,
+} from "./missouriRegisteredIeWriter.js";
 
 import {
   prepareMissouriCommitteeMonetaryReceiptComponent,
@@ -50,6 +55,7 @@ export type MissouriFinanceSnapshotInput = {
   outsideGroupBreakdowns?: readonly MissouriFinanceOutsideGroupBreakdownInput[];
   classifications?: readonly FinanceLabelClassification[];
   committeeMonetaryReceipts?: MissouriCommitteeMonetaryReceiptComponent;
+  registeredIe?: MissouriRegisteredIeComponent;
 };
 
 export type MissouriFinanceSnapshotWriteResult = StandardStateFinanceSnapshotWriteResult;
@@ -104,9 +110,15 @@ export async function replaceMissouriCandidateFinanceSnapshot(
     component: input.committeeMonetaryReceipts, receivingCommitteeId: input.link.committeeId,
     electionYear: input.link.electionYear, syncedAt,
   });
+  const registeredIe = prepareMissouriRegisteredIeComponent({
+    component: input.registeredIe, candidateId: input.link.candidateId,
+    electionId: input.link.electionId, electionYear: input.link.electionYear,
+    receivingCommitteeId: input.link.committeeId, syncedAt,
+  });
   return writer.replaceSnapshot({ ...input, syncedAt,
-    ...(component ? { afterSnapshotWrite: async ({ db, linkId, electionYear, syncedAt }) => {
-      await replaceMissouriCommitteeMonetaryReceiptRows({ db, linkId, electionYear, syncedAt, component });
+    ...(component || registeredIe ? { afterSnapshotWrite: async ({ db, linkId, electionYear, syncedAt }) => {
+      if (component) await replaceMissouriCommitteeMonetaryReceiptRows({ db, linkId, electionYear, syncedAt, component });
+      if (registeredIe) await replaceMissouriRegisteredIeRows({ db, linkId, electionYear, syncedAt, component: registeredIe });
     } } : {}),
   });
 }
