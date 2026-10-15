@@ -73,3 +73,47 @@ describe("Missouri independent receipt publication", () => {
     expect(database.query).not.toHaveBeenCalled();
   });
 });
+
+
+function registeredIeRow(amount: number) {
+  const count=amount===0?0:1;
+  return {...receiptRow(amount),basis:"reported_registered_committee_independent_expenditures",qualifying_link_id:"33333333-3333-4333-8333-333333333333",
+    link_candidate_id:request.candidate_id,link_election_id:request.election_id,link_election_year:2026,link_committee_id:"C123456",link_status:"active",
+    support_amount_cents:String(amount),oppose_amount_cents:"0",expenditure_count:count,source_year:2026,source_row_count:count,source_page_count:1,
+    candidate_name_row_count:count,candidate_office_mismatch_row_count:0,outside_cycle_row_count:0,matched_row_count:count,zero_amount_row_count:0,
+    negative_amount_row_count:0,ambiguous_lineage_row_count:0,timely_overlap_row_count:0,
+    source_url:"https://www.mec.mo.gov/MEC/Campaign_Finance/CF_SearchDirExp.aspx",
+    reported_committee_id:null,support_oppose:count?"support":null,group_expenditure_count:count||null};
+}
+describe("Missouri independent registered IE publication",()=>{
+  it("keeps new IE queries off by default even with raw refresh enabled",async()=>{
+    vi.stubEnv("MISSOURI_CAMPAIGN_FINANCE_ENABLED","true");vi.stubEnv("MISSOURI_REGISTERED_IE_ENABLED","");
+    vi.stubEnv("MISSOURI_COMMITTEE_RECEIPTS_ENABLED","");vi.stubEnv("MISSOURI_CAMPAIGN_FINANCE_RAW_DATA_REFRESH_ENABLED","true");
+    const database={query:vi.fn().mockResolvedValue({rows:[]})};
+    await loadMissouriCandidateFinanceSummariesByCandidateElection(database,[request],[election]);
+    expect(database.query).toHaveBeenCalledTimes(1);expect(String(database.query.mock.calls[0]?.[0])).not.toContain("registered_ie");
+  });
+  it.each([0,12345])("attaches a genuine %i-cent registered IE source-only card through the loader",async amount=>{
+    vi.stubEnv("MISSOURI_CAMPAIGN_FINANCE_ENABLED","true");vi.stubEnv("MISSOURI_REGISTERED_IE_ENABLED","true");
+    vi.stubEnv("MISSOURI_COMMITTEE_RECEIPTS_ENABLED","");
+    const database={query:vi.fn(async(sql:string)=>({rows:sql.includes("registered_ie_sources")?[registeredIeRow(amount)]:[]}))};
+    const output=await loadMissouriCandidateFinanceSummariesByCandidateElection(database,[request],[election]);
+    const summary=output.get(candidateElectionKey(request.candidate_id,request.election_id))!;
+    expect(database.query).toHaveBeenCalledTimes(2);expect(summary.outside_spending.support_total).toBe(amount/100);
+    expect(summary.outside_spending.oppose_total).toBe(0);expect(summary.direct_campaign.total_raised).toBeNull();
+    expect(summary.last_synced_at).toBe("2026-10-12T11:00:00.000Z");
+    expect(summary.outside_spending.outside_coverage_note).toContain("CF14");
+  });
+  it("composes IE with independent reported cash without changing its observation age",async()=>{
+    vi.stubEnv("MISSOURI_CAMPAIGN_FINANCE_ENABLED","true");vi.stubEnv("MISSOURI_REGISTERED_IE_ENABLED","true");
+    vi.stubEnv("MISSOURI_COMMITTEE_RECEIPTS_ENABLED","true");
+    const ie={...registeredIeRow(25000),source_retrieved_at:"2026-10-14T11:00:00Z"};
+    const database={query:vi.fn(async(sql:string)=>({rows:sql.includes("registered_ie_sources")?[ie]:sql.includes("committee_receipt_sources")?[receiptRow(12345)]:[]}))};
+    const output=await loadMissouriCandidateFinanceSummariesByCandidateElection(database,[request],[election]);
+    const summary=output.get(candidateElectionKey(request.candidate_id,request.election_id))!;
+    expect(database.query).toHaveBeenCalledTimes(3);expect(summary.direct_campaign.pac_money_basis).toBe("reported_committee_monetary_receipts");
+    expect(summary.direct_campaign.pac_money_by_interest?.[0]?.amount).toBe(123.45);
+    expect(summary.outside_spending.support_total).toBe(250);expect(summary.last_synced_at).toBe("2026-10-12T11:00:00.000Z");
+    expect(summary.outside_spending.outside_coverage_note).toContain("2026-10-14");
+  });
+});

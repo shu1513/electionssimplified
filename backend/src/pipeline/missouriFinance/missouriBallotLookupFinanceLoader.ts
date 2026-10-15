@@ -9,6 +9,7 @@ import {
   type StateFinanceRequestElectionRow,
 } from "../address/ballotLookupFinanceShared.js";
 import { loadStandardStateFinanceSummariesByCandidateElection } from "../finance/standardStateFinanceBallotLookupLoader.js";
+import { attachMissouriRegisteredIeFinance } from "./missouriRegisteredIeReader.js";
 import { attachMissouriCommitteeMonetaryReceipts } from "./missouriCommitteeMonetaryReceiptReader.js";
 import { isMissouriFinanceEligibleOffice } from "./missouriFinanceEligibleOffices.js";
 
@@ -48,7 +49,8 @@ export async function loadMissouriCandidateFinanceSummariesByCandidateElection(
       outsideGroupBreakdowns: "mo_candidate_finance_outside_group_breakdowns",
     },
   });
-  return attachMissouriCommitteeMonetaryReceipts({ db, summaries,
-    requests: buildStateFinanceSummaryRequests("MO", candidateRows, electionRows,
-      row => isMissouriFinanceEligibleOffice(officeInputFromElectionRow(row))) });
+  const requests = buildStateFinanceSummaryRequests("MO", candidateRows, electionRows,
+    row => isMissouriFinanceEligibleOffice(officeInputFromElectionRow(row)));
+  const withReceipts = await attachMissouriCommitteeMonetaryReceipts({ db, summaries, requests });
+  return attachMissouriRegisteredIeFinance({ db, summaries: withReceipts, requests });
 }
