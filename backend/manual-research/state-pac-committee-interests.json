@@ -323,10 +323,10 @@
   {
    "label_type": "committee",
    "raw_label": "PAA - PAC",
-   "industry_slug": "real_estate",
+   "industry_slug": "automotive",
    "confidence": "medium",
-   "source_url": "https://assets.noviams.com/novi-file-uploads/paa/Government_Affairs/PAC_Contribution_Form_2024_update.pdf",
-   "note": "PAC of the Pennsylvania Apartment Association (multifamily housing)"
+   "source_url": "https://www.transparencyusa.org/pa/committee/pennsylvania-automotive-association-political-action-committee-pac-7900458",
+   "note": "PAA PAC = Pennsylvania Automotive Association PAC (car dealers' trade group, ~$1.2M state committee). PA filers spell it PAA PAC / PAA-PAC / PAA - PAC and several annotate it as the automotive association; the Pennsylvania Apartment Association's PAC is a far smaller filer."
   },
   {
    "label_type": "committee",
@@ -787,10 +787,10 @@
   {
    "label_type": "committee",
    "raw_label": "HIGHMARK PAC OF HIGHMARK INC",
-   "industry_slug": "healthcare",
+   "industry_slug": "insurance",
    "confidence": "medium",
    "source_url": "https://projects.propublica.org/itemizer/committee/C00302844/2022/pac-donations",
-   "note": "Corporate PAC of Highmark, Pittsburgh health insurer and health system"
+   "note": "Corporate PAC of Highmark, Pittsburgh health insurer (FEC C00302844; same committee as 'Highmark Pac', kept on one industry)"
   },
   {
    "label_type": "committee",
@@ -1531,10 +1531,10 @@
   {
    "label_type": "committee",
    "raw_label": "UnitedHealth Group Incorporated PAC (UnitedHealth Group PAC)",
-   "industry_slug": "healthcare",
+   "industry_slug": "insurance",
    "confidence": "high",
    "source_url": "https://www.unitedhealthgroup.com/content/dam/UHG/PDF/About/unh-political-contributions-annual-report-2026.pdf",
-   "note": "Employee PAC of UnitedHealth Group, health insurer and services company"
+   "note": "Employee PAC of UnitedHealth Group, health insurer (FEC C00274431; same committee as 'UnitedHealth Group Inc PAC', kept on one industry)"
   },
   {
    "label_type": "committee",

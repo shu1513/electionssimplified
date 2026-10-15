@@ -60,8 +60,7 @@ function usage(): string {
     "industry_slug must be one of the fixed slugs the due list prints, or",
     "null for labels that map to no industry (government bodies, individuals,",
     "generic descriptions). Copy raw_label and label_type from the due list.",
-    "Committee rows take a PAC interest slug and need a source_url when the",
-    "slug is not null.",
+    "Committee rows take a PAC interest slug (never null) and a source_url.",
   ].join("\n");
 }
 
@@ -288,9 +287,12 @@ export function parseIndustryLabelPayload(raw: unknown): IndustryLabelPayloadRow
     if (!("industry_slug" in row)) {
       errors.push(`${at}: industry_slug is required (use null for labels with no industry)`);
     } else if (labelType === "committee") {
-      if (row.industry_slug !== null && (typeof row.industry_slug !== "string" || !knownCommitteeSlugs.has(row.industry_slug))) {
-        errors.push(`${at}: industry_slug must be null or one of: ${PAC_INTEREST_SLUGS.join(", ")}`);
-      } else if (row.industry_slug !== null && !isHttpUrl(row.source_url)) {
+      // No null verdict for committees: the state loaders only read a
+      // committee row when it carries a slug, so a null row would hide the
+      // committee from the due list while the card still sorts it by name.
+      if (typeof row.industry_slug !== "string" || !knownCommitteeSlugs.has(row.industry_slug)) {
+        errors.push(`${at}: industry_slug must be one of: ${PAC_INTEREST_SLUGS.join(", ")}`);
+      } else if (!isHttpUrl(row.source_url)) {
         // A committee's interest is a researched claim shown to voters; the
         // payload keeps the page that supports it.
         errors.push(`${at}: source_url (http/https) is required for a committee interest`);
