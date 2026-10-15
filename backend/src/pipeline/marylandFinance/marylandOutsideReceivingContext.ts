@@ -476,6 +476,10 @@ export async function bindMarylandOutsideReceivingContext(
         filingEntityId: a.filingEntityId as number,
         officeSoughtId: a.officeSoughtId as number,
         sourceCommitteeName: a.committeeName as string,
+        sourceCommitteeLabels: Object.freeze([
+          a.committeeName as string,
+          selected[0]!.committeeName!,
+        ]),
         sourceOwnerName: a.candidateName as string,
         sourceParty: a.partyAffiliation as string,
         sourceElectionMembership: a.elections as string,

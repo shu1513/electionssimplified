@@ -231,11 +231,13 @@ describe("official finite receiving source facts", () => {
       r = await bindMarylandOutsideReceivingContext(i);
     expect(r.binding).toMatchObject({
       sourceCommitteeName: "Moore, Wes For Maryland",
+      sourceCommitteeLabels: ["Moore, Wes For Maryland", "Wes Moore For Maryland"],
       sourceOwnerName: "MOORE, WESTLEY W.",
       committeeDisplayPolicy: "moore_complete_committee_label_pair_v1",
     });
     expect(r.binding!.sourceElectionMembership).toContain("11/08/2026");
     expect(r.binding!.canonical.electionDate).toBe("2026-11-03");
+    expect(Object.isFrozen(r.binding!.sourceCommitteeLabels)).toBe(true);
     expect(r.binding).not.toHaveProperty("qualified");
     expect(r.binding).not.toHaveProperty("money");
   });

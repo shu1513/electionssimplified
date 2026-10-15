@@ -1,4 +1,6 @@
 import { parseMarylandCfsMoney } from "./marylandCfsArtifactReader.js";
+import type { bindMarylandOutsideReceivingContext } from "./marylandOutsideReceivingContext.js";
+import type { compareMarylandLegacyCommitteeReturnOccurrences } from "./marylandLegacyReturnedContributionFacts.js";
 
 type SourceRow = Readonly<Record<string, unknown>>;
 type ParsedRow = {
@@ -130,4 +132,162 @@ export function aggregateMarylandNativePacPositions(input: {
     giftCount: result.reduce((n, p) => n + p.giftCount, 0), refundCount: result.reduce((n, p) => n + p.refundCount, 0),
     grossCents: result.reduce((n, p) => add(n, p.grossCents), 0), refundCents: result.reduce((n, p) => add(n, p.refundCents), 0),
     netCents: result.reduce((n, p) => add(n, p.netCents), 0)};
+}
+
+const reportedClassLabels = {
+  TBSN: "Business/Group/Organization", TCC: "Candidate Committee", TFED: "Federal Committee",
+  TIND: "Individual", TLAB: "Labor Union", TNPO: "Non-Profit Organization",
+  TPAC: "Political Action Committee", TPCC: "Party Central Committee", TPCLB: "Political Club",
+  TPOC: "Participating Organization Committee", TRNFC: "Registered Out-of-State (Non-Federal) Committee",
+  TSLATE: "Slate Committee", TSPDC: "Spouse", TUNFC: "Unregistered Out-of-State (Non-Federal) Committee",
+} as const;
+const reportedCommitteeClasses = new Set(["TCC", "TFED", "TPAC", "TPCC", "TPCLB", "TPOC", "TRNFC", "TSLATE", "TUNFC"]);
+export class MarylandReportedCommitteeAggregationError extends Error {
+  constructor(public readonly code: "invalid_scope" | "incomplete_collection" | "invalid_row" |
+    "duplicate_identity" | "unresolved_parent" | "parent_identity" | "refund_exceeds_gift" |
+    "unsafe_total" | "invalid_receiving_context" | "ambiguous_self" | "invalid_return_fact" |
+    "missing_return_family") { super(`Maryland reported committee aggregation: ${code}`); }
+}
+type ReceivingContext = NonNullable<Awaited<ReturnType<typeof bindMarylandOutsideReceivingContext>>["binding"]>;
+type LegacyReturnComparison = ReturnType<typeof compareMarylandLegacyCommitteeReturnOccurrences>;
+
+/** Pure arithmetic over complete supplied periods. Reported class/name groups
+ * are not legal donor identities. Actual source-bound return facts preserve
+ * document cash flow separately from original gift kind. The normal packet
+ * reader must recompute those facts from complete genuine inputs; structural
+ * TypeScript types cannot authenticate provenance. Complete acquisition,
+ * report/PDF occurrence controls, current canonical ownership and signed
+ * storage/read semantics still qualify outside this function. No result here
+ * grants financial acceptance, freshness or publication authority. */
+export function aggregateMarylandReportedCommitteePositions(input: {
+  receivingGuid: string; currentCycle: string; priorCycle: string;
+  currentRows: readonly SourceRow[]; priorRows: readonly SourceRow[];
+  declaredCurrentRows: number; declaredPriorRows: number;
+  receivingContext: ReceivingContext;
+  legacyReturnComparison?: LegacyReturnComparison;
+}) {
+  const hold = (code: MarylandReportedCommitteeAggregationError["code"]): never => {
+    throw new MarylandReportedCommitteeAggregationError(code);
+  };
+  const sum = (a: number, b: number) => {
+    const n = a + b; if (!Number.isSafeInteger(n)) hold("unsafe_total"); return n;
+  };
+  if (!guid(input.receivingGuid) || !/^[1-9]\d*$/.test(input.currentCycle) ||
+    !/^[1-9]\d*$/.test(input.priorCycle) || input.currentCycle === input.priorCycle ||
+    !Number.isSafeInteger(input.declaredCurrentRows) || input.declaredCurrentRows < 0 ||
+    !Number.isSafeInteger(input.declaredPriorRows) || input.declaredPriorRows < 0) hold("invalid_scope");
+  if (input.currentRows.length !== input.declaredCurrentRows || input.priorRows.length !== input.declaredPriorRows)
+    hold("incomplete_collection");
+  const receiver = input.receivingContext;
+  if (!receiver || !guid(receiver.filerRegistrationGuid) ||
+    receiver.filerRegistrationGuid.toLowerCase() !== input.receivingGuid.toLowerCase() ||
+    receiver.sourceCycle?.value !== input.currentCycle || !Array.isArray(receiver.sourceCommitteeLabels) ||
+    receiver.sourceCommitteeLabels.length !== 2 || receiver.sourceCommitteeLabels.some(s => typeof s !== "string" || !s.trim()) ||
+    receiver.sourceCommitteeLabels[0] !== receiver.sourceCommitteeName ||
+    receiver.sourceCommitteeName !== receiver.canonical?.committeeName ||
+    !Array.isArray(receiver.sourceMetadata) || receiver.sourceMetadata.length < 5) hold("invalid_receiving_context");
+  const receivingLabels = new Set(receiver.sourceCommitteeLabels.map(nameKey));
+  const ids = new Set<number>(), identities = new Set<string>();
+  type Row = ParsedRow & { source: SourceRow };
+  function parse(row: SourceRow, cycle: string): Row {
+    const amount = typeof row.transactionAmount === "number" && Number.isFinite(row.transactionAmount)
+      ? parseMarylandCfsMoney(String(row.transactionAmount)) : null;
+    const donorType = row.contributorTypeCode;
+    if (!guid(row.filerRegistrationGuid) || row.filerRegistrationGuid.toLowerCase() !== input.receivingGuid.toLowerCase() ||
+      !positiveId(row.electionCycleId) || String(row.electionCycleId) !== cycle ||
+      !positiveId(row.transactionId) || !guid(row.transactionGuid) || row.isActive !== true ||
+      typeof row.isReturn !== "boolean" || row.transactionTypeCode !== (row.isReturn ? "TRCON" : "TCON") ||
+      typeof row.contributionTypeCode !== "string" || !mechanisms.has(row.contributionTypeCode) ||
+      (donorType !== null && (typeof donorType !== "string" || !Object.hasOwn(reportedClassLabels, donorType) ||
+        row.contributorType !== reportedClassLabels[donorType as keyof typeof reportedClassLabels])) ||
+      (donorType === null && (row.contributionTypeCode !== "ANYMS" || row.contributorType !== null)) ||
+      (row.contributionTypeCode !== "ANYMS" && (typeof row.contributorName !== "string" || !row.contributorName.trim())) ||
+      amount === null || amount <= 0 || !Number.isSafeInteger(Math.round(amount * 100)) ||
+      typeof row.transactionDate !== "string" || !/^\d{4}-\d{2}-\d{2}T00:00:00$/.test(row.transactionDate) ||
+      !Number.isFinite(Date.parse(`${row.transactionDate}Z`)) ||
+      new Date(`${row.transactionDate}Z`).toISOString().slice(0, 19) !== row.transactionDate ||
+      (row.isReturn && (!positiveId(row.parentTransactionId) || (row.parentTransactionGuid !== null && !guid(row.parentTransactionGuid))))) hold("invalid_row");
+    const id = row.transactionId as number, identity = (row.transactionGuid as string).toLowerCase();
+    if (ids.has(id) || identities.has(identity)) hold("duplicate_identity");
+    ids.add(id); identities.add(identity);
+    return {id, guid: identity, date: row.transactionDate as string, amountCents: Math.round(amount! * 100),
+      role: row.transactionTypeCode as Row["role"], mechanism: row.contributionTypeCode as string,
+      donorType: donorType as string | null, donorName: typeof row.contributorName === "string" ? row.contributorName.trim().replace(/\s+/g, " ") : "",
+      parentId: row.isReturn ? row.parentTransactionId as number : null,
+      parentGuid: row.isReturn && typeof row.parentTransactionGuid === "string" ? row.parentTransactionGuid.toLowerCase() : null, source: row};
+  }
+  const current = input.currentRows.map(r => parse(r, input.currentCycle));
+  const prior = input.priorRows.map(r => parse(r, input.priorCycle));
+  const gifts = new Map([...current, ...prior].filter(r => r.role === "TCON").map(r => [r.id, r]));
+  const currentRefunds = new Map(current.filter(r => r.role === "TRCON").map(r => [r.id, r]));
+  const relevantParents = new Set([...currentRefunds.values()].map(r => r.parentId!));
+  const refunded = new Map<number, number>(), nonCommitteeOverRefundParents = new Set<number>();
+  for (const refund of [...prior, ...current]) {
+    if (refund.role !== "TRCON" || !relevantParents.has(refund.parentId!)) continue;
+    const parent = gifts.get(refund.parentId!); if (!parent) hold("unresolved_parent");
+    if ((refund.parentGuid !== null && refund.parentGuid !== parent!.guid) || nameKey(refund.donorName) !== nameKey(parent!.donorName) || refund.date < parent!.date) hold("parent_identity");
+    const total = sum(refunded.get(parent!.id) ?? 0, refund.amountCents); refunded.set(parent!.id, total);
+    if (total > parent!.amountCents) {
+      if (reportedCommitteeClasses.has(parent!.donorType!)) hold("refund_exceeds_gift");
+      nonCommitteeOverRefundParents.add(parent!.id);
+    }
+  }
+  const bound = new Set<number>(), physical = new Set<string>();
+  if (input.legacyReturnComparison) {
+    const {sourceFacts: f, privateBoundReturns: facts} = input.legacyReturnComparison;
+    if (!f || !Array.isArray(facts) || f.nativeReturns !== f.pdfReturns || f.eligibleReturns !== facts.length ||
+      ![f.reportsCompared, f.nativeReturns, f.pdfReturns, f.returnCents, f.eligibleReturns, f.eligibleReturnCents].every(n => Number.isSafeInteger(n) && n >= 0) ||
+      f.eligibleReturns > f.nativeReturns || f.eligibleReturnCents > f.returnCents ||
+      facts.some(fact => !fact || !positiveId(fact.transactionId) || !positiveId(fact.refundCents)) ||
+      (facts.length > 0 && f.reportsCompared < 1) || f.eligibleReturnCents !== facts.reduce((n, fact) => sum(n, fact.refundCents), 0)) hold("invalid_return_fact");
+    for (const fact of facts) {
+      const refund = currentRefunds.get(fact.transactionId), parent = refund ? gifts.get(refund.parentId!) : undefined;
+      const key = `${typeof fact.reportGuid === "string" ? fact.reportGuid.toLowerCase() : ""}:${fact.reportVersionId}:${fact.pageNumber}:${fact.ordinal}`;
+      if (!refund || !parent || bound.has(fact.transactionId) || physical.has(key) ||
+        !reportedCommitteeClasses.has(parent.donorType!) || !cashGift(refund) ||
+        !guid(fact.transactionGuid) || !guid(fact.reportGuid) || !positiveId(fact.reportVersionId) || !guid(fact.originalTransactionGuid) ||
+        !guid(fact.nativeReportGuid) || !positiveId(fact.nativeReportVersionId) || !guid(refund.source.reportGuid) ||
+        fact.transactionGuid.toLowerCase() !== refund.guid || fact.nativeReportGuid.toLowerCase() !== refund.source.reportGuid.toLowerCase() || fact.nativeReportVersionId !== refund.source.reportVersionId ||
+        fact.originalTransactionId !== parent.id || fact.originalTransactionGuid.toLowerCase() !== parent.guid ||
+        fact.originalClass !== parent.donorType || fact.originalKind !== parent.mechanism || fact.documentFamily !== "cash_outflow" ||
+        fact.refundCents !== refund.amountCents || !positiveId(fact.pageNumber) || !Number.isSafeInteger(fact.ordinal) || fact.ordinal < 0) hold("invalid_return_fact");
+      bound.add(fact.transactionId); physical.add(key);
+    }
+  }
+  type Position = { donorName: string; reportedClassCode: string; reportedClassLabel: string;
+    recognitionMethod: "explicit_reported_class"; identityScope: "reported_class_and_name";
+    grossCents: number; refundCents: number; giftCount: number; refundCount: number;
+    originalGiftKinds: string[]; documentBoundCashOutflowRefundCount: number };
+  const positions = new Map<string, Position>();
+  function position(parent: Row) {
+    if (receivingLabels.has(nameKey(parent.donorName))) hold("ambiguous_self");
+    const key = JSON.stringify([parent.donorType, nameKey(parent.donorName)]);
+    let p = positions.get(key);
+    if (!p) {p = {donorName: parent.donorName, reportedClassCode: parent.donorType!,
+      reportedClassLabel: reportedClassLabels[parent.donorType as keyof typeof reportedClassLabels],
+      recognitionMethod: "explicit_reported_class", identityScope: "reported_class_and_name",
+      grossCents: 0, refundCents: 0, giftCount: 0, refundCount: 0,
+      originalGiftKinds: [], documentBoundCashOutflowRefundCount: 0}; positions.set(key, p);}
+    if (!p.originalGiftKinds.includes(parent.mechanism)) p.originalGiftKinds.push(parent.mechanism);
+    return p;
+  }
+  for (const gift of current) {
+    if (gift.role !== "TCON" || !reportedCommitteeClasses.has(gift.donorType!) || !cashGift(gift)) continue;
+    const p = position(gift); p.grossCents = sum(p.grossCents, gift.amountCents); p.giftCount++;
+  }
+  for (const refund of currentRefunds.values()) {
+    const parent = gifts.get(refund.parentId!)!;
+    if (!reportedCommitteeClasses.has(parent.donorType!) || !cashGift(refund)) continue;
+    if (!cashGift(parent) && !bound.has(refund.id)) hold("missing_return_family");
+    const p = position(parent); p.refundCents = sum(p.refundCents, refund.amountCents); p.refundCount++;
+    if (bound.has(refund.id)) p.documentBoundCashOutflowRefundCount++;
+  }
+  const result = [...positions.values()].map(p => ({...p, originalGiftKinds: [...p.originalGiftKinds].sort(), netCents: sum(p.grossCents, -p.refundCents)}));
+  result.sort((a, b) => b.netCents - a.netCents || a.reportedClassCode.localeCompare(b.reportedClassCode) || a.donorName.localeCompare(b.donorName));
+  return {positions: result, sourceRows: current.length, priorSourceRows: prior.length,
+    currentCycle: input.currentCycle, priorCycle: input.priorCycle,
+    resolvedRefunds: currentRefunds.size, nonCommitteeOverRefundParentCount: nonCommitteeOverRefundParents.size,
+    giftCount: result.reduce((n, p) => n + p.giftCount, 0), refundCount: result.reduce((n, p) => n + p.refundCount, 0),
+    grossCents: result.reduce((n, p) => sum(n, p.grossCents), 0), refundCents: result.reduce((n, p) => sum(n, p.refundCents), 0),
+    netCents: result.reduce((n, p) => sum(n, p.netCents), 0)};
 }
