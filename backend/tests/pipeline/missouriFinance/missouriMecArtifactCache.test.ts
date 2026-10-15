@@ -1,10 +1,11 @@
 import { createHash } from "node:crypto";
-import { mkdtemp, readFile, stat, writeFile } from "node:fs/promises";
+import { mkdtemp, readdir, readFile, stat, utimes, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it, vi, afterEach } from "vitest";
 
 import {
+  MISSOURI_MEC_GENERATION_RETENTION_MS,
   readMissouriMecArtifact,
   readMissouriMecCandidateFinanceArtifacts,
   readMissouriMecCommitteeReceiptArtifacts,
@@ -105,6 +106,25 @@ describe("missouriMecArtifactCache", () => {
       committeeInfo: { committeeName: "Jane for Missouri" }, contributionRows: [], expenditureRows: [],
     });
     expect((await readMissouriMecArtifact({ cacheDir, key: { type: "committee_info", mecid: bundle.mecid, year: bundle.year } })).manifest.retrievedAt).toBe(bundle.retrievedAt.toISOString());
+  });
+
+  it("keeps a fresh superseded generation for in-flight readers and sweeps it once past retention", async () => {
+    const cacheDir = await mkdtemp(join(tmpdir(), "mo-mec-bundle-"));
+    const bundle = candidateBundle(cacheDir);
+    const pointerPath = join(cacheDir, "C263985/2026/candidate-current.json");
+    const generationsDir = join(cacheDir, "C263985/2026/candidate-generations");
+    const current = async () => (JSON.parse(await readFile(pointerPath, "utf8")) as { generation: string }).generation;
+    await storeMissouriMecCandidateArtifactBundle(bundle);
+    const first = await current();
+    await storeMissouriMecCandidateArtifactBundle(candidateBundle(cacheDir, "2026-10-16T12:00:00Z"));
+    const second = await current();
+    expect((await readdir(generationsDir)).sort()).toEqual([first, second].sort());
+    const stale = new Date(Date.now() - MISSOURI_MEC_GENERATION_RETENTION_MS - 60_000);
+    await utimes(join(generationsDir, first), stale, stale);
+    await storeMissouriMecCandidateArtifactBundle(candidateBundle(cacheDir, "2026-10-17T12:00:00Z"));
+    const third = await current();
+    expect((await readdir(generationsDir)).sort()).toEqual([second, third].sort());
+    await expect(readMissouriMecCandidateFinanceArtifacts(bundle)).resolves.toMatchObject({ committeeInfo: { committeeName: "Jane for Missouri" } });
   });
 
   it.each(["count", "inventory", "identity", "member"] as const)("keeps the published generation when new %s qualification fails", async (failure) => {

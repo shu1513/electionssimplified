@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
-import { chmod, mkdir, readFile, rename, rm, writeFile } from "node:fs/promises";
+import { chmod, mkdir, readdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 
 import {
@@ -191,6 +191,40 @@ async function readArtifactFromRoot(input: {
   return { body, manifest };
 }
 
+const GENERATION_PATTERN = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/;
+
+/** Null when no pointer exists; filesystem errors propagate; a malformed pointer throws `label`. */
+async function readPointerGeneration(pointer: string, label: string): Promise<string | null> {
+  let raw: string;
+  try { raw = await readFile(pointer, "utf8"); }
+  catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
+    throw error;
+  }
+  try {
+    const parsed = JSON.parse(raw) as { version: number; generation: string };
+    if (parsed.version !== 1 || !GENERATION_PATTERN.test(parsed.generation)) throw new Error();
+    return parsed.generation;
+  } catch { throw new Error(label); }
+}
+
+/** Superseded generations stay on disk this long so a reader that resolved the
+ * old pointer can finish on an immutable tree; a single read takes seconds. */
+export const MISSOURI_MEC_GENERATION_RETENTION_MS = 60 * 60 * 1000;
+
+/** Swap the pointer, then best-effort sweep superseded generations past the
+ * retention window so daily refreshes do not grow the cache without bound. */
+async function publishGeneration(paths: { pointer: string; generations: string }, generation: string): Promise<void> {
+  await atomicWrite(paths.pointer, `${JSON.stringify({ version: 1, generation })}\n`, 0o600);
+  const cutoff = Date.now() - MISSOURI_MEC_GENERATION_RETENTION_MS;
+  for (const entry of await readdir(paths.generations).catch(() => [] as string[])) {
+    if (entry === generation || !GENERATION_PATTERN.test(entry)) continue;
+    const path = resolve(paths.generations, entry);
+    const info = await stat(path).catch(() => null);
+    if (info !== null && info.mtimeMs < cutoff) await rm(path, { recursive: true, force: true }).catch(() => {});
+  }
+}
+
 const CANDIDATE_BUNDLE_TYPES = ["committee_info", "report_inventory", "contributions", "expenditures"] as const;
 const RECEIPT_BUNDLE_TYPES = ["committee_info", "report_inventory", "contributions"] as const;
 type CandidateBundleType = typeof CANDIDATE_BUNDLE_TYPES[number];
@@ -212,17 +246,8 @@ function candidateBundlePaths(input: { cacheDir?: string; mecid: string; year: n
 
 async function publishedCandidateRoot(input: { cacheDir?: string; mecid: string; year: number }, receiptsOnly = false): Promise<string | null> {
   const paths = candidateBundlePaths(input, receiptsOnly);
-  let raw: string;
-  try { raw = await readFile(paths.pointer, "utf8"); }
-  catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
-    throw error;
-  }
-  try {
-    const pointer = JSON.parse(raw) as { version: number; generation: string };
-    if (pointer.version !== 1 || !/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/.test(pointer.generation)) throw new Error();
-    return resolve(paths.generations, pointer.generation);
-  } catch { throw new Error("Invalid Missouri MEC candidate bundle pointer"); }
+  const generation = await readPointerGeneration(paths.pointer, "Invalid Missouri MEC candidate bundle pointer");
+  return generation === null ? null : resolve(paths.generations, generation);
 }
 
 function qualifyCandidateBundle(input: {
@@ -293,7 +318,7 @@ async function storeCandidateBundle(input: {
     await writeFile(resolve(root, "qualification.json"), JSON.stringify({ version: 1, files }), { encoding: "utf8", mode: 0o600, flag: "wx" });
     // Read the generation back before publishing; the current pointer remains untouched on any failure.
     await readCandidateBundleAtRoot({ ...input, cacheDir: root, mecid }, true, receiptsOnly);
-    await atomicWrite(paths.pointer, `${JSON.stringify({ version: 1, generation })}\n`, 0o600);
+    await publishGeneration(paths, generation);
   } catch (error) {
     await rm(root, { recursive: true, force: true }).catch(() => {});
     throw error;
@@ -422,14 +447,8 @@ function outsideBundlePaths(input: { cacheDir?: string; year: number }, snapshot
 }
 async function publishedOutsideRoot(input: { cacheDir?: string; year: number }, snapshot = false): Promise<string | null> {
   const paths = outsideBundlePaths(input, snapshot);
-  let raw: string;
-  try { raw = await readFile(paths.pointer, "utf8"); }
-  catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") return null; throw error; }
-  try {
-    const pointer = JSON.parse(raw) as { version: number; generation: string };
-    if (pointer.version !== 1 || !/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/.test(pointer.generation)) throw new Error();
-    return resolve(paths.generations, pointer.generation);
-  } catch { throw new Error("Invalid Missouri MEC yearly outside source pointer"); }
+  const generation = await readPointerGeneration(paths.pointer, "Invalid Missouri MEC yearly outside source pointer");
+  return generation === null ? null : resolve(paths.generations, generation);
 }
 export function parseMissouriMecOutsideSpendingResultCount(body: string): number {
   try {
@@ -514,7 +533,7 @@ export async function storeMissouriMecOutsideSpendingArtifactBundle(input: {
     await writeFile(resolve(root, "qualification.json"), JSON.stringify({ version: 1, gridPageCount: stable.gridPageBodies.length, files }),
       { encoding: "utf8", mode: 0o600, flag: "wx" });
     await readQualifiedOutsideAtRoot({ cacheDir: root, year: stable.year });
-    await atomicWrite(paths.pointer, `${JSON.stringify({ version: 1, generation })}\n`, 0o600);
+    await publishGeneration(paths, generation);
   } catch { await rm(root, { recursive: true, force: true }).catch(() => {});
     throw new Error("Missouri MEC yearly outside source publication failed"); }
 }
@@ -586,7 +605,7 @@ export async function storeMissouriMecOutsideSpendingExportSnapshot(input: {
     await writeFile(resolve(root, "qualification.json"), JSON.stringify({ version: 1, sourceKind: "native_export_snapshot", year: stable.year, files }),
       { encoding: "utf8", mode: 0o600, flag: "wx" });
     await readOutsideExportSnapshotAtRoot({ cacheDir: root, year: stable.year });
-    await atomicWrite(paths.pointer, `${JSON.stringify({ version: 1, generation })}\n`, 0o600);
+    await publishGeneration(paths, generation);
   } catch { await rm(root, { recursive: true, force: true }).catch(() => {});
     throw new Error("Missouri MEC export snapshot publication failed"); }
 }
