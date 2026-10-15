@@ -21,6 +21,27 @@ gaps closed before any component write. Research now checks the source's
 repeated Current/Amended/Deleted legend and adjacent painted swatches; no row
 has been excluded based on color or repetition.
 
+An actual retained-source arithmetic run now passes with the current
+105,360-row and prior 39,208-row normal collections, all 1,512 captures,
+and the actual read-only canonical receiving context. Its diagnostic result
+has 181 reported groups, including two negative and four zero balances:
+$487,160.44 gross, $20,165.00 refunds, $466,995.44 net. This is arithmetic
+evidence only; financial acceptance remains false.
+
+The normal original-document reader in `2cb6da947` verifies exact capture,
+published report/request association, original SHA/bytes/EOF and private file
+permissions. It reopens both retained capture schemas without rewriting their
+six-digit timestamps. All seven actual originals pass (53,477,621 bytes),
+with 18 focused regressions and backend types passing. The Section 4 spill
+fix in `9e1679d25` recognizes the exact six-cell/ten-border totals page only
+between Sections 4 and 5, and matches its totals to separately parsed summary
+controls. PG1 now passes its complete 1,887-page source read, deriving receipt
+pages 4–1785; its $11,344.43 cash returned expenditure and zero in-kind returned
+expenditure spill totals agree with the summary. Unknown page content still
+holds. The last full Maryland run passed 906 tests across 34 files before
+these two additions. The receipt-status implementation and the remaining
+Annual 2024 $250 Current-row discrepancy are still under investigation.
+
 The normal saved inventory reader is committed in `b08e79fdf`. A genuine
 normal fetch and reopen verified seven published reports/fifteen editions,
 15,239 original bytes, observed October 15 at 08:12:07.099–08:12:08.279 UTC.
