@@ -966,3 +966,12 @@ fourth-quarter reports are due January 12, 2027. The 48-hour period runs October
 18–November 3. Plan fresh acquisition and ordinary sync on October 28 and 30,
 November 3 and 6, and January 13, with attention to weeknight import lag and
 late filings. These are planned reruns; no automation has been installed.
+
+The protected storage step adds migration 349 with separate source, reported
+group and nonfinancial attempt tables. Full uncapped source and monetary
+controls must close before writing. The writer locks the current election,
+candidate and every same-year receiving link, including inactive siblings,
+then requires one unchanged active receiver. Newer observations replace the
+whole component atomically; equal observations require identical source and
+groups. Held sources cannot clear groups or advance their observation dates.
+Legacy direct and outside finance tables retain their values and clocks.
