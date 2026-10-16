@@ -203,7 +203,8 @@ export type NevadaImportCandidateResult = {
   reportCount?: number;
   totalReceipts?: number;
   totalDisbursements?: number;
-  cashOnHand?: number;
+  /** NULL when the filer reported a negative ending fund balance. */
+  cashOnHand?: number | null;
   /** Itemized CSV sum — NOT the stored line-8 direct_contribution_total. */
   itemizedContributionTotal?: number;
   breakdownCount?: number;
@@ -509,9 +510,14 @@ export async function importNevadaCandidateFinance(input: {
             `[${cycle.itemizedExpenseFloorCents}, ${cycle.itemizedExpenseCeilingCents}] cents (1% tolerance)`,
         );
       }
-      if (cycle.cashOnHandCents < 0) {
-        throw new Error(
-          `negative ending fund balance ${cycle.cashOnHandCents} cents is not storable`,
+      // Nevada filers may report a negative ending fund balance (campaign
+      // debt). The summaries table only stores cash_on_hand >= 0, so publish
+      // the reconciled totals and leave cash unknown (NULL) for that filer.
+      const cashOnHand =
+        cycle.cashOnHandCents < 0 ? null : cycle.cashOnHandCents / 100;
+      if (cashOnHand === null) {
+        warnings.push(
+          `negative ending fund balance ${cycle.cashOnHandCents} cents stored as unknown cash on hand`,
         );
       }
 
@@ -531,7 +537,7 @@ export async function importNevadaCandidateFinance(input: {
         reportCount: plan.selection.selected.length,
         totalReceipts: cycle.totalReceiptsCents / 100,
         totalDisbursements: cycle.totalDisbursementsCents / 100,
-        cashOnHand: cycle.cashOnHandCents / 100,
+        cashOnHand,
         itemizedContributionTotal:
           aggregation.directContributionTotalCents / 100,
         breakdownCount: suppressBreakdowns
@@ -562,7 +568,7 @@ export async function importNevadaCandidateFinance(input: {
             totalReceipts: cycle.totalReceiptsCents / 100,
             directContributionTotal: cycle.donorContributionCents / 100,
             totalDisbursements: cycle.totalDisbursementsCents / 100,
-            cashOnHand: cycle.cashOnHandCents / 100,
+            cashOnHand,
             sourceUrl: plan.link.source_url,
           },
           directBreakdowns: suppressBreakdowns

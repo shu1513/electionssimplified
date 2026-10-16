@@ -8,8 +8,18 @@ const mocks = vi.hoisted(() => ({
   readReportHtml: vi.fn(),
   readRoster: vi.fn(),
   directAggregate: vi.fn(),
+  parseSummary: vi.fn(),
   writer: vi.fn(),
 }));
+vi.mock(
+  "../../../src/pipeline/nevadaFinance/nevadaReportSummary.js",
+  async (importOriginal) => ({
+    ...(await importOriginal<
+      typeof import("../../../src/pipeline/nevadaFinance/nevadaReportSummary.js")
+    >()),
+    parseNevadaCandidateReportSummary: mocks.parseSummary,
+  }),
+);
 vi.mock(
   "../../../src/pipeline/nevadaFinance/nevadaCommitteeDonorObservation.js",
   () => ({ readNevadaCommitteeDonorObservation: mocks.readSource }),
@@ -318,5 +328,69 @@ describe("Nevada donor-only artifact import boundary (mocked decoded source)", (
     });
     expect(mocks.writer.mock.calls[0]?.[0]).not.toHaveProperty("summary");
     expectNoLegacySource();
+  });
+});
+
+describe("Nevada direct import with a negative ending fund balance", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+  function cycleSummary(balanceCents: number) {
+    const zero = { periodCents: 0, cumulativeCents: null };
+    return {
+      lines: {
+        1: { periodCents: 100_000, cumulativeCents: null },
+        2: zero, 3: zero, 4: zero, 5: zero, 6: zero, 7: zero,
+        8: { periodCents: 100_000, cumulativeCents: null },
+        9: { periodCents: 500_000, cumulativeCents: null },
+        10: zero, 11: zero,
+        12: { periodCents: 500_000, cumulativeCents: null },
+      },
+      endingFundBalanceCents: balanceCents,
+      filedOn: null,
+    };
+  }
+  function directInput(write: boolean) {
+    mocks.readReports.mockResolvedValue({
+      name: "Alexis M Hansen",
+      detailToken: "token",
+      reportRows: [
+        { reportName: "CE Report 3", year: 2026, fileDate: "2026-10-15", office: "State Assembly, District 32", syn: "ce3" },
+      ],
+    });
+    mocks.readReportHtml.mockResolvedValue("<html>report</html>");
+    mocks.parseSummary.mockReturnValue(cycleSummary(-400_000));
+    mocks.readContributions.mockResolvedValue({ rows: [], monthsLoaded: ["2026-07", "2026-08", "2026-09"], fileCount: 3 });
+    mocks.readExpenses.mockResolvedValue({
+      rows: [
+        { payeeName: "Printer", date: "2026-08-01", amountCents: 500_000, transactionType: "Monetary Expense", filerName: "Alexis M Hansen", filerKey: "ALEXIS M HANSEN", reportName: "2026 CE Report 3", isLegalDefenseFund: false },
+      ],
+      monthsLoaded: ["2026-07", "2026-08", "2026-09"],
+      fileCount: 3,
+    });
+    mocks.directAggregate.mockReturnValue({ directContributionTotalCents: 100_000, directBreakdowns: [], foreignReportYearRowCount: 0 });
+    mocks.writer.mockResolvedValue(undefined);
+    return { db: db(), artifactDir: "unused", electionDate: "2026-11-03", write };
+  }
+  it("imports the reconciled totals with cash on hand unknown and a warning", async () => {
+    const report = await importNevadaCandidateFinance(directInput(true) as never);
+    expect(report.importedCount).toBe(1);
+    expect(report.quarantinedCount).toBe(0);
+    const [result] = report.results;
+    expect(result.status).toBe("imported");
+    expect(result.cashOnHand).toBeNull();
+    expect(result.totalReceipts).toBe(1000);
+    expect(result.totalDisbursements).toBe(5000);
+    expect(result.warnings).toContain("negative ending fund balance -400000 cents stored as unknown cash on hand");
+    expect(mocks.writer).toHaveBeenCalledTimes(1);
+    const [call] = mocks.writer.mock.calls[0] as [{ summary: { cashOnHand: number | null; totalReceipts: number } }];
+    expect(call.summary.cashOnHand).toBeNull();
+    expect(call.summary.totalReceipts).toBe(1000);
+  });
+  it("dry run reports the same unknown cash without writing", async () => {
+    const report = await importNevadaCandidateFinance(directInput(false) as never);
+    expect(report.results[0].status).toBe("dry_run_ok");
+    expect(report.results[0].cashOnHand).toBeNull();
+    expect(mocks.writer).not.toHaveBeenCalled();
   });
 });
