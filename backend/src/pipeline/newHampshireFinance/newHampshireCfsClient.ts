@@ -14,6 +14,8 @@ export const NEW_HAMPSHIRE_CFS_ENDPOINTS = {
   filingEntities: "PublicFilerDetails/GetFilingEntityDetails",
   receipts: "PublicTransactionDetails/GetPublicContributionDetails",
   expenditures: "PublicTransactionDetails/GetPublicExpenditureDetails",
+  publicFilingProfile: "PublicFilerDetails/GetPublicFilerProfileFiling",
+  publicFilingHistory: "PublicFilerDetails/GetPublicFilerProfileChildFilingDetails",
 } as const;
 
 export type NewHampshireCfsTransactionTypeCode = "TCON" | "TEXP";
@@ -163,7 +165,7 @@ const MAX_JSON_RESPONSE_BYTES = 32 * 1024 * 1024;
 const MAX_CSV_RESPONSE_BYTES = 128 * 1024 * 1024;
 
 function requirePositiveInteger(value: number, label: string): number {
-  if (!Number.isInteger(value) || value <= 0) {
+  if (!Number.isSafeInteger(value) || value <= 0) {
     throw new NewHampshireCfsClientError("invalid_request", `Invalid ${label}: ${value}`);
   }
   return value;
@@ -252,6 +254,7 @@ async function postResponse(input: {
   try {
     response = await fetchImpl(buildUrl(input.endpoint), {
       method: "POST",
+      redirect: "manual",
       headers: {
         Accept: input.expectedContentType === "json" ? "application/json, text/plain, */*" : "text/csv, */*",
         "Content-Type": "application/json",
@@ -267,7 +270,7 @@ async function postResponse(input: {
     throw new NewHampshireCfsClientError("network_error", `New Hampshire CFS request failed: ${message}`);
   }
 
-  if (!response.ok) {
+  if (response.status !== 200) {
     throw new NewHampshireCfsClientError(
       "http_error",
       `New Hampshire CFS request returned HTTP ${response.status}: ${input.endpoint}`,
@@ -288,23 +291,55 @@ async function postResponse(input: {
   return response;
 }
 
-async function post(input: {
+async function postCaptured(input: {
   endpoint: string;
   body: Record<string, unknown>;
   expectedContentType: "json" | "csv";
   options?: NewHampshireCfsClientOptions;
-}): Promise<Uint8Array> {
+}): Promise<{ bytes: Uint8Array; httpStatus: number; eof: true; responseUrl: string }> {
   const response = await postResponse(input);
 
-  const bytes = new Uint8Array(await response.arrayBuffer());
   const maxBytes = input.expectedContentType === "json" ? MAX_JSON_RESPONSE_BYTES : MAX_CSV_RESPONSE_BYTES;
-  if (bytes.byteLength > maxBytes) {
-    throw new NewHampshireCfsClientError(
-      "bad_response",
-      `New Hampshire CFS ${input.endpoint} exceeded ${maxBytes} bytes`
-    );
+  const reader = response.body?.getReader();
+  if (!reader) {
+    throw new NewHampshireCfsClientError("bad_response", "New Hampshire CFS response body missing");
   }
-  return bytes;
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  try {
+    for (;;) {
+      const part = await reader.read();
+      if (part.done) break;
+      size += part.value.byteLength;
+      if (size > maxBytes) {
+        await reader.cancel();
+        throw new NewHampshireCfsClientError(
+          "bad_response",
+          `New Hampshire CFS ${input.endpoint} exceeded ${maxBytes} bytes`
+        );
+      }
+      chunks.push(part.value);
+    }
+  } catch (error) {
+    if (error instanceof NewHampshireCfsClientError) throw error;
+    throw new NewHampshireCfsClientError(
+      "network_error",
+      `New Hampshire CFS ${input.endpoint} response body incomplete`
+    );
+  } finally {
+    reader.releaseLock();
+  }
+  const bytes = new Uint8Array(size);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return { bytes, httpStatus: response.status, eof: true, responseUrl: response.url };
+}
+
+async function post(input: Parameters<typeof postCaptured>[0]): Promise<Uint8Array> {
+  return (await postCaptured(input)).bytes;
 }
 
 function buildBulkDownloadRequestBody(input: {
@@ -318,15 +353,10 @@ function buildBulkDownloadRequestBody(input: {
   };
 }
 
-async function postJson(
-  endpoint: string,
-  body: Record<string, unknown>,
-  options?: NewHampshireCfsClientOptions
-): Promise<Record<string, unknown>> {
-  const bytes = await post({ endpoint, body, expectedContentType: "json", options });
+function parseJsonEnvelope(bytes: Uint8Array, endpoint: string): Record<string, unknown> {
   let parsed: unknown;
   try {
-    parsed = JSON.parse(new TextDecoder().decode(bytes));
+    parsed = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes));
   } catch {
     throw new NewHampshireCfsClientError("bad_response", `New Hampshire CFS ${endpoint} returned invalid JSON`);
   }
@@ -341,6 +371,54 @@ async function postJson(
     );
   }
   return envelope;
+}
+
+async function postJson(
+  endpoint: string,
+  body: Record<string, unknown>,
+  options?: NewHampshireCfsClientOptions
+): Promise<Record<string, unknown>> {
+  return parseJsonEnvelope(await post({ endpoint, body, expectedContentType: "json", options }), endpoint);
+}
+
+/** Return original response bytes for the immutable raw-data cache. */
+export async function downloadNewHampshirePublicReportPage(
+  input: ({ kind: "profile"; registrationGuid: string } | { kind: "history"; reportGuid: string }) & {
+    pageNumber?: number;
+    pageSize?: number;
+  },
+  options?: NewHampshireCfsClientOptions
+): Promise<{
+  bytes: Uint8Array;
+  envelope: Record<string, unknown>;
+  requestedAt: string;
+  completedAt: string;
+  httpStatus: number;
+  eof: true;
+  responseUrl: string;
+}> {
+  const selector = input.kind === "profile" ? input.registrationGuid : input.reportGuid;
+  if (typeof selector !== "string" || !/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(selector)) {
+    throw new NewHampshireCfsClientError("invalid_request", "Invalid New Hampshire public filing GUID");
+  }
+  const pageNumber = requirePositiveInteger(input.pageNumber ?? 1, "New Hampshire CFS page number");
+  const pageSize = requirePageSize(input.pageSize);
+  const endpoint = input.kind === "profile"
+    ? NEW_HAMPSHIRE_CFS_ENDPOINTS.publicFilingProfile
+    : NEW_HAMPSHIRE_CFS_ENDPOINTS.publicFilingHistory;
+  const body = input.kind === "profile"
+    ? { filerRegistrationGuid: selector, pageNumber, pageSize, sortBy: "", sortType: "" }
+    : { filerReportGuid: selector, pageNumber, pageSize, sortBy: null, sortType: null, showFilingHistory: true };
+  const requestedAt = new Date().toISOString();
+  const captured = await postCaptured({ endpoint, body, expectedContentType: "json", options });
+  const { bytes } = captured;
+  const completedAt = new Date().toISOString();
+  const envelope = parseJsonEnvelope(bytes, endpoint);
+  const page = parsePage(envelope, (value) => objectValue(value, "public filing"));
+  if (page.items.length > pageSize || page.items.length > page.totalItems) {
+    throw new NewHampshireCfsClientError("bad_response", "Invalid New Hampshire public filing page count");
+  }
+  return { ...captured, envelope, requestedAt, completedAt };
 }
 
 function parsePage<T>(envelope: Record<string, unknown>, parseItem: (value: unknown) => T): NewHampshireCfsPage<T> {
