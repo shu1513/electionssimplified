@@ -57,7 +57,8 @@ export function meetsSmallAmountThreshold(rows: readonly { amount: number }[]): 
 export function hasCommitteeMoneyContent(direct: Pick<FinanceSummary["direct_campaign"], "pac_money_by_interest" | "pac_money_basis">): boolean {
   const rows = direct.pac_money_by_interest;
   if (rows === undefined) return false;
-  if (direct.pac_money_basis !== "reported_committee_monetary_positions") return meetsSmallAmountThreshold(rows);
+  if (direct.pac_money_basis !== "reported_committee_monetary_positions" &&
+      direct.pac_money_basis !== "reported_committee_itemized_contributions") return meetsSmallAmountThreshold(rows);
   return rows.length === 0 || rows.reduce((sum, row) => sum + Math.max(Math.abs(row.amount),
     (row.gross_amount ?? 0) + (row.refund_amount ?? 0),
     row.pacs.reduce((detail, pac) => detail + Math.abs(pac.amount), 0)), 0) >= FINANCE_SMALL_AMOUNT_THRESHOLD;

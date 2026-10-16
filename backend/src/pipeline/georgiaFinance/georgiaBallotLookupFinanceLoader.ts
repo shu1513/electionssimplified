@@ -3,12 +3,14 @@ import type { Pool, PoolClient } from "pg";
 import { isGeorgiaCampaignFinanceEnabled } from "../../config/featureFlags.js";
 import {
   officeInputFromElectionRow,
+  buildStateFinanceSummaryRequests,
   type BallotLookupFinanceSummary,
   type StateFinanceRequestCandidateRow,
   type StateFinanceRequestElectionRow,
 } from "../address/ballotLookupFinanceShared.js";
 import { loadStandardStateFinanceSummariesByCandidateElection } from "../finance/standardStateFinanceBallotLookupLoader.js";
 import { isGeorgiaFinanceEligibleOffice } from "./georgiaFinanceEligibleOffices.js";
+import { attachGeorgiaReportedFinanceComponents } from "./georgiaReportedFinanceReader.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
@@ -52,7 +54,7 @@ export async function loadGeorgiaCandidateFinanceSummariesByCandidateElection(
   candidateRows: readonly StateFinanceRequestCandidateRow[],
   electionRows: readonly StateFinanceRequestElectionRow[]
 ): Promise<Map<string, BallotLookupFinanceSummary>> {
-  return loadStandardStateFinanceSummariesByCandidateElection({
+  const summaries = await loadStandardStateFinanceSummariesByCandidateElection({
     db,
     candidateRows,
     electionRows,
@@ -72,4 +74,7 @@ export async function loadGeorgiaCandidateFinanceSummariesByCandidateElection(
       outsideGroupBreakdowns: "ga_candidate_finance_outside_group_breakdowns",
     },
   });
+  return attachGeorgiaReportedFinanceComponents({ db, summaries,
+    requests: buildStateFinanceSummaryRequests("GA", candidateRows, electionRows,
+      row => isGeorgiaFinanceEligibleOffice(officeInputFromElectionRow(row))) });
 }

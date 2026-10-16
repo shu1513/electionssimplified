@@ -408,7 +408,7 @@ function rowMatchesCandidateName(
 // A PeachFile registration belongs to the requested election cycle when
 // either cycle label leads with the election year ("2026 Candidate/Committee
 // Filing Cycle", "2026 Georgia State Election").
-function rowMatchesElectionYear(row: GeorgiaCandidateIndexRow, electionYear: number): boolean {
+export function georgiaCandidateIndexRowMatchesElectionYear(row: GeorgiaCandidateIndexRow, electionYear: number): boolean {
   const yearPrefix = `${electionYear} `;
   return [row.electionCycleName, row.filingCycleName].some(
     (name) => typeof name === "string" && name.startsWith(yearPrefix)
@@ -479,7 +479,7 @@ function resolveGeorgiaCandidateCommitteeByName(
   const officeLabelKeys = new Set(officeLabels.map((label) => normalizeTextKey(label)));
   const matchesByRegistration = new Map<string, RegistrationAccumulator>();
   for (const row of input.candidateIndexRows) {
-    if (!rowMatchesElectionYear(row, input.electionYear)) {
+    if (!georgiaCandidateIndexRowMatchesElectionYear(row, input.electionYear)) {
       continue;
     }
     if (!officeLabelKeys.has(normalizeTextKey(row.office))) {

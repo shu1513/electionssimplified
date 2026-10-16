@@ -36,6 +36,7 @@ import {
 } from "../finance/financeIndustryClassificationService.js";
 import {
   georgiaLastNameSearchToken,
+  georgiaCandidateIndexRowMatchesElectionYear,
   normalizeGeorgiaCandidateNameForStorage,
 } from "./georgiaCandidateCommitteeResolver.js";
 import {
@@ -277,16 +278,6 @@ function isoDate(date: Date): string {
 
 function centsRound(value: number): number {
   return Math.round(value * 100) / 100;
-}
-
-// A registration belongs to the requested cycle when either cycle label leads
-// with the election year (resolver rule; the archive renders e.g.
-// "2026 State/Statewide Election Cycle for Candidates (January and June)").
-function rowMatchesElectionYear(row: GeorgiaCandidateIndexRow, electionYear: number): boolean {
-  const yearPrefix = `${electionYear} `;
-  return [row.electionCycleName, row.filingCycleName].some(
-    (name) => typeof name === "string" && name.startsWith(yearPrefix)
-  );
 }
 
 // Per-host selected report-group guids from the D8 inventory union: the
@@ -580,7 +571,7 @@ export async function syncGeorgiaCandidateFinance(
   // election-cycle gate that created the link (resolver rule) re-applies
   // here, and anything but exactly one surviving row fails closed.
   const indexRowCandidates = peachfileIndexRows.filter(
-    (row) => row.filerEntityId === committeeEntityId && rowMatchesElectionYear(row, electionYear)
+    (row) => row.filerEntityId === committeeEntityId && georgiaCandidateIndexRowMatchesElectionYear(row, electionYear)
   );
   if (indexRowCandidates.length !== 1) {
     throw new Error(

@@ -7,14 +7,19 @@ import { getPipelineEnv } from "../config/env.js";
 import {
   isGeorgiaCampaignFinanceEnabled,
   isGeorgiaCampaignFinanceSyncEnabled,
+  isGeorgiaReportedIeEnabled,
+  isGeorgiaReportedCommitteeContributionsEnabled,
 } from "../config/featureFlags.js";
 import {
   syncDueGeorgiaCandidateFinance,
   type GeorgiaCandidateFinanceBatchSyncResult,
 } from "../pipeline/georgiaFinance/georgiaCandidateFinanceBatchSync.js";
+import {syncDueGeorgiaReportedFinance, type GeorgiaReportedFinanceBatchResult} from "../pipeline/georgiaFinance/georgiaReportedFinanceBatchSync.js";
 
 export const GEORGIA_CANDIDATE_FINANCE_SYNC_JOB_NAME = "georgia_candidate_finance_sync_due";
 export const GEORGIA_CANDIDATE_FINANCE_SYNC_DAILY_SCHEDULER_ID = "georgia_candidate_finance_sync_daily";
+export const GEORGIA_REPORTED_FINANCE_SYNC_JOB_NAME = "georgia_reported_finance_sync_due";
+export const GEORGIA_REPORTED_FINANCE_DAILY_SCHEDULER_ID = "georgia_reported_finance_sync_daily";
 
 export type GeorgiaCandidateFinanceSyncJobData = {
   dryRun?: boolean;
@@ -28,6 +33,10 @@ export type GeorgiaCandidateFinanceSyncJobData = {
   maxPasses?: number;
   triggeredBy?: "daily" | "manual" | "unknown";
   requestedAt?: string;
+  refresh?: boolean;
+  cacheDir?: string;
+  filingYear?: number;
+  electionYear?: number;
 };
 
 export type GeorgiaCandidateFinanceSyncJobResult = GeorgiaCandidateFinanceBatchSyncResult & {
@@ -109,6 +118,8 @@ function assertValidJobOptions(data: GeorgiaCandidateFinanceSyncJobData): void {
   assertPositiveInteger(data.electionLookbackDays, "electionLookbackDays");
   assertPositiveInteger(data.electionLookaheadDays, "electionLookaheadDays");
   assertPositiveInteger(data.maxPasses, "maxPasses");
+  assertPositiveInteger(data.filingYear, "filingYear");
+  assertPositiveInteger(data.electionYear, "electionYear");
   if (data.maxPasses !== undefined && data.maxPasses < 2) {
     throw new Error(`Invalid Georgia finance sync scheduler maxPasses: ${data.maxPasses} (stability needs at least 2)`);
   }
@@ -129,6 +140,7 @@ export async function upsertRecurringGeorgiaCandidateFinanceSyncJobs(
     const queue = createGeorgiaCandidateFinanceSyncSchedulerQueue();
     try {
       await queue.removeJobScheduler(GEORGIA_CANDIDATE_FINANCE_SYNC_DAILY_SCHEDULER_ID);
+      await queue.removeJobScheduler(GEORGIA_REPORTED_FINANCE_DAILY_SCHEDULER_ID);
     } finally {
       await queue.close();
     }
@@ -160,6 +172,16 @@ export async function upsertRecurringGeorgiaCandidateFinanceSyncJobs(
         opts: defaultJobOptions(),
       }
     );
+    if (isGeorgiaReportedIeEnabled() || isGeorgiaReportedCommitteeContributionsEnabled()) {
+      await queue.upsertJobScheduler(GEORGIA_REPORTED_FINANCE_DAILY_SCHEDULER_ID,
+        {pattern: config.dailyCron, tz: config.dailyTz},
+        {name: GEORGIA_REPORTED_FINANCE_SYNC_JOB_NAME, data: {triggeredBy: "daily", dryRun: Boolean(jobData.dryRun),
+          refresh: Boolean(jobData.refresh), cacheDir: jobData.cacheDir, filingYear: jobData.filingYear,
+          electionYear: jobData.electionYear, maxCandidates: jobData.maxCandidates, staleAfterDays: jobData.staleAfterDays,
+          electionLookbackDays: jobData.electionLookbackDays, electionLookaheadDays: jobData.electionLookaheadDays}, opts: defaultJobOptions()});
+    } else {
+      await queue.removeJobScheduler(GEORGIA_REPORTED_FINANCE_DAILY_SCHEDULER_ID);
+    }
   } finally {
     await queue.close();
   }
@@ -259,18 +281,31 @@ export async function runGeorgiaCandidateFinanceSyncJob(
 
 export function createGeorgiaCandidateFinanceSyncSchedulerWorker(): Worker<
   GeorgiaCandidateFinanceSyncJobData,
-  GeorgiaCandidateFinanceSyncJobResult
+  GeorgiaCandidateFinanceSyncJobResult | GeorgiaReportedFinanceBatchResult | {enabled: false}
 > {
   const connection = getQueueConnection();
   const queueName = getQueueName();
 
-  const processor: Processor<GeorgiaCandidateFinanceSyncJobData, GeorgiaCandidateFinanceSyncJobResult> = async (
+  const processor: Processor<GeorgiaCandidateFinanceSyncJobData, GeorgiaCandidateFinanceSyncJobResult | GeorgiaReportedFinanceBatchResult | {enabled: false}> = async (
     job
   ) => {
+    if (job.name === GEORGIA_REPORTED_FINANCE_SYNC_JOB_NAME) {
+      if (!isGeorgiaReportedIeEnabled() && !isGeorgiaReportedCommitteeContributionsEnabled()) return {enabled: false};
+      const connectionString = process.env.DATABASE_URL?.trim();
+      if (!connectionString) throw new Error("DATABASE_URL is required for Georgia reported finance sync");
+      const db = new Pool({connectionString});
+      try {
+        const {dryRun, refresh, cacheDir, filingYear, electionYear, maxCandidates, staleAfterDays,
+          electionLookbackDays, electionLookaheadDays} = job.data ?? {};
+        return await syncDueGeorgiaReportedFinance({db, dryRun, refresh, cacheDir, filingYear, electionYear,
+          maxCandidates, staleAfterDays, electionLookbackDays, electionLookaheadDays});
+      } finally {await db.end();}
+    }
+    if (job.name !== GEORGIA_CANDIDATE_FINANCE_SYNC_JOB_NAME) throw new Error("Unknown Georgia finance sync job name");
     return runGeorgiaCandidateFinanceSyncJob(job.data ?? {});
   };
 
-  return new Worker<GeorgiaCandidateFinanceSyncJobData, GeorgiaCandidateFinanceSyncJobResult>(
+  return new Worker<GeorgiaCandidateFinanceSyncJobData, GeorgiaCandidateFinanceSyncJobResult | GeorgiaReportedFinanceBatchResult | {enabled: false}>(
     queueName,
     processor,
     {

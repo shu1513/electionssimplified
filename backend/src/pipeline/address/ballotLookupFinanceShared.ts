@@ -205,7 +205,8 @@ export type BallotLookupFinanceSummary = {
      * only). Absent until the PAC list was loaded for this cycle.
      */
     pac_money_by_interest?: BallotLookupFinancePacInterest[];
-    pac_money_basis?: "reported_committee_monetary_positions" | "reported_committee_monetary_receipts" | "reported_itemized_committee_cash_contributions";
+    pac_money_basis?: "reported_committee_monetary_positions" | "reported_committee_monetary_receipts" |
+      "reported_itemized_committee_cash_contributions" | "reported_committee_itemized_contributions";
     pac_money_coverage_note?: string;
     /**
      * One sentence naming what this source's direct breakdowns do NOT

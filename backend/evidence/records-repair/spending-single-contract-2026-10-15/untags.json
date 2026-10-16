@@ -1,0 +1,26 @@
+[
+  {
+    "recordId": "da34341b-3df9-44e1-97b9-fb619ae48bab",
+    "researchAreaSlug": "government_spending_reduction",
+    "expectedStance": "against",
+    "expectedDescription": "Voted yes on a $2.25 million, two-year contract for 290 license-plate reading cameras for Oakland police. She added amendments limiting which other agencies can use the camera data. The council approved it 7-1.",
+    "reason": "single routine contract vote; rendered as 'Opposes Government Spending Reduction' but approving one contract states no position on overall spending (prompt rule: routine purchases/contracts state no position; spending tag reserved for budgets, appropriations, bonds, funded programs)",
+    "note": "user report 2026-10-15 on Charlene Wang"
+  },
+  {
+    "recordId": "3a7e3de5-911d-41e9-b03e-df3d9b373c87",
+    "researchAreaSlug": "government_spending_reduction",
+    "expectedStance": "against",
+    "expectedDescription": "Voted yes on a $2.25 million, two-year contract for 290 license-plate reading cameras for Oakland police. The council approved it 7-1.",
+    "reason": "single routine contract vote; rendered as 'Opposes Government Spending Reduction' but approving one contract states no position on overall spending (prompt rule: routine purchases/contracts state no position; spending tag reserved for budgets, appropriations, bonds, funded programs)",
+    "note": "user report 2026-10-15 on Charlene Wang"
+  },
+  {
+    "recordId": "ea78dec9-3d4c-4939-9770-6bcf692d61ed",
+    "researchAreaSlug": "government_spending_reduction",
+    "expectedStance": "against",
+    "expectedDescription": "Voted yes on a $2.25 million, two-year contract for 290 license-plate reading cameras for Oakland police. The council approved it 7-1.",
+    "reason": "single routine contract vote; rendered as 'Opposes Government Spending Reduction' but approving one contract states no position on overall spending (prompt rule: routine purchases/contracts state no position; spending tag reserved for budgets, appropriations, bonds, funded programs)",
+    "note": "user report 2026-10-15 on Charlene Wang"
+  }
+]
