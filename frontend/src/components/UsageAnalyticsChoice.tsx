@@ -17,8 +17,9 @@ export function UsageAnalyticsChoice() {
       <h2 className="text-heading font-semibold">Your usage-analytics choice</h2>
       <p className="mt-2 text-sm text-ink-soft">
         Usage analytics help us see which parts of the site are used and where visitors get stuck. They are
-        collected by us, on our own servers, with no advertising or third-party analytics service, and they
-        never include your address, your account, or your picks. This setting applies to this browser.
+        collected by us, on our own servers, never shared with advertisers, and they never include your
+        address, your account, or your picks. This setting applies to this browser and to our own collection
+        only; Cloudflare&apos;s cookie-free page-view count (Section 1) is not affected by it.
       </p>
       <label htmlFor={id} className="mt-3 flex cursor-pointer items-center gap-2 text-sm text-ink">
         <input
