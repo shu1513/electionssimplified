@@ -25,9 +25,11 @@ type Original = {
   completedAt: string;
 };
 
-/** A shared pass transport for the real discovery function. Failed responses
- * remain private diagnostics, never financial acceptance. A first failure
- * latches before legacy discovery can make its committee-name fallback call.
+/** A bounded transport for one receiver-year discovery by the real discovery
+ * function; its request, byte and duration limits cover that one capture.
+ * Failed responses remain private diagnostics, never financial acceptance. A
+ * first failure latches before legacy discovery can make its committee-name
+ * fallback call.
  */
 export function createNorthCarolinaReportedReceiptDiscoveryTransport(input: { cacheDir: string }): NcsbeTransport {
   if (!input || typeof input.cacheDir !== "string" || input.cacheDir.trim() === "") throw new NorthCarolinaReportedReceiptSourceError("invalid_scope");

@@ -34,7 +34,11 @@ async function privateDirectory(path: string): Promise<void> {
   await chmod(path, 0o700);
 }
 // The ordinary discovery cache retains its native format. Its unique pass
-// directory is never renamed, and all retained files remain private.
+// directory is never renamed, and all retained files remain private. Each
+// receiver-year capture directory holds at most two committee searches: the
+// legacy artifact (html + manifest) per search plus the transport's
+// recorded-source tree (originals/, one raw per request, one journal).
+const DISCOVERY_ENTRIES_PER_CAPTURE = 12;
 async function restrictDiscovery(path: string, maximum: number): Promise<void> {
   let count = 0;
   async function visit(file: string): Promise<void> {
@@ -75,14 +79,17 @@ export async function syncDueNorthCarolinaReportedReceiptFinance(options: NorthC
   if (discoveryDir) {
     await privateDirectory(cacheDir); await privateDirectory(join(cacheDir, "discovery")); await privateDirectory(discoveryDir);
   }
-  const transport = discoveryDir ? createNorthCarolinaReportedReceiptDiscoveryTransport({ cacheDir: discoveryDir }) : null;
-  let previousAcquisition = false;
+  let previousAcquisition = false, captures = 0;
   try {
     for (const receiver of due.rows) {
       result.attemptedCount++;
       if (!result.dryRun && !await recordNorthCarolinaReportedReceiptFinanceAttempt({ db: options.db, receiver, now: new Date(), cacheDir })) {
         result.heldCount++; continue;
       }
+      // Only a failure while talking to the portal (discovery or acquisition)
+      // may stop later host work; local cache replay or writer failures for
+      // one receiver say nothing about the host.
+      let hostPhase = false;
       try {
         const key = JSON.stringify([receiver.committeeId, receiver.electionYear]);
         if (!packets.has(key)) {
@@ -93,7 +100,16 @@ export async function syncDueNorthCarolinaReportedReceiptFinance(options: NorthC
             // portal's minimum spacing at their request boundaries.
             if (previousAcquisition) await delay(DEFAULT_NCSBE_REQUEST_SPACING_MS);
             previousAcquisition = true;
-            const found = await discoverNcsbeAcquisitionCommittees({ transport: transport!, cacheDir: discoveryDir!, force: true, roster: [{
+            // One bounded discovery transport per receiver-year capture, like
+            // acquisition: its request/byte/duration limits bound one capture,
+            // not the whole pass, so a long healthy pass is never reported as
+            // host unavailability. The acquisitionStopped latch above is what
+            // stops later host requests after a real failure.
+            const captureDir = join(discoveryDir!, `capture-${String(++captures).padStart(4, "0")}`);
+            await privateDirectory(captureDir);
+            const transport = createNorthCarolinaReportedReceiptDiscoveryTransport({ cacheDir: captureDir });
+            hostPhase = true;
+            const found = await discoverNcsbeAcquisitionCommittees({ transport, cacheDir: captureDir, force: true, roster: [{
               candidateId: receiver.candidateId, electionId: receiver.electionId, candidateName: receiver.candidateName,
               electionYear: receiver.electionYear, officeScope: receiver.officeScope, officeName: receiver.officeName,
               district: receiver.district, linkedCommitteeId: receiver.committeeId, linkedCommitteeName: receiver.committeeName }] });
@@ -103,6 +119,7 @@ export async function syncDueNorthCarolinaReportedReceiptFinance(options: NorthC
             await delay(DEFAULT_NCSBE_REQUEST_SPACING_MS);
             await acquireNorthCarolinaReportedReceiptSource({ cacheDir, receivingCommitteeId: receiver.committeeId,
               electionYear: receiver.electionYear, orgGroupId: found.committees[0]!.orgGroupId });
+            hostPhase = false;
             result.sourceRefreshedCount++;
           }
           packets.set(key, await readNorthCarolinaReportedReceiptSource({ cacheDir,
@@ -119,7 +136,7 @@ export async function syncDueNorthCarolinaReportedReceiptFinance(options: NorthC
         }
       } catch (error) {
         if (error instanceof NorthCarolinaReportedReceiptSourceError) {
-          if (rawRefresh && error.code === "unavailable") result.acquisitionStopped = true;
+          if (hostPhase && error.code === "unavailable") result.acquisitionStopped = true;
         } else if (!(error instanceof NorthCarolinaReportedReceiptFinanceWriteError)) throw error;
         result.heldCount++;
       } finally {
@@ -128,6 +145,6 @@ export async function syncDueNorthCarolinaReportedReceiptFinance(options: NorthC
     }
     return result;
   } finally {
-    if (discoveryDir) await restrictDiscovery(discoveryDir, 6 * maxCandidates + 8);
+    if (discoveryDir) await restrictDiscovery(discoveryDir, DISCOVERY_ENTRIES_PER_CAPTURE * maxCandidates + 8);
   }
 }

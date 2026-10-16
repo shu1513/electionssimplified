@@ -134,8 +134,10 @@ describe("independent North Carolina reported receipt finance batch", () => {
     expect(result).toMatchObject({ sourceRefreshedCount: 1, writtenCount: 1, acquisitionStopped: false });
     expect(mocks.order).toEqual(["attempt", "discover", "acquire", "read", "validate", "write", "attempt"]);
     expect(mocks.transport).toHaveBeenCalledOnce();
-    expect(mocks.transport).toHaveBeenCalledWith({ cacheDir: expect.stringMatching(/^\/private\/synthetic-nc-cache\/discovery\/pass-[a-f0-9-]+$/) });
+    expect(mocks.transport).toHaveBeenCalledWith({ cacheDir: expect.stringMatching(/^\/private\/synthetic-nc-cache\/discovery\/pass-[a-f0-9-]+\/capture-0001$/) });
     expect(mocks.discover.mock.calls[0]![0].transport).toBe(mocks.transport.mock.results[0]!.value);
+    expect(mocks.discover.mock.calls[0]![0].cacheDir).toBe(mocks.transport.mock.calls[0]![0].cacheDir);
+    expect(mocks.mkdir).toHaveBeenCalledWith(mocks.transport.mock.calls[0]![0].cacheDir, { recursive: true, mode: 0o700 });
     expect(mocks.acquire).toHaveBeenCalledWith({ cacheDir: CACHE, receivingCommitteeId: receiver().committeeId, electionYear: 2026, orgGroupId: 17 });
     expect(mocks.discover.mock.calls[0]![0]).toMatchObject({ force: true, roster: [{ linkedCommitteeId: receiver().committeeId, candidateId: receiver().candidateId }] });
     expect(mocks.delay).toHaveBeenCalledWith(2000); expect(mocks.chmod).toHaveBeenCalled();
@@ -154,6 +156,18 @@ describe("independent North Carolina reported receipt finance batch", () => {
     expect(mocks.delay.mock.calls).toEqual([[2000], [2000], [2000]]);
   });
 
+  it("gives every receiver-year capture its own bounded discovery transport and capture directory", async () => {
+    raw(); due([receiver(1, 1), receiver(2, 2), receiver(3, 3)]); const result = await run();
+    expect(result).toMatchObject({ sourceRefreshedCount: 3, writtenCount: 3, acquisitionStopped: false });
+    expect(mocks.transport).toHaveBeenCalledTimes(3);
+    const dirs = mocks.transport.mock.calls.map(([input]) => input.cacheDir as string);
+    expect(dirs.map(dir => dir.slice(dir.lastIndexOf("/") + 1))).toEqual(["capture-0001", "capture-0002", "capture-0003"]);
+    expect(new Set(dirs.map(dir => dir.slice(0, dir.lastIndexOf("/")))).size).toBe(1);
+    for (const [index, [input]] of mocks.discover.mock.calls.entries()) {
+      expect(input.transport).toBe(mocks.transport.mock.results[index]!.value); expect(input.cacheDir).toBe(dirs[index]);
+    }
+  });
+
   it("does not conflate the same receiver in different election years", async () => {
     raw(); due([receiver(1, 1), receiver(2, 1, 2028)]); const result = await run();
     expect(result).toMatchObject({ sourceRefreshedCount: 2, writtenCount: 2 }); expect(mocks.acquire.mock.calls.map(([input]) => input.electionYear)).toEqual([2026, 2028]);
@@ -170,6 +184,23 @@ describe("independent North Carolina reported receipt finance batch", () => {
     raw(); due([receiver(1), receiver(2), receiver(3)]); mocks.acquire.mockRejectedValueOnce(new SourceError("unavailable"));
     const result = await run(); expect(result).toMatchObject({ attemptedCount: 3, heldCount: 3, qualifiedCount: 0, writtenCount: 0, sourceRefreshedCount: 0, acquisitionStopped: true });
     expect(mocks.discover).toHaveBeenCalledOnce(); expect(mocks.acquire).toHaveBeenCalledOnce(); expect(mocks.read).not.toHaveBeenCalled(); expect(mocks.write).not.toHaveBeenCalled(); expect(mocks.attempt).toHaveBeenCalledTimes(6);
+  });
+
+  it("keeps acquiring from a healthy host after one receiver's local cache replay is unavailable", async () => {
+    raw(); due([receiver(1), receiver(2), receiver(3)]); mocks.read.mockRejectedValueOnce(new SourceError("unavailable"));
+    const result = await run(); expect(result).toMatchObject({ attemptedCount: 3, sourceRefreshedCount: 3, heldCount: 1, writtenCount: 2, acquisitionStopped: false });
+    expect(mocks.acquire).toHaveBeenCalledTimes(3); expect(mocks.read).toHaveBeenCalledTimes(3); expect(mocks.attempt).toHaveBeenCalledTimes(6);
+    expect(mocks.write.mock.calls.map(([input]) => input.receiver)).toEqual([receiver(2), receiver(3)]);
+  });
+
+  it("holds one receiver without stopping the host when its private capture directory cannot be prepared", async () => {
+    raw(); due([receiver(1), receiver(2)]);
+    mocks.lstat.mockResolvedValueOnce({ isDirectory: () => true, isFile: () => false, isSymbolicLink: () => false })
+      .mockResolvedValueOnce({ isDirectory: () => true, isFile: () => false, isSymbolicLink: () => false })
+      .mockResolvedValueOnce({ isDirectory: () => true, isFile: () => false, isSymbolicLink: () => false })
+      .mockResolvedValueOnce({ isDirectory: () => true, isFile: () => false, isSymbolicLink: () => true });
+    const result = await run(); expect(result).toMatchObject({ attemptedCount: 2, sourceRefreshedCount: 1, heldCount: 1, writtenCount: 1, acquisitionStopped: false });
+    expect(mocks.discover).toHaveBeenCalledOnce(); expect(mocks.write.mock.calls[0]![0].receiver).toEqual(receiver(2));
   });
 
   it("does not retry a held repeated receiver-year or substitute a previously cached source", async () => {
