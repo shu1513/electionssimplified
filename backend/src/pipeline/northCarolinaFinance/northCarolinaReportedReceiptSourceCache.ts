@@ -31,6 +31,9 @@ import type { Binding, CaptureScope, Facts, Generation, Manifest, Original, Poin
 export type { Generation } from "./northCarolinaReportedReceiptSourceTypes.js";
 
 export const DEFAULT_NC_REPORTED_RECEIPT_CACHE_DIR = "scratch/north-carolina-reported-receipts";
+export function resolveNorthCarolinaReportedReceiptCacheDir(explicit?: string): string {
+  return resolve(explicit?.trim() || process.env.NORTH_CAROLINA_REPORTED_RECEIPT_CACHE_DIR?.trim() || DEFAULT_NC_REPORTED_RECEIPT_CACHE_DIR);
+}
 export const NORTH_CAROLINA_REPORTED_RECEIPT_LIMITS = Object.freeze({
   maxRequests: 1000, maxTotalBytes: 256 * 1024 * 1024, maxBodyBytes: 16 * 1024 * 1024,
   maxCaptureMs: 30 * 60_000, requestTimeoutMs: 90_000, requestSpacingMs: 2_000,
@@ -67,7 +70,7 @@ function scope(input: Scope): { root: string; directory: string } {
   if (!input || typeof input.receivingCommitteeId !== "string" || !NORTH_CAROLINA_SBOEID_PATTERN.test(input.receivingCommitteeId)
     || !input.receivingCommitteeId.includes("-C-") || !integer(input.electionYear, 2000) || input.electionYear > 2100
     || input.cacheDir !== undefined && (typeof input.cacheDir !== "string" || input.cacheDir.trim() === "")) fail("invalid_scope");
-  const root = resolve(input.cacheDir ?? DEFAULT_NC_REPORTED_RECEIPT_CACHE_DIR);
+  const root = resolveNorthCarolinaReportedReceiptCacheDir(input.cacheDir);
   return { root, directory: join(root, input.receivingCommitteeId, String(input.electionYear)) };
 }
 function captureScope(input: CaptureScope): void { scope(input); if (!integer(input.orgGroupId, 1)) fail("invalid_scope"); }
@@ -304,6 +307,29 @@ export async function readNorthCarolinaReportedReceiptSource(input: Scope): Prom
     const base = scope(input).directory;
     try { await directories(input); await lstat(join(base, "current.json")); } catch (e) { if (missing(e)) return null; throw e; }
     return readGeneration(input, pointer(json(await boundedFile(join(base, "current.json"), MANIFEST_BYTES))));
+  });
+}
+
+export type NorthCarolinaReportedReceiptSourceRevision = Pick<Facts,
+  "sourceGeneration" | "sourceRetrievedAt" | "sourceCompletedAt" | "sourceManifestSha256">;
+
+/** Scheduling hint only: validates pointer/manifest scope and chronology, but
+ * does not read original bodies or qualify money. Selected sync rows must
+ * still pass readNorthCarolinaReportedReceiptSource's complete replay. */
+export async function readNorthCarolinaReportedReceiptSourceRevision(input: Scope): Promise<NorthCarolinaReportedReceiptSourceRevision | null> {
+  return safe(async () => {
+    const base = scope(input).directory;
+    try { await lstat(join(base, "current.json")); } catch (error) { if (missing(error)) return null; throw error; }
+    await directories(input);
+    const p = pointer(json(await boundedFile(join(base, "current.json"), 4096)));
+    const gen = join(base, `generation-${p.generation}`);
+    await directory(gen);
+    const bytes = await boundedFile(join(gen, "manifest.json"), MANIFEST_BYTES);
+    if (hash(bytes) !== p.manifestSha256) fail();
+    const manifest = validateManifest(json(bytes), input, p.generation);
+    return Object.freeze({ sourceGeneration: manifest.generation,
+      sourceRetrievedAt: manifest.sourceRetrievedAt, sourceCompletedAt: manifest.sourceCompletedAt,
+      sourceManifestSha256: p.manifestSha256 });
   });
 }
 

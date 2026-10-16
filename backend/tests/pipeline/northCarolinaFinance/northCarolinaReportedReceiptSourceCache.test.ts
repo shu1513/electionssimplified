@@ -7,7 +7,7 @@ import { NCSBE_COVER_SECTIONS, parseNcsbeDocumentListPage } from "../../../src/p
 import { storeNcsbeArtifact, getNcsbeArtifactPaths, type NcsbeArtifactKey } from "../../../src/pipeline/northCarolinaFinance/northCarolinaNcsbeArtifactCache.js";
 import { ncsbeSourceDocumentMetadata } from "../../../src/pipeline/northCarolinaFinance/northCarolinaNcsbeArtifactAcquisition.js";
 import { ncsbeDocumentInventoryUrl, ncsbeReportDetailUrl, ncsbeReceiptsUrl, ncsbeExpendituresUrl } from "../../../src/pipeline/northCarolinaFinance/northCarolinaNcsbeClient.js";
-import { appendNorthCarolinaReportedReceiptOriginal as append, beginNorthCarolinaReportedReceiptGeneration as begin, closeNorthCarolinaReportedReceiptGeneration as close, finalizeNorthCarolinaReportedReceiptGeneration as finalize, readNorthCarolinaReportedReceiptSource as read, validateNorthCarolinaReportedReceiptOriginalUrl as validateUrl } from "../../../src/pipeline/northCarolinaFinance/northCarolinaReportedReceiptSourceCache.js";
+import { appendNorthCarolinaReportedReceiptOriginal as append, beginNorthCarolinaReportedReceiptGeneration as begin, closeNorthCarolinaReportedReceiptGeneration as close, finalizeNorthCarolinaReportedReceiptGeneration as finalize, readNorthCarolinaReportedReceiptSource as read, readNorthCarolinaReportedReceiptSourceRevision as revision, validateNorthCarolinaReportedReceiptOriginalUrl as validateUrl } from "../../../src/pipeline/northCarolinaFinance/northCarolinaReportedReceiptSourceCache.js";
 import type { Binding, CaptureScope, Generation } from "../../../src/pipeline/northCarolinaFinance/northCarolinaReportedReceiptSourceTypes.js";
 // Keep real filesystem semantics while forcing both reclaimers to observe
 // the original occupied lock before either enters the recovery critical section.
@@ -108,6 +108,30 @@ async function changeManifest(g: Generation, edit: (m: any) => void) {
 }
 
 describe("North Carolina immutable reported-receipt source cache", () => {
+  it("exposes only a scheduling revision; original corruption still requires full financial replay", async () => {
+    const input = await scope();
+    expect(await revision(input)).toBeNull();
+    const packet = await publish(input);
+    const expected = { sourceGeneration: packet.source.sourceGeneration,
+      sourceRetrievedAt: packet.source.sourceRetrievedAt, sourceCompletedAt: packet.source.sourceCompletedAt,
+      sourceManifestSha256: packet.source.sourceManifestSha256 };
+    const hint = await revision(input);
+    expect(hint).toEqual(expected);
+    expect(Object.isFrozen(hint)).toBe(true);
+    await writeFile(join(base(input), `generation-${packet.source.sourceGeneration}`, "originals", "0003.raw"), "Synthetic altered receipt body");
+    expect(await revision(input)).toEqual(expected);
+    await expect(read(input)).rejects.toMatchObject({ code: "unavailable" });
+  });
+
+  it("rejects an invalid scheduling manifest or pointer without falling back", async () => {
+    const input = await scope();
+    const packet = await publish(input);
+    await writeFile(join(base(input), `generation-${packet.source.sourceGeneration}`, "manifest.json"), "{}");
+    await expect(revision(input)).rejects.toMatchObject({ code: "unavailable" });
+    await writeFile(pointerPath(input), "{}");
+    await expect(revision(input)).rejects.toMatchObject({ code: "unavailable" });
+  });
+
   it("independently qualifies complete ordinary originals, retains amendment acquisition, and exports only current receipts", async () => {
     const input = await scope(); const g = await stage(input, { amended: true });
     const result = await finalize(g); await close(g);
