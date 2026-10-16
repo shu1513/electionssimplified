@@ -1569,6 +1569,99 @@ describe("runElectionsValidator", () => {
     expect(hardFailCall).toBeTruthy();
   });
 
+  it("accepts a shared city-and-county justice court retention question on the place row", async () => {
+    // Utah pairs one justice-court judge with a city court and a county court
+    // and prints one retention question naming both courts. The "county"
+    // token in the court name is not a mis-filed county race.
+    const payload = {
+      district_id: "d-naples",
+      district_name: "Naples city, Utah",
+      district_type: "place",
+      state: "UT",
+      entries: [
+        {
+          official_ballot_title:
+            "Shall Ray R. Richards be retained in the office of Judge of the Naples City and Uintah County Justice Courts?",
+          election_date: "2099-11-03",
+          race_type: "office",
+          election_stage: "general",
+          is_partisan: false,
+          discovery_contest_family: "judicial_office",
+          judicial_office: true,
+          sources: ["https://example.org/certification"],
+        },
+      ],
+    };
+
+    poolQueryMock
+      .mockResolvedValueOnce({
+        rows: [
+          {
+            ingest_key: "elections:test:naples-retention",
+            payload,
+            status: "pending",
+            run_id: "run_naples_retention",
+            failure_debug: null,
+            schema_version: ELECTION_ENRICHMENT_SCHEMA_VERSION,
+          },
+        ],
+      })
+      .mockResolvedValueOnce({ rowCount: 1 })
+      .mockResolvedValue({ rowCount: 1, rows: [] });
+
+    await runElectionsValidator({ once: true, batchSize: 5, blockMs: 10 });
+
+    const hardFailCall = poolQueryMock.mock.calls.find((call) =>
+      String(call[1]?.[1] ?? "").includes("place scope contains clearly non-place race")
+    );
+    expect(hardFailCall).toBeUndefined();
+  });
+
+  it("accepts a shared city-and-county justice court retention question on the county row", async () => {
+    const payload = {
+      district_id: "d-uintah",
+      district_name: "Uintah County, Utah",
+      district_type: "county",
+      state: "UT",
+      entries: [
+        {
+          official_ballot_title:
+            "Shall Ray R. Richards be retained in the office of Judge of the Naples City and Uintah County Justice Courts?",
+          election_date: "2099-11-03",
+          race_type: "office",
+          election_stage: "general",
+          is_partisan: false,
+          discovery_contest_family: "judicial_office",
+          judicial_office: true,
+          sources: ["https://example.org/certification"],
+        },
+      ],
+    };
+
+    poolQueryMock
+      .mockResolvedValueOnce({
+        rows: [
+          {
+            ingest_key: "elections:test:uintah-retention",
+            payload,
+            status: "pending",
+            run_id: "run_uintah_retention",
+            failure_debug: null,
+            schema_version: ELECTION_ENRICHMENT_SCHEMA_VERSION,
+          },
+        ],
+      })
+      .mockResolvedValueOnce({ rowCount: 1 })
+      .mockResolvedValue({ rowCount: 1, rows: [] });
+
+    await runElectionsValidator({ once: true, batchSize: 5, blockMs: 10 });
+
+    const hardFailCall = poolQueryMock.mock.calls.find((call) =>
+      String(call[1]?.[1] ?? "").includes("county scope contains clearly non-county race")
+    );
+    expect(hardFailCall).toBeUndefined();
+  });
+
   it("accepts 'County Mayor' as a county race instead of hard-rejecting it as city-like", async () => {
     // Orange County FL (also Miami-Dade, Nashville) titles the elected county
     // executive "County Mayor"; the bare `mayor` city marker must not

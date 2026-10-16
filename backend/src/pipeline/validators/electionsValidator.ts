@@ -285,11 +285,23 @@ function isHardScopeMismatch(
   // part of the district's name, not a sign of a mis-scoped county/city race.
   const schoolTitleMarker = entry.race_type === "office" && hasAny(scopeText, SCHOOL_TITLE_MARKERS);
 
-  if (districtType === "place" && (usSenate || usHouse || stateSenate || stateHouse || governorLike || countyLike || schoolLike)) {
+  // Utah pairs one justice-court judge with a city court and a county court
+  // and prints ONE retention question that names both ("Shall X be retained
+  // in the office of Judge of the Naples City and Uintah County Justice
+  // Courts?"). That question legitimately sits on the place row AND the
+  // county row, so the other scope's token in the court name is not a
+  // mis-filed race (live: Naples city / Uintah County, 2026-10-15).
+  const sharedJusticeCourtRetention =
+    entry.race_type === "office" &&
+    /^shall .+ be retained in the office of judge of the .+ justice courts?\b/.test(scopeText);
+  const placeCountyLike = countyLike && !sharedJusticeCourtRetention;
+  const countyCityLike = cityLike && !sharedJusticeCourtRetention;
+
+  if (districtType === "place" && (usSenate || usHouse || stateSenate || stateHouse || governorLike || placeCountyLike || schoolLike)) {
     return "place scope contains clearly non-place race";
   }
 
-  if (districtType === "county" && (usSenate || usHouse || stateSenate || stateHouse || governorLike || cityLike || schoolLike)) {
+  if (districtType === "county" && (usSenate || usHouse || stateSenate || stateHouse || governorLike || countyCityLike || schoolLike)) {
     return "county scope contains clearly non-county race";
   }
 
