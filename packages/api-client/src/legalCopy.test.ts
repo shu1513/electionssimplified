@@ -191,8 +191,13 @@ const PINNED_DOCUMENTS = [
     // confirms deletion by signing in with Google again instead of setting
     // a password first. Nothing new collected — TERMS_VERSION stays 1.5,
     // no re-acceptance.
-    version: "1.9",
-    sha256: "db7da2dd2420579f59c78bb7291507339fa745e35c728bc027a198e1eb599f8d",
+    // 1.9 → 1.10 (2026-10-15): names Cloudflare Web Analytics (zone-level
+    // beacon, on since ~July 2026) — Section 1 had said "no third-party
+    // analytics service"; Section 3 lists Cloudflare as the recipient and
+    // Section 5 scopes the /privacy opt-out to our own collector.
+    // Disclosure of an existing practice — TERMS_VERSION stays 1.5.
+    version: "1.10",
+    sha256: "583db68c0c7ac1502b2b43a8d553a8df760f0ff10529c41654e0f5294afd885e",
   },
   {
     filename: "disclaimer.md",
