@@ -936,7 +936,7 @@ validator does not require expenditure CSV/grid equality to establish gross
 receipt occurrences. It makes no net-return or rapid-filing mirror claim.
 
 The pure report validator and committee-receipt aggregator now have adversarial
-tests. All 298 NC pipeline tests and backend type checking passed; separate
+tests. All 337 NC pipeline tests and backend type checking passed; separate
 replays used the unchanged genuine source originals. The aggregator requires
 every selected current report, preserves equal occurrences, excludes native
 `In Kind` and aggregated rows, and holds unresolved monetary payment types,
@@ -944,8 +944,19 @@ prior markers, negative receipts and unsafe amounts. Only native `Cash`,
 `Check`, `Credit Card` and `Electronic Funds Transfer` are currently accepted
 monetary payment labels. An unrelated account-transfer CSV section and a
 period-boundary discrepancy involving no committee receipts do not change the
-receipt population or justify deduplication. Next steps require an immutable complete
-receiving-source generation, protected independent storage and due handling,
+receipt population or justify deduplication.
+
+The independent source producer captures a complete receiving generation:
+unchanged HTTP originals, ordinary report artifacts, current native CSVs and
+closing inventory. Its reader checks full native inventory occurrences,
+including fields omitted by the legacy projection; presentation reorder is
+allowed, and duplicates remain separate. It replays all report/page/source
+controls before atomically publishing a pointer. Failed refreshes preserve the
+prior pointer and source dates. Bounded sequential transport, exclusive leases
+and private retained artifacts keep interrupted or concurrent captures from
+qualifying a partial source. This source-only step is not wired to publication.
+
+Next steps require protected independent storage and due handling,
 default-off publication, and actual ordinary local sync, API and frontend card
 proof before the single NC pull request.
 
