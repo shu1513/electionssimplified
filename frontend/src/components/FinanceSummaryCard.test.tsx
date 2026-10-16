@@ -56,7 +56,49 @@ describe("FinanceSummaryCard", () => {
     summary.direct_campaign.pac_money_by_interest[0]!.pacs[0]!.amount = 4999;
     rerender(<FinanceSummaryCard summary={summary} />);
     expect(screen.queryByText("Committee money by interest")).not.toBeInTheDocument();
+    summary.direct_campaign.pac_money_by_interest = [];
+    rerender(<FinanceSummaryCard summary={summary} />);
+    expect(screen.getByText("No itemized committee contributions reported.")).toBeInTheDocument();
   });
+  it("labels gross reported committee receipts and their qualified empty state", () => {
+    const summary = emptyFinanceSummary();
+    summary.source = "MISSOURI_MEC";
+    summary.direct_campaign.pac_money_basis = "reported_committee_monetary_receipts";
+    summary.direct_campaign.pac_money_coverage_note = "Gross itemized committee monetary receipts before separate returns; may include loans.";
+    summary.direct_campaign.pac_money_by_interest = [{ interest: "unclassified", interest_name: "Not yet sorted", amount: 6000,
+      pac_count: 1, pacs: [{ committee_id: "stored-row", committee_name: "Example Committee", amount: 6000, source_url: null }] }];
+    const { rerender } = render(<FinanceSummaryCard summary={summary} />);
+    expect(screen.getByText("Committee money by interest")).toBeInTheDocument();
+    expect(screen.getByText(summary.direct_campaign.pac_money_coverage_note)).toBeInTheDocument();
+    expect(screen.getByText(/1 reported group/)).toBeInTheDocument();
+    expect(screen.queryByText("PAC money by interest")).not.toBeInTheDocument();
+    summary.direct_campaign.pac_money_by_interest = [];
+    rerender(<FinanceSummaryCard summary={summary} />);
+    expect(screen.getByText("No committee monetary receipts reported.")).toBeInTheDocument();
+    expect(screen.queryByText("No committee cash positions reported.")).not.toBeInTheDocument();
+  });
+
+  it("labels Minnesota's reported cash scope and group counts without asserting PAC registration or net gifts", () => {
+    const summary = emptyFinanceSummary();
+    summary.source = "MINNESOTA_CFB";
+    summary.direct_campaign.pac_money_basis = "reported_itemized_committee_cash_contributions";
+    summary.direct_campaign.pac_money_coverage_note = "Itemized committee cash; later separately reported returns are outside this scope.";
+    summary.direct_campaign.pac_money_by_interest = [{ interest: "unclassified", interest_name: "Not yet sorted",
+      amount: 6000, pac_count: 2, pacs: [
+        { committee_id: "3001", committee_name: "Example Committee", amount: 5000, source_url: null },
+        { committee_id: "3001", committee_name: "EXAMPLE COMMITTEE", amount: 1000, source_url: null },
+      ] }];
+    const { rerender } = render(<FinanceSummaryCard summary={summary} />);
+    expect(screen.getByText("Committee cash by interest")).toBeInTheDocument();
+    expect(screen.getByText(/2 reported groups/)).toBeInTheDocument();
+    expect(screen.getByText(summary.direct_campaign.pac_money_coverage_note)).toBeInTheDocument();
+    expect(screen.queryByText("PAC money by interest")).not.toBeInTheDocument();
+    expect(screen.queryByText("Raised")).not.toBeInTheDocument();
+    summary.direct_campaign.pac_money_by_interest = [];
+    rerender(<FinanceSummaryCard summary={summary} />);
+    expect(screen.getByText("No itemized committee cash contributions reported.")).toBeInTheDocument();
+  });
+
   it("renders signed committee-only money with its own scope note and accurate count", () => {
     const summary = emptyFinanceSummary();
     summary.source = "MARYLAND_CFS";

@@ -1,4 +1,5 @@
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
@@ -14,9 +15,31 @@ import {
   readMinnesotaCampaignFinanceContributionRows,
   readMinnesotaCampaignFinanceIndependentExpenditureContributionRows,
   readMinnesotaCampaignFinanceIndependentExpenditureRows,
+  readMinnesotaCampaignFinanceNativeRows,
 } from "../../../src/pipeline/minnesotaFinance/minnesotaCampaignFinanceArtifactReader.js";
 
 const tempDirs: string[] = [];
+
+const nativeReceiptHeaders = [
+  "Recipient reg num", "Recipient", "Recipient type", "Recipient subtype", "Amount",
+  "Receipt date", "Year", "Contributor", "Contrib Reg Num", "Contrib type", "Receipt type",
+  "In kind?", "In-kind descr", "Contrib zip", "Contrib Employer name",
+];
+const nativeValues = { "Recipient reg num": "10001", Recipient: "Example Candidate Committee",
+  "Recipient type": "PCC", Amount: ".2500", "Receipt date": "2026-01-01", Year: "2026",
+  Contributor: "Example Committee", "Contrib Reg Num": "30001", "Contrib type": "Political Committee/Fund",
+  "Receipt type": "Contribution", "In kind?": "No" };
+function nativeCsv(): string {
+  return `${nativeReceiptHeaders.join(",")}\n${csvRow(nativeReceiptHeaders, nativeValues)}\n`;
+}
+async function nativeInput(bytes: Buffer | string) {
+  const dir = await makeTempDir();
+  const buffer = Buffer.isBuffer(bytes) ? bytes : Buffer.from(bytes);
+  const filePath = join(dir, "native.csv");
+  await writeFile(filePath, buffer);
+  return { filePath, key: "contributions_received" as const,
+    expectedBytes: buffer.length, expectedSha256: createHash("sha256").update(buffer).digest("hex") };
+}
 
 async function makeTempDir(): Promise<string> {
   const dir = await mkdtemp(join(tmpdir(), "voteapp-mn-cf-reader-"));
@@ -37,6 +60,79 @@ afterEach(async () => {
 });
 
 describe("Minnesota campaign finance artifact reader", () => {
+  it("qualifies a complete native original and retains only requested rows", async () => {
+    const input = await nativeInput(`\uFEFF${nativeCsv()}`);
+    const result = await readMinnesotaCampaignFinanceNativeRows({ ...input, predicate: () => false });
+    expect(result.rows).toEqual([]);
+    expect(result.sourceFacts).toEqual({ rowCount: 1, byteCount: input.expectedBytes,
+      sha256: input.expectedSha256, headers: nativeReceiptHeaders });
+  });
+
+  it.each(["short", "extra", "unterminated", "empty_delimited"] as const)("rejects %s filtered-away tails after a valid match", async (shape) => {
+    const tail = shape === "short" ? "10001,hidden" : shape === "extra"
+      ? `${csvRow(nativeReceiptHeaders, nativeValues)},hidden` : shape === "empty_delimited" ? ",," : '10001,"hidden';
+    const input = await nativeInput(`${nativeCsv()}${tail}`);
+    await expect(readMinnesotaCampaignFinanceNativeRows({ ...input, predicate: (row) => row.Amount === ".2500" }))
+      .rejects.toThrow(/^Minnesota campaign finance source invalid:/);
+  });
+
+  it.each(["duplicate", "blank", "missing", "html", "empty"] as const)("rejects %s native schemas", async (shape) => {
+    const headers = [...nativeReceiptHeaders];
+    if (shape === "duplicate") headers[1] = headers[0]!;
+    if (shape === "blank") headers[1] = "";
+    if (shape === "missing") headers.pop();
+    const csv = shape === "html" ? "<html>unavailable</html>" : shape === "empty"
+      ? headers.join(",") : `${headers.join(",")}\n${csvRow(headers, nativeValues)}`;
+    await expect(readMinnesotaCampaignFinanceNativeRows(await nativeInput(csv))).rejects.toThrow(
+      /^Minnesota campaign finance source invalid: (schema|empty_bulk)$/);
+  });
+
+  it("rejects invalid UTF8 even in a filtered-away row", async () => {
+    const buffer = Buffer.concat([Buffer.from(nativeCsv()), Buffer.from([0xc3, 0x28])]);
+    await expect(readMinnesotaCampaignFinanceNativeRows({ ...await nativeInput(buffer), predicate: () => false }))
+      .rejects.toThrow("Minnesota campaign finance source invalid: encoding_or_csv_or_read");
+  });
+
+  it.each(['1"0.00"', '"10.00"suffix'])("rejects invalid quote placement in monetary cells: %s", async (value) => {
+    const input = await nativeInput(nativeCsv().replace(".2500", value));
+    await expect(readMinnesotaCampaignFinanceNativeRows(input)).rejects.toThrow("source invalid: csv_quote");
+  });
+
+  it.each([
+    { Amount: "unavailable" }, { Amount: "-1.00" }, { Year: "unknown" }, { Type: "Other expense" },
+    { "For /Against": "Unknown" }, { Spender: "" }, { "Spender Reg Num": "" },
+  ])("holds unallocatable native IE fields before a bad row can become zero: %j", async (overrides) => {
+    const headers = "Spender|Spender Reg Num|Spender type|Spender sub-type|Affected Comte Name|Affected Cmte Reg Num|For /Against|Year|Date|Type|Amount|Unpaid amount|In kind?|In kind descr|Purpose|Vendor name|Vendor city|Vendor State|Vendor zip".split("|");
+    const values = { Spender: "Example Committee", "Spender Reg Num": "3001", "Affected Cmte Reg Num": "1001",
+      "For /Against": "For", Year: "2026", Type: "Independent Expenditure", Amount: ".25", ...overrides };
+    const input = await nativeInput(`${headers.join(",")}\n${csvRow(headers, values)}`);
+    await expect(readMinnesotaCampaignFinanceNativeRows({ ...input, key: "independent_expenditures", predicate: () => false }))
+      .rejects.toThrow("source invalid: ie_fields");
+  });
+
+  it("detects same-size corruption and byte-count mismatch before returning rows", async () => {
+    const input = await nativeInput(nativeCsv());
+    await writeFile(input.filePath, nativeCsv().replace(".2500", ".3500"));
+    await expect(readMinnesotaCampaignFinanceNativeRows(input)).rejects.toThrow("source invalid: sha256");
+    await expect(readMinnesotaCampaignFinanceNativeRows({ ...input, expectedBytes: input.expectedBytes + 1 }))
+      .rejects.toThrow("source invalid: byte_count");
+  });
+
+  it("supports reordered native headers, multiline and publisher escaped quotes across chunks", async () => {
+    const headers = [...nativeReceiptHeaders].reverse();
+    const prefix = `${headers.join(",")}\n`;
+    const csv = `${prefix}${csvRow(headers, { ...nativeValues, "In-kind descr": "line one\nline two" })}\n`;
+    expect((await readMinnesotaCampaignFinanceNativeRows(await nativeInput(csv))).rows[0]?.["In-kind descr"])
+      .toBe("line one\nline two");
+    const standardRow = csvRow(nativeReceiptHeaders, nativeValues);
+    const rowPrefix = standardRow.slice(0, standardRow.indexOf("Example Committee"));
+    const header = `${nativeReceiptHeaders.join(",")}\n`;
+    const filler = "x".repeat(64 * 1024 - Buffer.byteLength(header + rowPrefix) - 3);
+    const escapedRow = standardRow.replace("Example Committee", `"${filler}\\\"\"`);
+    const result = await readMinnesotaCampaignFinanceNativeRows(await nativeInput(header + escapedRow));
+    expect(result.rows[0]?.Contributor).toBe(`${filler}"`);
+  });
+
   it("normalizes headers", () => {
     expect(normalizeMinnesotaCampaignFinanceHeader("\uFEFF Recipient ")).toBe("Recipient");
   });

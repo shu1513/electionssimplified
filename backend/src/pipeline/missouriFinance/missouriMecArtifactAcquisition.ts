@@ -1,6 +1,8 @@
+import { isMissouriRegisteredIeEnabled } from "../../config/featureFlags.js";
 import {
   buildMissouriMecUrl,
   createMissouriMecSession,
+  MissouriMecClientError,
   MISSOURI_MEC_PAGES,
   MISSOURI_MEC_RESULTS_FIELD_PREFIX,
   MISSOURI_MEC_SEARCH_FIELD_PREFIX,
@@ -8,7 +10,7 @@ import {
   type MissouriMecResponse,
   type MissouriMecSession,
 } from "./missouriMecClient.js";
-import { storeMissouriMecArtifact, storeMissouriMecOutsideSpendingArtifacts } from "./missouriMecArtifactCache.js";
+import { storeMissouriMecArtifact, storeMissouriMecCandidateArtifactBundle, storeMissouriMecCommitteeReceiptArtifactBundle, storeMissouriMecOutsideSpendingArtifactBundle, parseMissouriMecOutsideSpendingResultCount, qualifyMissouriMecOutsideSpendingSource, storeMissouriMecOutsideSpendingExportSnapshot } from "./missouriMecArtifactCache.js";
 import {
   MISSOURI_MEC_CONTRIBUTION_EXPORT_HEADER,
   MISSOURI_MEC_EXPENDITURE_EXPORT_HEADER,
@@ -16,6 +18,7 @@ import {
   parseMissouriMecCommitteeIdentity,
   parseMissouriMecCommitteeActivityRows,
   parseMissouriMecContributionExport,
+  parseMissouriMecFullDisclosureCount,
   parseMissouriMecExpenditureExport,
   parseMissouriMecOutsideSpendingExport,
   parseMissouriMecOutsideSpendingGridPage,
@@ -41,12 +44,53 @@ function requireHtml(response: MissouriMecResponse, label: string): string {
   return response.text();
 }
 
+function transactionExportCount(mode: "contributions" | "expenditures", body: string): number {
+  try {
+    return mode === "contributions" ? parseMissouriMecContributionExport(body).length
+      : parseMissouriMecExpenditureExport(body).length;
+  } catch {
+    // Parser diagnostics can contain raw source cells; acquisition logs must not.
+    throw new Error("Missouri MEC transaction export failed validation");
+  }
+}
+
+function safeReportInventory(body: string): ReturnType<typeof parseMissouriMecReportInventory> {
+  try { return parseMissouriMecReportInventory(body); }
+  catch { throw new Error("Missouri MEC report inventory failed validation"); }
+}
+
+async function requireUnchangedClosingInventory(input: {
+  session: MissouriMecSession;
+  committeeUrl: string;
+  year: number;
+  opening: ReturnType<typeof parseMissouriMecReportInventory>;
+}): Promise<string> {
+  const page = requireHtml(await input.session.get(input.committeeUrl), "closing committee page");
+  const tab = requireHtml(await input.session.postForm(input.committeeUrl, {
+    ...hidden(page, "closing committee page"), __EVENTTARGET: `${SEARCH}lbtnReports`, __EVENTARGUMENT: "",
+  }, { referer: input.committeeUrl }), "closing reports tab");
+  let year;
+  try { year = parseMissouriMecReportYears(tab).find((row) => row.year === input.year); }
+  catch { throw new Error("Missouri MEC closing report year failed validation"); }
+  if (!year) throw new Error("Missouri MEC closing report year unavailable");
+  const body = requireHtml(await input.session.postForm(input.committeeUrl, {
+    ...hidden(tab, "closing reports tab"),
+    [`${SEARCH}${year.expandControlName}.x`]: "1", [`${SEARCH}${year.expandControlName}.y`]: "1",
+  }, { referer: input.committeeUrl }), "closing report inventory");
+  const canonical = (rows: ReturnType<typeof parseMissouriMecReportInventory>) =>
+    rows.map((row) => JSON.stringify([row.reportId, row.report, row.dateFiled, row.isAmended, row.lineageKey])).sort();
+  if (JSON.stringify(canonical(input.opening)) !== JSON.stringify(canonical(safeReportInventory(body)))) {
+    throw new Error("Missouri MEC report inventory changed during acquisition");
+  }
+  return body;
+}
+
 async function fetchTransactionExport(input: {
   session: MissouriMecSession;
   mecid: string;
   year: number;
   mode: "contributions" | "expenditures";
-}): Promise<{ body: string; sourceUrl: string }> {
+}): Promise<{ body: string; sourceUrl: string; resultsBody: string }> {
   const searchUrl = buildMissouriMecUrl(MISSOURI_MEC_PAGES.contributionSearch);
   const resultsUrl = buildMissouriMecUrl(MISSOURI_MEC_PAGES.contributionResults);
   let page = requireHtml(await input.session.get(searchUrl), "transaction-search page");
@@ -71,6 +115,7 @@ async function fetchTransactionExport(input: {
     throw new Error(`Missouri MEC ${input.mode} search did not open results`);
   }
   const results = requireHtml(await input.session.get(resultsUrl, { referer: searchUrl }), `${input.mode} results`);
+  const advertisedCount = parseMissouriMecFullDisclosureCount(results);
   const exported = await input.session.postForm(resultsUrl, {
     ...hidden(results, resultsUrl),
     [`${RESULTS}btnExport`]: "Export Results to Excel",
@@ -83,6 +128,7 @@ async function fetchTransactionExport(input: {
     : MISSOURI_MEC_EXPENDITURE_EXPORT_HEADER;
   const resultGridPresent = new RegExp(`\\bid="[^"]*${gridName}(?:"|_)`, "i").test(results);
   const knownEmptyExportFailure =
+    advertisedCount === 0 &&
     !resultGridPresent &&
     exported.status === 302 &&
     (exported.contentType ?? "").toLowerCase().includes("text/html") &&
@@ -90,28 +136,21 @@ async function fetchTransactionExport(input: {
     exported.redirectLocation?.toLowerCase() === EMPTY_TRANSACTION_EXPORT_REDIRECT.toLowerCase();
   if (knownEmptyExportFailure) {
     const body = `<table><tr>${header.map((value) => `<th>${value}</th>`).join("")}</tr></table>`;
-    if (input.mode === "contributions") parseMissouriMecContributionExport(body);
-    else parseMissouriMecExpenditureExport(body);
-    return { body, sourceUrl: searchUrl };
+    transactionExportCount(input.mode, body);
+    return { body, sourceUrl: searchUrl, resultsBody: results };
   }
   if (exported.status !== 200 || !(exported.contentType ?? "").includes("application/vnd.ms-excel")) {
     throw new Error(`Unexpected Missouri MEC ${input.mode} export content type: ${exported.contentType}`);
   }
   const body = exported.text();
-  if (input.mode === "contributions") parseMissouriMecContributionExport(body);
-  else parseMissouriMecExpenditureExport(body);
+  if (transactionExportCount(input.mode, body) !== advertisedCount) {
+    throw new Error("Missouri MEC transaction export count mismatch");
+  }
   // Results are session-bound; the stable public search page is the useful
   // citation target after this acquisition session expires.
-  return { body, sourceUrl: searchUrl };
+  return { body, sourceUrl: searchUrl, resultsBody: results };
 }
 
-function parseOutsideRecordCount(html: string): number {
-  const match = /([\d,]+)\s+records found/i.exec(html.replace(/<[^>]+>/g, " "));
-  if (!match) throw new Error("Missouri MEC outside-spending results have no record count");
-  const count = Number.parseInt(match[1]!.replace(/,/g, ""), 10);
-  if (!Number.isSafeInteger(count) || count < 0) throw new Error("Invalid Missouri MEC outside-spending record count");
-  return count;
-}
 
 function normalizeOutsideCommitteeLookupName(value: string): string {
   return value.trim().replace(/\s+/g, " ").toLocaleUpperCase("en-US");
@@ -127,41 +166,66 @@ function parseOutsideSpenderMecid(response: MissouriMecResponse): string {
   return match[1]!.toUpperCase();
 }
 
+export type MissouriMecOutsideSpendingArtifactAcquisitionResult =
+  | { year: number; rowCount: number; spenderCount: number; unresolvedSpenderCount: number }
+  | { year: number; rowCount: number; sourceKind: "native_export_snapshot";
+      registeredIeArtifactsAvailable: true; legacyOutsideArtifactsAvailable: false };
+
 export async function acquireMissouriMecOutsideSpendingArtifacts(input: {
   year: number;
   cacheDir?: string;
   session?: MissouriMecSession;
   now?: Date;
-}): Promise<{ year: number; rowCount: number; spenderCount: number; unresolvedSpenderCount: number }> {
+}): Promise<MissouriMecOutsideSpendingArtifactAcquisitionResult> {
   if (!Number.isSafeInteger(input.year) || input.year < 2019 || input.year > 2100) {
     throw new Error(`Invalid Missouri MEC outside-spending year: ${input.year}`);
   }
   const session = input.session ?? createMissouriMecSession();
   const retrievedAt = input.now ?? new Date();
+  const exportSnapshotEnabled = isMissouriRegisteredIeEnabled();
   if (Number.isNaN(retrievedAt.getTime())) throw new Error("Invalid Missouri MEC acquisition timestamp");
   const outsideUrl = buildMissouriMecUrl(MISSOURI_MEC_PAGES.outsideSpendingSearch);
   const searchPage = requireHtml(await session.get(outsideUrl), "outside-spending search page");
-  const resultsHtml = requireHtml(await session.postForm(outsideUrl, {
+  const resultsResponse = await session.postForm(outsideUrl, {
     ...hidden(searchPage, outsideUrl),
     [`${SEARCH}ddYear`]: String(input.year),
     [`${SEARCH}txtLastName`]: "",
     [`${SEARCH}txtOfficeSought`]: "",
     [`${SEARCH}SO`]: "",
     [`${SEARCH}btnSearch`]: "Search",
-  }, { referer: outsideUrl }), "outside-spending results");
-  const recordCount = parseOutsideRecordCount(resultsHtml);
+  }, { referer: outsideUrl });
+  let resultsHtml = requireHtml(resultsResponse, "outside-spending results");
+  if (exportSnapshotEnabled) {
+    try { resultsHtml = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(resultsResponse.body); }
+    catch { throw new Error("Missouri MEC export snapshot failed qualification"); }
+  }
+  const recordCount = parseMissouriMecOutsideSpendingResultCount(resultsHtml);
   const exported = await session.postForm(outsideUrl, {
     ...hidden(resultsHtml, outsideUrl),
     [`${SEARCH}ddYear`]: String(input.year),
     [`${SEARCH}btnExport`]: "Export Results to Excel",
   }, { referer: outsideUrl });
-  if (!(exported.contentType ?? "").includes("application/vnd.ms-excel")) {
+  if (!exportSnapshotEnabled && !(exported.contentType ?? "").includes("application/vnd.ms-excel")) {
     throw new Error(`Unexpected Missouri MEC outside-spending export content type: ${exported.contentType}`);
   }
-  const exportBody = exported.text();
-  const exportRows = parseMissouriMecOutsideSpendingExport(exportBody);
+  let exportBody = exported.text();
+  if (exportSnapshotEnabled) {
+    if (exported.status !== 200 || (exported.contentType ?? "").split(";")[0]!.trim().toLowerCase() !== "application/vnd.ms-excel") throw new Error("Missouri MEC export snapshot response unavailable");
+    try { exportBody = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(exported.body); }
+    catch { throw new Error("Missouri MEC export snapshot failed qualification"); }
+  }
+  let exportRows: ReturnType<typeof parseMissouriMecOutsideSpendingExport>;
+  try { exportRows = parseMissouriMecOutsideSpendingExport(exportBody); }
+  catch { throw new Error("Missouri MEC yearly outside source failed qualification"); }
   if (exportRows.length !== recordCount) {
     throw new Error(`Missouri MEC outside-spending export count mismatch: export=${exportRows.length}, results=${recordCount}`);
+  }
+
+  if (exportSnapshotEnabled) {
+    await storeMissouriMecOutsideSpendingExportSnapshot({ cacheDir: input.cacheDir, year: input.year,
+      sourceUrl: outsideUrl, exportBody, resultsBody: resultsHtml, retrievedAt });
+    return { year: input.year, rowCount: exportRows.length, sourceKind: "native_export_snapshot",
+      registeredIeArtifactsAvailable: true, legacyOutsideArtifactsAvailable: false };
   }
 
   const identities = new Map<string, string | null>();
@@ -169,12 +233,16 @@ export async function acquireMissouriMecOutsideSpendingArtifacts(input: {
   const directResolvedRowsByName = new Map<string, number>();
   const gridRowsByCommittee = new Map<string, number>();
   let pageHtml = resultsHtml;
+  const gridPageBodies: string[] = [];
   let gridRowCount = 0;
   let expectedPage = 1;
   const maxPages = Math.ceil(exportRows.length / 25) + 1;
   while (gridRowCount < exportRows.length) {
     if (expectedPage > maxPages) throw new Error("Missouri MEC outside-spending paging exceeded expected bound");
-    const page = parseMissouriMecOutsideSpendingGridPage(pageHtml);
+    let page: ReturnType<typeof parseMissouriMecOutsideSpendingGridPage>;
+    try { page = parseMissouriMecOutsideSpendingGridPage(pageHtml); }
+    catch { throw new Error("Missouri MEC yearly outside source failed qualification"); }
+    gridPageBodies.push(pageHtml);
     if (page.currentPage !== expectedPage) {
       throw new Error(`Missouri MEC outside-spending page drift: expected=${expectedPage}, actual=${page.currentPage}`);
     }
@@ -185,6 +253,7 @@ export async function acquireMissouriMecOutsideSpendingArtifacts(input: {
       // to MEC's error page. Page 1 links remain valid; later identities use
       // the official MECID/name activity table below.
       if (page.currentPage === 1) {
+        try {
         const resolved = await session.postForm(outsideUrl, {
           ...hidden(pageHtml, outsideUrl),
           __EVENTTARGET: row.committeeEventTarget,
@@ -201,6 +270,11 @@ export async function acquireMissouriMecOutsideSpendingArtifacts(input: {
             (directResolvedRowsByName.get(row.reportingCommittee) ?? 0) + 1
           );
         }
+        } catch (error) {
+          // Auxiliary identity is not reported-spend authority. A challenge
+          // before complete financial capture still stops this acquisition.
+          if (error instanceof MissouriMecClientError && error.code === "waf_challenge") throw error;
+        }
       }
       gridRowCount += 1;
     }
@@ -216,19 +290,7 @@ export async function acquireMissouriMecOutsideSpendingArtifacts(input: {
     }, { referer: outsideUrl }), "outside-spending next page");
     expectedPage += 1;
   }
-  const exportRowsByCommittee = new Map<string, number>();
-  for (const row of exportRows) {
-    exportRowsByCommittee.set(row.reportingCommittee, (exportRowsByCommittee.get(row.reportingCommittee) ?? 0) + 1);
-  }
-  const committeeNames = new Set([...gridRowsByCommittee.keys(), ...exportRowsByCommittee.keys()]);
-  const mismatchedCommittees = [...committeeNames].filter(
-    (name) => gridRowsByCommittee.get(name) !== exportRowsByCommittee.get(name)
-  );
-  if (gridRowCount !== exportRows.length || mismatchedCommittees.length > 0) {
-    throw new Error(
-      `Missouri MEC outside-spending grid/export coverage mismatch: grid=${gridRowCount}, export=${exportRows.length}, committees=${mismatchedCommittees.length}`
-    );
-  }
+  qualifyMissouriMecOutsideSpendingSource({ exportBody, resultsBody: resultsHtml, gridPageBodies });
   for (const [committeeName, directMecids] of directMecidsByName) {
     // A row link proves only that row. Use link evidence by committee name
     // only when every occurrence was reachable and all resolved identically.
@@ -240,6 +302,7 @@ export async function acquireMissouriMecOutsideSpendingArtifacts(input: {
     }
   }
   if ([...identities.values()].some((mecid) => mecid === null)) {
+    try {
     const activityUrl = buildMissouriMecUrl(MISSOURI_MEC_PAGES.committeeActivity);
     const activityPage = requireHtml(await session.get(activityUrl), "committee-activity page");
     const advancedPage = requireHtml(await session.postForm(activityUrl, {
@@ -274,12 +337,18 @@ export async function acquireMissouriMecOutsideSpendingArtifacts(input: {
         identities.set(committeeName, [...exactMecids][0]!);
       }
     }
+    } catch {
+      // Complete native financial controls already qualify. No more host
+      // requests follow an auxiliary failure/challenge; unresolved IDs stay null.
+    }
   }
-  await storeMissouriMecOutsideSpendingArtifacts({
+  await storeMissouriMecOutsideSpendingArtifactBundle({
     cacheDir: input.cacheDir,
     year: input.year,
     sourceUrl: outsideUrl,
     exportBody,
+    resultsBody: resultsHtml,
+    gridPageBodies,
     identities: [...identities].map(([reportingCommittee, mecid]) => ({ reportingCommittee, mecid })),
     retrievedAt,
   });
@@ -291,13 +360,28 @@ export async function acquireMissouriMecOutsideSpendingArtifacts(input: {
   };
 }
 
+export type MissouriMecCandidateFinanceArtifactAcquisitionResult = {
+  mecid: string;
+  year: number;
+  reportCount: number;
+  contributionCount: number;
+  receiptArtifactsAvailable: true;
+} & ({
+  directArtifactsAvailable: true;
+  expenditureCount: number;
+} | {
+  directArtifactsAvailable: false;
+  expenditureCount: null;
+  directArtifactsSkippedReason: "Missouri MEC direct artifacts unavailable after receipt capture";
+});
+
 export async function acquireMissouriMecCandidateFinanceArtifacts(input: {
   mecid: string;
   year: number;
   cacheDir?: string;
   session?: MissouriMecSession;
   now?: Date;
-}): Promise<{ mecid: string; year: number; reportCount: number; contributionCount: number; expenditureCount: number }> {
+}): Promise<MissouriMecCandidateFinanceArtifactAcquisitionResult> {
   const mecid = input.mecid.trim().toUpperCase();
   if (!/^[A-Z]\d{6}$/.test(mecid)) throw new Error(`Invalid Missouri MECID: ${input.mecid}`);
   if (!Number.isSafeInteger(input.year) || input.year < 2002 || input.year > 2100) throw new Error(`Invalid Missouri MEC year: ${input.year}`);
@@ -307,7 +391,9 @@ export async function acquireMissouriMecCandidateFinanceArtifacts(input: {
   const committeeUrl = buildMissouriMecUrl(MISSOURI_MEC_PAGES.committeeInfo, { MECID: mecid });
   const committeeHtml = requireHtml(await session.get(committeeUrl), "committee-info page");
   const committeeInfo = parseMissouriMecCommitteeInfo(committeeHtml);
-  if (committeeInfo.mecid !== mecid) throw new Error(`Missouri MEC committee profile mismatch: expected ${mecid}, got ${committeeInfo.mecid}`);
+  if (committeeInfo.mecid !== mecid) throw new Error("Missouri MEC committee profile identity mismatch");
+  await storeMissouriMecArtifact({ cacheDir: input.cacheDir, key: { type: "committee_profile", mecid, year: input.year },
+    sourceUrl: committeeUrl, body: committeeHtml, retrievedAt });
 
   const reportsTab = requireHtml(await session.postForm(committeeUrl, {
     ...hidden(committeeHtml, committeeUrl),
@@ -321,30 +407,50 @@ export async function acquireMissouriMecCandidateFinanceArtifacts(input: {
     [`${SEARCH}${reportYear.expandControlName}.x`]: "1",
     [`${SEARCH}${reportYear.expandControlName}.y`]: "1",
   }, { referer: committeeUrl }), "expanded report inventory");
-  const inventory = parseMissouriMecReportInventory(reportHtml);
+  const inventory = safeReportInventory(reportHtml);
   const contributions = await fetchTransactionExport({ session, mecid, year: input.year, mode: "contributions" });
-  const expenditures = await fetchTransactionExport({ session, mecid, year: input.year, mode: "expenditures" });
-
-  const artifacts = [
+  const receiptClosingInventoryBody = await requireUnchangedClosingInventory({ session, committeeUrl, year: input.year, opening: inventory });
+  const receiptArtifacts = [
     { type: "committee_info" as const, body: committeeHtml, sourceUrl: committeeUrl },
     { type: "report_inventory" as const, body: reportHtml, sourceUrl: committeeUrl },
     { type: "contributions" as const, ...contributions },
-    { type: "expenditures" as const, ...expenditures },
   ];
-  await Promise.all(artifacts.map((artifact) => storeMissouriMecArtifact({
+  await storeMissouriMecCommitteeReceiptArtifactBundle({
     cacheDir: input.cacheDir,
-    key: { type: artifact.type, mecid, year: input.year },
-    sourceUrl: artifact.sourceUrl,
-    body: artifact.body,
+    mecid,
+    year: input.year,
     retrievedAt,
-  })));
-  return {
+    artifacts: receiptArtifacts,
+    transactionResultBodies: { contributions: contributions.resultsBody },
+    closingInventoryBody: receiptClosingInventoryBody,
+  });
+  // Availability describes this acquisition, never a prior cache generation.
+  const receiptResult = {
     mecid,
     year: input.year,
     reportCount: inventory.length,
-    contributionCount: parseMissouriMecContributionExport(contributions.body).length,
-    expenditureCount: parseMissouriMecExpenditureExport(expenditures.body).length,
+    contributionCount: transactionExportCount("contributions", contributions.body),
+    receiptArtifactsAvailable: true as const,
   };
+  try {
+    const expenditures = await fetchTransactionExport({ session, mecid, year: input.year, mode: "expenditures" });
+    const closingInventoryBody = await requireUnchangedClosingInventory({ session, committeeUrl, year: input.year, opening: inventory });
+    await storeMissouriMecCandidateArtifactBundle({
+      cacheDir: input.cacheDir,
+      mecid,
+      year: input.year,
+      retrievedAt,
+      artifacts: [...receiptArtifacts, { type: "expenditures" as const, ...expenditures }],
+      transactionResultBodies: { contributions: contributions.resultsBody, expenditures: expenditures.resultsBody },
+      closingInventoryBody,
+    });
+    return { ...receiptResult, directArtifactsAvailable: true,
+      expenditureCount: transactionExportCount("expenditures", expenditures.body) };
+  } catch {
+    // A separately committed receipt source remains usable; no raw source diagnostics escape.
+    return { ...receiptResult, directArtifactsAvailable: false, expenditureCount: null,
+      directArtifactsSkippedReason: "Missouri MEC direct artifacts unavailable after receipt capture" };
+  }
 }
 
 export async function acquireMissouriMecOutsideSpenderContributionArtifacts(input: {
@@ -380,8 +486,9 @@ export async function acquireMissouriMecOutsideSpenderContributionArtifacts(inpu
     [`${SEARCH}${reportYear.expandControlName}.x`]: "1",
     [`${SEARCH}${reportYear.expandControlName}.y`]: "1",
   }, { referer: committeeUrl }), "expanded outside-spender report inventory");
-  const inventory = parseMissouriMecReportInventory(reportHtml);
+  const inventory = safeReportInventory(reportHtml);
   const contributions = await fetchTransactionExport({ session, mecid, year: input.year, mode: "contributions" });
+  await requireUnchangedClosingInventory({ session, committeeUrl, year: input.year, opening: inventory });
   await Promise.all([
     storeMissouriMecArtifact({
       cacheDir: input.cacheDir,
@@ -403,6 +510,6 @@ export async function acquireMissouriMecOutsideSpenderContributionArtifacts(inpu
     year: input.year,
     committeeName: identity.committeeName,
     reportCount: inventory.length,
-    contributionCount: parseMissouriMecContributionExport(contributions.body).length,
+    contributionCount: transactionExportCount("contributions", contributions.body),
   };
 }

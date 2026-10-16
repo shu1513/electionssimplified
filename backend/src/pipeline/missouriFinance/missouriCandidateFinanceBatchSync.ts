@@ -1,11 +1,12 @@
 import type { Pool, PoolClient } from "pg";
 
-import { isMissouriCampaignFinanceRawDataRefreshEnabled } from "../../config/featureFlags.js";
+import { isMissouriCampaignFinanceRawDataRefreshEnabled, isMissouriCommitteeReceiptsEnabled, isMissouriRegisteredIeEnabled } from "../../config/featureFlags.js";
 import {
   autoLinkMissingMissouriCandidateFinanceLinks,
   listMissouriCandidateElectionsMissingFinanceLinks,
   type MissouriCandidateCommitteeResolver,
 } from "./missouriCandidateFinanceAutoLink.js";
+import { recordMissouriCandidateFinanceAttempt } from "./missouriCandidateFinanceAttempts.js";
 import { listDueMissouriCandidateFinanceSyncRows } from "./missouriCandidateFinanceDueList.js";
 import { syncMissouriCandidateFinance, type MissouriCandidateFinanceSyncResult } from "./missouriCandidateFinanceSync.js";
 import {
@@ -51,6 +52,7 @@ export type MissouriCandidateFinanceBatchSyncResult = {
   autoLinkLinkedCount: number;
   outsideArtifactYearCount: number;
   failedOutsideArtifactYearCount: number;
+  registeredIeArtifactYearCount?: number;
   results: Array<{
     candidateId: string;
     electionId: string;
@@ -123,13 +125,16 @@ export async function syncDueMissouriCandidateFinance(
   const acquireOutsideSpender = input.acquireOutsideSpenderArtifactsFn ?? acquireMissouriMecOutsideSpenderContributionArtifacts;
   const sync = input.syncCandidateFn ?? syncMissouriCandidateFinance;
   const outsideAvailableByYear = new Map<number, boolean>();
+  const registeredIeAvailableByYear = new Map<number, boolean>();
   if (rawDataRefreshEnabled) {
     for (const year of new Set(due.rows.map((row) => row.electionYear))) {
       try {
-        await acquireOutside({ year, cacheDir: input.cacheDir, session, now });
-        outsideAvailableByYear.set(year, true);
+        const acquired = await acquireOutside({ year, cacheDir: input.cacheDir, session, now });
+        outsideAvailableByYear.set(year, !("legacyOutsideArtifactsAvailable" in acquired) || acquired.legacyOutsideArtifactsAvailable);
+        registeredIeAvailableByYear.set(year, !("registeredIeArtifactsAvailable" in acquired) || acquired.registeredIeArtifactsAvailable);
       } catch (error) {
         outsideAvailableByYear.set(year, false);
+        registeredIeAvailableByYear.set(year, false);
         console.warn("Missouri yearly outside-spending refresh failed; direct sync will continue:", {
           year, error: error instanceof Error ? error.message : String(error),
         });
@@ -140,8 +145,27 @@ export async function syncDueMissouriCandidateFinance(
   const results: MissouriCandidateFinanceBatchSyncResult["results"] = [];
   for (const row of due.rows) {
     try {
+      if (!dryRun && row.attemptComponentMask) {
+        await recordMissouriCandidateFinanceAttempt({db: input.db, linkId: row.linkId!, electionYear: row.electionYear,
+          candidateId: row.candidateId, electionId: row.electionId, committeeId: row.committeeId,
+          attemptedAt: now, componentMask: row.attemptComponentMask});
+      }
+      let directArtifactsUnavailable = false;
+      let receiptArtifactsUnavailable = false;
       if (rawDataRefreshEnabled) {
-        await acquire({ mecid: row.committeeId, year: row.electionYear, cacheDir: input.cacheDir, session, now });
+        try {
+          const acquired = await acquire({ mecid: row.committeeId, year: row.electionYear, cacheDir: input.cacheDir, session, now });
+          if (acquired.directArtifactsAvailable === false) {
+            directArtifactsUnavailable = true;
+            if (!isMissouriCommitteeReceiptsEnabled() && !isMissouriRegisteredIeEnabled()) throw new Error(acquired.directArtifactsSkippedReason);
+          }
+        } catch (error) {
+          if (!isMissouriRegisteredIeEnabled()) throw error;
+          // The independently saved profile can establish IE cycle bounds even
+          // when receipt/direct exports fail. Never relabel old cash as fresh.
+          directArtifactsUnavailable = true;
+          receiptArtifactsUnavailable = true;
+        }
       }
       const result = await sync({
         db: input.db,
@@ -162,8 +186,13 @@ export async function syncDueMissouriCandidateFinance(
         cacheDir: input.cacheDir,
         now,
         dryRun,
+        directArtifactsUnavailable,
+        ...(receiptArtifactsUnavailable ? { receiptArtifacts: null } : {}),
         ...(rawDataRefreshEnabled && outsideAvailableByYear.get(row.electionYear) === false
           ? { outsideArtifacts: null }
+          : {}),
+        ...(rawDataRefreshEnabled && registeredIeAvailableByYear.get(row.electionYear) === false
+          ? { registeredIeArtifacts: null }
           : {}),
         ...(rawDataRefreshEnabled && outsideAvailableByYear.get(row.electionYear) === true
           ? {
@@ -202,8 +231,9 @@ export async function syncDueMissouriCandidateFinance(
     failedCandidateCount: results.filter((row) => !row.ok).length,
     autoLinkAttemptedCount,
     autoLinkLinkedCount,
-    outsideArtifactYearCount: [...outsideAvailableByYear.values()].filter(Boolean).length,
-    failedOutsideArtifactYearCount: [...outsideAvailableByYear.values()].filter((available) => !available).length,
+    outsideArtifactYearCount: [...outsideAvailableByYear.keys()].filter(year => outsideAvailableByYear.get(year) || registeredIeAvailableByYear.get(year)).length,
+    failedOutsideArtifactYearCount: [...outsideAvailableByYear.keys()].filter(year => !outsideAvailableByYear.get(year) && !registeredIeAvailableByYear.get(year)).length,
+    registeredIeArtifactYearCount: [...registeredIeAvailableByYear.values()].filter(Boolean).length,
     results,
   };
 }

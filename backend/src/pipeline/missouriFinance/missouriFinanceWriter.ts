@@ -1,4 +1,15 @@
 import type { Pool, PoolClient } from "pg";
+import {
+  prepareMissouriRegisteredIeComponent,
+  replaceMissouriRegisteredIeRows,
+  type MissouriRegisteredIeComponent,
+} from "./missouriRegisteredIeWriter.js";
+
+import {
+  prepareMissouriCommitteeMonetaryReceiptComponent,
+  replaceMissouriCommitteeMonetaryReceiptRows,
+  type MissouriCommitteeMonetaryReceiptComponent,
+} from "./missouriCommitteeMonetaryReceiptWriter.js";
 
 import type { FinanceLabelClassification } from "../finance/financeLabelClassifier.js";
 import {
@@ -43,6 +54,8 @@ export type MissouriFinanceSnapshotInput = {
   outsideGroups?: readonly MissouriFinanceOutsideGroupInput[];
   outsideGroupBreakdowns?: readonly MissouriFinanceOutsideGroupBreakdownInput[];
   classifications?: readonly FinanceLabelClassification[];
+  committeeMonetaryReceipts?: MissouriCommitteeMonetaryReceiptComponent;
+  registeredIe?: MissouriRegisteredIeComponent;
 };
 
 export type MissouriFinanceSnapshotWriteResult = StandardStateFinanceSnapshotWriteResult;
@@ -92,5 +105,20 @@ export async function upsertMissouriFinanceLink(input: {
 export async function replaceMissouriCandidateFinanceSnapshot(
   input: MissouriFinanceSnapshotInput
 ): Promise<MissouriFinanceSnapshotWriteResult> {
-  return writer.replaceSnapshot(input);
+  const syncedAt = new Date(input.syncedAt?.getTime() ?? Date.now());
+  const component = prepareMissouriCommitteeMonetaryReceiptComponent({
+    component: input.committeeMonetaryReceipts, receivingCommitteeId: input.link.committeeId,
+    electionYear: input.link.electionYear, syncedAt,
+  });
+  const registeredIe = prepareMissouriRegisteredIeComponent({
+    component: input.registeredIe, candidateId: input.link.candidateId,
+    electionId: input.link.electionId, electionYear: input.link.electionYear,
+    receivingCommitteeId: input.link.committeeId, syncedAt,
+  });
+  return writer.replaceSnapshot({ ...input, syncedAt,
+    ...(component || registeredIe ? { afterSnapshotWrite: async ({ db, linkId, electionYear, syncedAt }) => {
+      if (component) await replaceMissouriCommitteeMonetaryReceiptRows({ db, linkId, electionYear, syncedAt, component });
+      if (registeredIe) await replaceMissouriRegisteredIeRows({ db, linkId, electionYear, syncedAt, component: registeredIe });
+    } } : {}),
+  });
 }

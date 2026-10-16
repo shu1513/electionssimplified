@@ -1,0 +1,4108 @@
+{
+ "labels": [
+  {
+   "label_type": "committee",
+   "raw_label": "Texans for Lawsuit Reform PAC",
+   "industry_slug": "business_associations",
+   "confidence": "medium",
+   "source_url": "https://www.texastribune.org/2025/05/23/texas-lawsuit-reform-dick-weekley-legislature",
+   "note": "Tort-reform group founded by business leaders and physicians; mixed business funding"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texas Conservative Majority PAC",
+   "industry_slug": "republican_party_groups",
+   "confidence": "medium",
+   "source_url": "https://sanantonioreport.org/latest-fundraising-numbers-november-midterm-election-in-texas/",
+   "note": "Speaker Burrows-aligned PAC electing House Republicans; RSLC and Yass money"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texans for Greg Abbott",
+   "industry_slug": "candidate_committees",
+   "confidence": "high",
+   "source_url": "https://www.gregabbott.com/texans-for-greg-abbott-raises-almost-25-million-has-nearly-46-million-cash-on-hand/",
+   "note": "Gov. Greg Abbott's campaign committee"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texas Trial Lawyers Association PAC",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "high",
+   "source_url": "https://www.influencewatch.org/non-profit/texas-trial-lawyers-association-ttla/",
+   "note": "PAC of the Texas plaintiffs' lawyers trade association"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texas Republican Leadership Fund",
+   "industry_slug": "conservative_groups",
+   "confidence": "medium",
+   "source_url": "https://www.texastribune.org/2024/12/17/alex-fairly-texas-republican-political-group/",
+   "note": "Alex Fairly-funded PAC backing 'true conservative' Republicans"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texas Sands PAC",
+   "industry_slug": "gambling_and_casinos",
+   "confidence": "high",
+   "source_url": "https://www.texastribune.org/2022/02/24/las-vegas-sands-texas-pac",
+   "note": "Las Vegas Sands PAC pushing casino legalization in Texas"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Democratic Governors Association",
+   "industry_slug": "democratic_party_groups",
+   "confidence": "high",
+   "source_url": "https://en.wikipedia.org/wiki/Democratic_Governors_Association",
+   "note": "Party organization electing Democratic governors"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texans for Truth and Liberty PAC",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "medium",
+   "source_url": "https://www.texastribune.org/topics/politics/page/14/?page=360",
+   "note": "PAC founded by plaintiffs' firm Arnold & Itkin; opposes tort reform"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texans United for a Conservative Majority PAC",
+   "industry_slug": "conservative_groups",
+   "confidence": "high",
+   "source_url": "https://www.ketr.org/2024-02-26/west-texas-billionaires-back-candidates-opposing-house-republicans-who-supported-paxton-impeachment",
+   "note": "Dunn/Wilks-funded hard-right PAC, Defend Texas Liberty spinoff"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Associated Republicans of Texas Campaign Fund",
+   "industry_slug": "republican_party_groups",
+   "confidence": "high",
+   "source_url": "https://www.texastribune.org/?p=130559",
+   "note": "GOP group founded in 1970s to elect Republican legislators"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Greater PA Carpenters PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://cfreports.elections.virginia.gov/Report/Index/166730",
+   "note": "Political fund of the Greater Pennsylvania carpenters' union council"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "LOCAL UNION # 98 IBEW COMMITTEE ON POLITICAL EDUCATION",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.phillyvoice.com/ibew-local-98-celebrates-its-125-year-anniversary-0599927/",
+   "note": "Political fund of IBEW Local 98 electricians union, Philadelphia"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Chicagoland Operators Joint Labor-Management PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.illinoissunshine.org/committees/chicagoland-operators-joint-labor-management-pac-22986/",
+   "note": "IUOE Local 150 joint labor-management PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Democracy PAC II",
+   "industry_slug": "progressive_groups",
+   "confidence": "medium",
+   "source_url": "https://www.factcheck.org/2022/07/democracy-pac-democracy-pac-ii/",
+   "note": "George Soros-funded liberal super PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Illinois Laborers' Legislative Committee",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.midwestlaborers.org/wp-content/uploads/2019/05/Legislative-Update-4.8.16.pdf",
+   "note": "Political arm of LIUNA Laborers union in Illinois"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Gulf States Toyota Inc. State PAC",
+   "industry_slug": "automotive",
+   "confidence": "high",
+   "source_url": "https://ane-akamai.capitalone.com/cars/learn/finding-the-right-car/what-is-gulf-states-toyota/3204",
+   "note": "PAC of Houston-based independent Toyota distributor"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texas Senate Leadership Fund",
+   "industry_slug": "leadership_pacs",
+   "confidence": "medium",
+   "source_url": "https://www.texastribune.org/2024/08/28/dan-patrick-texas-senate-pac/",
+   "note": "PAC created by Lt. Gov. Dan Patrick for Senate majority"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "HillCo PAC",
+   "industry_slug": "accounting_and_consulting",
+   "confidence": "medium",
+   "source_url": "https://sourcewatch.org/index.php/HillCo_Partners_LLC",
+   "note": "PAC of Austin lobbying firm HillCo Partners"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Border Health PAC",
+   "industry_slug": "healthcare",
+   "confidence": "high",
+   "source_url": "https://www.texasmonthly.com/politics/wealth-care/",
+   "note": "PAC tied to Doctors Hospital at Renaissance, Edinburg"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Physicians for Free Market Healthcare PAC",
+   "industry_slug": "healthcare",
+   "confidence": "medium",
+   "source_url": "https://www.24-7pressrelease.com/press-release/480412/physicians-testify-to-protect-injured-texans-access-to-medical-care",
+   "note": "Coalition of Texas specialty physicians protecting independent practice"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Operators for Skill Pac",
+   "industry_slug": "gambling_and_casinos",
+   "confidence": "high",
+   "source_url": "https://penncapital-star.com/government-politics/in-the-face-of-a-call-to-ban-skill-games-pa-s-biggest-player-is-pushing-back-hard/",
+   "note": "PAC of skill-game machine maker Pace-O-Matic"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Committee For A Better Tomorrow",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "high",
+   "source_url": "https://www.philatla.org/?pg=AboutCBTPAC",
+   "note": "PAC of the Philadelphia Trial Lawyers Association"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Ryan Texas PAC",
+   "industry_slug": "accounting_and_consulting",
+   "confidence": "medium",
+   "source_url": "https://www.texastribune.org/2019/08/16/five-takeaways-latest-texas-campaign-finance-data/",
+   "note": "PAC of Brint Ryan, founder of tax consulting firm Ryan LLC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Associated General Contractors of Texas PAC",
+   "industry_slug": "construction",
+   "confidence": "high",
+   "source_url": "https://capitol.texas.gov/tlodocs/89R/billtext/html/HR01293F.htm",
+   "note": "PAC of Texas highway/infrastructure contractors' trade group"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texas Freedom Fund for the Advancement of Justice",
+   "industry_slug": "conservative_groups",
+   "confidence": "high",
+   "source_url": "https://www.tpr.org/news/2026-04-14/oil-tycoon-funds-far-right-candidate-challenging-texas-oilfield-regulator",
+   "note": "Renamed Defend Texas Liberty; Dunn/Wilks-funded hard-right PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Local 0420 Steamfitters Union COPE COM",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://uagetinvolved.org/node/763",
+   "note": "Political fund of UA Steamfitters Local 420, Philadelphia"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Protect Freedom PAC",
+   "industry_slug": "conservative_groups",
+   "confidence": "medium",
+   "source_url": "https://www.houstonchronicle.com/projects/2026/huffines-eckhardt-top-donors/",
+   "note": "Rand Paul-affiliated libertarian super PAC funded by Jeff Yass"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Keystone Seniors PAC",
+   "industry_slug": "healthcare",
+   "confidence": "medium",
+   "source_url": "https://www.spotlightpa.org/news/2026/04/garrity-shapiro-governor-election-2026-fundraising-elections/",
+   "note": "PAC advocating higher nursing home reimbursements in Pennsylvania"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "PSEA PACE for State Elections",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.influencewatch.org/labor-union/pennsylvania-state-education-association-psea/",
+   "note": "PAC of the Pennsylvania State Education Association teachers union"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "REALTORS POLITICAL ACTION COMMITTEE OF MICHIGAN",
+   "industry_slug": "real_estate",
+   "confidence": "high",
+   "source_url": "https://www.mirealtors.com/advocacy/rpac/rpac/",
+   "note": "PAC of Michigan Realtors"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "HOUSE REPUBLICAN CAMPAIGN COMMITTEE",
+   "industry_slug": "republican_party_groups",
+   "confidence": "high",
+   "source_url": "https://www.michiganpublic.org/politics-government/2017-03-31/house-gop-campaign-fund-faces-questions-over-missing-money",
+   "note": "State House Republican caucus campaign committee"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Local 0066 PAC Club",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.transparencyusa.org/pa/contributor/local-66-pac-club/also-known-as",
+   "note": "PAC of Operating Engineers (IUOE) Local 66, Pittsburgh"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "MICHIGAN SENATE DEMOCRATIC FUND",
+   "industry_slug": "democratic_party_groups",
+   "confidence": "high",
+   "source_url": "https://www.givegreen.com/committees/michigan-senate-democratic-fund",
+   "note": "Michigan Senate Democratic caucus campaign committee"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Greater PA Carpenters PEC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://cfreports.elections.virginia.gov/Report/Index/260750",
+   "note": "Carpenters union political education committee, filed as labor union"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "IUOE Local 542 PAC Fund",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00148429/pac-donations/C00136739",
+   "note": "PAC of Operating Engineers Local 542, eastern Pennsylvania"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texans for Dan Patrick",
+   "industry_slug": "candidate_committees",
+   "confidence": "high",
+   "source_url": "https://transparencyusa.org/tx/pac/texans-for-dan-patrick-64090-spac",
+   "note": "Lt. Gov. Dan Patrick's campaign committee"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texas Majority PAC",
+   "industry_slug": "progressive_groups",
+   "confidence": "medium",
+   "source_url": "https://www.texastribune.org/2024/01/12/texas-majority-pac-george-soros-democrats-fundraising",
+   "note": "Soros-funded PAC building Democratic turnout in Texas"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Coalition for Working Families PAC",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "medium",
+   "source_url": "https://www.transparencyusa.org/tx/committee/coalition-for-working-families-pac-00086923-gpac/contributors",
+   "note": "Funded mainly by plaintiffs' law firms; opposes Texans for Lawsuit Reform"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texas Farm Bureau AGFUND",
+   "industry_slug": "agriculture_and_food",
+   "confidence": "high",
+   "source_url": "https://texasagriculture.texasfarmbureau.org/articles/tfb-agfund-candidates-fare-well-in-2022-primary-election",
+   "note": "PAC of the Texas Farm Bureau"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texas REALTORS Political Action Committee",
+   "industry_slug": "real_estate",
+   "confidence": "high",
+   "source_url": "https://digitaleditions.walsworth.com/article/TREPAC%3A+Our+History+And+Our+Future/3687469/662096/article.html",
+   "note": "TREPAC, PAC of Texas REALTORS trade association"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "PAA - PAC",
+   "industry_slug": "automotive",
+   "confidence": "medium",
+   "source_url": "https://www.transparencyusa.org/pa/committee/pennsylvania-automotive-association-political-action-committee-pac-7900458",
+   "note": "PAA PAC = Pennsylvania Automotive Association PAC (car dealers' trade group, ~$1.2M state committee). PA filers spell it PAA PAC / PAA-PAC / PAA - PAC and several annotate it as the automotive association; the Pennsylvania Apartment Association's PAC is a far smaller filer."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texas Conservative Voters PAC",
+   "industry_slug": "conservative_groups",
+   "confidence": "medium",
+   "source_url": "https://www.houstonchronicle.com/projects/2026/french-rosenthal-top-donors/",
+   "note": "Tim Dunn-funded PAC backing hard-right Republicans"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "MICHIGAN BEER AND WINE WHOLESALERS STATE PAC",
+   "industry_slug": "beer_wine_and_spirits",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00026179/pac-donations/C00159855",
+   "note": "PAC of Michigan beer and wine distributors' association"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "UAW MICHIGAN VOLUNTARY POLITICAL ACTION COMMITTEE",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://uaw.org/wp-content/uploads/2026/01/02-What-is-V-CAP_01-28.pdf",
+   "note": "UAW autoworkers union V-CAP political fund, Michigan"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Local 0005 IBEW PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.politicspa.com/pa-12-ibew-local-5-endorses-mcclelland/53197/",
+   "note": "PAC of IBEW Local 5 electricians union, Pittsburgh"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "House Democratic Campaign Committee",
+   "industry_slug": "democratic_party_groups",
+   "confidence": "high",
+   "source_url": "https://www.texastribune.org/2020/10/05/texas-house-democratic-campaign-fundraising",
+   "note": "Texas House Democratic caucus campaign arm"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "INTERNATIONAL BROTHERHOOD OF ELECTRICAL WORKERS POLITICAL ACTION CMTE",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00027342/2024/pac-donations",
+   "note": "PAC of the IBEW electricians union"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Pennsylvanians for the Disabled",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "medium",
+   "source_url": "https://www.transparencyusa.org/pa/committee/pennsylvanians-for-the-disabled-pac-20120388/contributors",
+   "note": "Funded by disability/workers' comp lawyers; top donor to trial-lawyer PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Progress PAC",
+   "industry_slug": "business_associations",
+   "confidence": "high",
+   "source_url": "https://www.bcatoday.org/bcas-2024-evening-for-progress-sets-new-fundraising-record-for-progresspac/",
+   "note": "ProgressPAC, political arm of Business Council of Alabama"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Laborers' Political League - Great Lakes Region",
+   "industry_slug": "labor_unions",
+   "confidence": "medium",
+   "source_url": "https://www.chicagofed.org/people/h/healy-terrence",
+   "note": "PAC of LIUNA Laborers union Great Lakes region"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "MICHIGAN REGIONAL COUNCIL OF CARPENTERS POLITICAL ACTION COMMITTEE",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/527-explorer/orgs/912070214",
+   "note": "Carpenters union regional council PAC in Michigan"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Steamfitters Local Union No 420 Committee on Political Education",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://cherelleparker.com/?p=302",
+   "note": "Philadelphia Steamfitters Local 420 union political fund"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "pa laborers jobs pac",
+   "industry_slug": "labor_unions",
+   "confidence": "medium",
+   "source_url": "https://www.liunamidatlantic.org/pennsylvania-laborers-district-council",
+   "note": "Pennsylvania LIUNA Laborers union PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Local 0115 Teamsters",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.fec.gov/data/committee/C00010876/",
+   "note": "Teamsters Local 115 Philadelphia union political fund"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Illinois Federation of Teachers COPE",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.illinoissunshine.org/committees/illinois-federation-of-teachers-cope-185/",
+   "note": "Illinois Federation of Teachers union PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "MICHIGAN LABORERS POLITICAL LEAGUE",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.mi-laborers.org/legislative-affairs/",
+   "note": "Michigan Laborers union LPL PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Wholesale Beer Distributors Of Texas PAC",
+   "industry_slug": "beer_wine_and_spirits",
+   "confidence": "high",
+   "source_url": "https://www.nombase.com/companies/wholesale-beer-distributors-of-texas",
+   "note": "Trade association PAC of Texas beer distributors"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Affordable Assisted Living Coalition PAC",
+   "industry_slug": "healthcare",
+   "confidence": "medium",
+   "source_url": "https://www.beloitdailynews.com/online_features/press_releases/senior-lifestyle-executive-bob-gawronski-elected-president-of-affordable-assisted-living-coalition/article_60da6dfa-0245-5467-ad21-3787d046eb87.html",
+   "note": "Illinois assisted living provider trade group PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "MID-ATLANTIC LABORERS POLITICAL LEAGUE",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00429175/2018",
+   "note": "LIUNA Laborers union Mid-Atlantic region PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "MICHIGAN LEAGUE OF CONSERVATION VOTERS INC POLITICAL ACTION COMMITTEE",
+   "industry_slug": "environmental_group",
+   "confidence": "high",
+   "source_url": "https://www.michiganlcv.org/cvmpac/",
+   "note": "Michigan LCV environmental group PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "IUOE Local 399 Political Education Fund",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.fec.gov/data/committee/C00432815/",
+   "note": "Operating Engineers Local 399 Chicago union PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Republican Party of Texas",
+   "industry_slug": "republican_party_groups",
+   "confidence": "high",
+   "source_url": "https://en.wikipedia.org/wiki/Republican_Party_of_Texas",
+   "note": "Texas Republican state party"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texas Land Title Association PAC",
+   "industry_slug": "real_estate",
+   "confidence": "medium",
+   "source_url": "https://alta.org/news-and-publications/news/20110628-TitleVision-Texas-Director-of-Customer-Solutions-Elected-to-TLTA-PAC-Board-of-Trustees",
+   "note": "PAC of Texas land title industry trade group"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Oncor Texas State Political Action Committee of Oncor Electric Delivery Administration Corp.",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "medium",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00499350/pac-donations/C00487447",
+   "note": "Company PAC of Oncor, Texas electric utility"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Leaders We Deserve",
+   "industry_slug": "progressive_groups",
+   "confidence": "high",
+   "source_url": "https://rollcall.com/2023/08/09/new-pac-wants-more-people-under-35-in-congress-legislatures/",
+   "note": "David Hogg PAC electing young progressive candidates"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Law PAC",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "high",
+   "source_url": "https://patla.org/Content/NavigationMenu/Legislative_and_Lawpac/LAWPAC/LAWPAC.html",
+   "note": "Pennsylvania Trial Lawyers Association PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "West Virginia Building & Construction Trades PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://apps.sos.wv.gov/elections/pac-search/pac.aspx?id=171",
+   "note": "WV building trades unions PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Political Action Committee Of The Independent Insurance Agents Of Texas",
+   "industry_slug": "insurance",
+   "confidence": "high",
+   "source_url": "https://www.iiat.org/advocacy/impact",
+   "note": "IMPACT, PAC of Independent Insurance Agents of Texas"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "EMILYS LIST MICHIGAN",
+   "industry_slug": "womens_groups",
+   "confidence": "high",
+   "source_url": "https://emilyslist.org/news/emilys-list-congratulates-nine-democratic-pro-choice-women-on-their-reelection-to-the-michigan-house-of-representatives",
+   "note": "EMILYs List, backs Democratic pro-choice women candidates"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texas Oil and Gas Association Good Government Committee",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://www.txoga.org/txoga-pac/",
+   "note": "PAC of Texas Oil and Gas Association"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Laborers' District Council of The Metro Area of Philadelphia and Vicinity PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.fec.gov/data/committee/C00253294/",
+   "note": "Philadelphia Laborers union district council PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Downstate Operators Joint Labor-Management PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "medium",
+   "source_url": "https://www.illinoissunshine.org/committees/chicagoland-operators-joint-labor-management-pac-22986/",
+   "note": "Operating engineers joint labor-management PAC, downstate Illinois"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "LiUNA Chicago Laborers District Council",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://liunachicago.org/about-us",
+   "note": "Chicago Laborers union district council"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Alabama Realtors PAC",
+   "industry_slug": "real_estate",
+   "confidence": "high",
+   "source_url": "https://en.wikipedia.org/wiki/Alabama_Realtors_PAC",
+   "note": "Alabama Association of Realtors PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "IBEW Pac Voluntary Fund",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://watransparency.com/org/o-ibew-pac-voluntary-fund",
+   "note": "Electrical Workers union (IBEW) national PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "UNITED FOOD AND COMMERCIAL WORKERS ACTIVE BALLOT CLUB",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.ufcw400.org/get-involved/active-ballot-club/",
+   "note": "UFCW food and retail workers union PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "A-Vote",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://encyclopediaofalabama.org/article/alabama-education-association/",
+   "note": "Alabama Education Association teachers union PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texas Optometric PAC",
+   "industry_slug": "healthcare",
+   "confidence": "high",
+   "source_url": "https://texas.aoa.org/advocacy/texas-optometric-political-action-committee-(topac)",
+   "note": "Texas Optometric Association PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Local 0690 Plumbers Union Pol Action Fund",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.fec.gov/data/committee/C00252825/",
+   "note": "Plumbers Union Local 690 Philadelphia PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "represent PAC",
+   "industry_slug": "womens_groups",
+   "confidence": "high",
+   "source_url": "https://politicspa.com/represent-pac-announces-support-for-18-women-seeking-pa-legislative-seats/74052/",
+   "note": "PAC electing Democratic pro-choice women in Pennsylvania"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texans United for a Conservative Majority",
+   "industry_slug": "conservative_groups",
+   "confidence": "high",
+   "source_url": "https://www.texastribune.org/?p=125861",
+   "note": "Dunn/Wilks-funded hard-right PAC in Texas GOP primaries"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Charter Schools Now PAC",
+   "industry_slug": "education",
+   "confidence": "high",
+   "source_url": "https://elpasomatters.org/2022/02/24/pro-charter-pac-spends-200k-on-el-paso-state-board-of-education-candidate/",
+   "note": "PAC of Texas Public Charter Schools Association"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "GOPAC Election Fund",
+   "industry_slug": "republican_party_groups",
+   "confidence": "high",
+   "source_url": "https://ballotpedia.org/GOPAC",
+   "note": "GOPAC, trains and elects Republican state legislators"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Education Opportunity PAC",
+   "industry_slug": "education",
+   "confidence": "medium",
+   "source_url": "https://littlesis.org/org/419378-Students_First_PAC",
+   "note": "Pennsylvania school-choice PAC in Yass-funded network"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Highmark Pac",
+   "industry_slug": "insurance",
+   "confidence": "medium",
+   "source_url": "https://dev.littlesis.org/org/78524-Highmark_Health_PAC_of_Highmark_Inc.",
+   "note": "Company PAC of Highmark, Pennsylvania health insurer"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Legacy 44",
+   "industry_slug": "education",
+   "confidence": "medium",
+   "source_url": "https://elpasomatters.org/2024/02/28/elections-2024-pac-attacks-alexsandra-annello-state-rep-district-77/",
+   "note": "Pro-charter education reform PAC backing Texas Democrats"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Erie Insurance PAC",
+   "industry_slug": "insurance",
+   "confidence": "high",
+   "source_url": "https://dev.littlesis.org/org/133779-Erie_Indemnity_Company_PAC_-_Federal",
+   "note": "Company PAC of Erie Insurance"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "PLANNED PARENTHOOD ADVOCATES OF MI",
+   "industry_slug": "abortion_rights",
+   "confidence": "high",
+   "source_url": "https://bluevoterguide.org/endorser-org/Planned_Parenthood_Advocates_of_Michigan/MI/3784",
+   "note": "Planned Parenthood advocacy arm in Michigan"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Friends of Scott Martin",
+   "industry_slug": "candidate_committees",
+   "confidence": "high",
+   "source_url": "https://www.desmog.com/2017/06/22/exclusive-pa-lawmaker-working-curb-pipeline-protestors-tied-shadow-lobbyists-company-behind-project",
+   "note": "Campaign committee of PA state Sen. Scott Martin"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Change PA",
+   "industry_slug": "democratic_party_groups",
+   "confidence": "medium",
+   "source_url": "https://secure.actblue.com/donate/changepa-website",
+   "note": "PAC working to elect Democratic PA House majority"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "BLUE CROSS BLUE SHIELD OF MICHIGAN POLITICAL ACTION COMMITTEE",
+   "industry_slug": "insurance",
+   "confidence": "high",
+   "source_url": "https://bcbsmichigan-wp.aristotle.com/about-us/",
+   "note": "BluesPAC, company PAC of Michigan health insurer"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "SEIU Healthcare PA COPE",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://vote.phila.gov/archive/candidates-a-campaigns/campaign-finance-reports/item/1805.html",
+   "note": "SEIU healthcare workers union Pennsylvania PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "CVS Health PAC",
+   "industry_slug": "healthcare",
+   "confidence": "medium",
+   "source_url": "https://www.cvshealth.com/impact/political-activities-contributions.html",
+   "note": "CVS Health corporate PAC; pharmacy, PBM and health insurer"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "MEIJER POLITICAL ACTION COMMITTEE",
+   "industry_slug": "retail",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/527-explorer/orgs/382795071",
+   "note": "Meijer supermarket/retail chain corporate PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "MOAK CASEY PAC",
+   "industry_slug": "accounting_and_consulting",
+   "confidence": "medium",
+   "source_url": "https://tea.texas.gov/sites/default/files/Moak%20Casey%20-%20LMM%20Testimony%203-19-18.pdf",
+   "note": "PAC tied to MoakCasey, Texas school-finance consulting and advocacy firm"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Local 19 Sheet Metal Workers Union League for Pol. Edu.",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://penntoday.upenn.edu/news/julian-lutz-labor-law-workers-rights-unions-local-19",
+   "note": "Political fund of Sheet Metal Workers Local 19, Philadelphia union"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Friends of The University of Texas System",
+   "industry_slug": "education",
+   "confidence": "medium",
+   "source_url": "https://www.govserv.org/US/Austin/558448577632266/Friends-of-The-University",
+   "note": "PAC of University of Texas supporters backing pro-university officials"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texas Dairymen PAC",
+   "industry_slug": "agriculture_and_food",
+   "confidence": "high",
+   "source_url": "https://texasdairy.org/about-us",
+   "note": "PAC of Texas Association of Dairymen, dairy farmer trade group"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "HIGHMARK PAC OF HIGHMARK INC",
+   "industry_slug": "insurance",
+   "confidence": "medium",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00302844/2022/pac-donations",
+   "note": "Corporate PAC of Highmark, Pittsburgh health insurer (FEC C00302844; same committee as 'Highmark Pac', kept on one industry)"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Ironworkers District Council of Chicago & Vicinity PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.illinoissunshine.org/top-earners/?days_ago=7",
+   "note": "PAC of Iron Workers District Council of Chicago, union"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Friends of Matt Bradford",
+   "industry_slug": "candidate_committees",
+   "confidence": "high",
+   "source_url": "https://www.pavoterservices.pa.gov/ElectionInfo/CommitteeInfo.aspx?ID=1207",
+   "note": "Candidate committee of PA House Majority Leader Matt Bradford"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "CMS ENERGY CORP EMPLOYEES FOR BETTER GOVERNMENT",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00696591/pac-donations/C00075473",
+   "note": "Employee PAC of CMS Energy, Michigan electric and gas utility"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "MICHIGAN EDUCATION ASSOCIATION PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://mea.org/wp-content/uploads/2025/06/M-3-MEA-PAC-Policies-May-2025.pdf",
+   "note": "PAC of Michigan Education Association teachers union"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Fair Shot Texas PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://secure.actblue.com/donate/fairshottexaspac",
+   "note": "PAC run under Texas AFL-CIO and allied unions"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "IUPAT Political Action Together Political Committee",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://oce.pr.gov/download/international-union-of-painters-and-allied-trades-political-action-together-political-committee/",
+   "note": "PAC of International Union of Painters and Allied Trades"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "SV&B PAC",
+   "industry_slug": "gambling_and_casinos",
+   "confidence": "high",
+   "source_url": "https://1819news.com/news/item/gambling-interests-bet-big-on-alabama-legislative-campaigns",
+   "note": "Alabama PAC funded by Sports Betting Alliance (DraftKings, FanDuel, others)"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Vistra Employee PAC",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://pac.vistracorp.com/SecureDocuments/PAC%20Philosophy%202024.pdf",
+   "note": "Employee PAC of Vistra Corp, power generation company"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "McNees PAC",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "medium",
+   "source_url": "https://members.mbawpa.org/directory/Details/mcnees-wallace-nurick-llc-2408698",
+   "note": "PAC of McNees Wallace & Nurick, Harrisburg law firm"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "MICHIGAN HEALTH ACCESS ALLIANCE",
+   "industry_slug": "healthcare",
+   "confidence": "medium",
+   "source_url": "https://donorbox.org/michigan-health-access-alliance-mhaa-1",
+   "note": "Advocacy group/PAC of Michigan independent pharmacists"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Comcast Corp &amp; NBCUniversal PAC - USA",
+   "industry_slug": "telecommunications",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/527-explorer/orgs/232885026",
+   "note": "Comcast/NBCUniversal corporate PAC for state and local races"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Illinois State Medical Society PAC",
+   "industry_slug": "healthcare",
+   "confidence": "high",
+   "source_url": "https://www.guidestar.org/profile/36-2436054",
+   "note": "PAC of Illinois State Medical Society, physicians' association"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "CarePac",
+   "industry_slug": "healthcare",
+   "confidence": "medium",
+   "source_url": "https://www.transparencyusa.org/al/committee/garlan-gudger-27730/",
+   "note": "Alabama Nursing Home Association's Care PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "UFCW Local 881 PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.legistorm.com/organization/summary/136529/Local_881_UFCW.html",
+   "note": "PAC of UFCW Local 881, Illinois food and commercial workers union"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "PLUMBERS AND STEAMFITTERS 85 PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://michiganbuildingtrades.org/trades-directory",
+   "note": "PAC of UA Plumbers and Steamfitters Local 85, Saginaw union"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "2999 Group",
+   "industry_slug": "gambling_and_casinos",
+   "confidence": "medium",
+   "source_url": "https://whyy.org/articles/pa-state-lawmaker-casino-lobbyists-gambling-bill/",
+   "note": "PAC of Parx casino chairman Robert W. Green"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Agave Democratic Infrastructure Fund",
+   "industry_slug": "democratic_party_groups",
+   "confidence": "high",
+   "source_url": "https://www.transparencyusa.org/tx/committee/democratic-infrastructure-fund-00088096-gpac/",
+   "note": "Texas PAC building Democratic party infrastructure, funds Texas Democrats"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Greater WV Carpenters PEC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.newsandsentinel.com/news/local-news/2026/05/pre-primary-campaign-reports-filed/",
+   "note": "Political committee of carpenters union (Philadelphia-based council) in WV"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "ALABAMA VOICE OF TEACHERS FOR EDUCATION",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://encyclopediaofalabama.org/article/hubbert-paul-a/",
+   "note": "A-VOTE, PAC of Alabama Education Association teachers union"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Friends of the Texas Tech University System PAC",
+   "industry_slug": "education",
+   "confidence": "high",
+   "source_url": "https://secure.anedot.com/texas-tech-university-system-pac/contribute",
+   "note": "PAC of Texas Tech University System supporters for higher education"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "BUILDING BRIDGES PAC",
+   "industry_slug": "leadership_pacs",
+   "confidence": "medium",
+   "source_url": "https://secure.actblue.com/directory/MI/house-sw?page=8",
+   "note": "Gretchen Whitmer Leadership Fund (Building Bridges PAC)"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texas Bankers Association Bankers PAC",
+   "industry_slug": "finance_investment",
+   "confidence": "high",
+   "source_url": "https://member.texasbankers.com/TBA/Advocacy/About-TBA-BankPac.aspx",
+   "note": "TBA BankPac, Texas Bankers Association PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texas Dental Association Political Action Committee",
+   "industry_slug": "healthcare",
+   "confidence": "high",
+   "source_url": "https://tda.org/advocacy/denpac/denpac-faq",
+   "note": "Texas Dental Association PAC (DENPAC), dentists"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Blueprint Texas PAC",
+   "industry_slug": "democratic_party_groups",
+   "confidence": "medium",
+   "source_url": "https://www.influencewatch.org/political-party/blueprint-texas/",
+   "note": "Wendy Davis/Matt Angle group electing Texas Democrats down-ballot"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "International Union of Operating Engineers Local 95",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.nlrb.gov/case/06-RC-146282",
+   "note": "IUOE Local 95, Pittsburgh operating engineers union"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "International Association of Fire Fighters PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.iaff.org/firepac/",
+   "note": "IAFF FIREPAC, firefighters union PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texans For Responsible Government PAC",
+   "industry_slug": "conservative_groups",
+   "confidence": "medium",
+   "source_url": "https://www.texastribune.org/2021/01/08/porters-gop-megadonors",
+   "note": "PAC of GOP megadonors Michael and Mary Porter"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "One Texas PAC",
+   "industry_slug": "democratic_party_groups",
+   "confidence": "medium",
+   "source_url": "https://secure.actblue.com/donate/one-texas",
+   "note": "Trey Martinez Fischer-linked PAC to win Democratic Texas House majority"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "The Hospital and Health System Association of Pennsylvania",
+   "industry_slug": "healthcare",
+   "confidence": "high",
+   "source_url": "https://haponline.org/HAPAC",
+   "note": "HAPAC, Pennsylvania hospital association PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Northeastern PA Trial Lawyers Association PAC",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "high",
+   "source_url": "https://www.bestlawyers.com/lawyers/neil-t-o-donnell/53207",
+   "note": "PAC of regional trial lawyers association, northeastern Pennsylvania"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "AFSCME PEOPLE Non-Fed PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.afscme.org/about/governance/conventions/resolutions-amendments/1984/resolutions/119-people-committees",
+   "note": "AFSCME public employees union political fund"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Students First PAC",
+   "industry_slug": "other_issue_groups",
+   "confidence": "medium",
+   "source_url": "https://whyy.org/articles/jeff-yass-the-richest-man-in-pa-is-single-handedly-keeping-school-choice-pacs-flush",
+   "note": "School-choice PAC funded almost entirely by Jeff Yass"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "PURI PAC",
+   "industry_slug": "leadership_pacs",
+   "confidence": "medium",
+   "source_url": "https://www.transparencyusa.org/mi/committee/puri-pac-520007-ind/payees?cycle=2024-election-cycle",
+   "note": "PAC of Michigan House Democratic Leader Ranjeev Puri"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "AMERICAN FEDERATION OF STATE COUNTY AND MUNICIPAL EMPLOYEES PEOPLE",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://afscmeatwork.org/system/files/what_is_afscme_people_booklet_2.0.pdf",
+   "note": "AFSCME public employees union political fund"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Cozen O'Connor Political Action Committee",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "high",
+   "source_url": "https://en.wikipedia.org/wiki/Cozen_O%27Connor",
+   "note": "PAC of Cozen O'Connor, Philadelphia law firm"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "PURI LEADERSHIP FUND",
+   "industry_slug": "leadership_pacs",
+   "confidence": "medium",
+   "source_url": "https://secure.actblue.com/directory/MI/house-sw?page=34",
+   "note": "Leadership fund of Michigan House Democratic Leader Ranjeev Puri"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "West Virginia Trial Lawyers Association (LAWPAC)",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "high",
+   "source_url": "https://apps.sos.wv.gov/elections/pac-search/pac.aspx?id=212",
+   "note": "LAWPAC of West Virginia trial lawyers (WV Association for Justice)"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "IRON WORKERS LOCAL 25 STATE CAMPAIGN COMMITTEE",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://ironworkers25.org/jurisdiction",
+   "note": "State political committee of Iron Workers Local 25, Michigan union"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Operators Political Education & Education Committee (O.P.E.C)",
+   "industry_slug": "labor_unions",
+   "confidence": "medium",
+   "source_url": "https://apps.sos.wv.gov/elections/pac-search/ReadCFRSReport.aspx?DocId=2526",
+   "note": "WV operating engineers union political committee"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "LABORERS' DIST COUNCIL PAC (REGIONAL)",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.liunamidatlantic.org/pennsylvania-laborers-district-council",
+   "note": "LiUNA Laborers' District Council PAC, construction laborers union"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "HEALTH POLITICAL ACTION COMMITTEE MI HEALTH AND HOSPITAL ASSOCIATION",
+   "industry_slug": "healthcare",
+   "confidence": "high",
+   "source_url": "https://www.mha.org/health-pac/",
+   "note": "Michigan Health & Hospital Association's PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "NRG Energy Inc Political Action Committee",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://littlesis.org/org/31582-Nrg_Energy_Inc_Political_Action_Committee",
+   "note": "PAC of NRG Energy, power generation and retail electricity company"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "FAMILY BUSINESS OWNERS OF MICHIGAN PAC",
+   "industry_slug": "hospitality",
+   "confidence": "medium",
+   "source_url": "https://www.transparencyusa.org/mi/committee/michigan-mcdonalds-government-association-pac-516713-ind?cycle=2017-to-now",
+   "note": "Renamed Michigan McDonald's Government Association PAC (franchise restaurant owners)"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "HCA Texas Good Government Fund",
+   "industry_slug": "healthcare",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00067231/reports/YEAR-END",
+   "note": "PAC of HCA Healthcare, hospital company"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "NEA Fund for Children and Public Education",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/527-explorer/orgs/521140991",
+   "note": "National Education Association teachers union PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "SEIU MICHIGAN",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.mackinac.org/even-after-right-to-work-unions-still-big-political-spenders-in-michigan",
+   "note": "Service Employees International Union Michigan state council"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texans for Reasonable Solutions PAC",
+   "industry_slug": "other_issue_groups",
+   "confidence": "medium",
+   "source_url": "https://www.texastribune.org/2025/07/23/texas-legislature-housing-crisis-coalition-nicole-nosek/",
+   "note": "Housing-affordability deregulation group funded mainly by Nicole Nosek"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Houston Police Officers Union PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.gregabbott.com/?p=8001",
+   "note": "PAC of the Houston Police Officers' Union"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Union Pacific Co. Fund for Effective Government",
+   "industry_slug": "transportation",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00254185/pac-donations/C00010470",
+   "note": "Union Pacific railroad company PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Health Care Council of IL PAC",
+   "industry_slug": "healthcare",
+   "confidence": "medium",
+   "source_url": "https://www.nprillinois.org/2021-12-14/influential-nursing-home-industry-group-at-odds-with-pritzker-administration-smaller-long-term-care-groups-as-reform-debate-drags-on",
+   "note": "PAC of Illinois nursing home trade association"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "NCHA's Texas Events PAC",
+   "industry_slug": "agriculture_and_food",
+   "confidence": "medium",
+   "source_url": "https://www.transparencyusa.org/tx/pac/nchas-texas-events-pac-64041-gpac",
+   "note": "Cutting-horse association PAC funded by ranches and horse businesses"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Friends of Kim Ward",
+   "industry_slug": "candidate_committees",
+   "confidence": "high",
+   "source_url": "https://www.pavoterservices.pa.gov/ElectionInfo/CommitteeInfo.aspx?ID=12799",
+   "note": "Campaign committee of PA Senate President Pro Tem Kim Ward"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "UNITED ASSOCIATION OF PLUMBERS AND PIPEFITTERS LOCAL 370 PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://michiganbuildingtrades.org/newspaper/clean-water-act-local-370-plumbers-do-their-part-in-flint",
+   "note": "Flint plumbers and pipefitters union local PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "DGA Victory Fund",
+   "industry_slug": "democratic_party_groups",
+   "confidence": "high",
+   "source_url": "https://democraticgovernors.org/about",
+   "note": "Democratic Governors Association fund for electing Democratic governors"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texas Apartment Assn. PAC",
+   "industry_slug": "real_estate",
+   "confidence": "high",
+   "source_url": "https://www.taa.org/?p=5048",
+   "note": "Texas Apartment Association rental housing industry PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Phillips 66 PAC",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://pac.org/job/advisor-political-affairs",
+   "note": "Phillips 66 oil refining company PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "FarmPAC",
+   "industry_slug": "agriculture_and_food",
+   "confidence": "high",
+   "source_url": "https://alfafarmers.org/alabama-farmers-federation-congratulates-farmpac-candidates/",
+   "note": "Alabama Farmers Federation PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "HOMEPAC of the Texas Assn. of Builders",
+   "industry_slug": "construction",
+   "confidence": "high",
+   "source_url": "https://www.mydigitalpublication.com/article/HOMEPAC/4778897/822605/article.html",
+   "note": "Texas Association of Builders homebuilders PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "MICHIGAN FARM BUREAU POLITICAL ACTION COMMITTEE",
+   "industry_slug": "agriculture_and_food",
+   "confidence": "high",
+   "source_url": "https://www.michfb.com/agripac",
+   "note": "Michigan Farm Bureau farmers' PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Laborers District Council PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://liunamidatlantic.org/news/story/baltimore-washington-laborers-district-council-announces-endorsement-of-four-candidates-for-prince-georges-county",
+   "note": "LiUNA Laborers' District Council PAC, construction laborers union"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "ALABAMA HOUSE MAJORITY PAC",
+   "industry_slug": "republican_party_groups",
+   "confidence": "high",
+   "source_url": "https://1819news.com/news/item/alabama-power-top-donor-to-new-speakers-pac-in-2022",
+   "note": "PAC electing Republicans to Alabama House, chaired by Speaker Ledbetter"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "West Virginia Auto and Truck Dealers (WV Car PAC)",
+   "industry_slug": "automotive",
+   "confidence": "high",
+   "source_url": "https://wvada-news.thenewslinkgroup.org/contribute-to-wvcar-pac-today/",
+   "note": "West Virginia auto and truck dealers association PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Houston Region Business Coalition",
+   "industry_slug": "business_associations",
+   "confidence": "medium",
+   "source_url": "https://www.transparencyusa.org/tx/pac/houston-realty-business-coalition-63767-gpac/donations",
+   "note": "Houston business PAC funded by builders, energy and other business donors"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texas House Republican Caucus PAC",
+   "industry_slug": "republican_party_groups",
+   "confidence": "high",
+   "source_url": "https://secure.anedot.com/texas-house-republican-caucus-pac/slug",
+   "note": "Texas House Republican Caucus PAC re-electing GOP House members"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "OPERATING ENGINEERS LOCAL 324 ST OF MI PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00495580/pac-donations/C00093989",
+   "note": "IUOE Local 324 heavy equipment operators union PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Illinois Bankers' PAC",
+   "industry_slug": "finance_investment",
+   "confidence": "high",
+   "source_url": "https://www.ilbanker.com/Advocacy/Illinois-Bankers-PAC",
+   "note": "Illinois Bankers Association PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "MICHIGAN CREDIT UNION LEAGUE ACTION FUND",
+   "industry_slug": "finance_investment",
+   "confidence": "high",
+   "source_url": "https://www.cuinsight.com/?p=32118",
+   "note": "Michigan Credit Union League state PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "MICHIGAN INFRASTRUCTURE AND TRANSPORTATION ASSOC PAC",
+   "industry_slug": "construction",
+   "confidence": "medium",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00414235/2024",
+   "note": "PAC of Michigan road and infrastructure contractors association"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Carpentry Advancement Political Action",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://elections.il.gov/campaigndisclosure/CommitteeDetail.aspx?ID=oTjI4mUibgBAyIrhF0egHw%3D%3D",
+   "note": "Chicago carpenters labor-management PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texas Medical Association Political Action Committee",
+   "industry_slug": "healthcare",
+   "confidence": "high",
+   "source_url": "https://www.texpac.org/TMAIMIS/Texpac/About/About_TEXPAC.aspx",
+   "note": "TEXPAC, Texas Medical Association physicians' PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "MI BUILDING AND CONSTRUCTION TRADES COUNCIL PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://michiganbuildingtrades.org/",
+   "note": "Michigan building trades unions council PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Beef PAC",
+   "industry_slug": "agriculture_and_food",
+   "confidence": "high",
+   "source_url": "https://www.bamabeef.org/p/about/alabama-beef-pac",
+   "note": "Cattlemen's associations' beef industry PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "BASE POWER, INC. PAC",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "medium",
+   "source_url": "https://www.texasmonthly.com/news-politics/base-power-battery-dell/",
+   "note": "PAC of Base Power, Texas electricity provider and home batteries"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "DELTA POLITICAL ACTION COMMITTEE",
+   "industry_slug": "transportation",
+   "confidence": "high",
+   "source_url": "https://s2.q4cdn.com/181345880/files/doc_downloads/2025/Delta-Air-Lines-Political-Contributions-Report-2024-FINAL.pdf",
+   "note": "Delta Air Lines employee PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "DTE ENERGY COMPANY POLITICAL ACTION COMMITTEE",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://www.dteenergy.com/us/en/business/about-dte/corporate-governance/political-participation.html",
+   "note": "DTE Energy electric and gas utility PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "PA Realtors PAC",
+   "industry_slug": "real_estate",
+   "confidence": "high",
+   "source_url": "https://www.parealtors.org/?p=219",
+   "note": "Pennsylvania Association of Realtors PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Vistra Employee State Political Action Committee of Vistra Corp.",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://pac.vistracorp.com/SitePages/homepage.aspx",
+   "note": "Vistra power company employee state PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Political Action Committee of Winstead PC",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00194555/2022/pac-donations",
+   "note": "PAC of Winstead PC, Dallas law firm"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "ALABAMA REALTORS POLITICAL ACTION COMMITTEE",
+   "industry_slug": "real_estate",
+   "confidence": "high",
+   "source_url": "https://www.alabamarealtors.com/who-we-are",
+   "note": "Alabama Association of Realtors PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Lyondell Chemical Company PAC",
+   "industry_slug": "manufacturing",
+   "confidence": "high",
+   "source_url": "https://lyondellbasell.com/492c5e/globalassets/lyb-stories/sustainability/2021-semi-annual-u.s.-political-activity-report.pdf",
+   "note": "LyondellBasell chemical manufacturer PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Ford Motor Co Civic Action Fund",
+   "industry_slug": "automotive",
+   "confidence": "high",
+   "source_url": "https://www.sec.gov/Archives/edgar/data/0000037996/000095012409000080/p47476ppre14a.htm",
+   "note": "Ford Motor Company employee PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "MICHIGAN LEGACY PAC",
+   "industry_slug": "leadership_pacs",
+   "confidence": "high",
+   "source_url": "https://www.newsfromthestates.com/article/benson-duggan-target-each-other-uaw-hosted-debate",
+   "note": "PAC controlled by Jocelyn Benson"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Main Street Leadership PAC",
+   "industry_slug": "leadership_pacs",
+   "confidence": "high",
+   "source_url": "https://www.illinoissunshine.org/committees/main-street-leadership-pac-36006/",
+   "note": "PAC chaired by Illinois State Rep. Ryan Spain"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Jewish Caucus PAC",
+   "industry_slug": "other_issue_groups",
+   "confidence": "medium",
+   "source_url": "https://secure.actblue.com/donate/jewish-caucus-pac-1",
+   "note": "Illinois PAC backing candidates fighting antisemitism, protecting Jewish community"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Local 0449 Steamfitters Union PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.nlrb.gov/case/06-CB-264440",
+   "note": "Pittsburgh Steamfitters Local 449 union PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "HNTB Holdings Ltd PAC",
+   "industry_slug": "construction",
+   "confidence": "medium",
+   "source_url": "https://en.wikipedia.org/wiki/HNTB",
+   "note": "PAC of HNTB, infrastructure engineering and architecture firm"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "PSCOA PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/nonprofits/organizations/232971141",
+   "note": "PAC of Pennsylvania State Corrections Officers Association, a labor union"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Houston Pilots PAC",
+   "industry_slug": "transportation",
+   "confidence": "medium",
+   "source_url": "https://www.txgulf.org/executive-partners/houston-pilots",
+   "note": "PAC of Houston Pilots, the Port of Houston ship-pilotage association"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "IUPAT DC21 Political Action Fund",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00276253/2012/pac-donations",
+   "note": "Painters and Allied Trades District Council 21 union political fund"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Charter Communications, Inc. Texas PAC",
+   "industry_slug": "telecommunications",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/527-explorer/orgs/760634183/details/9078928",
+   "note": "Charter Communications cable/broadband company's Texas PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "International Brotherhood of Electrical Workers PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00027342/2024/pac-donations",
+   "note": "IBEW electrical workers union PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Sheet metal Workers Union Local 19",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.peggybrowningfund.org/fellowships/summer-fellowship-positions/item/91-sheet-metal-workers-local-union-no-19",
+   "note": "SMART Sheet Metal Workers Local 19 union, PA/NJ/DE"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "UnitedHealth Group Incorporated PAC (UnitedHealth Group PAC)",
+   "industry_slug": "insurance",
+   "confidence": "high",
+   "source_url": "https://www.unitedhealthgroup.com/content/dam/UHG/PDF/About/unh-political-contributions-annual-report-2026.pdf",
+   "note": "Employee PAC of UnitedHealth Group, health insurer (FEC C00274431; same committee as 'UnitedHealth Group Inc PAC', kept on one industry)"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Citizens for Hughes",
+   "industry_slug": "candidate_committees",
+   "confidence": "high",
+   "source_url": "https://www.transparencyusa.org/pa/committee/citizens-for-hughes-vincent-pac-9200339",
+   "note": "Campaign committee of PA state Sen. Vincent Hughes"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texas Association of Health Plans PAC",
+   "industry_slug": "healthcare",
+   "confidence": "high",
+   "source_url": "https://tahp.org/about/",
+   "note": "PAC of Texas trade group for health insurers and health plans"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Chamber PAC",
+   "industry_slug": "business_associations",
+   "confidence": "medium",
+   "source_url": "https://www.pachamber.org/advocacy/chamber_pac/about",
+   "note": "ChamberPAC of the Pennsylvania Chamber of Business and Industry"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Alabama Hospital Association PAC",
+   "industry_slug": "healthcare",
+   "confidence": "high",
+   "source_url": "https://www.alaha.org/hospac/",
+   "note": "HOSPAC, PAC of the Alabama Hospital Association"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Meuser for Congress",
+   "industry_slug": "candidate_committees",
+   "confidence": "high",
+   "source_url": "https://www.fec.gov/data/committee/C00654723/",
+   "note": "Campaign committee of U.S. Rep. Dan Meuser (R-PA)"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "CAMILLERI FOR MICHIGAN",
+   "industry_slug": "candidate_committees",
+   "confidence": "medium",
+   "source_url": "https://en.wikipedia.org/wiki/Darrin_Camilleri",
+   "note": "Campaign committee of Michigan state Sen. Darrin Camilleri"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texas Automobile Dealers Assn. PAC",
+   "industry_slug": "automotive",
+   "confidence": "high",
+   "source_url": "https://businessviewmagazine.com/brochures/apr-2022/tada/2",
+   "note": "PAC of Texas franchised auto dealers trade association"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "AUTO DEALERS OF MICHIGAN POLITICAL ACTION COMMITTEE",
+   "industry_slug": "automotive",
+   "confidence": "high",
+   "source_url": "https://www.transparencyusa.org/mi/committee/auto-dealers-of-michigan-pac-510354-ind",
+   "note": "PAC of Michigan auto dealers, funded by dealer PACs"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "AFSCME Council 13 Political &amp; Legislative",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://afscme13.org/news/press-release-afscme-members-endorse-candidates-for-us-senate-pa-row-offices",
+   "note": "Political fund of AFSCME Council 13, PA public employees union"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "The Beer Alliance of Texas Political Action Committee",
+   "industry_slug": "beer_wine_and_spirits",
+   "confidence": "high",
+   "source_url": "https://www.gregabbott.com/?p=8986",
+   "note": "PAC of Texas beer distributors trade group"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "MICHIGAN ASSOCIATION FOR JUSTICE JUSTICE PAC",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "high",
+   "source_url": "https://www.michiganjustice.org/?pg=action",
+   "note": "Justice PAC of Michigan trial lawyers association"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Comcast Corp & NBCUniversal PAC",
+   "industry_slug": "telecommunications",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00808717/pac-donations/C00248716",
+   "note": "Employee PAC of Comcast cable/broadband and NBCUniversal"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "IMHA - PAC",
+   "industry_slug": "real_estate",
+   "confidence": "medium",
+   "source_url": "https://illinoissunshine.org/committees/imha-pac-4852/",
+   "note": "Illinois Manufactured Housing Association PAC; funded by housing-community owners"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "PECO PAC",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://content.influencemap.org/site/data/000/750/Exelon_2018PoliticalContributions_Feb_2021.pdf",
+   "note": "Employee PAC of PECO, Exelon's Philadelphia electric and gas utility"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Local 0001 BAC PAC (Bricklayers)",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.guidestar.org/Profile/23-2748801",
+   "note": "Bricklayers and Allied Craftworkers Local 1 PA/DE union PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Friends Of Joe Pittman",
+   "industry_slug": "candidate_committees",
+   "confidence": "high",
+   "source_url": "https://www.transparencyusa.org/pa/committee/friends-of-joe-pittman-pac-20190081",
+   "note": "Campaign committee of PA Senate Majority Leader Joe Pittman"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "West Virginia Hospital Association (HOSPAC)",
+   "industry_slug": "healthcare",
+   "confidence": "high",
+   "source_url": "https://www.mybuckhannon.com/wvu-medicine-st-josephs-hospital-receives-leadership-award-from-west-virginia-hospital-association/",
+   "note": "HOSPAC, PAC of the West Virginia Hospital Association"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Essential Utilities Inc PAC",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "medium",
+   "source_url": "https://www.fec.gov/data/committee/C00340455/",
+   "note": "Employee PAC of Essential Utilities, water and natural-gas utility (Aqua, Peoples)"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Valero Energy Corporation PAC",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://www.sec.gov/Archives/edgar/data/0001035002/000095013409005563/d66757def14a.htm",
+   "note": "VALPAC, employee PAC of oil refiner Valero Energy"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Pfizer Inc Pac",
+   "industry_slug": "pharmaceuticals",
+   "confidence": "high",
+   "source_url": "https://cdn.pfizer.com/pfizercom/investors/corporate/2023_Pfizer_PAC_and_Corporate_Political_Contributions_Report.pdf",
+   "note": "Employee PAC of drugmaker Pfizer"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "HS LAW PAC",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "medium",
+   "source_url": "https://www.transparencyusa.org/tx/committee/hs-law-pac-64964-mpac",
+   "note": "Texas PAC funded mainly by Austin law firm Hance Scarborough LLP"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Pennsylvania Bankers Public Affairs Committee",
+   "industry_slug": "finance_investment",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00094896/2024/pac-donations",
+   "note": "PAC of the Pennsylvania Bankers Association"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "BANKPAC",
+   "industry_slug": "finance_investment",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00367094/2022/pac-donations",
+   "note": "Alabama Bankers Association PAC for the banking industry"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "LAWPAC (PA Assoc. For Justice)",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "high",
+   "source_url": "https://www.pajustice.org/?pg=LawPAC",
+   "note": "LawPAC of Pennsylvania Association for Justice trial lawyers"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Climate Cabinet PAC",
+   "industry_slug": "environmental_group",
+   "confidence": "high",
+   "source_url": "https://www.volts.wtf/p/using-a-moneyball-approach-to-elect",
+   "note": "Climate group backing pro-climate state and local candidates"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Constellation Energy Corporation Employee Political  Action Committee",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00793711/2022",
+   "note": "Employee PAC of power producer Constellation Energy"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Q PAC",
+   "industry_slug": "finance_investment",
+   "confidence": "medium",
+   "source_url": "https://www.transparencyusa.org/tx/committee/q-pac-50917-mpac",
+   "note": "Texas PAC funded by investor Geoffrey Raynor (Q Investments) and affiliate"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Education Austin PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.texasaft.org/local/austin",
+   "note": "PAC of Education Austin, Austin ISD employees union"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Keystone Care PAC",
+   "industry_slug": "healthcare",
+   "confidence": "medium",
+   "source_url": "https://www.transparencyusa.org/tx/committee/keystone-care-pac-82997-gpac/contributions?cycle=2018-election-cycle",
+   "note": "Texas PAC funded by Ensign Services and healthcare workers"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "West Virginia Laborers' District Council PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://apps.sos.wv.gov/elections/pac-search/pac.aspx?id=192",
+   "note": "PAC of West Virginia Laborers' (LIUNA) District Council"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "BNSF Railway Company RAILPAC",
+   "industry_slug": "transportation",
+   "confidence": "high",
+   "source_url": "https://lda.senate.gov/filings/public/contribution/888948e5-2e40-4940-b389-f910fd59ff2f/print",
+   "note": "Employee PAC of BNSF Railway freight railroad"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Friends of Arvind Venkat",
+   "industry_slug": "candidate_committees",
+   "confidence": "high",
+   "source_url": "https://www.transparencyusa.org/pa/candidate/arvind-venkat",
+   "note": "Campaign committee of PA state Rep. Arvind Venkat"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "AUTO-PAC",
+   "industry_slug": "automotive",
+   "confidence": "high",
+   "source_url": "https://birminghamwatch.org/pacs-whos-behind-pacronyms/",
+   "note": "PAC of the Alabama Automobile Dealers Association"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "AFSCME COUNCIL 13 POL & LEG ACCT",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://afscme13.org/news/press-release-afscme-members-endorse-candidates-for-us-senate-pa-row-offices",
+   "note": "Political account of AFSCME Council 13, PA public employees union"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Fraternal Order of Police Lodge 5",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://constitutionallawopinions.justia.com/2014/08/19/lodge-no-5-of-the-fraternal-order-of-police-v-city-of-philadelphia",
+   "note": "Philadelphia police union lodge; runs COPPAC political committee."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texas State Teachers Association - PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://tsta.org/pac",
+   "note": "PAC of Texas NEA teachers' union affiliate."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Malady &amp; Wooten PAC",
+   "industry_slug": "accounting_and_consulting",
+   "confidence": "medium",
+   "source_url": "https://malady-wooten.com/about-us-malady-wooten/",
+   "note": "PAC of Harrisburg contract lobbying firm Malady & Wooten."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "PENNSYLVANIA LABORERS DISTRICT COUNCIL PAC FUND",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.vpap.org/committees/135064/top_donors",
+   "note": "LiUNA laborers' union district council political fund."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "AFSCME Illinois Council 31 PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.illinoispolicy.org/union-dues-at-work-afscme-gives-1-4-million-to-madigan/",
+   "note": "PAC of Illinois public-employee union AFSCME Council 31."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Centene Corporation Political Action Committee",
+   "industry_slug": "healthcare",
+   "confidence": "medium",
+   "source_url": "https://missouriindependent.com/2022/11/04/centene-showers-politicians-with-millions-as-it-courts-contracts-settles-overbilling-allegations/",
+   "note": "PAC of Medicaid managed-care health company Centene."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "MICHIGAN BANKERS ASSOCIATION MIBANKPAC STATE",
+   "industry_slug": "finance_investment",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00080648/2024",
+   "note": "State PAC of the Michigan Bankers Association."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "CLARK HILL POLITICAL ACTION COMM",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00413484/reports/STATEMENT%20OF%20ORGANIZATION",
+   "note": "PAC of Clark Hill law and lobbying firm."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "HNTB Holdings Ltd. Political Action Committee",
+   "industry_slug": "construction",
+   "confidence": "medium",
+   "source_url": "https://wcnc.com/article/news/mayor-city-council-members-received-campaign-contributions-from-company-accused-of-overcharging-for-blue-line-extension/275-1274b470-a54b-40c2-912e-f1e3eeb89267",
+   "note": "PAC of HNTB, infrastructure engineering and construction-management firm."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texas Building Branch Associated General Contractors PAC",
+   "industry_slug": "construction",
+   "confidence": "high",
+   "source_url": "https://agchouston.org/about",
+   "note": "PAC of AGC Texas Building Branch contractors' association."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "PROGRESSIVE TURNOUT PROJECT",
+   "industry_slug": "democratic_party_groups",
+   "confidence": "medium",
+   "source_url": "https://www.turnoutpac.org/?p=6336",
+   "note": "PAC whose mission is turning out Democratic voters."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Eli Lilly & Co PAC",
+   "industry_slug": "pharmaceuticals",
+   "confidence": "high",
+   "source_url": "https://www.lilly.com/about/our-views/public-policy/political-participation",
+   "note": "LillyPAC, employee PAC of drugmaker Eli Lilly."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Certified Public Accountants PAC",
+   "industry_slug": "accounting_and_consulting",
+   "confidence": "medium",
+   "source_url": "https://www.mychesco.com/a/news/regional/pennsylvania-cpas-advocacy-arm-rebrands-to-reflect-evolving-mission/",
+   "note": "Pennsylvania CPAs' PAC (PICPA CPA-PAC)."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "KENT COUNTY DEMOCRATIC PARTY",
+   "industry_slug": "democratic_party_groups",
+   "confidence": "high",
+   "source_url": "https://bluevoterguide.org/endorser-org/Kent_County_(MI)_Democratic_Party/MI/5557",
+   "note": "Kent County, Michigan, Democratic Party committee."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "FORGE PAC",
+   "industry_slug": "leadership_pacs",
+   "confidence": "high",
+   "source_url": "https://www.alreporter.com/2025/07/03/gudger-reports-record-1-8m-raised-for-forge-pac-to-back-senate-gop-efforts/",
+   "note": "Leadership PAC of Alabama Senate President Pro Tem Garlan Gudger."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Alabama Builders PAC",
+   "industry_slug": "construction",
+   "confidence": "high",
+   "source_url": "https://www.alreporter.com/2026/02/11/abpac-endorses-derek-chen-for-alabama-state-auditor",
+   "note": "ABPAC, PAC of Home Builders Association of Alabama."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Wojdak for the Commonwealth PAC",
+   "industry_slug": "accounting_and_consulting",
+   "confidence": "medium",
+   "source_url": "https://en.wikipedia.org/wiki/S._R._Wojdak_%26_Associates",
+   "note": "PAC tied to Wojdak Government Relations lobbying firm."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Chicago Teachers Union Local 1 PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.ctulocal1.org/PAC",
+   "note": "PAC of the Chicago Teachers Union."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Friends of The University of Texas at Austin",
+   "industry_slug": "education",
+   "confidence": "high",
+   "source_url": "https://www.govserv.org/US/Austin/558448577632266/Friends-of-The-University",
+   "note": "PAC of UT Austin supporters backing pro-university legislators."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texas Association of Property Tax Professionals PAC",
+   "industry_slug": "accounting_and_consulting",
+   "confidence": "medium",
+   "source_url": "https://projects.propublica.org/nonprofits/organizations/742509830",
+   "note": "PAC of property tax consultants' trade association."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "BUSINESS LEADERS FOR MICHIGAN PAC",
+   "industry_slug": "business_associations",
+   "confidence": "high",
+   "source_url": "https://en.wikipedia.org/wiki/Business_Leaders_for_Michigan",
+   "note": "PAC of CEO roundtable of Michigan's largest companies."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "United Services Automobile Association Employee PAC",
+   "industry_slug": "insurance",
+   "confidence": "medium",
+   "source_url": "https://lda.senate.gov/filings/public/contribution/1417599d-757e-4fe2-80aa-c918c22ab334/print",
+   "note": "Employee PAC of USAA, insurance and financial services company."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Foley & Lardner LLP Texas Campaign Fund",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "high",
+   "source_url": "https://www.foley.com/es/practice-areas/corporate/government-solutions/public-policy-and-government-relations/state-government-affairs-and-lobbying/texas-government-solutions/",
+   "note": "Texas state PAC of law firm Foley & Lardner."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Farm PAC",
+   "industry_slug": "agriculture_and_food",
+   "confidence": "high",
+   "source_url": "https://alfafarmers.org/farmpac-announces-endorsements/",
+   "note": "FarmPAC of the Alabama Farmers Federation."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "ConocoPhillips Spirit PAC",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://www.conocophillips.com/sustainability/integrating-sustainability/sustainable-development-governance/policies-positions/political-contributions-policy/",
+   "note": "Employee PAC of oil company ConocoPhillips."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "CPA PAC",
+   "industry_slug": "accounting_and_consulting",
+   "confidence": "high",
+   "source_url": "https://www.mychesco.com/a/news/regional/pennsylvania-cpas-advocacy-arm-rebrands-to-reflect-evolving-mission/",
+   "note": "CPA-PAC of the Pennsylvania Institute of CPAs."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "COMCAST CORPORATION AND NBCUNIVERSAL POLITICAL ACTION COMMITTEE USA",
+   "industry_slug": "telecommunications",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00248716/2026",
+   "note": "Corporate PAC of cable/broadband company Comcast and NBCUniversal."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "AT&T Inc. Texas Political Action Committee",
+   "industry_slug": "telecommunications",
+   "confidence": "high",
+   "source_url": "https://www.fierce-network.com/telecom/spotlight-at-t-texas-prez-urges-vote-for-republican",
+   "note": "Texas state PAC of telecom company AT&T."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texas Society Of Anesthesiologists Political Action Committee",
+   "industry_slug": "healthcare",
+   "confidence": "high",
+   "source_url": "https://www.gregabbott.com/texas-health-care-organizations-back-governor-abbott/",
+   "note": "TSAPAC, political arm of Texas anesthesiologists' society."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Friends of Gina Cerilli Thrasher",
+   "industry_slug": "candidate_committees",
+   "confidence": "medium",
+   "source_url": "https://monvalleyindependent.com/2023/07/15/five-seek-commissioners-seat-vacated-by-thrasher",
+   "note": "Campaign committee of former Westmoreland County commissioner Gina Cerilli Thrasher."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Vinson & Elkins Texas PAC",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "high",
+   "source_url": "https://news.bloomberglaw.com/litigation/texas-law-firm-touting-abortion-aid-backs-governors-urging-bans",
+   "note": "Texas PAC of law firm Vinson & Elkins."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "AFSCME Council 13",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://afscme13.org/?p=206",
+   "note": "Pennsylvania public-employee union AFSCME Council 13."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "General Motors Co PAC",
+   "industry_slug": "automotive",
+   "confidence": "high",
+   "source_url": "https://investor.gm.com/static-files/2c15b126-d9b1-450d-9170-2a98be77bb0d",
+   "note": "Employee PAC of automaker General Motors."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Plumbers Union Local 690",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://dev.littlesis.org/org/218491-Plumbers_Union_Local_690",
+   "note": "Philadelphia plumbers and pipefitters union local."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Ben E. Keith Company Texas PAC",
+   "industry_slug": "beer_wine_and_spirits",
+   "confidence": "medium",
+   "source_url": "https://en.wikipedia.org/wiki/Ben_E._Keith_Company",
+   "note": "Fort Worth food and Anheuser-Busch beer distributor's Texas PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Local 0692 Sprinklerfitters PAC (Phila)",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://vote.phila.gov/archive/candidates-a-campaigns/campaign-finance-reports/item/1896.html",
+   "note": "PAC of Sprinkler Fitters union Local 692, Philadelphia"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Poarch Creek Indian PAC",
+   "industry_slug": "gambling_and_casinos",
+   "confidence": "medium",
+   "source_url": "https://1819news.com/news/item/poarch-creeks-bankroll-new-pac-with-3-5-million-donation-ahead-of-2026-elections",
+   "note": "Poarch Creek tribe PAC; casino operator pushing gambling legislation"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Community BANCPAC",
+   "industry_slug": "finance_investment",
+   "confidence": "medium",
+   "source_url": "https://www.legistorm.com/organization/summary/79551/Community_Bankers_Association_of_Illinois.html",
+   "note": "Illinois community bank PAC; likely Community Bankers Association of Illinois"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Chevron Employees PAC",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://www-test.chevron.com/-/media/chevron/investors/documents/CEPAC-Jan-Jun-2023-VF.pdf",
+   "note": "Chevron oil company employee PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Waste Management Employees Better Government Fund",
+   "industry_slug": "waste_management",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00075820/pac-donations/C00119008",
+   "note": "Waste Management Inc. corporate employee PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "ELECTRIC COOPERATIVES OF ALABAMA PAC",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://www.alreporter.com/2025/07/08/electric-cooperatives-pac-backs-jay-mitchell-in-alabama-ag-race",
+   "note": "PAC of Alabama's electric cooperatives (AREA)"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Calpine Corporation PAC",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://calpinepac-wp.aristotle.com/governance/",
+   "note": "Calpine power-generation company employee PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "K & L Gates LLP Committee for Good Government",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "medium",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00213173/reports/POST-GENERAL",
+   "note": "Political committee of K&L Gates law firm"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Republican State Committee of PA",
+   "industry_slug": "republican_party_groups",
+   "confidence": "high",
+   "source_url": "https://www.yahoo.com/news/rothman-named-chair-pennsylvania-republican-214304604.html",
+   "note": "Pennsylvania Republican Party state committee"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Saxton &amp; Stump LLC PAC",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "medium",
+   "source_url": "https://www.businesswire.com/news/home/20250228611967/en",
+   "note": "PAC of Saxton & Stump, Pennsylvania law firm"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Constellation Energy Corporation Employee Political Action Committee (CEPAC)",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://www.fec.gov/data/committee/C00793711/",
+   "note": "Constellation Energy power company employee PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Duquesne Light Co PAC",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://www.fec.gov/data/committee/C00164244/",
+   "note": "Duquesne Light electric utility employee PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Delisi Communications PAC",
+   "industry_slug": "accounting_and_consulting",
+   "confidence": "medium",
+   "source_url": "https://texasweekly.texastribune.org/texas-weekly/vol-25/no-49/people",
+   "note": "PAC of Delisi Communications, Austin lobby/PR/strategy firm"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Alabama Voice of Teachers for Education (A-VOTE)",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://encyclopediaofalabama.org/article/hubbert-paul-a/",
+   "note": "Alabama Education Association teachers' union PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Way to Lead Texas",
+   "industry_slug": "progressive_groups",
+   "confidence": "medium",
+   "source_url": "https://www.cnbc.com/2020/09/10/leaders-of-progressive-donor-fund-launch-new-pac-way-to-lead-.html",
+   "note": "Texas arm of Way to Lead, progressive donor-fund PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "PA DEMOCRATIC PARTY",
+   "industry_slug": "democratic_party_groups",
+   "confidence": "high",
+   "source_url": "https://www.padems.org/?p=14488",
+   "note": "Pennsylvania Democratic Party state committee"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Plumbers Union Local 690 Election Political Action Fund",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.fec.gov/data/committee/C00252825/",
+   "note": "PAC of Plumbers Union Local 690, Philadelphia"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "The Boeing Company PAC",
+   "industry_slug": "defense_aerospace",
+   "confidence": "high",
+   "source_url": "https://www.boeing.com/resources/boeingdotcom/company/key_orgs/pdf/Summary_of_Political_Activity_PROs.pdf",
+   "note": "Boeing aerospace company employee PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Capital Blue PAC",
+   "industry_slug": "insurance",
+   "confidence": "high",
+   "source_url": "https://www.fec.gov/data/committee/C00270967/",
+   "note": "PAC of Capital BlueCross health insurer"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Houston Pilots PAC Fund",
+   "industry_slug": "transportation",
+   "confidence": "high",
+   "source_url": "https://www.fec.gov/data/committee/C00842898/",
+   "note": "PAC of Houston Pilots, ship-channel maritime pilots"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "KOCH INC POLITICAL ACTION COMMITTEE",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "medium",
+   "source_url": "https://en.wikipedia.org/wiki/KochPAC",
+   "note": "KochPAC, Koch Industries energy/manufacturing conglomerate PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "UnitedHealth Group Inc PAC",
+   "industry_slug": "insurance",
+   "confidence": "high",
+   "source_url": "https://www.fec.gov/data/committee/C00274431/",
+   "note": "UnitedHealth Group health insurer corporate PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Chevron Employees Political Action Committee - Chevron Corporation",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://www-test.chevron.com/-/media/chevron/investors/documents/CEPAC-Jan-Jun-2023-VF.pdf",
+   "note": "Chevron oil company employee PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Greenlee Partners State PAC",
+   "industry_slug": "accounting_and_consulting",
+   "confidence": "high",
+   "source_url": "https://greenleepartners.com/services/direct-lobbying/",
+   "note": "PAC of Greenlee Partners, Harrisburg lobbying firm"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Laborers District Council PAC Fund",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://cfreports.elections.virginia.gov/Report/ReportPDF/297178",
+   "note": "Laborers' union District Council of Eastern Pennsylvania PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "West Virginia Realtors PAC (RPAC)",
+   "industry_slug": "real_estate",
+   "confidence": "high",
+   "source_url": "https://apps.sos.wv.gov/elections/pac-search/pac.aspx?id=203",
+   "note": "West Virginia Realtors association PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "BNSF RailPAC",
+   "industry_slug": "transportation",
+   "confidence": "high",
+   "source_url": "https://www.fec.gov/data/committee/C00235739/",
+   "note": "BNSF Railway company PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Pa Association of Nurse Anesthetists PAC",
+   "industry_slug": "healthcare",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/nonprofits/organizations/237241442",
+   "note": "PAC of Pennsylvania nurse anesthetists' professional association"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "The Next 50 PAC",
+   "industry_slug": "democratic_party_groups",
+   "confidence": "medium",
+   "source_url": "https://thenext50.substack.com/p/a-vision-for-the-next-50-for-2026",
+   "note": "PAC electing next-generation Democratic leaders in battlegrounds"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Insulators International Political Action Committee",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://en.wikipedia.org/wiki/International_Association_of_Heat_and_Frost_Insulators_and_Allied_Workers",
+   "note": "Heat and Frost Insulators union PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "NiSource Inc PAC",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://www.nisource.com/company/political-engagement",
+   "note": "NiSource gas/electric utility employee PAC (NiPAC)"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Insulators International PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://en.wikipedia.org/wiki/International_Association_of_Heat_and_Frost_Insulators_and_Allied_Workers",
+   "note": "Heat and Frost Insulators union PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Truk PAC",
+   "industry_slug": "transportation",
+   "confidence": "high",
+   "source_url": "https://www.alreporter.com/2026/01/22/truk-pac-endorses-derek-chen-for-alabama-state-auditor/",
+   "note": "Political arm of the Alabama Trucking Association"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Greenberg Traurig P.A. PAC",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "high",
+   "source_url": "https://www.fec.gov/data/committee/C00266585/",
+   "note": "PAC of Greenberg Traurig law and lobbying firm"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "PGH Fire Fighters Local #1 Fire PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.politicspa.com/pittsburgh-fire-fighters-local-1-endorse-eagen-for-commonwealth-court/65841/",
+   "note": "Pittsburgh Fire Fighters IAFF Local 1 union PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Friends of Austin Davis",
+   "industry_slug": "candidate_committees",
+   "confidence": "high",
+   "source_url": "https://www.wesa.fm/politics-government/2022-01-04/austin-davis-announces-bid-for-lieutenant-governor-backed-by-josh-shapiro",
+   "note": "Campaign committee of PA Lt. Gov. Austin Davis"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "FRIENDS OF FREEDOM & CONVENIENCE",
+   "industry_slug": "retail",
+   "confidence": "medium",
+   "source_url": "https://www.transparencyusa.org/pa/committee/friends-of-freedom-and-convenience-20200079-pac",
+   "note": "PAC funded by Hartman family, owners of Rutter's convenience stores"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "NRG Energy Inc PAC",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://www.sec.gov/Archives/edgar/data/1013871/000104746919001180/a2237960zdef14a.htm",
+   "note": "NRG Energy power company employee PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "iVote MI 2026",
+   "industry_slug": "democratic_party_groups",
+   "confidence": "medium",
+   "source_url": "https://ballotpedia.org/IVote",
+   "note": "iVote group electing Democratic secretaries of state; Michigan committee"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "PAA PAC (PA AUTOMOTIVE ASSN PAC)",
+   "industry_slug": "automotive",
+   "confidence": "high",
+   "source_url": "https://www.cpbj.com/raymond-bromley-2026-paa-chairman/",
+   "note": "PAC of Pennsylvania Automotive Association, car dealers' trade group"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Duly Health and Care PAC",
+   "industry_slug": "healthcare",
+   "confidence": "medium",
+   "source_url": "https://practicematch.com/employer/duly-health-and-care-physician-jobs",
+   "note": "PAC of Duly Health and Care, Illinois physician group"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "PrizePicks PAC",
+   "industry_slug": "gambling_and_casinos",
+   "confidence": "high",
+   "source_url": "https://www.fec.gov/data/committee/C00851113/",
+   "note": "PAC of PrizePicks daily fantasy sports company"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Energy Transfer Partners Texas PAC",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://www.fec.gov/data/committee/C00438754/",
+   "note": "Energy Transfer pipeline company Texas PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Metropolitan Anesthesia Consultants, LLP Political Action Committee",
+   "industry_slug": "healthcare",
+   "confidence": "high",
+   "source_url": "https://www.marithealth.com/e/metropolitan-anesthesia-consultants-8s6k4",
+   "note": "PAC of Dallas anesthesiology physician group"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "ENTERPRISE HOLDINGS INC / ENTERPRISE MOBILITY POLITICAL ACTION COMMITTEE",
+   "industry_slug": "transportation",
+   "confidence": "medium",
+   "source_url": "https://calmatters.digitaldemocracy.org/organizations/-5067",
+   "note": "Enterprise rental-car company PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Caterpillar Inc PAC",
+   "industry_slug": "manufacturing",
+   "confidence": "high",
+   "source_url": "https://www.caterpillar.com/en/company/governance/political-engagement.html",
+   "note": "Employee PAC of heavy-equipment maker Caterpillar"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "DOW INC PAC (DOWPAC)",
+   "industry_slug": "manufacturing",
+   "confidence": "high",
+   "source_url": "https://corporate.dow.com/en-us/about/codes-of-conduct/us-public-policy/dowpac-guidelines",
+   "note": "Employee PAC of chemical maker Dow Inc."
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Int'l Union of Operating Engineers Local 542",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://bluevoterguide.org/endorser-org/International_Union_of_Operating_Engineers_(IUOE)_Local_542/PA/9791",
+   "note": "Operating Engineers union local in eastern Pennsylvania"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "PA Health Care Assn PAC (PHCAPAC)",
+   "industry_slug": "healthcare",
+   "confidence": "high",
+   "source_url": "https://businessviewmagazine.com/pennsylvania-healthcare-association/",
+   "note": "PAC of Pennsylvania long-term care providers' trade association"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "PA STATE EDUCATION ASSOCIATION PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.psea.org/news--events/newsstand/press-center/news-release---Sept-19-2017/",
+   "note": "Political committee of Pennsylvania teachers' union PSEA"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Duane Morris Government Committee",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "medium",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00630541/pac-donations/C00364133",
+   "note": "PAC of Philadelphia law firm Duane Morris"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Alabama  Optometric PAC",
+   "industry_slug": "healthcare",
+   "confidence": "high",
+   "source_url": "https://alabama.aoa.org/advocacy/alopac-donation-form",
+   "note": "PAC of Alabama Optometric Association (optometrists)"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Jackson Walker L.L.P. Political Action Committee",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "medium",
+   "source_url": "https://www.jw.com/news/capitolinside-texas-lobby-rankings-2023/",
+   "note": "PAC of Texas law firm Jackson Walker"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "ALAPAC",
+   "industry_slug": "healthcare",
+   "confidence": "high",
+   "source_url": "https://alabamamedicine.org/?p=7433",
+   "note": "Medical Association of Alabama physicians' PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Cattle Raisers State PAC",
+   "industry_slug": "agriculture_and_food",
+   "confidence": "high",
+   "source_url": "https://tscra.org/what-we-do/pac/",
+   "note": "State PAC of Texas and Southwestern Cattle Raisers Association"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "DYKEMA GOSSETT STATE PAC",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "medium",
+   "source_url": "https://en.wikipedia.org/wiki/Dykema_Gossett",
+   "note": "State PAC of Detroit law firm Dykema Gossett"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Duane Morris Government Committee State &amp; Local Fund",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "medium",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00630541/pac-donations/C00364133",
+   "note": "State/local fund of law firm Duane Morris's PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Associated Beer Distributors of Illinois",
+   "industry_slug": "beer_wine_and_spirits",
+   "confidence": "high",
+   "source_url": "https://www.brewbound.com/news/abdi-president-william-olson-set-to-retire",
+   "note": "Trade association of Illinois beer distributors"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "CWA - COPE PCC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://lda.senate.gov/filings/public/contribution/c6473e89-1d62-4fac-83df-75ad76e2af0e/print",
+   "note": "Communications Workers of America union PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "MICHIGAN ASSOCIATION OF NURSE ANESTHETISTS PAC",
+   "industry_slug": "healthcare",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/nonprofits/organizations/237417935",
+   "note": "PAC of Michigan nurse anesthetists' professional association"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "UPSPAC",
+   "industry_slug": "transportation",
+   "confidence": "high",
+   "source_url": "https://investors.ups.com/esg/political-contributions",
+   "note": "Employee PAC of package carrier UPS"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "General Motors Company Political Action Committee (GM PAC)",
+   "industry_slug": "automotive",
+   "confidence": "high",
+   "source_url": "https://www.fec.gov/data/committee/C00076810/?cycle=2022",
+   "note": "Employee PAC of automaker General Motors"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Alabama Hospital Association",
+   "industry_slug": "healthcare",
+   "confidence": "high",
+   "source_url": "https://www.alaha.org/hospac/",
+   "note": "Alabama Hospital Association and its HOSPAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Wells Fargo & Co Employee PAC",
+   "industry_slug": "finance_investment",
+   "confidence": "high",
+   "source_url": "https://www.wellsfargo.com/about/responsibility-and-impact/government-relations/",
+   "note": "Employee PAC of bank Wells Fargo"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Steamfitters Local Union 449 PAC Fund",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.nlrb.gov/case/06-CB-264440",
+   "note": "PAC of Pittsburgh steamfitters union Local 449"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Targa Resources Corp. Texas PAC",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://www.fec.gov/data/committee/C00510016/",
+   "note": "Texas PAC of Houston midstream oil and gas firm Targa"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "COZEN O' CONNOR PAC",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "medium",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00312777/2024/pac-donations",
+   "note": "PAC of Philadelphia law firm Cozen O'Connor"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Energy Transfer PAC",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://www.fec.gov/data/committee/C00438754/",
+   "note": "Employee PAC of Dallas pipeline company Energy Transfer"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Galveston Pilots for Good Government",
+   "industry_slug": "transportation",
+   "confidence": "medium",
+   "source_url": "https://maritime-executive.com/article/gal-tex-pilots-ask-pay-increase",
+   "note": "PAC of Galveston ship pilots (maritime pilotage)"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Atmos Energy Corporation PAC",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://www.fec.gov/data/committee/C00381954/",
+   "note": "Employee PAC of natural gas utility Atmos Energy"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "SV &B",
+   "industry_slug": "gambling_and_casinos",
+   "confidence": "high",
+   "source_url": "https://1819news.com/news/item/gambling-interests-bet-big-on-alabama-legislative-campaigns",
+   "note": "Alabama PAC funded by Sports Betting Alliance"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "ALABAMA MEDICAL PAC",
+   "industry_slug": "healthcare",
+   "confidence": "high",
+   "source_url": "https://alabamamedicine.org/?p=3714",
+   "note": "ALAPAC, physicians' PAC of Medical Association of Alabama"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Fort Worth Firefighters Committee For Responsible Government",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.keranews.org/government/2025-10-27/fire-chief-resigned-over-safety-disputes-with-fort-worths-firefighters-union-attorney-says",
+   "note": "PAC of Fort Worth firefighters union Local 440"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Local 0027 Plumbers Union PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00368258/reports/POST-GENERAL",
+   "note": "PAC of Pittsburgh Plumbers Local Union 27"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "PA Optometric PAC",
+   "industry_slug": "healthcare",
+   "confidence": "high",
+   "source_url": "https://pennsylvania.aoa.org/advocacy/popacpoi",
+   "note": "Pennsylvania Optometric Association's political action committee"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "HEALTH CARE ASSOCIATION OF MICHIGAN POLITICAL ACTION COMMITTEE",
+   "industry_slug": "healthcare",
+   "confidence": "high",
+   "source_url": "https://www.hcam.org/the-2025-hcam-pac-is-underway-snf-al/",
+   "note": "PAC of Michigan long-term care providers' association"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Wine and Spirits Distributors of Illinois PAC",
+   "industry_slug": "beer_wine_and_spirits",
+   "confidence": "high",
+   "source_url": "https://www.wswa.org/news/wine-and-spirits-wholesalers-illinois-employ-more-3500-americans-earning-332-million-wages-new",
+   "note": "PAC of Illinois wine and spirits wholesalers' trade group"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "ALBERT MAJORITY FUND",
+   "industry_slug": "leadership_pacs",
+   "confidence": "medium",
+   "source_url": "https://www.mha.org/wp-content/uploads/2025/01/MI-disbursement-report.pdf",
+   "note": "Michigan legislator fund, likely Sen. Thomas Albert's"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Steamfitters Local Union 449",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.nlrb.gov/case/06-CB-264440",
+   "note": "Pittsburgh steamfitters union Local 449"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "PNC PAC",
+   "industry_slug": "finance_investment",
+   "confidence": "high",
+   "source_url": "https://www.pnc.com/en/about-pnc/corporate-responsibility/responsible-business/managing-responsibly/political-standards.html",
+   "note": "Employee PAC of PNC Financial Services bank"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "West Virginia Health Care PAC",
+   "industry_slug": "healthcare",
+   "confidence": "medium",
+   "source_url": "https://apps.sos.wv.gov/elections/pac-search/pac.aspx?id=187",
+   "note": "PAC of West Virginia Health Care Association (long-term care)"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "PA THA PAC (THOROUGHBRED HORSEMEN)",
+   "industry_slug": "gambling_and_casinos",
+   "confidence": "medium",
+   "source_url": "https://patha.org/about/",
+   "note": "PAC of Pennsylvania thoroughbred racehorse owners and trainers"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "CWA District One PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://cwad1.org/content/29076",
+   "note": "PAC of Communications Workers of America District 1"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Empower Pharma LLC PAC",
+   "industry_slug": "pharmaceuticals",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00311639/pac-donations/C00814798",
+   "note": "PAC of Houston compounding pharmacy Empower"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "JEWISH AGENCY POLITICAL ACTION COMMITTEE",
+   "industry_slug": "other_issue_groups",
+   "confidence": "medium",
+   "source_url": "https://digital.bentley.umich.edu/djnews/djn.1992.05.01.001/1/download_text",
+   "note": "Detroit Jewish community PAC backing Federation agency programs"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "PFT Committee to Support Public Education",
+   "industry_slug": "labor_unions",
+   "confidence": "medium",
+   "source_url": "https://vote.phila.gov/archive/candidates-a-campaigns/campaign-finance-reports/item/2065.html",
+   "note": "Philadelphia Federation of Teachers political committee"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "EnPAC Texas",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://pac.org/wp-content/uploads/PAC-Brochure_Entergy.pdf",
+   "note": "Entergy electric utility employees' Texas PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "MICHIGAN RESTAURANT AND LODGING ASSOCIATION POLITICAL ACTION COMMITTEE",
+   "industry_slug": "hospitality",
+   "confidence": "high",
+   "source_url": "https://www.mrla.org/political-action-committee.html",
+   "note": "Michigan Restaurant & Lodging Association PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Manufacturers PAC of Texas",
+   "industry_slug": "manufacturing",
+   "confidence": "high",
+   "source_url": "https://www.gregabbott.com/texas-building-manufacturing-organizations-endorse-greg-abbott-governor/",
+   "note": "Political arm of Texas Association of Manufacturers"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "GHBA HOME-PAC",
+   "industry_slug": "construction",
+   "confidence": "medium",
+   "source_url": "https://capitol.texas.gov/tlodocs/88R/billtext/html/HR00691F.htm",
+   "note": "PAC of Greater Houston Builders Association, home builders trade group"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "MICHIGAN CHAMBER POLITICAL ACTION COMMITTEE",
+   "industry_slug": "business_associations",
+   "confidence": "high",
+   "source_url": "https://www.michamber.com/pac",
+   "note": "Michigan Chamber of Commerce PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Halff Associates State PAC",
+   "industry_slug": "construction",
+   "confidence": "medium",
+   "source_url": "https://www.signalhire.com/companies/halff-associates",
+   "note": "Employee PAC of Halff, Texas engineering and architecture firm"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "united Association local union 524",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.nlrb.gov/case/04-CB-207397",
+   "note": "Plumbers and pipefitters union local in Scranton PA"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "TRIAL PAC",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "high",
+   "source_url": "https://alabamajustice.org/trial-pac",
+   "note": "Alabama Association for Justice trial lawyers' PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "UNITED PARCEL SERVICE INC PAC (UPSPAC)",
+   "industry_slug": "transportation",
+   "confidence": "high",
+   "source_url": "https://investors.ups.com/corporategovernance/political-engagement-policy",
+   "note": "UPS company employee PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "PMA PAC",
+   "industry_slug": "manufacturing",
+   "confidence": "high",
+   "source_url": "https://pamanufacturers.org/blog/tag/jack-london-endorsement/",
+   "note": "PAC of Pennsylvania Manufacturers' Association"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "USACS PAC",
+   "industry_slug": "healthcare",
+   "confidence": "medium",
+   "source_url": "https://www.acepnow.com/article/national-emergency-medicine-political-action-committee-activities-at-acep15-recognize-donors-highlight-aceps-2016-agenda/",
+   "note": "PAC of US Acute Care Solutions, physician-owned emergency medicine group"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "AFSCME Michigan",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://bridgemi.com/michigan-government/afscme-puts-michigans-council-25-receivership-dismaying-local-officials/",
+   "note": "AFSCME public employees union, Michigan"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texas Food & Fuel Assn. - PAC",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "medium",
+   "source_url": "https://mydigitalpublication.com/article/CHAIRMAN%27S+MESSAGE/3837978/687330/article.html",
+   "note": "PAC of Texas fuel marketers and convenience stores association"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "TRIAL",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "high",
+   "source_url": "https://alabamajustice.org/trial-pac",
+   "note": "TRIAL, Alabama Association for Justice trial lawyers' PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "HDR INC EMPLOYEE OWNERS PAC",
+   "industry_slug": "construction",
+   "confidence": "medium",
+   "source_url": "https://resource.geospatialworld.net/company/hdr-inc",
+   "note": "Employee PAC of HDR, engineering and architecture firm"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "HDCC Incumbent Protection Fund",
+   "industry_slug": "democratic_party_groups",
+   "confidence": "high",
+   "source_url": "https://www.texastribune.org/2020/10/05/texas-house-democratic-campaign-fundraising",
+   "note": "Texas House Democratic Campaign Committee fund"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "MALADY & WOOTEN PAC",
+   "industry_slug": "accounting_and_consulting",
+   "confidence": "high",
+   "source_url": "https://malady-wooten.com/about-us-malady-wooten/",
+   "note": "PAC of Harrisburg lobbying firm Malady & Wooten"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Eli Lilly and Company Political Action Committee",
+   "industry_slug": "pharmaceuticals",
+   "confidence": "high",
+   "source_url": "https://www.lilly.com/about/our-views/public-policy/political-participation",
+   "note": "Eli Lilly drugmaker company PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "ALABAMA DEVELOPMENT PAC",
+   "industry_slug": "business_associations",
+   "confidence": "medium",
+   "source_url": "https://birminghamwatch.org/pacs-whos-behind-pacronyms/",
+   "note": "Economic development PAC; construction, real estate, development donors"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "1776 PAC (UFCW)",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.influencewatch.org/labor-union/ufcw-local-1776/",
+   "note": "PAC of UFCW Local 1776 grocery workers union"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Rural Friends of Texas Electric Cooperatives",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://tcectexas.com/rural-friends-endorses-glenn-rogers",
+   "note": "PAC of Texas electric cooperatives"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Enterprise Products Partners Texas PAC",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00567081/pac-donations/C00496752",
+   "note": "Enterprise Products Partners pipeline company PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Friends of UT Southwestern Medical Center",
+   "industry_slug": "healthcare",
+   "confidence": "medium",
+   "source_url": "https://ethics.state.tx.us/data/search/lobby/2017/2017Pol_FundsByEntity.pdf",
+   "note": "Political fund supporting UT Southwestern Medical Center"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "AFSCME Council 13 Pol &amp; Leg Acct",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://afscme13.org/news/afscme-council-13-endorses-candidates-for-pennsylvanias-row-offices",
+   "note": "AFSCME Council 13 Pennsylvania public employees union"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Lone Star Project Nonfederal",
+   "industry_slug": "democratic_party_groups",
+   "confidence": "medium",
+   "source_url": "https://wfaa.com/article/news/politics/inside-politics/texas-politics/colin-allred-v-ted-cruz-close-race-democratic-strategist/287-02bd6f46-a36f-46f0-b8d9-a4a860cc6314",
+   "note": "Matt Angle group working to elect Texas Democrats"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "LOCAL 66 PAC CLUB - INTERNATIONAL UNION OF OPERATING ENGINEERS",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00446443/2016/pac-donations",
+   "note": "Operating Engineers union Local 66, western Pennsylvania"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "The American Electric Power - Texas - Committee for Responsible Government",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://energyandpolicy.org/aep-campaign-contributions-hb-6/",
+   "note": "American Electric Power utility company PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Nextera Energy PAC",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://www.investor.nexteraenergy.com/corporate-governance/corporate-political-engagement",
+   "note": "NextEra Energy utility company PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "DELDIN LAW PAC",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "medium",
+   "source_url": "https://www.themodernfirm.com/portfolio/mt-clemens-mi-firm/",
+   "note": "PAC of Deldin Law, Mt. Clemens Michigan law firm"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "United Mine Workers of America Coal Miners PAC (UMWA PAC)",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://umwa.org/news-media/press/compac/",
+   "note": "United Mine Workers union PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Marathon Petroleum Corp Employees PAC",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://marathonpetroleum.com/Sustainability/Political-Engagement/",
+   "note": "Marathon Petroleum refiner employee PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "PHHA PAC",
+   "industry_slug": "gambling_and_casinos",
+   "confidence": "medium",
+   "source_url": "https://www.phha.org/paharness/archives/01-2026",
+   "note": "PAC of PA Harness Horsemen's Association, racehorse owners in wagering industry"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texas Nurse Practitioners PAC",
+   "industry_slug": "healthcare",
+   "confidence": "medium",
+   "source_url": "https://harriscollege.tcu.edu/stories/2023/legislative-advocacy-drives-change-for-nursing-profession-at-texas-dnp-conference.php",
+   "note": "PAC of Texas Nurse Practitioners professional group"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "West Virginia Chamber of Commerce (The Chamber PAC)",
+   "industry_slug": "business_associations",
+   "confidence": "high",
+   "source_url": "https://wvchamber.com/west-virginia-chamber-of-commerce-pac-announces-first-round-of-endorsements-in-2026-primary-elections/",
+   "note": "West Virginia Chamber of Commerce PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "PA HBPA PAC",
+   "industry_slug": "gambling_and_casinos",
+   "confidence": "medium",
+   "source_url": "https://thoroughbreddailynews.com/hbpa-aims-for-penn-national-to-open-before-casino-at-same-purse-levels/",
+   "note": "PA Thoroughbred horsemen's group; racing purses funded by casinos"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Santarsiero for State Senate",
+   "industry_slug": "candidate_committees",
+   "confidence": "high",
+   "source_url": "https://www.senatorstevesantarsiero.com/senator-santarsiero-sworn-into-the-state-senate-for-his-second-term-in-office/",
+   "note": "Campaign committee of PA state Sen. Steve Santarsiero"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "MAXPAC",
+   "industry_slug": "accounting_and_consulting",
+   "confidence": "medium",
+   "source_url": "https://birminghamwatch.org/pacs-whos-behind-pacronyms/",
+   "note": "PAC of Montgomery lobbyists Clark Fine and Bob Geddie"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "MICHIGAN HOUSE DEMOCRATIC FUND",
+   "industry_slug": "democratic_party_groups",
+   "confidence": "high",
+   "source_url": "https://www.idealist.org/en/nonprofit/bd45c23682294d78a3888fef7b3821c8-michigan-house-democratic-fund-lansing",
+   "note": "Campaign arm of Michigan House Democratic Caucus"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "PA Medical PAC",
+   "industry_slug": "healthcare",
+   "confidence": "high",
+   "source_url": "https://www.pamedsoc.org/pampac",
+   "note": "Pennsylvania Medical Society physicians' PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "SARAH ANTHONY LEADERSHIP FUND PAC",
+   "industry_slug": "leadership_pacs",
+   "confidence": "medium",
+   "source_url": "https://lansingcitypulse.com/sen-sarah-anthony-recognized-with-michigan-civil-rights-commission-award/",
+   "note": "Leadership PAC of Michigan Sen. Sarah Anthony"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Retailers of Alabama PAC",
+   "industry_slug": "retail",
+   "confidence": "medium",
+   "source_url": "https://alabamaretail.org/association/about/federal-and-state-disclosures/",
+   "note": "Retail PAC of Alabama Retail Association"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Manhattan Beer Distributors LLC NYS PAC",
+   "industry_slug": "beer_wine_and_spirits",
+   "confidence": "high",
+   "source_url": "https://en.wikipedia.org/wiki/Manhattan_Beer_Distributors",
+   "note": "PAC of New York beer distributor"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Associated Builders & Contractors of Texas PAC",
+   "industry_slug": "construction",
+   "confidence": "high",
+   "source_url": "https://www.gregabbott.com/abc-texas-pac-endorses-greg-abbott-governor/",
+   "note": "PAC of Texas merit-shop construction contractors' trade group"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Police Benevolent Association of the Cit",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://en.wikipedia.org/wiki/Police_Benevolent_Association_of_the_City_of_New_York",
+   "note": "NYC police officers' union PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Troopers Association PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "medium",
+   "source_url": "https://freebeacon.com/democrats/a-pennsylvania-police-union-that-once-endorsed-sen-bob-casey-is-backing-his-gop-challenger/",
+   "note": "Pennsylvania State Troopers Association, the state police union"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "MI GREENSTONE PAC",
+   "industry_slug": "agriculture_and_food",
+   "confidence": "medium",
+   "source_url": "https://www.greenstonefcs.com/resources/partners-magazine/2025/2025-Fall/pac-progress",
+   "note": "GreenStone Farm Credit PAC funded by farm-credit members, backs agriculture"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "SHEET METAL WORKERS LOCAL 7 PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.nlrb.gov/case/07-RC-206757",
+   "note": "SMART Sheet Metal Workers Local 7, Lansing union"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "APSCUF/CAP (ASSN PA ST COL/UNIV FACL)",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.apscuf.org/why-cap-matters-the-right-to-work-for-less/",
+   "note": "Political arm of PA state university faculty union"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Illinois Road Builders PAC",
+   "industry_slug": "construction",
+   "confidence": "medium",
+   "source_url": "https://www.fec.gov/data/committee/C00338327/",
+   "note": "Illinois Road & Transportation Builders Association, road construction trade group"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Union Pacific Corporation Fund for Efffective Government",
+   "industry_slug": "transportation",
+   "confidence": "high",
+   "source_url": "https://www.fec.gov/data/committee/C00010470/",
+   "note": "Union Pacific railroad corporate PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "ALLEGAN COUNTY DEMOCRATIC PARTY",
+   "industry_slug": "democratic_party_groups",
+   "confidence": "high",
+   "source_url": "https://bluevoterguide.org/endorser-org/Allegan_County_(MI)_Democratic_Party/MI/5494",
+   "note": "County Democratic Party committee in Michigan"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "HUNTINGTON NATIONAL BANK-MICHIGAN POLITICAL ACTION COMMITTEE",
+   "industry_slug": "finance_investment",
+   "confidence": "high",
+   "source_url": "https://www.huntington.com/About-Us/government-relations",
+   "note": "Huntington Bank employee PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texas Society Of Certified Public Accountants PAC",
+   "industry_slug": "accounting_and_consulting",
+   "confidence": "high",
+   "source_url": "https://www.tx.cpa/advocacy/cpa-pac",
+   "note": "PAC of Texas CPAs' professional society"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Climate Cabinet",
+   "industry_slug": "environmental_group",
+   "confidence": "high",
+   "source_url": "https://www.volts.wtf/p/using-a-moneyball-approach-to-elect",
+   "note": "Climate group backing pro-climate state legislative candidates"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "SMALL BUSINESS ASSOCIATION OF MICHIGAN",
+   "industry_slug": "business_associations",
+   "confidence": "high",
+   "source_url": "https://www.sbam.org/small-biz-pac-endorses-initial-round-of-2024-michigan-house-candidates/",
+   "note": "Michigan small-business association PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Int'l Union of Operating Engineers Local 542 Political Action Fund",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://bluevoterguide.org/endorser-org/International_Union_of_Operating_Engineers_(IUOE)_Local_542/PA/9791",
+   "note": "Operating Engineers Local 542 union political fund"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Steamfitters Local Union 420 PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://northeasttimes.com/t/steamfitters-local-420/",
+   "note": "Philadelphia steamfitters union local PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "AWBA PAC",
+   "industry_slug": "beer_wine_and_spirits",
+   "confidence": "high",
+   "source_url": "https://birminghamwatch.org/pacs-whos-behind-pacronyms/",
+   "note": "Alabama Wholesale Beer Association PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Local Union 712 IBEW COPE",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.nlrb.gov/case/06-CB-275567",
+   "note": "IBEW Local 712 electricians union, Beaver PA"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "TRUST REPRESENTING INVOLVED ALABAMA LAWYERS",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "high",
+   "source_url": "https://alabamajustice.org/trial-pac",
+   "note": "TRIAL PAC of Alabama Association for Justice trial lawyers"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "CRNA PAC of WV",
+   "industry_slug": "healthcare",
+   "confidence": "medium",
+   "source_url": "https://www.newswise.com/articles/west-virginia-recognizes-autonomy-of-crnas-with-new-state-law",
+   "note": "PAC of West Virginia nurse anesthetists"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Iron Workers Political Action League",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://lsc-pagepro.mydigitalpublication.com/article/Working+Together+To+Deliver+Political+Results/3280725/556965/article.html",
+   "note": "Ironworkers union political fund"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "ASSOCIATED BUILDERS AND CONTRACTORS PAC",
+   "industry_slug": "construction",
+   "confidence": "high",
+   "source_url": "https://justfacts.votesmart.org/interest-group/2357/associated-builders-and-contractors-of-michigan",
+   "note": "Michigan merit-shop construction contractors' trade group PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Comcast Corp & NBC Universal PAC",
+   "industry_slug": "telecommunications",
+   "confidence": "high",
+   "source_url": "https://dev.littlesis.org/org/30196-Comcast_Corp_&_NBC_Universal_PAC/interlocks",
+   "note": "Comcast cable/broadband and NBCUniversal corporate PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Elevance Health PAC",
+   "industry_slug": "insurance",
+   "confidence": "high",
+   "source_url": "https://www.fec.gov/data/committee/C00197228/",
+   "note": "Corporate PAC of health insurer Elevance Health"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Alabama Credit Union Legislative Action Council",
+   "industry_slug": "finance_investment",
+   "confidence": "high",
+   "source_url": "https://birminghamwatch.org/pacs-whos-behind-pacronyms/",
+   "note": "Credit union league's Alabama state PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "WVTA-PAC (West Virginia Troopers Association)",
+   "industry_slug": "labor_unions",
+   "confidence": "medium",
+   "source_url": "https://www.wvtroopers.org/about/wvta-objectives",
+   "note": "West Virginia state troopers' member association PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Centerpoint Energy PAC",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://energyandpolicy.org/https-energyandpolicy-org-texas-utility-pac/",
+   "note": "CenterPoint Energy utility corporate PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "UNITE AMERICA PAC",
+   "industry_slug": "centrist_groups",
+   "confidence": "high",
+   "source_url": "https://uniteamerica.org/about",
+   "note": "Nonpartisan primary-reform group backing anti-polarization candidates"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "IBEW Local 654 PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.nlrb.gov/case/04-CB-010379",
+   "note": "IBEW Local 654 electricians union, Chester PA"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "PLUMBERS AND PIPEFITTERS LOCAL 333 PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.charitynavigator.org/ein/383418294",
+   "note": "UA Plumbers and Pipefitters Local 333 union, Lansing"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "MICHIGAN LIST",
+   "industry_slug": "womens_groups",
+   "confidence": "high",
+   "source_url": "https://milist.org",
+   "note": "Elects pro-choice Democratic women in Michigan"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "McGuireWoods Federal PAC",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "high",
+   "source_url": "https://calmatters.digitaldemocracy.org/organizations/-20249",
+   "note": "PAC of law firm McGuireWoods LLP"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "TROOPERS POLITICAL ACTION COMMITTEE",
+   "industry_slug": "labor_unions",
+   "confidence": "medium",
+   "source_url": "https://www.wilx.com/2025/06/09/michigan-state-police-troopers-association-vote-no-confidence-state-police-leaders/",
+   "note": "Michigan State Police Troopers Association, troopers' union"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "McKesson Corporation Employees Political Fund",
+   "industry_slug": "pharmaceuticals",
+   "confidence": "high",
+   "source_url": "https://www.fec.gov/data/committee/C00108035/?cycle=2026",
+   "note": "Corporate PAC of drug distributor McKesson"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "SEIU District 1199 PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://wvpress.org/?p=34037",
+   "note": "SEIU healthcare workers union, WV/KY/OH"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Illinois PAC for Education (IPACE)",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://ieanea.org/legislative/ipace/about-ipace/",
+   "note": "Illinois Education Association teachers union PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "USAA Employee PAC",
+   "industry_slug": "insurance",
+   "confidence": "high",
+   "source_url": "https://www.fec.gov/files/legal/murs/7875/7875_05.pdf",
+   "note": "Employee PAC of USAA insurance and financial services"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "The Home Depot Action Committee",
+   "industry_slug": "retail",
+   "confidence": "high",
+   "source_url": "https://www.fec.gov/data/committee/C00284885/",
+   "note": "Home Depot home-improvement retailer corporate PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texas Oral and Maxillofacial Surgeons Political Action Committee",
+   "industry_slug": "healthcare",
+   "confidence": "high",
+   "source_url": "https://www.zeffy.com/donation-form/test-run",
+   "note": "TOMSPAC, Texas oral surgeons' PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "WASTE MANAGEMENT EMPLOYEES BETTER GOVERNMENT FUND OF MICHIGAN",
+   "industry_slug": "waste_management",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00027466/pac-donations/C00119008",
+   "note": "Waste Management Inc. employee PAC, Michigan"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "ALABAMA VOICE OF TEACHERS FOR EDUCATION PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://encyclopediaofalabama.org/?p=16259",
+   "note": "A-VOTE, Alabama Education Association teachers' PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texas Stock Exchange | TXSE Group PAC",
+   "industry_slug": "finance_investment",
+   "confidence": "medium",
+   "source_url": "https://www.texastribune.org/2024/06/05/texas-stock-exchange/.",
+   "note": "PAC of TXSE Group, Dallas stock exchange company"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Pennsylvania Thoroughbred Horsemen's Association PAC",
+   "industry_slug": "gambling_and_casinos",
+   "confidence": "medium",
+   "source_url": "https://patha.org/about-the-ptha",
+   "note": "Owners and trainers at Parx Racing; horse-racing interests tied to track gaming"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Stateside Brands PAC",
+   "industry_slug": "beer_wine_and_spirits",
+   "confidence": "high",
+   "source_url": "https://www.inquirer.com/food/drink/stateside-vodka-super-lyte-canned-cocktails-20260311.html",
+   "note": "Philadelphia maker of Stateside Vodka and Surfside canned cocktails"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Teamsters Local 830 PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://fox29.com/news/teamsters-local-830-on-strike-against-liberty-coca-cola-in-philadelphia",
+   "note": "Philadelphia Teamsters local union"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Texas Restaurant Association Political Action Committee",
+   "industry_slug": "hospitality",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/nonprofits/organizations/740921350",
+   "note": "PAC of the Texas Restaurant Association trade group"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "PA Building &amp; Construction Trades Council",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://justfacts.votesmart.org/interest-group/2605/pennsylvania-state-building-and-construction-trades-council",
+   "note": "Statewide council of Pennsylvania construction unions"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "HONIGMAN PAC",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "high",
+   "source_url": "https://en.wikipedia.org/wiki/Honigman_LLP",
+   "note": "PAC of Honigman, Detroit-based business law firm"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "ELEVANCE HEALTH, INC. POLITICAL ACTION COMMITTEE",
+   "industry_slug": "insurance",
+   "confidence": "high",
+   "source_url": "https://s202.q4cdn.com/665319960/files/doc_downloads/2024/03/2023-elevance-health-pac-political-giving-and-related-activity-report-final.pdf",
+   "note": "PAC of Elevance Health, health insurer (formerly Anthem)"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Austin Fire Fighters PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://austinmonitor.com/stories/2021/01/austin-firefighters-donate-to-protect-pensions/",
+   "note": "PAC of the Austin Firefighters Association union"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Intl. Association of Bridge Structural Ornamental Iron Workers Local 405",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.phila.gov/2025-08-14-city-leaders-and-the-ironworkers-union-celebrate-10-new-ironworkers-ready-to-build-phillys-future/",
+   "note": "Philadelphia Ironworkers union local"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Int'l Brotherhood of Electrical Workers (IBEW PAC Voluntary Fund)",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://watransparency.com/org/o-ibew-pac-voluntary-fund",
+   "note": "National IBEW electrical workers union PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "NextDecade Corporation Political Action Committee",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://lngprime.com/americas/nextdecade-officially-kicks-off-rio-grande-lng-work/93881",
+   "note": "PAC of NextDecade, Texas LNG export developer"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Citigroup Inc. Political Action Committee - State",
+   "industry_slug": "finance_investment",
+   "confidence": "high",
+   "source_url": "https://www.citigroup.com/rcs/citigpa/storage/public/2025-political-engagement-report.pdf",
+   "note": "Citigroup's state-level corporate PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Exxon Mobil Corporation Political Action Committee of Texas",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://www.exxonmobil.co.uk/Company/Overview/Accountability/Political-contributions-and-lobbying",
+   "note": "ExxonMobil's employee PAC for Texas"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "I.B.E.W. New York PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://local3ibew.org/node/6038",
+   "note": "IBEW electrical workers union PAC in New York"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "PABPAC (PENNSYLVANIA BANKERS PUBLIC AFFAIRS COMMITTEE)",
+   "industry_slug": "finance_investment",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/nonprofits/organizations/230954926",
+   "note": "PAC of the Pennsylvania Bankers Association"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "PROGRESSIVE WOMENS ALLIANCE OF WEST MICHIGAN",
+   "industry_slug": "womens_groups",
+   "confidence": "high",
+   "source_url": "https://secure.actblue.com/donate/progressive-women-s-alliance-of-west-michigan-1",
+   "note": "Grand Rapids PAC electing progressive candidates, promoting women's leadership"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "ESAAL - PAC",
+   "industry_slug": "healthcare",
+   "confidence": "high",
+   "source_url": "https://open.nysenate.gov/sites/default/files/empire_state_association_of_assisted_living_esaal.pdf",
+   "note": "PAC of Empire State Association of Assisted Living providers"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Woolpert, Inc PAC",
+   "industry_slug": "construction",
+   "confidence": "medium",
+   "source_url": "https://woolpert.com/about/",
+   "note": "PAC of Woolpert, architecture, engineering and geospatial firm"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "KOCHPAC - KOCH, INC. Political Action Committee",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "medium",
+   "source_url": "https://en.wikipedia.org/wiki/KochPAC",
+   "note": "PAC of Koch Industries, refining/energy-led conglomerate"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Wawa Inc. Political Action Committee",
+   "industry_slug": "retail",
+   "confidence": "high",
+   "source_url": "https://thedp.com/article/2018/10/wawa-pac-scott-wagner-philadelphia-governor-race-pennsylvania",
+   "note": "PAC of Wawa convenience store chain"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Local #628 I.A.F.F. Mutual Aid Associati",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://en.wikipedia.org/wiki/Yonkers_Fire_Department",
+   "note": "Yonkers firefighters union IAFF Local 628"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Plumbers and Pipefitters Local 520 PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://hirevets.shrm.org/employer/profile/63c8250623bce30034199437/local-520-jatc",
+   "note": "Harrisburg plumbers and pipefitters union local"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "TX Diamondback Energy, Inc. Political Action Committee",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://www.sec.gov/Archives/edgar/data/0001539838/000153983817000076/q12017diamondback10-q.htm",
+   "note": "PAC of Diamondback Energy, Permian oil producer"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Penn Entertainment Inc. Texas Political Action Committee",
+   "industry_slug": "gambling_and_casinos",
+   "confidence": "high",
+   "source_url": "https://en.wikipedia.org/wiki/Penn_Entertainment",
+   "note": "PAC of Penn Entertainment, casino and sports betting company"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "STEAMFITTERS LOCAL UNION NO. 420",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://cisleads.com/company/details/18164",
+   "note": "Philadelphia steamfitters union local"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "LOCAL UNION #9 IBEW COMMITTEE ON POLITICAL EDICATION",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://en.wikipedia.org/wiki/International_Brotherhood_of_Electrical_Workers",
+   "note": "IBEW Local 9 electrical workers union political fund"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Southwest Business Corporation PAC",
+   "industry_slug": "finance_investment",
+   "confidence": "medium",
+   "source_url": "https://en.Wikipedia.com/wiki/SWBC",
+   "note": "PAC of SWBC, San Antonio insurance/mortgage/investment firm"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Deloitte Political Action Committee",
+   "industry_slug": "accounting_and_consulting",
+   "confidence": "high",
+   "source_url": "https://www.fec.gov/data/committee/C00211318/?cycle=2024",
+   "note": "PAC of Deloitte accounting and consulting firm"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Oncor Political Action Committee of Oncor Electric Delivery Administration Corp.",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://www.fec.gov/data/committee/C00487447/?cycle=2026",
+   "note": "PAC of Oncor, Texas electric utility"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "IBEW Local Union 743",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://business.greaterreading.org/list/member/ibew-local-union-743-3143",
+   "note": "Reading-area IBEW electricians union local"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "LOCAL UNION 98 IBEW COPE",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.fec.gov/data/committee/C00162818/?cycle=2020",
+   "note": "Philadelphia IBEW Local 98 union political fund"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Petrarca Election Committee",
+   "industry_slug": "candidate_committees",
+   "confidence": "medium",
+   "source_url": "https://en.wikipedia.org/wiki/Joseph_Petrarca_Jr.",
+   "note": "Campaign committee of former PA Rep. Joe Petrarca"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "New York School Bus Contractors Associat",
+   "industry_slug": "transportation",
+   "confidence": "high",
+   "source_url": "https://stnonline.com/industry-releases/new-york-school-bus-contractors-association-honors-excellence-with-2025-industry-awards/",
+   "note": "Trade group of private school bus operators"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "ORTHO PAC (PA ORTHOPAEDIC SOC)",
+   "industry_slug": "healthcare",
+   "confidence": "high",
+   "source_url": "https://paorthosociety.org/resident-fellow-members",
+   "note": "PAC of the Pennsylvania Orthopaedic Society surgeons"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "The Business Council PAC Inc.",
+   "industry_slug": "business_associations",
+   "confidence": "high",
+   "source_url": "https://www.bcnys.org/node/8051",
+   "note": "PAC of The Business Council of New York State"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "NextEra Energy, Inc. Political Action Committee",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://www.investor.nexteraenergy.com/corporate-governance/corporate-political-engagement",
+   "note": "PAC of NextEra Energy, electric utility company"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "US Oncology Inc. Network Political Action Committee",
+   "industry_slug": "healthcare",
+   "confidence": "high",
+   "source_url": "https://www.fec.gov/data/committee/C00339655/",
+   "note": "PAC of US Oncology Network cancer care company"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "MTA PBA PAC",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.Wikipedia.com/wiki/MTA_Police",
+   "note": "MTA police officers' union"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Nurse Anesthesia CRNA PAC Fund",
+   "industry_slug": "healthcare",
+   "confidence": "high",
+   "source_url": "https://www.nysana.com/assets/PAC/Nurse%20Anesthesia%20CRNA%20PAC%20FAQs%20-%20Final.pdf",
+   "note": "PAC of New York State Association of Nurse Anesthetists"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Valero PAC",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://www.sec.gov/Archives/edgar/data/0001035002/000095013409005563/d66757def14a.htm",
+   "note": "PAC of Valero Energy, oil refiner"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Uniformed Firefighters Association - FIR",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.fec.gov/data/committee/C00254193/",
+   "note": "PAC of NYC Uniformed Firefighters Association union"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "MILLER CANFIELD PAC",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "high",
+   "source_url": "https://en.wikipedia.org/wiki/Miller,_Canfield,_Paddock_and_Stone",
+   "note": "PAC of Miller Canfield, Detroit law firm"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Nucor Corp Political Action Committee",
+   "industry_slug": "manufacturing",
+   "confidence": "high",
+   "source_url": "https://nucor.com/wp-content/uploads/Political-Disclosures-and-Lobby-Oversight-Report.pdf",
+   "note": "PAC of Nucor steel manufacturer"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "United Parcel Service Inc. PAC",
+   "industry_slug": "transportation",
+   "confidence": "high",
+   "source_url": "https://investors.ups.com/corporategovernance/political-engagement-policy",
+   "note": "UPS employee PAC, package delivery company"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "JASON MORGAN MAJORITY FUND",
+   "industry_slug": "leadership_pacs",
+   "confidence": "high",
+   "source_url": "https://secure.actblue.com/donate/jason-morgan-majority-fund-1",
+   "note": "Rep. Jason Morgan's fund for a Democratic Michigan House majority"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "CenterPoint Energy, Incorporated Political Action Committee",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://pac.org/wp-content/uploads/PAC-Brochure_CenterPoint-Energy.pdf",
+   "note": "CenterPoint Energy utility employee PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Allstate Insurance Company PAC",
+   "industry_slug": "insurance",
+   "confidence": "high",
+   "source_url": "https://allstatepac.aristotle.com",
+   "note": "Allstate insurer employee PAC (ALLPAC)"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "CSA COPE PAC Fund",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://csa-nyc.org/?p=967",
+   "note": "NYC school supervisors union (CSA) political education committee"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "CAIPA PAC",
+   "industry_slug": "healthcare",
+   "confidence": "medium",
+   "source_url": "https://assembly.ny.gov/mem/Nily-Rozic/story/113135",
+   "note": "Coalition of Asian-American IPA, NY physician network"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "CEIPAC",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://www.conedison.com/en/about-us/corporate-governance/engagement-and-lobbying/political-engagement",
+   "note": "Con Edison utility employees PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Comcast Corporation & NBCUniversal Political Action Committee",
+   "industry_slug": "telecommunications",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00248716/2026",
+   "note": "Comcast/NBCUniversal corporate PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "New York Hotel Trades Council Committee",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://hotelworkers.org/news/nyc-hotel-workers-seize-political-influence-at-key-moment-for-citys-recovery-bloomberg",
+   "note": "Hotel and Gaming Trades Council union"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Cordo & Company LLC PAC Account",
+   "industry_slug": "accounting_and_consulting",
+   "confidence": "high",
+   "source_url": "https://coap.gaming.ny.gov/pdf/2022-05-03 Cordo & Company, LLC.pdf",
+   "note": "Albany lobbying firm PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Shenker Russo & Clark LLP PAC",
+   "industry_slug": "accounting_and_consulting",
+   "confidence": "high",
+   "source_url": "https://www.srclawoffices.com/news/new-law-firm-created-to-serve-new-yorks-changing-political-and-business-landscape/",
+   "note": "Albany government-affairs/lobbying firm PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "New York Insurance Association Inc. PAC",
+   "industry_slug": "insurance",
+   "confidence": "high",
+   "source_url": "https://www.guidestar.org/Profile/16-1521843",
+   "note": "NY property/casualty insurers trade association"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Montefiore PAC",
+   "industry_slug": "healthcare",
+   "confidence": "medium",
+   "source_url": "https://www.cityandstateny.com/politics/2024/06/yet-another-former-bronx-lawmaker-joins-montefiore/397150/",
+   "note": "Montefiore hospital system PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Long Island Builders PAC",
+   "industry_slug": "construction",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/nonprofits/organizations/111524087",
+   "note": "Long Island Builders Institute home-builders association"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "RPAC of New York State",
+   "industry_slug": "real_estate",
+   "confidence": "high",
+   "source_url": "https://www.nysar.com/wp-content/uploads/2024/01/2024_Realtor_Party_Playbook.pdf",
+   "note": "NY State Association of Realtors PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "BTEA PAC",
+   "industry_slug": "construction",
+   "confidence": "high",
+   "source_url": "https://www.guidestar.org/Profile/13-1835634",
+   "note": "Building Trades Employers' Association, NYC union contractors"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "International Game Technology (IGT PAC)",
+   "industry_slug": "gambling_and_casinos",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00309146/pac-donations/C00316331",
+   "note": "Gaming-machine and lottery company PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "National Beer Wholesalers Association Po",
+   "industry_slug": "beer_wine_and_spirits",
+   "confidence": "high",
+   "source_url": "https://en.wikipedia.org/wiki/National_Beer_Wholesalers_Association",
+   "note": "Beer distributors trade association PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Pepsi Cola Bottlers PAC",
+   "industry_slug": "agriculture_and_food",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00243428/pac-donations/C00122671",
+   "note": "Pepsi-Cola bottlers association PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Partners Of Harris Beach PAC",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "high",
+   "source_url": "https://en.wikipedia.org/wiki/Harris_Beach_Murtha",
+   "note": "Harris Beach law firm partners PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Transport Workers Union Local 100",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://kathyhochul.com/?p=1604",
+   "note": "NYC transit workers union"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Greater New York Auto Dealers Associatio",
+   "industry_slug": "automotive",
+   "confidence": "high",
+   "source_url": "https://www.gnyada.com/federal-state-local-advocacy-paf/pac-private",
+   "note": "Greater NY car dealers association"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Molina Healthcare New York PAC",
+   "industry_slug": "healthcare",
+   "confidence": "high",
+   "source_url": "https://www.fec.gov/data/committee/C00430256/?cycle=2026",
+   "note": "Molina Medicaid health plan company PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Metropolitan Package Store Association P",
+   "industry_slug": "beer_wine_and_spirits",
+   "confidence": "high",
+   "source_url": "https://dhclegal.com/client-spotlight-metro-package-store-association/",
+   "note": "Independent liquor retailers association"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "American Federation of Teachers",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://cbsaustin.com/news/nation-world/teacher-unions-contribute-millions-to-dems-state-campaigns-american-federation-of-teachers-national-education-association-membership-dues-unions-department-of-labor-blue-red-states",
+   "note": "National teachers union"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "BIECA PAC INC.",
+   "industry_slug": "construction",
+   "confidence": "medium",
+   "source_url": "https://bieca.net/",
+   "note": "Building Industry Electrical Contractors Association"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "New York Anesthesiologists",
+   "industry_slug": "healthcare",
+   "confidence": "high",
+   "source_url": "https://dev.littlesis.org/org/364344-New_York_Anesthesiologists_Political_Action_Committee/giving",
+   "note": "NY State Society of Anesthesiologists PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Opportunity Ed PAC",
+   "industry_slug": "education",
+   "confidence": "medium",
+   "source_url": "https://www.opportunityedpac.org/",
+   "note": "Parents PAC for nonpublic (religious) school students"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Rock Holdings Inc. State PAC - NY",
+   "industry_slug": "finance_investment",
+   "confidence": "high",
+   "source_url": "https://cfreports.elections.virginia.gov/Report/ReportPDF/366345",
+   "note": "Rocket Mortgage parent company state PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "The Hartford Financial Services Group I",
+   "industry_slug": "insurance",
+   "confidence": "high",
+   "source_url": "https://www.sec.gov/Archives/edgar/data/874766/000087476624000049/hig-20240405.htm",
+   "note": "The Hartford insurer employee PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "NYSEIA Solar PAC",
+   "industry_slug": "oil_gas_energy",
+   "confidence": "high",
+   "source_url": "https://www.nyseia.org/nyseia-solar-pac",
+   "note": "NY solar industry trade association PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Holland & Knight Committee For Responsib",
+   "industry_slug": "lawyers_and_legal_services",
+   "confidence": "medium",
+   "source_url": "https://en.wikipedia.org/wiki/Holland_%26_Knight",
+   "note": "Holland & Knight law firm PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "United Service Workers Union IUJAT Poli",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://www.legistorm.com/organization/summary/183231/United_Service_Workers_Union.html",
+   "note": "United Service Workers Union, IUJAT affiliate"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "TriADD PAC Supporting Integrated Care fo",
+   "industry_slug": "healthcare",
+   "confidence": "medium",
+   "source_url": "https://triaddny.com/about-us/",
+   "note": "Alliance of NY disability care-coordination organizations"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Home Healthcare Workers of America PAC A",
+   "industry_slug": "labor_unions",
+   "confidence": "high",
+   "source_url": "https://documentedny.com/2025/01/13/healthcare-union-medicaid-elderly-hhwa/",
+   "note": "Home health aides union, IUJAT affiliate"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Empire Dental Political Action Committee",
+   "industry_slug": "healthcare",
+   "confidence": "high",
+   "source_url": "https://nysdental.org/news-publications/news/2024/10/24/introducing-nysdapac---our-new-political-action-committee",
+   "note": "NY State Dental Association's former PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "NYS Auto Dealers Association",
+   "industry_slug": "automotive",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/nonprofits/organizations/140642330",
+   "note": "NY State franchised car dealers association"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "JPMorgan Chase & Co. PAC",
+   "industry_slug": "finance_investment",
+   "confidence": "high",
+   "source_url": "https://projects.propublica.org/itemizer/committee/C00200865/pac-donations/C00003830",
+   "note": "JPMorgan Chase bank PAC"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "New Yorkers for Local Business PAC",
+   "industry_slug": "business_associations",
+   "confidence": "medium",
+   "source_url": "https://members.capitalregionchamber.com/activememberdirectory/Details/new-yorkers-for-local-business-4692113",
+   "note": "Statewide small-business coalition"
+  },
+  {
+   "label_type": "committee",
+   "raw_label": "Cigna Corporation Political Action Commi",
+   "industry_slug": "healthcare",
+   "confidence": "high",
+   "source_url": "https://www.thecignagroup.com/static/www-thecignagroup-com/docs/twentyeleven-pac-contribution-report.pdf",
+   "note": "Cigna health insurer PAC"
+  }
+ ]
+}

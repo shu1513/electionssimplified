@@ -215,6 +215,7 @@ export function createMissouriMecSession(options: MissouriMecSessionOptions = {}
   const cookies = new Map<string, string>();
   let queue: Promise<unknown> = Promise.resolve();
   let anyRequestStarted = false;
+  let challengeBlocked = false;
 
   function requireMecUrl(url: string): void {
     if (!url.startsWith(`${MISSOURI_MEC_WWW_BASE_URL}/`) && !url.startsWith(`${MISSOURI_MEC_BARE_BASE_URL}/`)) {
@@ -331,6 +332,9 @@ export function createMissouriMecSession(options: MissouriMecSessionOptions = {}
       return Promise.reject(error);
     }
     const run = queue.then(async () => {
+      if (challengeBlocked) {
+        throw new MissouriMecClientError("waf_challenge", "MEC session stopped after a challenge");
+      }
       let lastError: Error | null = null;
       for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
         if (anyRequestStarted) {
@@ -341,6 +345,7 @@ export function createMissouriMecSession(options: MissouriMecSessionOptions = {}
           return await performOnce(url, method, body, referer);
         } catch (error) {
           if (error instanceof MissouriMecClientError) {
+            if (error.code === "waf_challenge") challengeBlocked = true;
             const retryable =
               error.code === "network_error" ||
               (error.code === "http_error" && (error.status === 429 || (error.status ?? 0) >= 500));

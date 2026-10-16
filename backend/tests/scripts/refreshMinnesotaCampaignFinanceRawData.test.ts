@@ -55,6 +55,8 @@ describe("refreshMinnesotaCampaignFinanceRawData script", () => {
 
   it("refreshes all three Minnesota artifacts with mocked network data", async () => {
     const cacheDir = await makeTempDir();
+    const receipt = "Recipient reg num,Recipient,Recipient type,Recipient subtype,Amount,Receipt date,Year,Contributor,Contrib Reg Num,Contrib type,Receipt type,In kind?,In-kind descr,Contrib zip,Contrib Employer name\n1001,Example,PCC,,1.00,2026-01-01,2026,Example Committee,3001,Political Committee/Fund,Contribution,No,,,";
+    const ie = "Spender,Spender Reg Num,Spender type,Spender sub-type,Affected Comte Name,Affected Cmte Reg Num,For /Against,Year,Date,Type,Amount,Unpaid amount,In kind?,In kind descr,Purpose,Vendor name,Vendor city,Vendor State,Vendor zip\nExample Spender,4001,PCF,IEC,Example,1001,For,2026,2026-01-01,Independent Expenditure,1.00,0,No,,,,,,";
     const fetchImpl = async (urlInput: string | URL | Request) => {
       const url = String(urlInput);
       if (url.endsWith("/campaign-finance/")) {
@@ -67,7 +69,7 @@ describe("refreshMinnesotaCampaignFinanceRawData script", () => {
           { headers: { "content-type": "text/html" } }
         );
       }
-      const body = url.endsWith("/contrib.csv") ? "contrib" : url.endsWith("/ie.csv") ? "ie" : "ie-contrib";
+      const body = url.endsWith("/ie.csv") ? ie : receipt;
       return new Response(body, {
         headers: {
           "content-length": String(body.length),
@@ -88,8 +90,8 @@ describe("refreshMinnesotaCampaignFinanceRawData script", () => {
       cache_dir: cacheDir,
       status: "downloaded",
     });
-    await expect(readFile(join(cacheDir, "all_contributions_received.csv"), "utf8")).resolves.toBe("contrib");
-    await expect(readFile(join(cacheDir, "all_independent_expenditures.csv"), "utf8")).resolves.toBe("ie");
-    await expect(readFile(join(cacheDir, "ie_committee_contributions.csv"), "utf8")).resolves.toBe("ie-contrib");
+    await expect(readFile(output.downloads.contributions_received.outputPath, "utf8")).resolves.toBe(receipt);
+    await expect(readFile(output.downloads.independent_expenditures.outputPath, "utf8")).resolves.toBe(ie);
+    await expect(readFile(output.downloads.independent_expenditure_contributions.outputPath, "utf8")).resolves.toBe(receipt);
   });
 });
