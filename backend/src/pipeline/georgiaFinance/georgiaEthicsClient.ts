@@ -621,12 +621,25 @@ function parseTransactionRow(url: string, raw: unknown): GeorgiaTransactionRow {
 }
 
 function parseIndependentExpenditureRow(url: string, raw: unknown): GeorgiaIndependentExpenditureRow {
+  if (raw === null || typeof raw !== "object" || Array.isArray(raw)) {
+    throw new GeorgiaEthicsClientError("bad_response", `Georgia ethics IE row is not an object: ${url}`);
+  }
   const row = raw as Record<string, unknown>;
-  const measures = Array.isArray(row.candidateMeasures) ? row.candidateMeasures : [];
+  if (!Array.isArray(row.candidateMeasures)) {
+    // Losing the target collection makes it impossible to tell which
+    // candidate is affected. It must not turn into an apparent zero.
+    throw new GeorgiaEthicsClientError("bad_response", `Georgia ethics IE row has no targets array: ${url}`);
+  }
+  const measures = row.candidateMeasures;
+  const amountApplied = requireRowNumber(url, row.amountApplied, "amountApplied");
+  const amountCents = Math.round(amountApplied * 100);
+  if (!Number.isSafeInteger(amountCents) || amountCents / 100 !== amountApplied) {
+    throw new GeorgiaEthicsClientError("bad_response", `Georgia ethics IE amount is not safe exact cents: ${url}`);
+  }
   return {
     guid: requireRowString(url, row.guid, "guid"),
     transactionId: requireRowNumber(url, row.transactionId, "transactionId"),
-    amountApplied: requireRowNumber(url, row.amountApplied, "amountApplied"),
+    amountApplied,
     // Spender identity — kept optional at parse time; the aggregator
     // quarantines candidate-referencing rows that lack it (a malformed
     // foreign row must not brick the whole store fetch).
@@ -640,6 +653,9 @@ function parseIndependentExpenditureRow(url: string, raw: unknown): GeorgiaIndep
     transactionTypeCode: asOptionalString(row.transactionTypeCode),
     electionYear: asOptionalNumber(row.electionYear),
     candidateMeasures: measures.map((item) => {
+      if (item === null || typeof item !== "object" || Array.isArray(item)) {
+        throw new GeorgiaEthicsClientError("bad_response", `Georgia ethics IE target is not an object: ${url}`);
+      }
       const target = item as Record<string, unknown>;
       return {
         candidateMeasureTitle: asOptionalString(target.candidateMeasureTitle),
@@ -993,12 +1009,59 @@ export type GeorgiaIndependentExpenditureFetchResult = {
   passCount: number;
 };
 
-// Full-store IE pull (the only spike-verified request shape — no filter
-// field's semantics were probed, and the stores are small enough that the
-// sync joins targets to candidates in memory). Same offset-paging hazards as
-// the transaction endpoint (A4), so the pull dedups by transactionId and
-// re-pulls until the unique id set is identical across two consecutive
-// passes, failing closed when it never stabilizes.
+// The current native IE store supplies totalItems (observed on every page
+// of both ordinary passes in October 2026). Check it when present, without
+// inventing count authority for older responses that omit it. Unlike the
+// direct transaction endpoint, a repeated ID set is not enough: a report
+// amendment can change the amount or targets while retaining the same ID.
+async function fetchIndependentExpenditurePass(
+  transport: GeorgiaEthicsTransport,
+  host: GeorgiaEthicsHost
+): Promise<{ rows: GeorgiaIndependentExpenditureRow[]; fetchedRowCount: number; declaredTotal: number | null }> {
+  const url = endpointUrl(host, "/api/PublicIndependentExpenditureDetails/GetIndependentExpenditureDetails");
+  const byId = new Map<number, GeorgiaIndependentExpenditureRow>();
+  let fetchedRowCount = 0;
+  let declaredTotal: number | null | undefined;
+  for (let pageNumber = 1; ; pageNumber += 1) {
+    const data = await transport.postJson(url, buildGeorgiaIndependentExpenditureRequestBody(host, pageNumber));
+    const { items } = requireItemsPage(url, data);
+    const nativeTotal = (data as { totalItems?: unknown }).totalItems;
+    if (nativeTotal !== undefined && nativeTotal !== null &&
+      (typeof nativeTotal !== "number" || !Number.isSafeInteger(nativeTotal) || nativeTotal < 0)) {
+      throw new GeorgiaEthicsClientError("bad_response", `Georgia ${host} IE totalItems is invalid: ${url}`);
+    }
+    const pageTotal = typeof nativeTotal === "number" ? nativeTotal : null;
+    if (declaredTotal === undefined) declaredTotal = pageTotal;
+    if (pageTotal !== declaredTotal || items.length > GEORGIA_ETHICS_PAGE_SIZE) {
+      throw new GeorgiaEthicsClientError("bad_response", `Georgia ${host} IE page controls changed: ${url}`);
+    }
+    if (declaredTotal !== null && items.length !== Math.min(GEORGIA_ETHICS_PAGE_SIZE,
+      Math.max(0, declaredTotal - (pageNumber - 1) * GEORGIA_ETHICS_PAGE_SIZE))) {
+      throw new GeorgiaEthicsClientError("bad_response", `Georgia ${host} IE page does not match totalItems: ${url}`);
+    }
+    fetchedRowCount += items.length;
+    if (fetchedRowCount > GEORGIA_ETHICS_MAX_ROWS) {
+      throw new GeorgiaEthicsClientError("bad_response", `Georgia ${host} IE fetch exceeded the row ceiling: ${url}`);
+    }
+    for (const item of items) {
+      const row = parseIndependentExpenditureRow(url, item);
+      const previous = byId.get(row.transactionId);
+      if (previous && JSON.stringify(previous) !== JSON.stringify(row)) {
+        throw new GeorgiaEthicsClientError("unstable_result", `Georgia ${host} IE has conflicting duplicate IDs: ${url}`);
+      }
+      byId.set(row.transactionId, row);
+    }
+    if (items.length < GEORGIA_ETHICS_PAGE_SIZE) {
+      if (declaredTotal !== null && byId.size !== declaredTotal) {
+        throw new GeorgiaEthicsClientError("bad_response", `Georgia ${host} IE unique rows do not match totalItems: ${url}`);
+      }
+      return { rows: [...byId.values()], fetchedRowCount, declaredTotal };
+    }
+  }
+}
+
+// Whole-store, unchanged request shape. Require two consecutive complete
+// passes with equal mapped financial payloads, independent of page order.
 export async function fetchGeorgiaIndependentExpenditureRows(
   transport: GeorgiaEthicsTransport,
   host: GeorgiaEthicsHost,
@@ -1008,32 +1071,22 @@ export async function fetchGeorgiaIndependentExpenditureRows(
   if (!Number.isInteger(maxPasses) || maxPasses < 2) {
     throw new GeorgiaEthicsClientError("invalid_request", `Georgia stability passes must be at least 2: ${maxPasses}`);
   }
-  const url = endpointUrl(host, "/api/PublicIndependentExpenditureDetails/GetIndependentExpenditureDetails");
-
-  let previousIds: Set<number> | null = null;
+  let previousRows: Map<number, string> | null = null;
+  let previousDeclaredTotal: number | null = null;
   let lastUniqueRowCount = 0;
   let lastDuplicateRowCount = 0;
   for (let pass = 1; pass <= maxPasses; pass += 1) {
-    const fetched = await fetchAllPages(
-      transport,
-      url,
-      (pageNumber) => buildGeorgiaIndependentExpenditureRequestBody(host, pageNumber),
-      parseIndependentExpenditureRow
-    );
-    const rowsById = new Map<number, GeorgiaIndependentExpenditureRow>();
-    for (const row of fetched) {
-      if (!rowsById.has(row.transactionId)) {
-        rowsById.set(row.transactionId, row);
-      }
-    }
-    const ids = new Set(rowsById.keys());
-    if (previousIds && ids.size === previousIds.size && [...ids].every((id) => previousIds!.has(id))) {
+    const fetched = await fetchIndependentExpenditurePass(transport, host);
+    const rows = new Map(fetched.rows.map((row) => [row.transactionId, JSON.stringify(row)]));
+    const priorRows = previousRows;
+    if (priorRows && fetched.declaredTotal === previousDeclaredTotal && rows.size === priorRows.size &&
+      [...rows].every(([id, payload]) => priorRows.get(id) === payload)) {
       // Both hosts' IE stores are pinned nonempty and cumulative (551
       // PeachFile / 3,679 archive rows at the spike — a full-store pull can
       // only grow), so a stable EMPTY result is an upstream failure shape,
       // not a truthful zero. Writing it through would delete every stored
       // outside group and zero the totals on the say-so of a dead endpoint.
-      if (rowsById.size === 0) {
+      if (rows.size === 0) {
         throw new GeorgiaEthicsClientError(
           "bad_response",
           `Georgia ${host} independent-expenditure fetch returned a stable EMPTY store — ` +
@@ -1041,15 +1094,16 @@ export async function fetchGeorgiaIndependentExpenditureRows(
         );
       }
       return {
-        rows: [...rowsById.values()],
-        fetchedRowCount: fetched.length,
-        duplicateRowCount: fetched.length - rowsById.size,
+        rows: fetched.rows,
+        fetchedRowCount: fetched.fetchedRowCount,
+        duplicateRowCount: fetched.fetchedRowCount - rows.size,
         passCount: pass,
       };
     }
-    previousIds = ids;
-    lastUniqueRowCount = rowsById.size;
-    lastDuplicateRowCount = fetched.length - rowsById.size;
+    previousRows = rows;
+    previousDeclaredTotal = fetched.declaredTotal;
+    lastUniqueRowCount = rows.size;
+    lastDuplicateRowCount = fetched.fetchedRowCount - rows.size;
   }
   throw new GeorgiaEthicsClientError(
     "unstable_result",

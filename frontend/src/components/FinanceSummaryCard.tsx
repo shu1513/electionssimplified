@@ -121,10 +121,11 @@ function PacMoneyByInterest({ rows, basis, note }: { rows: FinancePacInterest[] 
     return null;
   }
   const committees = basis !== undefined;
-  const heading = basis === "reported_committee_monetary_positions" || basis === "reported_committee_monetary_receipts" ? "Committee money by interest"
+  const heading = basis === "reported_committee_monetary_positions" || basis === "reported_committee_monetary_receipts" || basis === "reported_committee_itemized_contributions" ? "Committee money by interest"
     : basis === "reported_itemized_committee_cash_contributions" ? "Committee cash by interest" : "PAC money by interest";
   const emptyText = basis === "reported_committee_monetary_positions" ? "No committee cash positions reported."
     : basis === "reported_committee_monetary_receipts" ? "No committee monetary receipts reported."
+    : basis === "reported_committee_itemized_contributions" ? "No itemized committee contributions reported."
     : basis === "reported_itemized_committee_cash_contributions" ? "No itemized committee cash contributions reported." : "No PAC donations reported.";
   return (
     <div className="mt-3">

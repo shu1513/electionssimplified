@@ -555,7 +555,7 @@ describe("independent expenditures", () => {
       ieItem({ transactionId: index + 1, guid: `guid-${index + 1}` })
     );
     // Offset drift: the second page re-lists id 100 before the new id 101.
-    const secondPage = [ieItem({ transactionId: 100 }), ieItem({ transactionId: 101 })];
+    const secondPage = [fullPage[99]!, ieItem({ transactionId: 101 })];
     const calls: Array<{ url: string; body: string }> = [];
     const transport = transportFromResponses(
       [
@@ -585,6 +585,93 @@ describe("independent expenditures", () => {
         code: "unstable_result",
       }
     );
+  });
+
+  it.each([
+    { amountApplied: 7000 },
+    { transactionStatusCode: "TAMD" },
+    { filerReportVersionId: 2 },
+    { candidateMeasures: [{ stance: "Oppose", reasonTypeCode: "CAN", filerRegistrationGuid: "other-target" }] },
+  ])("does not stabilize on identical IDs with changed financial payload %j", async (change) => {
+    const original = ieItem();
+    const updated = ieItem(change);
+    const transport = transportFromResponses([
+      { body: pageBody([original]) }, { body: pageBody([updated]) }, { body: pageBody([updated]) },
+    ]);
+    const result = await fetchGeorgiaIndependentExpenditureRows(transport, "peachfile", { maxPasses: 3 });
+    expect(result.passCount).toBe(3);
+    expect(result.rows[0]).toMatchObject(change);
+  });
+
+  it("rejects conflicting duplicates within one pass", async () => {
+    const transport = transportFromResponses([{ body: pageBody([ieItem(), ieItem({ amountApplied: 1 })]) }]);
+    await expect(fetchGeorgiaIndependentExpenditureRows(transport, "peachfile")).rejects.toMatchObject({
+      code: "unstable_result", message: expect.stringContaining("conflicting duplicate IDs"),
+    });
+  });
+
+  function countedPage(items: unknown[], totalItems: unknown): string {
+    return JSON.stringify({ data: { items, totalItems }, succeeded: true, error: null });
+  }
+
+  it("closes every native page against a stable declared total", async () => {
+    const fullPage = Array.from({ length: 100 }, (_, index) => ieItem({ transactionId: index + 1 }));
+    const lastPage = [ieItem({ transactionId: 101 })];
+    const transport = transportFromResponses([
+      { body: countedPage(fullPage, 101) }, { body: countedPage(lastPage, 101) },
+      { body: countedPage(fullPage, 101) }, { body: countedPage(lastPage, 101) },
+    ]);
+    expect(await fetchGeorgiaIndependentExpenditureRows(transport, "peachfile")).toMatchObject({
+      passCount: 2, fetchedRowCount: 101, duplicateRowCount: 0,
+    });
+  });
+
+  it("rejects repeated IDs even when the native page cardinalities match", async () => {
+    const fullPage = Array.from({ length: 100 }, (_, index) => ieItem({ transactionId: index + 1 }));
+    const transport = transportFromResponses([
+      { body: countedPage(fullPage, 101) }, { body: countedPage([fullPage[99]], 101) },
+    ]);
+    await expect(fetchGeorgiaIndependentExpenditureRows(transport, "peachfile")).rejects.toMatchObject({
+      code: "bad_response", message: expect.stringContaining("unique rows do not match"),
+    });
+  });
+
+  it.each([-1, 1.5, "1", Number.MAX_SAFE_INTEGER + 1])("rejects invalid native total %j", async (total) => {
+    const transport = transportFromResponses([{ body: countedPage([ieItem()], total) }]);
+    await expect(fetchGeorgiaIndependentExpenditureRows(transport, "peachfile")).rejects.toMatchObject({ code: "bad_response" });
+  });
+
+  it.each([102, null, undefined])("rejects native count changes between pages: %j", async (nextTotal) => {
+    const fullPage = Array.from({ length: 100 }, (_, index) => ieItem({ transactionId: index + 1 }));
+    const transport = transportFromResponses([
+      { body: countedPage(fullPage, 101) }, { body: countedPage([ieItem({ transactionId: 101 })], nextTotal) },
+    ]);
+    await expect(fetchGeorgiaIndependentExpenditureRows(transport, "peachfile")).rejects.toMatchObject({ code: "bad_response" });
+  });
+
+  it("rejects a short page before the declared count", async () => {
+    const transport = transportFromResponses([{ body: countedPage([ieItem()], 101) }]);
+    await expect(fetchGeorgiaIndependentExpenditureRows(transport, "peachfile")).rejects.toMatchObject({
+      code: "bad_response", message: expect.stringContaining("page does not match"),
+    });
+  });
+
+  it.each([null, undefined, {}, [null], ["target"]])("rejects malformed target collections: %j", async (targets) => {
+    const transport = transportFromResponses([{ body: pageBody([ieItem({ candidateMeasures: targets })]) }]);
+    await expect(fetchGeorgiaIndependentExpenditureRows(transport, "peachfile")).rejects.toMatchObject({ code: "bad_response" });
+  });
+
+  it.each([1.001, Number.MAX_SAFE_INTEGER, Number.POSITIVE_INFINITY])("rejects unsupported native cents: %j", async (amountApplied) => {
+    const transport = transportFromResponses([{ body: pageBody([ieItem({ amountApplied })]) }]);
+    await expect(fetchGeorgiaIndependentExpenditureRows(transport, "peachfile")).rejects.toMatchObject({ code: "bad_response" });
+  });
+
+  it("retains genuine empty target arrays and valid timed-only rows", async () => {
+    const transport = transportFromResponses([{ body: pageBody([
+      ieItem({ candidateMeasures: [], filerReportGuid: null, timedFiledReportGuid: "timed", transactionStatusCode: "TPEN" }),
+    ]) }]);
+    const result = await fetchGeorgiaIndependentExpenditureRows(transport, "peachfile");
+    expect(result.rows[0]).toMatchObject({ candidateMeasures: [], filerReportGuid: null, transactionStatusCode: "TPEN" });
   });
 
   it("fails closed on a stable EMPTY store — the IE stores are known nonempty", async () => {
