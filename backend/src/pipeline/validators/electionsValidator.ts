@@ -290,10 +290,18 @@ function isHardScopeMismatch(
   // in the office of Judge of the Naples City and Uintah County Justice
   // Courts?"). That question legitimately sits on the place row AND the
   // county row, so the other scope's token in the court name is not a
-  // mis-filed race (live: Naples city / Uintah County, 2026-10-15).
+  // mis-filed race (live: Naples city / Uintah County, 2026-10-15). Only a
+  // Utah court name that pairs a city/town WITH a county qualifies; a lone
+  // county court on a place row (or city court on a county row) stays a
+  // hard mismatch.
+  const justiceCourtName =
+    entry.race_type === "office" && stateCode === "UT"
+      ? /^shall .+ be retained in the office of judge of the (.+) justice courts\b/.exec(scopeText)?.[1] ?? null
+      : null;
   const sharedJusticeCourtRetention =
-    entry.race_type === "office" &&
-    /^shall .+ be retained in the office of judge of the .+ justice courts?\b/.test(scopeText);
+    justiceCourtName !== null &&
+    /\b(?:city|town)\b/.test(justiceCourtName) &&
+    /\bcounty\b/.test(justiceCourtName);
   const placeCountyLike = countyLike && !sharedJusticeCourtRetention;
   const countyCityLike = cityLike && !sharedJusticeCourtRetention;
 
