@@ -118,6 +118,8 @@ function assertValidJobOptions(data: GeorgiaCandidateFinanceSyncJobData): void {
   assertPositiveInteger(data.electionLookbackDays, "electionLookbackDays");
   assertPositiveInteger(data.electionLookaheadDays, "electionLookaheadDays");
   assertPositiveInteger(data.maxPasses, "maxPasses");
+  assertPositiveInteger(data.filingYear, "filingYear");
+  assertPositiveInteger(data.electionYear, "electionYear");
   if (data.maxPasses !== undefined && data.maxPasses < 2) {
     throw new Error(`Invalid Georgia finance sync scheduler maxPasses: ${data.maxPasses} (stability needs at least 2)`);
   }

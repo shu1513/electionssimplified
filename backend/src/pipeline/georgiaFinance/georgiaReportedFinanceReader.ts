@@ -16,6 +16,9 @@ type Row = Record<string, unknown>;
 type Kind = "committee" | "ie";
 const SOURCE_URL = "https://ethics.ga.gov/records-search-all/";
 const MAX_DISPLAY = 5;
+// Writer and API clocks differ by machine; a freshly synced component must not
+// vanish from one replica because its clock runs a few seconds behind.
+const CLOCK_TOLERANCE_MS = 5 * 60_000;
 class InvalidStoredComponent extends Error {
   constructor() { super("invalid_georgia_reported_finance_component"); }
 }
@@ -62,7 +65,8 @@ function validateSource(rows: Row[], kind: Kind) {
     || registration === "00000000-0000-0000-0000-000000000000") fail();
   if (first.source_url !== SOURCE_URL || !/^[a-f0-9]{64}$/.test(text(first.source_manifest_sha256))) fail();
   const retrieved = instant(first.source_retrieved_at), completed = instant(first.source_completed_at);
-  if (retrieved > completed || completed > instant(first.last_synced_at) || completed > Date.now() || instant(first.last_synced_at) > Date.now()) fail();
+  const latest = Date.now() + CLOCK_TOLERANCE_MS;
+  if (retrieved > completed || completed > instant(first.last_synced_at) || completed > latest || instant(first.last_synced_at) > latest) fail();
   const sourceRows = integer(first.source_row_count, 1), groupCount = integer(first.group_count);
   const controls = first.source_controls;
   if (!Array.isArray(controls) || (kind === "committee" ? controls.length !== 1 : controls.length < 2 || controls.length > 64)) fail();

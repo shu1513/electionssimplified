@@ -89,6 +89,12 @@ describe("georgiaCandidateFinanceSyncScheduler", () => {
     await expect(
       runGeorgiaCandidateFinanceSyncJob({ triggeredBy: "manual", maxPasses: 1 })
     ).rejects.toThrow("stability needs at least 2");
+    await expect(
+      runGeorgiaCandidateFinanceSyncJob({ triggeredBy: "manual", filingYear: 2026.5 })
+    ).rejects.toThrow("Invalid Georgia finance sync scheduler filingYear");
+    await expect(
+      runGeorgiaCandidateFinanceSyncJob({ triggeredBy: "manual", electionYear: 0 })
+    ).rejects.toThrow("Invalid Georgia finance sync scheduler electionYear");
     expect(Pool).not.toHaveBeenCalled();
   });
 

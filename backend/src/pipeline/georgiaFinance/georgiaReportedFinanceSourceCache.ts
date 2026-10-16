@@ -33,6 +33,9 @@ const IE_BODY_BYTES = 2 * MIB;
 const CSV_BYTES = 160 * MIB;
 const COMBINED_BYTES = 180 * MIB;
 const CAPTURE_MS = 4 * 60_000;
+// A live refresh holds its lock for at most the capture budget plus one request
+// timeout and local processing. An older lock belongs to a killed process.
+const STALE_LOCK_MS = 15 * 60_000;
 const SAFE_ERROR = "Georgia reported finance source cache unavailable";
 export const GEORGIA_REPORTED_FINANCE_USER_AGENT =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
@@ -220,6 +223,22 @@ export async function readGeorgiaReportedContributionSource(input: Scope): Promi
   return readSource(input, "contributions") as Promise<GeorgiaReportedContributionSource | null>;
 }
 
+/** A deploy or OOM kill mid-capture must not freeze the source behind its
+ * lock until an operator notices. Reclaim an abandoned lock once; a younger
+ * lock still fails closed. */
+async function acquireLock(lockPath: string): Promise<Awaited<ReturnType<typeof open>>> {
+  for (let attempt = 0; ; attempt++) {
+    try { return await open(lockPath, "wx", 0o600); }
+    catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
+      const held = await lstat(lockPath).catch(() => null);
+      if (attempt > 0 || !held?.isFile() || Date.now() - held.mtimeMs < STALE_LOCK_MS) {
+        throw new GeorgiaReportedFinanceSourceCacheError("locked");
+      }
+      await unlink(lockPath).catch(() => {});
+    }
+  }
+}
 /** One producer shares pacing and the combined budget across both independent
  * refreshes. fetchImpl injects HTTP only for tests; no row/acceptance overrides.
  */
@@ -249,11 +268,7 @@ export function createGeorgiaReportedFinanceSourceProducer(input: { cacheDir?: s
     const lockPath = join(root, `${kind}-${scope.filingYear}.lock`);
     try {
       await privateDirectory(root);
-      try { lock = await open(lockPath, "wx", 0o600); }
-      catch (error) {
-        if ((error as NodeJS.ErrnoException).code === "EEXIST") throw new GeorgiaReportedFinanceSourceCacheError("locked");
-        throw error;
-      }
+      lock = await acquireLock(lockPath);
       await privateDirectory(directory);
       const generation = `generation-${randomUUID()}`;
       const generationDirectory = join(directory, generation);

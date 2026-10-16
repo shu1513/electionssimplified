@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdtemp, readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, readdir, rm, stat, utimes, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -271,6 +271,17 @@ describe("Georgia immutable reported-finance sources", () => {
     await expect(stat(join(cacheDir, "ie-2026.lock"))).rejects.toMatchObject({ code: "ENOENT" });
   });
 
+  it("reclaims only a lock older than any live capture and keeps the publication", async () => {
+    const cacheDir = await directory();
+    const lockPath = join(cacheDir, "ie-2026.lock");
+    await writeFile(lockPath, "", { mode: 0o600 });
+    await expect(createGeorgiaReportedFinanceSourceProducer({ cacheDir, fetchImpl: ieFetch() }).refreshIe(scope)).rejects.toMatchObject({ code: "locked" });
+    const abandoned = new Date(Date.now() - 20 * 60_000);
+    await utimes(lockPath, abandoned, abandoned);
+    const saved = await createGeorgiaReportedFinanceSourceProducer({ cacheDir, fetchImpl: ieFetch() }).refreshIe(scope);
+    expect((await readGeorgiaReportedIeSource({ cacheDir, ...scope }))!.sourceManifestSha256).toBe(saved.sourceManifestSha256);
+    await expect(stat(lockPath)).rejects.toMatchObject({ code: "ENOENT" });
+  });
   it("fails closed on a present corrupt pointer, missing manifest or altered original", async () => {
     const cacheDir = await directory();
     await createGeorgiaReportedFinanceSourceProducer({ cacheDir, fetchImpl: csvFetch() }).refreshContributions(scope);
