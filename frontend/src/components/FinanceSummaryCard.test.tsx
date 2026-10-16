@@ -41,6 +41,22 @@ describe("hasFinanceContent", () => {
 });
 
 describe("FinanceSummaryCard", () => {
+  it("labels Georgia's typed gross contributions as committee money", () => {
+    const summary = emptyFinanceSummary();
+    summary.source = "GEORGIA_ETHICS";
+    summary.direct_campaign.pac_money_basis = "reported_committee_itemized_contributions";
+    summary.direct_campaign.pac_money_coverage_note = "Gross positive itemized contributions before separately reported returns.";
+    summary.direct_campaign.pac_money_by_interest = [{interest: "unclassified", interest_name: "Not yet sorted", amount: 6000,
+      pac_count: 1, pacs: [{committee_id: "reported-example", committee_name: "Example Committee", amount: 6000, source_url: null}]}];
+    const {rerender} = render(<FinanceSummaryCard summary={summary} />);
+    expect(screen.getByText("Committee money by interest")).toBeInTheDocument();
+    expect(screen.getByText(summary.direct_campaign.pac_money_coverage_note)).toBeInTheDocument();
+    expect(screen.queryByText("Raised")).not.toBeInTheDocument();
+    summary.direct_campaign.pac_money_by_interest[0]!.amount = 4999;
+    summary.direct_campaign.pac_money_by_interest[0]!.pacs[0]!.amount = 4999;
+    rerender(<FinanceSummaryCard summary={summary} />);
+    expect(screen.queryByText("Committee money by interest")).not.toBeInTheDocument();
+  });
   it("renders signed committee-only money with its own scope note and accurate count", () => {
     const summary = emptyFinanceSummary();
     summary.source = "MARYLAND_CFS";

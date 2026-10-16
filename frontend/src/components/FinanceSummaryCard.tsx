@@ -120,7 +120,7 @@ function PacMoneyByInterest({ rows, basis, note }: { rows: FinancePacInterest[] 
   if (rows === undefined || !hasCommitteeMoneyContent({pac_money_by_interest: rows, pac_money_basis: basis})) {
     return null;
   }
-  const committees = basis === "reported_committee_monetary_positions";
+  const committees = basis === "reported_committee_monetary_positions" || basis === "reported_committee_itemized_contributions";
   return (
     <div className="mt-3">
       <h4 className="text-xs font-semibold uppercase tracking-wide text-ink-soft">{committees ? "Committee money by interest" : "PAC money by interest"}</h4>
