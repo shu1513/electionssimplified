@@ -102,7 +102,9 @@ const writer =
       total_receipts: "preserveWhenNull",
       direct_contribution_total: "preserveWhenNull",
       total_disbursements: "preserveWhenNull",
-      cash_on_hand: "preserveWhenNull",
+      // A negative ending balance is imported as NULL cash; it must replace
+      // any older stored balance rather than preserve it as current.
+      cash_on_hand: "replace",
       source_url: "preserveWhenNull",
     },
     normalizeCommitteeId: normalizeStoredFilerKey,

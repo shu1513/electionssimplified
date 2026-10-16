@@ -385,3 +385,30 @@ describe("Nevada committee donor writer", () => {
     },
   );
 });
+
+describe("Nevada summary cash on hand update policy", () => {
+  it("replaces a stored balance with NULL when the new cycle has no storable cash", async () => {
+    const h = harness();
+    await replaceNevadaCandidateFinanceSnapshot(
+      input(h.db, {
+        pacDonors: undefined,
+        pacDonorSource: undefined,
+        summary: {
+          totalReceipts: 1000,
+          directContributionTotal: 1000,
+          totalDisbursements: 5000,
+          cashOnHand: null,
+          sourceUrl: SOURCE,
+        },
+      }),
+    );
+    const summarySql = h.query.mock.calls
+      .map(([value]) => value as string)
+      .find((sql) => sql.includes("INSERT INTO public.nv_candidate_finance_summaries"));
+    expect(summarySql).toBeDefined();
+    expect(summarySql).toContain("cash_on_hand = EXCLUDED.cash_on_hand");
+    expect(summarySql).toContain(
+      "total_receipts = COALESCE(EXCLUDED.total_receipts, nv_candidate_finance_summaries.total_receipts)",
+    );
+  });
+});
