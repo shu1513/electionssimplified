@@ -8,9 +8,9 @@ describe("Georgia independent ordinary sync CLI scope",()=>{
       .toEqual({dryRun:true,refresh:true,cacheDir:"/private/synthetic-cache",filingYear:2026,electionYear:2026,maxCandidates:25,
         staleAfterDays:7,electionLookbackDays:30,electionLookaheadDays:550});
   });
-  it("supports a process-only cache directory with no env-file loader",()=>{
+  it("leaves the cache directory to the shared batch when no flag is given",()=>{
     vi.stubEnv("GEORGIA_REPORTED_FINANCE_CACHE_DIR"," /private/synthetic-cache ");
-    expect(parseSyncDueGeorgiaReportedFinanceArgs([])).toMatchObject({dryRun:false,refresh:false,cacheDir:"/private/synthetic-cache"});
+    expect(parseSyncDueGeorgiaReportedFinanceArgs([])).toMatchObject({dryRun:false,refresh:false,cacheDir:undefined});
   });
   it.each(["--candidate-id","--candidate-name","--committee-id","--force","--auto-link"])("rejects nonordinary or gate-bypass flag %s",flag=>{
     expect(()=>parseSyncDueGeorgiaReportedFinanceArgs([flag,"synthetic"])).toThrow();

@@ -5,7 +5,7 @@ import { createGeorgiaEthicsTransport } from "./georgiaEthicsClient.js";
 import { fetchGeorgiaLinkedReceivingRegistration } from "./georgiaLinkedReceivingRegistration.js";
 import { aggregateGeorgiaReportedIe, aggregateGeorgiaReportedCommitteeContributions } from "./georgiaReportedFinanceAggregation.js";
 import { listDueGeorgiaReportedFinance, recordGeorgiaReportedFinanceAttempt } from "./georgiaReportedFinanceDueList.js";
-import { createGeorgiaReportedFinanceSourceProducer, DEFAULT_GEORGIA_REPORTED_FINANCE_CACHE_DIR,
+import { createGeorgiaReportedFinanceSourceProducer, resolveGeorgiaReportedFinanceCacheDir,
   GEORGIA_REPORTED_FINANCE_USER_AGENT, GeorgiaReportedFinanceSourceCacheError,
   readGeorgiaReportedIeSource, readGeorgiaReportedContributionSource,
   type GeorgiaReportedIeSource, type GeorgiaReportedContributionSource } from "./georgiaReportedFinanceSourceCache.js";
@@ -43,7 +43,7 @@ export async function syncDueGeorgiaReportedFinance(options: GeorgiaReportedFina
     ieQualifiedCount: 0, contributionQualifiedCount: 0, ieWrittenCount: 0, contributionWrittenCount: 0,
     ieHeldCount: 0, contributionHeldCount: 0, sourceUnavailableCount: 0, attemptRejectedCount: 0};
   if (!result.enabled) return result;
-  const scope = {cacheDir: options.cacheDir ?? DEFAULT_GEORGIA_REPORTED_FINANCE_CACHE_DIR, filingYear, electionYear};
+  const scope = {cacheDir: resolveGeorgiaReportedFinanceCacheDir(options.cacheDir), filingYear, electionYear};
   const read = async <T>(fn: () => Promise<T | null>): Promise<T | null> => {
     try { return await fn(); } catch (error) {
       if (!(error instanceof GeorgiaReportedFinanceSourceCacheError)) throw error;

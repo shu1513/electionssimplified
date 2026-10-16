@@ -1,4 +1,3 @@
-import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import {
   isGeorgiaEthicsRawDataRefreshEnabled,
@@ -7,8 +6,8 @@ import {
 } from "../config/featureFlags.js";
 import {
   createGeorgiaReportedFinanceSourceProducer,
-  DEFAULT_GEORGIA_REPORTED_FINANCE_CACHE_DIR,
   GeorgiaReportedFinanceSourceCacheError,
+  resolveGeorgiaReportedFinanceCacheDir,
   type GeorgiaReportedSourceFacts,
 } from "../pipeline/georgiaFinance/georgiaReportedFinanceSourceCache.js";
 
@@ -35,8 +34,7 @@ export function parseRefreshGeorgiaReportedFinanceSourcesArgs(args: readonly str
   };
   const filingYear = year(values.get("--filing-year"), new Date().getUTCFullYear());
   return { filingYear, electionYear: year(values.get("--election-year"), filingYear), force,
-    cacheDir: resolve(values.get("--cache-dir") ?? (process.env.GEORGIA_REPORTED_FINANCE_CACHE_DIR?.trim() ||
-      DEFAULT_GEORGIA_REPORTED_FINANCE_CACHE_DIR)) };
+    cacheDir: resolveGeorgiaReportedFinanceCacheDir(values.get("--cache-dir")) };
 }
 
 type RefreshResult = { component: "ie" | "contributions"; status: "disabled" | "refreshed" | "unavailable";

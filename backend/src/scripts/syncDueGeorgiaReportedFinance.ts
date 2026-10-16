@@ -9,7 +9,7 @@ export function parseSyncDueGeorgiaReportedFinanceArgs(args: readonly string[]):
   assertKnownCliFlags(args, "Georgia reported finance", new Set(["--dry-run", "--refresh"]),
     new Set(["--cache-dir", "--filing-year", "--election-year", "--max-candidates", "--stale-after-days", "--lookback-days", "--lookahead-days"]));
   return {dryRun: args.includes("--dry-run"), refresh: args.includes("--refresh"),
-    cacheDir: readStrictFlagValue(args, "--cache-dir") || process.env.GEORGIA_REPORTED_FINANCE_CACHE_DIR?.trim() || undefined,
+    cacheDir: readStrictFlagValue(args, "--cache-dir") || undefined,
     filingYear: readStrictPositiveIntegerFlag(args, "--filing-year"), electionYear: readStrictPositiveIntegerFlag(args, "--election-year"),
     maxCandidates: readStrictPositiveIntegerFlag(args, "--max-candidates"), staleAfterDays: readStrictPositiveIntegerFlag(args, "--stale-after-days"),
     electionLookbackDays: readStrictPositiveIntegerFlag(args, "--lookback-days"), electionLookaheadDays: readStrictPositiveIntegerFlag(args, "--lookahead-days")};

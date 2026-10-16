@@ -102,6 +102,16 @@ describe("Georgia ordinary independent reported finance batch",()=>{
       electionLookbackDays:30,electionLookaheadDays:550,filingYear:2026,electionYear:2026,gates:{ie:true,contributions:true}}));
     const input=calls.due.mock.calls[0]![1];expect(input).not.toHaveProperty("candidateId");expect(input).not.toHaveProperty("candidateName");
   });
+  it("reads the configured process cache directory when the job passes none",async()=>{
+    vi.stubEnv("GEORGIA_REPORTED_FINANCE_CACHE_DIR"," /private/env-cache ");vi.stubEnv("GEORGIA_ETHICS_RAW_DATA_REFRESH_ENABLED","true");
+    await run({cacheDir:undefined,refresh:true});
+    for(const f of [calls.readIe,calls.readContributions])expect(f).toHaveBeenCalledWith(expect.objectContaining({cacheDir:"/private/env-cache"}));
+    expect(calls.producer).toHaveBeenCalledWith({cacheDir:"/private/env-cache"});
+    vi.stubEnv("GEORGIA_REPORTED_FINANCE_CACHE_DIR","");vi.stubEnv("GEORGIA_ETHICS_RAW_DATA_REFRESH_ENABLED","false");
+    vi.resetAllMocks();calls.due.mockResolvedValue({eligibleCount:0,totalDueRows:0,rows:[]});
+    await run({cacheDir:undefined});
+    expect(calls.readIe).toHaveBeenCalledWith(expect.objectContaining({cacheDir:expect.stringMatching(/\/scratch\/georgia-reported-finance$/)}));
+  });
   it("does not recapture young qualified packets unless refresh is explicit",async()=>{
     vi.stubEnv("GEORGIA_ETHICS_RAW_DATA_REFRESH_ENABLED","true");await run();
     expect(calls.refreshIe).not.toHaveBeenCalled();expect(calls.refreshContributions).not.toHaveBeenCalled();

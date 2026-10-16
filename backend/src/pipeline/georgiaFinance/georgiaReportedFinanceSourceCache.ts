@@ -19,6 +19,12 @@ import {
 } from "./georgiaReportedContributionExport.js";
 
 export const DEFAULT_GEORGIA_REPORTED_FINANCE_CACHE_DIR = "scratch/georgia-reported-finance";
+/** Explicit option, then GEORGIA_REPORTED_FINANCE_CACHE_DIR, then the default.
+ * Every CLI and the scheduled batch resolve the directory here so packets
+ * acquired by one entry point are visible to the others. */
+export function resolveGeorgiaReportedFinanceCacheDir(explicit?: string): string {
+  return resolve(explicit?.trim() || process.env.GEORGIA_REPORTED_FINANCE_CACHE_DIR?.trim() || DEFAULT_GEORGIA_REPORTED_FINANCE_CACHE_DIR);
+}
 const IE_URL = "https://api-peachfile.ethics.ga.gov/api/PublicIndependentExpenditureDetails/GetIndependentExpenditureDetails";
 const CSV_URL = "https://api-peachfile.ethics.ga.gov/api/ExportPublicData/GetExportPublicDownloadData";
 const MIB = 1024 * 1024;
