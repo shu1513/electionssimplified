@@ -954,11 +954,10 @@ allowed, and duplicates remain separate. It replays all report/page/source
 controls before atomically publishing a pointer. Failed refreshes preserve the
 prior pointer and source dates. Bounded sequential transport, exclusive leases
 and private retained artifacts keep interrupted or concurrent captures from
-qualifying a partial source. This source-only step is not wired to publication.
+qualifying a partial source. Publication remains gated and defaults off.
 
-Next steps require protected independent storage and due handling,
-default-off publication, and actual ordinary local sync, API and frontend card
-proof before the single NC pull request.
+The following integration adds protected independent storage and due handling,
+default-off publication, and ordinary local sync, API and frontend verification.
 
 The [official 2026 reporting schedule](https://www.ncsbe.gov/campaign-finance/reporting-schedules/state-and-county-reporting-schedule)
 sets the on-ballot third-quarter period through October 17, due October 27;
@@ -975,3 +974,26 @@ then requires one unchanged active receiver. Newer observations replace the
 whole component atomically; equal observations require identical source and
 groups. Held sources cannot clear groups or advance their observation dates.
 Legacy direct and outside finance tables retain their values and clocks.
+
+The independent batch and `north-carolina-reported-receipts:sync-due` CLI use
+the canonical eligible roster, their own observation freshness and a durable
+24-hour attempt cooldown. New cache revisions and changed receiving links
+bypass that cooldown; least-attempted ordering prevents held receivers from
+blocking later candidates. Selected captures always undergo complete replay.
+The new job uses the existing serial NC queue independently of direct sync.
+`NORTH_CAROLINA_REPORTED_COMMITTEE_RECEIPTS_ENABLED` defaults off and requires
+both finance master gates; force cannot enable it. Raw refresh additionally
+requires the existing NCSBE raw-data gate. Without raw refresh the batch reads
+verified saved generations only. Discovery failures stop later host requests,
+retain private originals, and cannot fall back to old money as a fresh capture.
+
+The API overlay preserves existing direct/outside values and headline dates,
+validates full stored controls before display caps, and labels this component
+as gross reported committee/party monetary receipts before separate returns.
+Unclassified reported committees remain under “Not yet sorted.”
+
+Validation completed with ordinary cached-source and fresh-source local syncs,
+uncapped canonical source/group controls, actual production API responses and
+the real frontend candidate card. All legacy finance tables and observation
+dates were preserved. The existing display floor remains unchanged. Source
+originals and detailed local proof stay private; no recurring jobs were installed.

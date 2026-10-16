@@ -3,12 +3,14 @@ import type { Pool, PoolClient } from "pg";
 import { isNorthCarolinaCampaignFinanceEnabled } from "../../config/featureFlags.js";
 import {
   officeInputFromElectionRow,
+  buildStateFinanceSummaryRequests,
   type BallotLookupFinanceSummary,
   type StateFinanceRequestCandidateRow,
   type StateFinanceRequestElectionRow,
 } from "../address/ballotLookupFinanceShared.js";
 import { loadStandardStateFinanceSummariesByCandidateElection } from "../finance/standardStateFinanceBallotLookupLoader.js";
 import { isNorthCarolinaFinanceEligibleOffice } from "./northCarolinaFinanceEligibleOffices.js";
+import { attachNorthCarolinaReportedReceiptComponent } from "./northCarolinaReportedReceiptFinanceReader.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
@@ -29,7 +31,7 @@ export async function loadNorthCarolinaCandidateFinanceSummariesByCandidateElect
   candidateRows: readonly StateFinanceRequestCandidateRow[],
   electionRows: readonly StateFinanceRequestElectionRow[]
 ): Promise<Map<string, BallotLookupFinanceSummary>> {
-  return loadStandardStateFinanceSummariesByCandidateElection({
+  const summaries = await loadStandardStateFinanceSummariesByCandidateElection({
     db,
     candidateRows,
     electionRows,
@@ -48,4 +50,7 @@ export async function loadNorthCarolinaCandidateFinanceSummariesByCandidateElect
       outsideGroupBreakdowns: "nc_candidate_finance_outside_group_breakdowns",
     },
   });
+  return attachNorthCarolinaReportedReceiptComponent({ db, summaries,
+    requests: buildStateFinanceSummaryRequests("NC", candidateRows, electionRows,
+      (row) => isNorthCarolinaFinanceEligibleOffice(officeInputFromElectionRow(row))) });
 }
