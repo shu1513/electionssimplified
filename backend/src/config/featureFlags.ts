@@ -251,6 +251,12 @@ export const isNorthCarolinaCampaignFinanceSyncEnabled = northCarolinaFinance.is
 export const isNorthCarolinaNcsbeRawDataRefreshEnabled = northCarolinaFinance.gate(
   "NORTH_CAROLINA_NCSBE_RAW_DATA_REFRESH_ENABLED"
 );
+// Independent receipt publication requires its own explicit opt-in. Force
+// cannot enable it, and the legacy direct-sync gate does not control it.
+export function isNorthCarolinaReportedCommitteeReceiptsEnabled(_force = false): boolean {
+  return isCandidateFinanceEnabled() && northCarolinaFinance.isEnabled() &&
+    readBooleanEnv("NORTH_CAROLINA_REPORTED_COMMITTEE_RECEIPTS_ENABLED", false);
+}
 
 const georgiaFinance = defineStateFinanceFlagPair("GEORGIA_CAMPAIGN_FINANCE");
 export const isGeorgiaCampaignFinanceEnabled = georgiaFinance.isEnabled;

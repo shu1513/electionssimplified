@@ -345,6 +345,7 @@
     "ohio-candidates:finance:scheduler:worker": "tsx src/scripts/runOhioCandidateFinanceSyncSchedulerWorker.ts",
     "ohio-candidates:finance:scheduler:trigger": "tsx src/scripts/triggerOhioCandidateFinanceSync.ts",
     "north-carolina-candidates:finance:sync-due": "tsx src/scripts/syncDueNorthCarolinaCandidateFinance.ts",
+    "north-carolina-reported-receipts:sync-due": "tsx src/scripts/syncDueNorthCarolinaReportedReceipts.ts",
     "north-carolina-candidates:finance:raw:refresh": "tsx src/scripts/refreshNorthCarolinaNcsbeCampaignFinanceRawData.ts",
     "north-carolina-candidates:finance:scheduler:upsert": "tsx src/scripts/upsertNorthCarolinaCandidateFinanceSyncScheduler.ts",
     "north-carolina-candidates:finance:scheduler:worker": "tsx src/scripts/runNorthCarolinaCandidateFinanceSyncSchedulerWorker.ts",
