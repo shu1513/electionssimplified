@@ -897,3 +897,61 @@ activity — `LOAN`/`OTLN`/`FRLN` rows the report receipts endpoint never
 serves, with the same $300,000 Outstanding Loan restated on all four of her
 reports, so an itemized transaction sum counts it four times. That is
 decision 11's cover-authoritative rule confirmed against live bytes.
+
+## October 15, 2026 receipt-gap continuation
+
+The existing ordinary batch already calls independent-expenditure aggregation;
+acquisition is a separate, cache-producing operation. Its structured-data-only
+coverage note remains necessary. This is not a missing IE call-path repair.
+The legacy direct-artifact failure path can skip the shared financial writer,
+so a newly qualified committee-receipt component must acquire, write and become
+due independently of that path.
+
+Native receipt codes `CPCM` and `PPTY` identify reported other political
+committees and parties. They support an explicitly labelled committee/party
+receipt measure without a registry match or a legal-PAC inference. `IsOrg`,
+general/outside/nonprofit receipt classes and donor-name words do not establish
+that role. Positive monetary receipts must exclude native in-kind payments;
+refunds/reimbursements **to** the receiving committee are not outgoing returns.
+The proposed measure is gross before separately reported returns, restricted
+to current selected regular reports, and excludes separately filed 48-hour
+notices. It is not all raised money or complete current-cycle coverage.
+
+The first five ordinary due contexts were acquired through the actual
+discovery and report-acquisition functions, without a positive-money selector.
+The capture retained 101 complete official responses and stable opening/closing
+inventories. All 17 current structured reports and 438 receipt occurrences pass
+the new pure source validator: exact original JSON money, stable 300-row pages,
+all 34 cover-summary controls and the native CSV's full 20-field receipt
+occurrence multiset. Equal occurrences remain separate. Two receiving contexts
+have unresolved current filing lineages and remain held; passing a report's
+controls does not qualify the entire receiving context.
+
+The redesigned cover's native export anchor uses the `ReportDetail` `Export`
+handler. The former `ExportDetailResults` route returned HTTP 404. Native CSV
+exports have multiple sections and four-decimal SQL-money strings; nonzero
+subcents must be rejected. Receipt names correspond to `OrgName`, and `IsPrior`
+is source text, including blank and `X`, rather than a Boolean. The source
+validator does not require expenditure CSV/grid equality to establish gross
+receipt occurrences. It makes no net-return or rapid-filing mirror claim.
+
+The pure report validator and committee-receipt aggregator now have adversarial
+tests. All 298 NC pipeline tests and backend type checking passed; separate
+replays used the unchanged genuine source originals. The aggregator requires
+every selected current report, preserves equal occurrences, excludes native
+`In Kind` and aggregated rows, and holds unresolved monetary payment types,
+prior markers, negative receipts and unsafe amounts. Only native `Cash`,
+`Check`, `Credit Card` and `Electronic Funds Transfer` are currently accepted
+monetary payment labels. An unrelated account-transfer CSV section and a
+period-boundary discrepancy involving no committee receipts do not change the
+receipt population or justify deduplication. Next steps require an immutable complete
+receiving-source generation, protected independent storage and due handling,
+default-off publication, and actual ordinary local sync, API and frontend card
+proof before the single NC pull request.
+
+The [official 2026 reporting schedule](https://www.ncsbe.gov/campaign-finance/reporting-schedules/state-and-county-reporting-schedule)
+sets the on-ballot third-quarter period through October 17, due October 27;
+fourth-quarter reports are due January 12, 2027. The 48-hour period runs October
+18–November 3. Plan fresh acquisition and ordinary sync on October 28 and 30,
+November 3 and 6, and January 13, with attention to weeknight import lag and
+late filings. These are planned reruns; no automation has been installed.
