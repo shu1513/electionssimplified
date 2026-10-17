@@ -80,12 +80,19 @@ requires setting a password first. Settings now confirm that delete with a
 fresh Google sign-in (DELETE /api/me google_credential, matched against the
 linked google_sub), so the sentence says so; email change still needs a
 password. Nothing new collected — CURRENT_TERMS_VERSION stays 1.5.
+1.9 → 1.10 on 2026-10-15: names Cloudflare Web Analytics. The zone-level
+automatic setup has injected beacon.min.js into every HTML response since
+about July 2026 (the Worker CSP allows it — infra/cloudflare/router-worker.js),
+but Section 1 said "no third-party analytics service". Cookie-free, no
+fingerprinting, page views and Core Web Vitals only. The /privacy opt-out
+control only covers our own collector, so Section 5 now says so.
+Disclosure of an existing practice — CURRENT_TERMS_VERSION stays 1.5.
 -->
 
 # Elections Simplified Privacy Policy
 
-**Last updated:** October 4, 2026
-**Version:** 1.9
+**Last updated:** October 15, 2026
+**Version:** 1.10
 
 This Privacy Policy describes how Elections Simplified Inc., a Delaware corporation and the operator of the Elections Simplified service ("Elections Simplified," "we," "us"), collects, uses, and shares information when you use the Elections Simplified website and services (the "Service").
 
@@ -113,7 +120,7 @@ This Privacy Policy describes how Elections Simplified Inc., a Delaware corporat
 
 **Technical information.** IP address, browser user agent, and request logs collected automatically for security, rate limiting, and abuse prevention. A session cookie (httpOnly) keeps you signed in. We do not use advertising or cross-site tracking cookies.
 
-**Usage analytics.** We collect information about how the Service is used so we can improve it: which kinds of pages are viewed (the page type, never the full web address), which site controls are used, which sections of a page come into view as you scroll (for example, a candidate's finance section), how long a page stays visible, coarse device type (phone, tablet, or desktop), the general kind of site that referred you (a search engine, a social network, or none), the U.S. state and rough size of a ballot you looked at, and whether an action such as an address search succeeded or failed. This is collected by us, on our own infrastructure, with no third-party analytics service. It is tied to a random identifier that lives only in your browser tab, is not a cookie, resets after 30 minutes of inactivity, and is never linked to your account, your email, your address, the districts, candidates, or elections you looked at, or the choices you record. Analytics data is not used to build advertising profiles and is not shared with advertisers. You can turn it off for your browser (see Section 5).
+**Usage analytics.** We collect information about how the Service is used so we can improve it: which kinds of pages are viewed (the page type, never the full web address), which site controls are used, which sections of a page come into view as you scroll (for example, a candidate's finance section), how long a page stays visible, coarse device type (phone, tablet, or desktop), the general kind of site that referred you (a search engine, a social network, or none), the U.S. state and rough size of a ballot you looked at, and whether an action such as an address search succeeded or failed. This is collected by us, on our own infrastructure. Separately, Cloudflare, the network provider that delivers the Service, measures page views and page load performance on our pages with its cookie-free Web Analytics (the page visited, the page that referred you, coarse browser, device, and country information, and timing measurements); it sets no cookies, does not fingerprint your browser, and does not track you across sites. No other analytics company receives usage information. Our own usage information is tied to a random identifier that lives only in your browser tab, is not a cookie, resets after 30 minutes of inactivity, and is never linked to your account, your email, your address, the districts, candidates, or elections you looked at, or the choices you record. Analytics data is not used to build advertising profiles and is not shared with advertisers. You can turn it off for your browser (see Section 5).
 
 ## 2. How we use information
 
@@ -128,7 +135,7 @@ We share information only with the processors needed to run the Service:
 - **Google (Sign in with Google)** — when you choose to sign in with Google, your browser interacts with Google directly to complete the sign-in (Google's own privacy policy applies to that interaction), and we receive the identity token described in Section 1. We send Google nothing about your activity in the Service.
 - **Amazon Web Services (SES)** — receives your email address to deliver account and notification emails.
 - **Expo push service, Apple Push Notification service, and Google Firebase Cloud Messaging (mobile push notifications)** — when you allow notifications in the mobile app, receive the device push token and the notification text in order to deliver it to your device. They receive no account information.
-- **Usage analytics** — the usage information described in Section 1 is collected and stored by us on the infrastructure providers listed below; no separate analytics company receives it.
+- **Usage analytics** — the usage information described in Section 1 is collected and stored by us on the infrastructure providers listed below; Cloudflare receives the cookie-free page-view and performance measurements described in Section 1; no other analytics company receives it.
 - **OpenAI (AI answers in Ask)** — when AI-generated answers are enabled for the Ask feature, receives the text of your chat question and the snippets of our own election data used to answer it, together with a pseudonymous account identifier (a cryptographic hash used only for abuse prevention — never your email address, name, or address). We send requests with response storage disabled, and under OpenAI's API terms this content is not used to train OpenAI's models; OpenAI may retain API request logs for up to 30 days for abuse and misuse monitoring under its data-retention policy. Personal information you type into a question is sent to OpenAI as part of that question, so please leave it out. AI answers are labeled as AI-generated in the Service.
 - **Stripe (support payments)** — if you choose to make a support payment, Stripe collects your card and billing details directly on its own payment pages (we never receive your card number) and processes the payment, any recurring membership billing, and any refund on our behalf. We receive the payment amount, status, and reference identifiers. Stripe also retains payment records under its own legal obligations; see Stripe's privacy policy at stripe.com/privacy.
 - **Sentry (error monitoring)** — when error monitoring is enabled, receives reports about application errors (error type, stack trace, browser and device type, and the page path with its query string removed) so we can find and fix failures. We configure these reports to exclude your IP address, email address, address text, and the contents of your requests.
@@ -144,7 +151,7 @@ Account data is kept while your account is active. If you delete your account, y
 
 ## 5. Your choices
 
-You can view and update your name, email address, password, districts, follows, and email preferences in account settings; you can change or remove your picks and stop sharing any pick card link from your picks page; every notification email includes a working unsubscribe link; and you can delete your account entirely in settings. You can turn usage analytics off for your browser with the control at the bottom of this page; the choice is remembered in your browser, and we honor opt-out mechanisms where required by applicable law. For access or deletion requests you cannot complete in the app, or questions about this policy, contact contact@electionssimplified.com. Depending on where you live, you may have additional privacy rights (such as access, correction, deletion, or portability); we honor valid requests as required by applicable law.
+You can view and update your name, email address, password, districts, follows, and email preferences in account settings; you can change or remove your picks and stop sharing any pick card link from your picks page; every notification email includes a working unsubscribe link; and you can delete your account entirely in settings. You can turn our usage analytics off for your browser with the control at the bottom of this page; the choice is remembered in your browser (it does not affect Cloudflare's page-view measurement, which identifies no browser), and we honor opt-out mechanisms where required by applicable law. For access or deletion requests you cannot complete in the app, or questions about this policy, contact contact@electionssimplified.com. Depending on where you live, you may have additional privacy rights (such as access, correction, deletion, or portability); we honor valid requests as required by applicable law.
 
 ## 6. Security
 

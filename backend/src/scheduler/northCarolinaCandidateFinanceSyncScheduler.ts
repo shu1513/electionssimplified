@@ -7,11 +7,20 @@ import { getPipelineEnv } from "../config/env.js";
 import {
   isNorthCarolinaCampaignFinanceEnabled,
   isNorthCarolinaCampaignFinanceSyncEnabled,
+  isNorthCarolinaReportedCommitteeReceiptsEnabled,
 } from "../config/featureFlags.js";
 import {
   syncDueNorthCarolinaCandidateFinance,
   type NorthCarolinaCandidateFinanceBatchSyncResult,
 } from "../pipeline/northCarolinaFinance/northCarolinaCandidateFinanceBatchSync.js";
+
+import {
+  syncDueNorthCarolinaReportedReceiptFinance,
+  type NorthCarolinaReportedReceiptFinanceBatchResult,
+} from "../pipeline/northCarolinaFinance/northCarolinaReportedReceiptFinanceBatchSync.js";
+
+export const NORTH_CAROLINA_REPORTED_RECEIPT_FINANCE_SYNC_JOB_NAME = "north_carolina_reported_receipt_finance_sync_due";
+export const NORTH_CAROLINA_REPORTED_RECEIPT_FINANCE_DAILY_SCHEDULER_ID = "north_carolina_reported_receipt_finance_sync_daily";
 
 export const NORTH_CAROLINA_CANDIDATE_FINANCE_SYNC_JOB_NAME = "north_carolina_candidate_finance_sync_due";
 export const NORTH_CAROLINA_CANDIDATE_FINANCE_SYNC_DAILY_SCHEDULER_ID =
@@ -27,6 +36,10 @@ export type NorthCarolinaCandidateFinanceSyncJobData = {
   rawDataCacheDir?: string;
   triggeredBy?: "daily" | "manual" | "unknown";
   requestedAt?: string;
+  // Independent reported receipt job only; legacy payload remains unchanged.
+  cacheDir?: string;
+  refresh?: boolean;
+  electionYear?: number;
 };
 
 export type NorthCarolinaCandidateFinanceSyncJobResult = NorthCarolinaCandidateFinanceBatchSyncResult & {
@@ -120,10 +133,12 @@ export async function upsertRecurringNorthCarolinaCandidateFinanceSyncJobs(
   jobData: NorthCarolinaCandidateFinanceSyncJobData = {}
 ): Promise<void> {
   assertValidJobOptions(jobData);
+  if (isNorthCarolinaReportedCommitteeReceiptsEnabled()) assertValidReportedJobOptions(jobData);
   if (!isNorthCarolinaCampaignFinanceEnabled()) {
     const queue = createNorthCarolinaCandidateFinanceSyncSchedulerQueue();
     try {
       await queue.removeJobScheduler(NORTH_CAROLINA_CANDIDATE_FINANCE_SYNC_DAILY_SCHEDULER_ID);
+      await queue.removeJobScheduler(NORTH_CAROLINA_REPORTED_RECEIPT_FINANCE_DAILY_SCHEDULER_ID);
     } finally {
       await queue.close();
     }
@@ -155,6 +170,19 @@ export async function upsertRecurringNorthCarolinaCandidateFinanceSyncJobs(
         opts: defaultJobOptions(),
       }
     );
+    if (isNorthCarolinaReportedCommitteeReceiptsEnabled()) {
+      await queue.upsertJobScheduler(
+        NORTH_CAROLINA_REPORTED_RECEIPT_FINANCE_DAILY_SCHEDULER_ID,
+        { pattern: config.dailyCron, tz: config.dailyTz },
+        { name: NORTH_CAROLINA_REPORTED_RECEIPT_FINANCE_SYNC_JOB_NAME,
+          data: { triggeredBy: "daily", dryRun: Boolean(jobData.dryRun), refresh: Boolean(jobData.refresh),
+            cacheDir: jobData.cacheDir, electionYear: jobData.electionYear, maxCandidates: jobData.maxCandidates,
+            staleAfterDays: jobData.staleAfterDays, electionLookbackDays: jobData.electionLookbackDays,
+            electionLookaheadDays: jobData.electionLookaheadDays }, opts: defaultJobOptions() }
+      );
+    } else {
+      await queue.removeJobScheduler(NORTH_CAROLINA_REPORTED_RECEIPT_FINANCE_DAILY_SCHEDULER_ID);
+    }
   } finally {
     await queue.close();
   }
@@ -250,21 +278,60 @@ export async function runNorthCarolinaCandidateFinanceSyncJob(
   }
 }
 
+type SchedulerJobResult = NorthCarolinaCandidateFinanceSyncJobResult | NorthCarolinaReportedReceiptFinanceBatchResult | { enabled: false };
+
+function assertValidReportedJobOptions(data: NorthCarolinaCandidateFinanceSyncJobData): void {
+  for (const [value, minimum, maximum] of [
+    [data.maxCandidates, 1, 100_000], [data.staleAfterDays, 1, 2_147_483_647],
+    [data.electionLookbackDays, 0, 2_147_483_647], [data.electionLookaheadDays, 0, 2_147_483_647],
+    [data.electionYear, 2000, 2100],
+  ] as const) {
+    if (value !== undefined && (!Number.isSafeInteger(value) || value < minimum || value > maximum)) {
+      throw new Error("Invalid North Carolina reported receipt scheduler option");
+    }
+  }
+  if (data.refresh !== undefined && typeof data.refresh !== "boolean" || data.dryRun !== undefined && typeof data.dryRun !== "boolean"
+    || data.cacheDir !== undefined && (typeof data.cacheDir !== "string" || data.cacheDir.trim() === "")) {
+    throw new Error("Invalid North Carolina reported receipt scheduler option");
+  }
+}
+
+/** Independent of the legacy direct-sync gate. Force cannot enable publication,
+ * and this job reads only exported process configuration, never project .env. */
+export async function runNorthCarolinaReportedReceiptFinanceSyncJob(
+  data: NorthCarolinaCandidateFinanceSyncJobData = {}
+): Promise<NorthCarolinaReportedReceiptFinanceBatchResult | { enabled: false }> {
+  if (!isNorthCarolinaReportedCommitteeReceiptsEnabled()) return { enabled: false };
+  assertValidReportedJobOptions(data);
+  const connectionString = process.env.DATABASE_URL?.trim();
+  if (!connectionString) throw new Error("DATABASE_URL is required for North Carolina reported receipt finance sync");
+  const db = new Pool({ connectionString });
+  try {
+    const { dryRun, refresh, cacheDir, electionYear, maxCandidates, staleAfterDays, electionLookbackDays, electionLookaheadDays } = data;
+    return await syncDueNorthCarolinaReportedReceiptFinance({ db, dryRun, refresh, cacheDir, electionYear, maxCandidates,
+      staleAfterDays, electionLookbackDays, electionLookaheadDays });
+  } finally { await db.end(); }
+}
+
 export function createNorthCarolinaCandidateFinanceSyncSchedulerWorker(): Worker<
   NorthCarolinaCandidateFinanceSyncJobData,
-  NorthCarolinaCandidateFinanceSyncJobResult
+  SchedulerJobResult
 > {
   const connection = getQueueConnection();
   const queueName = getQueueName();
 
   const processor: Processor<
     NorthCarolinaCandidateFinanceSyncJobData,
-    NorthCarolinaCandidateFinanceSyncJobResult
+    SchedulerJobResult
   > = async (job) => {
+    if (job.name === NORTH_CAROLINA_REPORTED_RECEIPT_FINANCE_SYNC_JOB_NAME) {
+      return runNorthCarolinaReportedReceiptFinanceSyncJob(job.data ?? {});
+    }
+    if (job.name !== NORTH_CAROLINA_CANDIDATE_FINANCE_SYNC_JOB_NAME) throw new Error("Unknown North Carolina finance sync job name");
     return runNorthCarolinaCandidateFinanceSyncJob(job.data ?? {});
   };
 
-  return new Worker<NorthCarolinaCandidateFinanceSyncJobData, NorthCarolinaCandidateFinanceSyncJobResult>(
+  return new Worker<NorthCarolinaCandidateFinanceSyncJobData, SchedulerJobResult>(
     queueName,
     processor,
     {

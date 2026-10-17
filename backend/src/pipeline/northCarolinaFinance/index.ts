@@ -14,3 +14,4 @@ export * from "./northCarolinaNcsbeParsers.js";
 export * from "./northCarolinaOutsideGroupContributionAggregator.js";
 export * from "./northCarolinaOutsideSpendingAggregator.js";
 export * from "./northCarolinaReportSelector.js";
+export * from "./northCarolinaReportedReceiptFinanceBatchSync.js";
