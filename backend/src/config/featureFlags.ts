@@ -151,6 +151,14 @@ export function isNewHampshireCampaignFinanceEnabled(): boolean {
   return readBooleanEnv("NEW_HAMPSHIRE_CAMPAIGN_FINANCE_ENABLED", false);
 }
 
+export function isNewHampshireReportedIeEnabled(): boolean {
+  return isNewHampshireCampaignFinanceEnabled() && readBooleanEnv("NEW_HAMPSHIRE_REPORTED_IE_ENABLED", false);
+}
+
+export function isNewHampshireReportedCommitteeReceiptsEnabled(): boolean {
+  return isNewHampshireCampaignFinanceEnabled() && readBooleanEnv("NEW_HAMPSHIRE_REPORTED_COMMITTEE_RECEIPTS_ENABLED", false);
+}
+
 export function isNevadaCampaignFinanceEnabled(): boolean {
   return readBooleanEnv("NEVADA_CAMPAIGN_FINANCE_ENABLED", false);
 }

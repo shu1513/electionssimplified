@@ -469,6 +469,7 @@
     "new-hampshire-candidates:finance:raw:refresh": "tsx src/scripts/refreshNewHampshireCampaignFinanceRawData.ts",
     "new-hampshire-candidates:finance:auto-link": "tsx src/scripts/autoLinkNewHampshireCandidateFinance.ts",
     "new-hampshire-candidates:finance:sync-due": "tsx src/scripts/syncDueNewHampshireCandidateFinance.ts",
+    "new-hampshire-candidates:finance:reported:sync-due": "tsx src/scripts/syncDueNewHampshireReportedFinance.ts",
     "idaho-candidates:finance:phase-zero": "tsx src/scripts/probeIdahoCampaignFinance.ts",
     "idaho-candidates:finance:auto-link": "tsx src/scripts/autoLinkIdahoCandidateFinance.ts",
     "idaho-candidates:finance:sync-due": "tsx src/scripts/syncDueIdahoCandidateFinance.ts",
