@@ -192,8 +192,10 @@ export default function MethodologyPage() {
           took: they are positions on a voting method, not on whether elections are secure or
           accurate. Records on affirmative action, race- or sex-based preferences, and diversity,
           equity and inclusion programs are also filed under General whichever side the candidate
-          took, not under Civil Rights. The same written rule is given to the AI labeler and to the people who review
-          its output, and the full prompt is in the public source code.
+          took, not under Civil Rights, unless the record itself acts on a ban on discrimination, such
+          as by adding or removing a protected class or enforcing or weakening an anti-discrimination
+          law. The same written rule is given to the AI labeler and to the people who review its
+          output, and the full prompt is in the public source code.
         </p>
 
         <h2 className={h2}>How is ranked-choice voting shown?</h2>
