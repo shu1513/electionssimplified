@@ -190,7 +190,9 @@ export default function MethodologyPage() {
           elections are run, such as adopting or banning ranked-choice voting, changing a primary
           format, or moving an election date, are filed under General whichever side the candidate
           took: they are positions on a voting method, not on whether elections are secure or
-          accurate. The same written rule is given to the AI labeler and to the people who review
+          accurate. Records on affirmative action, race- or sex-based preferences, and diversity,
+          equity and inclusion programs are also filed under General whichever side the candidate
+          took, not under Civil Rights. The same written rule is given to the AI labeler and to the people who review
           its output, and the full prompt is in the public source code.
         </p>
 
