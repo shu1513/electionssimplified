@@ -19,6 +19,7 @@ export const NEW_HAMPSHIRE_CFS_ENDPOINTS = {
 } as const;
 
 export type NewHampshireCfsTransactionTypeCode = "TCON" | "TEXP";
+export type NewHampshirePublicJsonEndpoint = Exclude<keyof typeof NEW_HAMPSHIRE_CFS_ENDPOINTS, "bulkExport">;
 
 export type NewHampshireCfsClientErrorCode =
   | "invalid_request"
@@ -296,7 +297,7 @@ async function postCaptured(input: {
   body: Record<string, unknown>;
   expectedContentType: "json" | "csv";
   options?: NewHampshireCfsClientOptions;
-}): Promise<{ bytes: Uint8Array; httpStatus: number; eof: true; responseUrl: string }> {
+}): Promise<{ bytes: Uint8Array; httpStatus: number; eof: true; responseUrl: string; contentType: string | null }> {
   const response = await postResponse(input);
 
   const maxBytes = input.expectedContentType === "json" ? MAX_JSON_RESPONSE_BYTES : MAX_CSV_RESPONSE_BYTES;
@@ -335,7 +336,7 @@ async function postCaptured(input: {
     bytes.set(chunk, offset);
     offset += chunk.byteLength;
   }
-  return { bytes, httpStatus: response.status, eof: true, responseUrl: response.url };
+  return { bytes, httpStatus: response.status, eof: true, responseUrl: response.url, contentType: response.headers.get("content-type") };
 }
 
 async function post(input: Parameters<typeof postCaptured>[0]): Promise<Uint8Array> {
@@ -379,6 +380,23 @@ async function postJson(
   options?: NewHampshireCfsClientOptions
 ): Promise<Record<string, unknown>> {
   return parseJsonEnvelope(await post({ endpoint, body, expectedContentType: "json", options }), endpoint);
+}
+
+/** Bounded native capture used by the immutable JSON cache. Only the six
+ * anonymous public endpoints are accepted; request scope is replayed by that
+ * cache's state-specific acquisition graph before financial use. */
+export async function downloadNewHampshirePublicJson(
+  input: { endpoint: NewHampshirePublicJsonEndpoint; body: Record<string, unknown> },
+  options?: NewHampshireCfsClientOptions
+) {
+  if (!["electionCycles", "filingEntities", "receipts", "expenditures", "publicFilingProfile", "publicFilingHistory"].includes(input.endpoint)) {
+    throw new NewHampshireCfsClientError("invalid_request", "Invalid New Hampshire public JSON endpoint");
+  }
+  const endpoint = NEW_HAMPSHIRE_CFS_ENDPOINTS[input.endpoint];
+  const requestedAt = new Date().toISOString();
+  const captured = await postCaptured({ endpoint, body: input.body, expectedContentType: "json", options });
+  const completedAt = new Date().toISOString();
+  return { ...captured, requestedAt, completedAt, envelope: parseJsonEnvelope(captured.bytes, endpoint) };
 }
 
 /** Return original response bytes for the immutable raw-data cache. */
@@ -459,7 +477,7 @@ function parseReceiptRow(value: unknown): NewHampshireReceiptRow {
   };
 }
 
-function parseFilingEntityRow(value: unknown): NewHampshireFilingEntityRow {
+export function parseNewHampshireFilingEntityRow(value: unknown): NewHampshireFilingEntityRow {
   const row = objectValue(value, "filing-entity row");
   return {
     registrationGuid: requiredString(row.guid, "filing-entity guid"),
@@ -692,7 +710,7 @@ export async function getNewHampshireFilingEntityPage(
     },
     options
   );
-  return parsePage(envelope, parseFilingEntityRow);
+  return parsePage(envelope, parseNewHampshireFilingEntityRow);
 }
 
 export async function getNewHampshireIndependentExpenditurePage(
