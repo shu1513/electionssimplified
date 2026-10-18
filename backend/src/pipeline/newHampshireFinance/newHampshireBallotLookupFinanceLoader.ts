@@ -3,12 +3,14 @@ import type { Pool, PoolClient } from "pg";
 import { isNewHampshireCampaignFinanceEnabled } from "../../config/featureFlags.js";
 import {
   officeInputFromElectionRow,
+  buildStateFinanceSummaryRequests,
   type BallotLookupFinanceSummary,
   type StateFinanceRequestCandidateRow,
   type StateFinanceRequestElectionRow,
 } from "../address/ballotLookupFinanceShared.js";
 import { loadStandardStateFinanceSummariesByCandidateElection } from "../finance/standardStateFinanceBallotLookupLoader.js";
 import { isNewHampshireFinanceEligibleOffice } from "./newHampshireFinanceEligibleOffices.js";
+import { attachNewHampshireReportedFinance } from "./newHampshireReportedFinanceReader.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
@@ -21,7 +23,7 @@ export async function loadNewHampshireCandidateFinanceSummariesByCandidateElecti
   candidateRows: readonly StateFinanceRequestCandidateRow[],
   electionRows: readonly StateFinanceRequestElectionRow[]
 ): Promise<Map<string, BallotLookupFinanceSummary>> {
-  return loadStandardStateFinanceSummariesByCandidateElection({
+  const summaries = await loadStandardStateFinanceSummariesByCandidateElection({
     db,
     candidateRows,
     electionRows,
@@ -47,4 +49,7 @@ export async function loadNewHampshireCandidateFinanceSummariesByCandidateElecti
       outsideGroupBreakdowns: "nh_candidate_finance_outside_group_breakdowns",
     },
   });
+  return attachNewHampshireReportedFinance({db,summaries,
+    requests:buildStateFinanceSummaryRequests("NH",candidateRows,electionRows,
+      row=>isNewHampshireFinanceEligibleOffice(officeInputFromElectionRow(row)))});
 }
