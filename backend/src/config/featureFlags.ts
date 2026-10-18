@@ -206,6 +206,8 @@ export const isMissouriRegisteredIeEnabled = (): boolean =>
 
 const montanaFinance = defineStateFinanceFlagPair("MONTANA_CAMPAIGN_FINANCE");
 export const isMontanaCampaignFinanceEnabled = montanaFinance.isEnabled;
+export const isMontanaReportedCommitteeReceiptsEnabled = (): boolean =>
+  isMontanaCampaignFinanceEnabled() && readBooleanEnv("MONTANA_REPORTED_COMMITTEE_RECEIPTS_ENABLED", false);
 export const isMontanaCampaignFinanceSyncEnabled = montanaFinance.isSyncEnabled;
 export const isMontanaCampaignFinanceRawDataRefreshEnabled = montanaFinance.gate(
   "MONTANA_CAMPAIGN_FINANCE_RAW_DATA_REFRESH_ENABLED"

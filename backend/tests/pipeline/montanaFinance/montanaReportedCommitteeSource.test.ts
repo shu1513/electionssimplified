@@ -61,6 +61,9 @@ describe("Montana native committee receipt source",()=>{
   it("keeps current pending amendments and excludes incorporated notices",()=>{
     const selected=selectMontanaCommitteeReceiptReports(table([report(10,{statusCode:"PENDA"}),report(11,{formTypeCode:"C7",statusCode:"INCRP"})]),scope);expect(selected.map(r=>r.reportId)).toEqual([10]);
   });
+  it("holds an unknown contribution-report status instead of silently omitting its period",()=>{
+    expect(()=>selectMontanaCommitteeReceiptReports(table([report(10,{statusCode:"NEW_STATUS"})]),scope)).toThrow(/unsupported_receipt_report_status/);
+  });
   it("requires standalone filed rapid receipts to reconcile without double counting",()=>{
     const v=input();v.inventory=table([report(),report(11,{formTypeCode:"C7",fromDateStr:"10/15/2026",toDateStr:"10/15/2026"})]);
     v.details.push({reportId:11,rows:[detail(50)]});v.pages=[{start:0,body:table([transaction(),transaction(2,50,{reportId:11})])}];v.resultCount=2;

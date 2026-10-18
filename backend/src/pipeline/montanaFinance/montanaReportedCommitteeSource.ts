@@ -48,7 +48,8 @@ export function selectMontanaCommitteeReceiptReports(value: unknown, scope: Mont
     const id = mtCommitteeInteger(r.reportId, 1); if (ids.has(id)) mtCommitteeHold("duplicate_native_report"); ids.add(id);
     if (mtCommitteeInteger(r.entitySubId, 1) !== scope.nativeCandidateId) mtCommitteeHold("wrong_receiving_report");
     const form = mtCommitteeText(r.formTypeCode), status = mtCommitteeText(r.statusCode);
-    if (status === "INCRP" || !["C5", "C7"].includes(form) || !["FILED", "AMEND", "PENDA"].includes(status)) continue;
+    if (status === "INCRP" || !["C5", "C7"].includes(form)) continue;
+    if (!["FILED", "AMEND", "PENDA"].includes(status)) mtCommitteeHold("unsupported_receipt_report_status");
     const from = mtCommitteeText(r.fromDateStr), to = mtCommitteeText(r.toDateStr); if (period(from) > period(to)) mtCommitteeHold("invalid_report_period");
     if (form === "C5") { const key = `${from}|${to}`; if (periods.has(key)) mtCommitteeHold("ambiguous_current_report"); periods.add(key); }
     reports.push({ reportId: id, form, from, to, status, receivedAt: mtCommitteeInteger(r.receivedDate, 1),

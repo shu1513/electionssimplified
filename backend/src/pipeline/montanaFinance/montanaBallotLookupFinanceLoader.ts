@@ -10,6 +10,7 @@ import {
 import { loadStandardStateFinanceSummariesByCandidateElection } from "../finance/standardStateFinanceBallotLookupLoader.js";
 import { MONTANA_CERS_DASHBOARD_URL } from "./montanaCersClient.js";
 import { isMontanaFinanceEligibleOffice } from "./montanaFinanceEligibleOffices.js";
+import { overlayMontanaCommitteeReceipts } from "./montanaReportedCommitteeReader.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
@@ -36,7 +37,7 @@ export async function loadMontanaCandidateFinanceSummariesByCandidateElection(
   candidateRows: readonly StateFinanceRequestCandidateRow[],
   electionRows: readonly StateFinanceRequestElectionRow[]
 ): Promise<Map<string, BallotLookupFinanceSummary>> {
-  return loadStandardStateFinanceSummariesByCandidateElection({
+  const summaries = await loadStandardStateFinanceSummariesByCandidateElection({
     db,
     candidateRows,
     electionRows,
@@ -57,4 +58,5 @@ export async function loadMontanaCandidateFinanceSummariesByCandidateElection(
       outsideGroupBreakdowns: "mt_candidate_finance_outside_group_breakdowns",
     },
   });
+  return overlayMontanaCommitteeReceipts(db,summaries,candidateRows,electionRows);
 }

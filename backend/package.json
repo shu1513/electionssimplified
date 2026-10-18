@@ -439,6 +439,7 @@
     "arkansas-candidates:finance:phase-zero": "tsx src/scripts/probeArkansasCampaignFinance.ts",
     "arkansas-candidates:finance:auto-link": "tsx src/scripts/autoLinkArkansasCandidateFinance.ts",
     "arkansas-candidates:finance:sync-due": "tsx src/scripts/syncDueArkansasCandidateFinance.ts",
+    "montana-candidates:finance:reported-committees:sync-due": "tsx src/scripts/syncDueMontanaReportedCommitteeReceipts.ts",
     "montana-candidates:finance:probe": "tsx src/scripts/probeMontanaCandidateFinance.ts",
     "montana-candidates:finance:auto-link": "tsx src/scripts/autoLinkMontanaCandidateFinance.ts",
     "montana-candidates:finance:sync-due": "tsx src/scripts/syncDueMontanaCandidateFinance.ts",

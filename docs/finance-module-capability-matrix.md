@@ -40,6 +40,7 @@ The shared factory (`createStandardStateFinanceSnapshotWriter`) after PR #488 + 
 | michigan | 5 | none | R+oC; +`candidate_loan_total` | 2000 | pool | G,M | — | std |
 | minnesota | **4 (no `direct_breakdowns`)** | none | C | 2000 | pool | G,M | — | n/a (no direct table) |
 | missouri | 5 | supersedes same-source active links (`mec_portal`) | R | 2024 | factory | G,N,M+ | — | std |
+| montana | 5 legacy + 3 independent reported-committee tables | numeric CERS candidate ID | R+oC legacy; independent source/group atomic replacement and own clock | 2024 legacy | factory + independent transaction | G,N,M+; canonical native receiver and full receipt closure | signed receipt corrections; nonnegative entity balances | std + reported cash/in-kind committee receipts |
 | nebraska | 3 (no outside) | none | C; only receipts+direct | 2021 | self | — | — | std |
 | newJersey | 5 | →`candidate_entity_s`/`entity_name`; +`election_type_code` | R | 1980 | pool | G | — | std |
 | newMexico | 5 | none | C; no `cash_on_hand` | 2020 | self | — | — | std |
