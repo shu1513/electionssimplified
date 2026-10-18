@@ -65,6 +65,23 @@ export type NorthDakotaCfrsClientOptions = {
   fetchImpl?: typeof fetch;
   timeoutMs?: number;
   userAgent?: string;
+  /** Save the genuine complete body before HTTP/schema validation. The
+   * observer receives copies and cannot change the client's interpretation.
+   * An archival failure aborts the request rather than publishing an
+   * unrecorded response as a source observation. */
+  onJsonResponse?: (capture: NorthDakotaCfrsJsonCapture) => void | Promise<void>;
+};
+
+export type NorthDakotaCfrsJsonCapture = {
+  url: string;
+  responseUrl: string;
+  method: "GET" | "POST";
+  requestBody: Record<string, unknown> | null;
+  status: number;
+  contentType: string | null;
+  startedAt: string;
+  completedAt: string;
+  bytes: Uint8Array;
 };
 
 // Presigned S3 URLs embed temporary credentials in the query string; only the
@@ -218,6 +235,7 @@ async function requestJsonEnvelope(input: {
   requirePositiveInteger(timeoutMs, "North Dakota CFRS timeout");
   const userAgent = input.options?.userAgent?.trim() || DEFAULT_USER_AGENT;
   const url = `${NORTH_DAKOTA_CFRS_PUBLIC_SERVICE_BASE_URL}/${input.endpoint}`;
+  const startedAt = new Date().toISOString();
 
   let response: Response;
   try {
@@ -269,6 +287,19 @@ async function requestJsonEnvelope(input: {
       "bad_response",
       `North Dakota CFRS ${input.endpoint} exceeded ${MAX_JSON_RESPONSE_BYTES} bytes`
     );
+  }
+  if (input.options?.onJsonResponse) {
+    await input.options.onJsonResponse({
+      url,
+      responseUrl: response.url,
+      method: input.method,
+      requestBody: input.method === "POST" ? structuredClone(input.body ?? {}) : null,
+      status: response.status,
+      contentType: response.headers.get("content-type"),
+      startedAt,
+      completedAt: new Date().toISOString(),
+      bytes: bytes.slice(),
+    });
   }
   const text = new TextDecoder().decode(bytes);
 
