@@ -197,6 +197,8 @@ export const OHIO_SOS_PARTY_COVER_HEADER = [
 export type OhioSosCoverPageRow = {
   committeeName: string;
   masterKey: string;
+  // Historical PAC covers preserve registrations absent from the active list.
+  pacRegNo?: string | null;
   // Candidate cover pages only; null for PAC/party covers.
   candidateFirstName: string | null;
   candidateLastName: string | null;
@@ -227,6 +229,7 @@ function coverPageMapper(
   const indexes = {
     committeeName: col(header, "COM_NAME"),
     masterKey: col(header, "MASTER_KEY"),
+    pacRegNo: header.indexOf("PAC_REG_NO"),
     candidateFirstName: input.hasCandidateColumns ? col(header, "CANDIDATE_FIRST_NAME") : null,
     candidateLastName: input.hasCandidateColumns ? col(header, "CANDIDATE_LAST_NAME") : null,
     reportKey: col(header, "REPORT_KEY"),
@@ -253,6 +256,7 @@ function coverPageMapper(
     return {
       committeeName: text(row, indexes.committeeName),
       masterKey: text(row, indexes.masterKey),
+      ...(indexes.pacRegNo >= 0 ? { pacRegNo: textOrNull(row, indexes.pacRegNo) } : {}),
       candidateFirstName: indexes.candidateFirstName === null ? null : textOrNull(row, indexes.candidateFirstName),
       candidateLastName: indexes.candidateLastName === null ? null : textOrNull(row, indexes.candidateLastName),
       reportKey: text(row, indexes.reportKey),
