@@ -33,7 +33,10 @@ export function qualifyNewHampshireReportedReceiver(receiver: NewHampshireReport
   registrationGuid: string; candidateAliases: string[];
 } {
   if (base.electionYear !== receiver.electionYear) nhSourceHold("receiving_cycle_changed");
-  const rows = registrations(base), candidateAliases = new Set(receiver.candidateAliases);
+  // IE target aliases come only from the resolver, which drops a name shared
+  // across races in the registry (linked or not). Seeding with the receiver's
+  // own names would restore those exclusions; an empty set holds IE instead.
+  const rows = registrations(base), candidateAliases = new Set<string>();
   const matched = new Set<number>();
   for (const name of receiver.candidateAliases) {
     const result = resolveNewHampshireCandidateFilerPreferringActive({ candidateName: name,
