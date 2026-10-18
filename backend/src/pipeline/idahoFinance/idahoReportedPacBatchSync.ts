@@ -30,6 +30,8 @@ export async function listDueIdahoReportedPacReceipts(options: Options) {
     LEFT JOIN public.id_reported_pac_sources s ON s.link_id=l.id AND s.election_year=l.election_year
     LEFT JOIN public.id_reported_pac_attempts a ON a.link_id=l.id AND a.election_year=l.election_year
     WHERE ${ID_PAC_CONTEXT_WHERE}
+      AND (SELECT count(*) FROM public.id_candidate_finance_links sibling
+        WHERE sibling.candidate_id=l.candidate_id AND sibling.election_id=l.election_id AND sibling.link_status='active')=1
       AND e.election_date >= (($2::timestamptz AT TIME ZONE 'UTC')::date-make_interval(days=>$3::int))
       AND e.election_date <= (($2::timestamptz AT TIME ZONE 'UTC')::date+make_interval(days=>$4::int))
     ORDER BY a.last_attempted_at ASC NULLS FIRST,legacy.last_synced_at ASC NULLS FIRST,e.election_date,l.candidate_name_normalized,l.id

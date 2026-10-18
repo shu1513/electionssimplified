@@ -23,6 +23,8 @@ describe("independent Idaho PAC ordinary sync",()=>{
   it("selects missing components without a legacy freshness prerequisite",async()=>{
     const{db,query}=database(),due=await listDueIdahoReportedPacReceipts({db,cacheDir});expect(due.rows).toEqual([receiver]);
     const sql=query.mock.calls[0]![0];expect(sql).toContain("e.election_stage='general'");expect(sql).toContain("extract(year from e.election_date)::int=l.election_year");expect(sql).not.toMatch(/legacy\.last_synced_at\s*[<=>]/);
+    // Multi-link pairs can never pass attempt validation, so they must not consume batch slots.
+    expect(sql).toContain("sibling.link_status='active')=1");
   });
   it("uses its own source clock when the legacy summary is stale",async()=>{
     const{db}=database([{...missing,source_clock:new Date().toISOString(),source_registration:receiver.registration_guid,source_candidate:receiver.candidate_id,source_election:receiver.election_id}]);
