@@ -30,6 +30,7 @@ The shared factory (`createStandardStateFinanceSnapshotWriter`) after PR #488 + 
 | hawaii | 5 | +`election_period` | C+oR | 2000 | pool | g | — | std |
 | houston | factory wrapper | — | factory | factory | factory | — | — | — |
 | illinois | 5 | +`sbe_candidate_id`,`sbe_district_type`,`sbe_office`,`is_at_large`; →`committee_key` | R+oC; +`debts_owed` | 2000 | pool | G,M | `cash_on_hand` | std |
+| idaho | 5 via existing factory; independent reported-PAC source/group/attempt tables since migration 352 | →`registration_guid`/`filer_name` | existing snapshot unchanged; PAC source/groups atomic replace, stale/equal-clock guards | 2026 for reported PAC | pinned pool transaction | canonical person/office/district/cycle + unique active link; native identity and itemized TPAC category closure | signed receipt corrections before grouping | existing size/source-type; separate reported committee-interest overlay |
 | indiana | 3 (no outside) | none | R; only receipts+direct | 2000 | self | M | — | std+`pac_backed_industry` |
 | kentucky | 5 | +`candidate_key`; →`committee_key` | R | 2000 | pool | G | `cash_on_hand` | std |
 | losAngelesCity | 4 (no `outside_group_breakdowns`); `lacity_` prefix | different shape (city outlier) | — | none | self | — | — | — |
@@ -88,6 +89,7 @@ Val+ distribution before Missouri: pairing validation `G` in 12 (two message var
 | hawaii | standard | `committee_id` | `committee_id` |
 | houston / illinois / texas | wrappers over shared loader | — | — |
 | indiana | standard | `committee_id` | direct-only |
+| idaho | standard wrapper plus default-off reported-PAC overlay | `registration_guid` | `filer_key`; reported PAC groups use native source entity keys, full totals before top-five details; IE already wired, electioneering excluded |
 | kentucky | standard | `committee_key` | `committee_key` |
 | losAngelesCity | `losAngelesBallotLookupFinanceLoader.ts` | `fppc_committee_id` | city outlier |
 | louisiana | standard | `filer_number` | `filer_number` |

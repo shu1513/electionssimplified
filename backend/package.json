@@ -475,6 +475,7 @@
     "idaho-candidates:finance:phase-zero": "tsx src/scripts/probeIdahoCampaignFinance.ts",
     "idaho-candidates:finance:auto-link": "tsx src/scripts/autoLinkIdahoCandidateFinance.ts",
     "idaho-candidates:finance:sync-due": "tsx src/scripts/syncDueIdahoCandidateFinance.ts",
+    "idaho-reported-pac:sync-due": "tsx src/scripts/syncIdahoReportedPacReceipts.ts",
     "idaho-candidates:finance:link": "tsx src/scripts/linkIdahoCandidateFinance.ts",
     "alabama-candidates:finance:phase-zero": "tsx src/scripts/probeAlabamaCampaignFinance.ts",
     "alabama-candidates:finance:raw:refresh": "tsx src/scripts/refreshAlabamaCampaignFinanceRawData.ts",
