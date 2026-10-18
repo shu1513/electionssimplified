@@ -346,6 +346,14 @@ function createDueListDb(rows: OhioCandidateFinanceDueRow[]) {
 }
 
 describe("syncDueOhioCandidateFinance", () => {
+  it("keeps November races in the ordinary window after January annual filing publication", async () => {
+    const db = createDueListDb([]), now = new Date("2027-02-04T12:00:00.000Z");
+    await syncDueOhioCandidateFinance({ db, now, dryRun: true, autoLinkMissingLinks: false });
+    const [, params] = db.query.mock.calls[0]!;
+    const earliestElection = new Date(now.getTime() - Number(params[3]) * 86400000);
+    expect(earliestElection.getTime()).toBeLessThanOrEqual(Date.parse("2026-11-03T00:00:00.000Z"));
+    expect(db.query.mock.calls[0]![0]).toContain("make_interval(days => $4::int)");
+  });
   it("streams the cycle artifacts once and aggregates direct plus outside money end to end", async () => {
     const cacheDir = await makeCacheDir();
     await writeCycleArtifacts(cacheDir);

@@ -1,6 +1,7 @@
 import { mkdir, mkdtemp, readdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { readOhioSos31uOriginals } from "./ohioSos31uOriginals.js";
 
 import {
   ohioSos31uDetailUrl,
@@ -553,6 +554,8 @@ export async function readOhioSos31uDetailBundle(input: {
   cacheDir: string;
   cycleYear: number;
 }): Promise<OhioSos31uDetailBundleReport[]> {
+  const originals = await readOhioSos31uOriginals(input);
+  if (originals !== null) return originals;
   const detailPath = ohioSos31uDetailCachePath(input);
   const payload = JSON.parse(await readFile(detailPath, "utf8")) as {
     version?: number;
