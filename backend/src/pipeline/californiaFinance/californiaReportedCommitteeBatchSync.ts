@@ -1,12 +1,15 @@
 import type {Pool} from "pg";
 import {isCaliforniaReportedCommitteeReceiptsEnabled,isCaliforniaCampaignFinanceRawDataRefreshEnabled} from "../../config/featureFlags.js";
-import {CA_COMMITTEE_SELECT,CA_COMMITTEE_FROM,CA_COMMITTEE_WHERE,CA_COMMITTEE_UNIQUE,loadCaliforniaCommitteeReceiver,type CaliforniaCommitteeReceiver} from "./californiaReportedCommitteeReceiver.js";
+import {CA_COMMITTEE_SELECT,CA_COMMITTEE_FROM,CA_COMMITTEE_WHERE,CA_COMMITTEE_UNIQUE,confirmCaliforniaCommitteeLink,loadCaliforniaCommitteeReceiver,type CaliforniaCommitteeReceiver} from "./californiaReportedCommitteeReceiver.js";
+import {loadCalAccessCommitteeResolutionData,type CalAccessCommitteeResolutionData} from "./calAccessRawDataLoader.js";
 import {CALIFORNIA_FINANCE_ELIGIBLE_OFFICE_KEYS} from "./californiaFinanceEligibleOffices.js";
 import {CaliforniaCommitteeError,caCommitteeHold as hold,caCommitteeInteger as integer,caCommitteeCanonical as canonical,readCaliforniaCommitteePacket} from "./californiaReportedCommitteeSource.js";
 import {writeCaliforniaCommitteeComponent} from "./californiaReportedCommitteeWriter.js";
 import {DEFAULT_CAL_ACCESS_RAW_DATA_CACHE_DIR,getCalAccessRawDataArtifactCachePaths,readCalAccessRawDataArtifactCacheMetadata,refreshCalAccessRawDataArtifactCache} from "./calAccessRawDataArtifactCache.js";
 type Db=Pick<Pool,"query">&Partial<Pick<Pool,"connect">>;
-export type CaliforniaCommitteeBatchOptions={db:Db;now?:Date;dryRun?:boolean;maxCandidates?:number;staleAfterDays?:number;electionLookbackDays?:number;electionLookaheadDays?:number;cacheDir?:string};
+export type CaliforniaCommitteeBatchOptions={db:Db;now?:Date;dryRun?:boolean;maxCandidates?:number;staleAfterDays?:number;electionLookbackDays?:number;electionLookaheadDays?:number;cacheDir?:string;
+  /** Complete cover/filer-name tables for the stale-link gate; undefined loads them from cacheDir, null holds every receiver. */
+  resolutionData?:CalAccessCommitteeResolutionData|null};
 const REVISION="ca-reported-committee-v1";
 const bounded=(v:number,min=1)=>{integer(v,min);if(v>100000)hold("invalid_batch_option");return v;};
 export async function listDueCaliforniaCommitteeReceipts(o:CaliforniaCommitteeBatchOptions){
@@ -36,7 +39,10 @@ export async function syncDueCaliforniaCommitteeReceipts(o:CaliforniaCommitteeBa
   if(!ready.length)return result;
   const cacheDir=o.cacheDir??(process.env.CAL_ACCESS_RAW_DATA_CACHE_DIR?.trim()||DEFAULT_CAL_ACCESS_RAW_DATA_CACHE_DIR);
   if(isCaliforniaCampaignFinanceRawDataRefreshEnabled()){const paths=getCalAccessRawDataArtifactCachePaths(cacheDir),metadata=await readCalAccessRawDataArtifactCacheMetadata(paths.metadataPath);if(!metadata||Date.parse(metadata.downloadedAt)<Date.now()-(o.staleAfterDays??7)*86400000)try{await refreshCalAccessRawDataArtifactCache({cacheDir});}catch{result.sourceRefreshFailures++;}}
-  let packet:Awaited<ReturnType<typeof readCaliforniaCommitteePacket>>;try{packet=await readCaliforniaCommitteePacket(ready.map(r=>r.committee_id),cacheDir);}catch(e){for(const _r of ready)mark(e);return result;}
-  for(const receiver of ready)try{const written=await writeCaliforniaCommitteeComponent({db:o.db as Pick<Pool,"connect">,receiver,source:packet});result.writtenCount++;result.totalCents+=written.totalCents;result.groupCount+=written.groups;}catch(e){mark(e);}
+  const evidence=o.resolutionData===undefined?await loadCalAccessCommitteeResolutionData({cacheDir}).catch(()=>null):o.resolutionData,confirmed:CaliforniaCommitteeReceiver[]=[];
+  for(const r of ready)try{if(!evidence)hold("committee_evidence_unavailable");confirmCaliforniaCommitteeLink(r,evidence);confirmed.push(r);}catch(e){mark(e);}
+  if(!confirmed.length)return result;
+  let packet:Awaited<ReturnType<typeof readCaliforniaCommitteePacket>>;try{packet=await readCaliforniaCommitteePacket(confirmed.map(r=>r.committee_id),cacheDir);}catch(e){for(const _r of confirmed)mark(e);return result;}
+  for(const receiver of confirmed)try{const written=await writeCaliforniaCommitteeComponent({db:o.db as Pick<Pool,"connect">,receiver,source:packet});result.writtenCount++;result.totalCents+=written.totalCents;result.groupCount+=written.groups;}catch(e){mark(e);}
   return result;
 }

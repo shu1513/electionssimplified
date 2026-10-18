@@ -21,7 +21,7 @@ describe("californiaCandidateFinanceBatchSync", () => {
   it("runs reported committees with no legacy due rows and isolates component failures",async()=>{
     const component=vi.spyOn(reportedCommitteeBatch,"syncDueCaliforniaCommitteeReceipts").mockResolvedValue({enabled:true,writtenCount:1} as never),db=createMockDb();
     const options={db,rawDataResolutionData:null,rawDataReceiptData:null,autoLinkMissingLinks:false};
-    const result=await syncDueCaliforniaCandidateFinance(options);expect(result.selectedCandidateCount).toBe(0);expect(result.reportedCommittees).toEqual({enabled:true,writtenCount:1});expect(component).toHaveBeenCalledWith(expect.objectContaining({db,maxCandidates:25,electionLookbackDays:98}));
+    const result=await syncDueCaliforniaCandidateFinance(options);expect(result.selectedCandidateCount).toBe(0);expect(result.reportedCommittees).toEqual({enabled:true,writtenCount:1});expect(component).toHaveBeenCalledWith(expect.objectContaining({db,maxCandidates:25,electionLookbackDays:98,resolutionData:null}));
     component.mockRejectedValue(new Error("synthetic source failure"));const warn=vi.spyOn(console,"warn").mockImplementation(()=>{});expect((await syncDueCaliforniaCandidateFinance(options)).selectedCandidateCount).toBe(0);expect(warn).toHaveBeenCalledWith("California reported committee receipts unavailable; legacy sync continues");
   });
   it("lists due California finance sync rows from explicit active links", async () => {

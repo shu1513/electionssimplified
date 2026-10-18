@@ -3,6 +3,7 @@ import fs from "node:fs/promises";
 import {caReceiver as r,caCover,caReceipt,caSummary,californiaSourceFixture} from "./californiaReportedCommitteeFixture.js";
 import {readCaliforniaCommitteePacket} from "../../../src/pipeline/californiaFinance/californiaReportedCommitteeSource.js";
 import {writeCaliforniaCommitteeComponent,readStoredCaliforniaCommitteeComponent} from "../../../src/pipeline/californiaFinance/californiaReportedCommitteeWriter.js";
+import {qualifyCaliforniaCommitteeReceiver} from "../../../src/pipeline/californiaFinance/californiaReportedCommitteeReceiver.js";
 import {overlayCaliforniaCommitteeReceipts} from "../../../src/pipeline/californiaFinance/californiaReportedCommitteeReader.js";
 import {syncDueCaliforniaCommitteeReceipts,listDueCaliforniaCommitteeReceipts} from "../../../src/pipeline/californiaFinance/californiaReportedCommitteeBatchSync.js";
 import {parseCaliforniaReportedCommitteeArgs} from "../../../src/scripts/syncDueCaliforniaReportedCommitteeReceipts.js";
@@ -55,6 +56,13 @@ describe("California independent reported committee storage",()=>{
     enabled();const {dir,packet}=await source(),d=database(),normal=d.query.getMockImplementation()!;
     d.query.mockImplementation(async(sql,args)=>sql.includes("LEFT JOIN public.ca_reported_committee_sources")?{rows:[r]}:normal(sql,args));
     expect(await syncDueCaliforniaCommitteeReceipts({db:d.db,cacheDir:dir})).toMatchObject({enabled:true,totalDueRows:1,attemptedCount:1,writtenCount:1,heldCount:0,totalCents:70000,groupCount:7});
-    const before=structuredClone(d.stored());await fs.unlink(dir+"/dbwebexport.zip");expect(await syncDueCaliforniaCommitteeReceipts({db:d.db,cacheDir:dir})).toMatchObject({attemptedCount:1,writtenCount:0,heldCount:1});expect(d.stored()).toEqual(before);expect(d.stored().source_retrieved_at).toBe(packet.sourceRetrievedAt);
+    const before=structuredClone(d.stored());await fs.unlink(dir+"/dbwebexport.zip");expect(await syncDueCaliforniaCommitteeReceipts({db:d.db,cacheDir:dir})).toMatchObject({attemptedCount:1,writtenCount:0,heldCount:1,holds:{committee_evidence_unavailable:1}});expect(d.stored()).toEqual(before);expect(d.stored().source_retrieved_at).toBe(packet.sourceRetrievedAt);
+  });
+  it("holds a stale link when complete cover evidence resolves the candidate to a newer committee",async()=>{
+    enabled();const old=caCover({FILER_NAML:"Synthetic Candidate Assembly 2024"}),current=caCover({FILING_ID:"11",FILER_ID:"300"}),f=await californiaSourceFixture({covers:[old,current]});dirs.push(f.dir);
+    expect(()=>qualifyCaliforniaCommitteeReceiver(r,[old])).not.toThrow();
+    const d=database(),normal=d.query.getMockImplementation()!;d.query.mockImplementation(async(sql,args)=>sql.includes("LEFT JOIN public.ca_reported_committee_sources")?{rows:[r]}:normal(sql,args));
+    expect(await syncDueCaliforniaCommitteeReceipts({db:d.db,cacheDir:f.dir})).toMatchObject({attemptedCount:1,writtenCount:0,heldCount:1,holds:{stale_committee_link:1}});expect(d.stored()).toBeNull();
+    expect(await syncDueCaliforniaCommitteeReceipts({db:d.db,cacheDir:f.dir,resolutionData:{zipPath:"",sourceUrl:"",campaignCoverRows:[old],filerNameRows:[]}})).toMatchObject({writtenCount:1,heldCount:0});
   });
 });

@@ -10,4 +10,4 @@ export function parseCaliforniaReportedCommitteeArgs(args:readonly string[]){
 }
 async function main(){const options=parseCaliforniaReportedCommitteeArgs(process.argv.slice(2));if(!isCaliforniaReportedCommitteeReceiptsEnabled()){console.log(JSON.stringify({enabled:false}));return;}
   const connectionString=process.env.DATABASE_URL?.trim(),db=new Pool(connectionString?{connectionString}:undefined);try{console.log(JSON.stringify(await syncDueCaliforniaCommitteeReceipts({db,...options})));}finally{await db.end();}}
-if(process.argv[1]&&pathToFileURL(process.argv[1]).href===import.meta.url)main().catch(()=>{console.error("California reported committee sync unavailable");process.exitCode=1;});
+if(process.argv[1]&&pathToFileURL(process.argv[1]).href===import.meta.url)main().catch((e:unknown)=>{console.error("California reported committee sync unavailable:",e instanceof Error?e.message:String(e));process.exitCode=1;});

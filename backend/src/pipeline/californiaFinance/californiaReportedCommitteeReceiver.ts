@@ -1,6 +1,6 @@
 import type {Pool,PoolClient} from "pg";
 import {CALIFORNIA_FINANCE_ELIGIBLE_OFFICE_KEYS} from "./californiaFinanceEligibleOffices.js";
-import {resolveCaliforniaCandidateCommittee} from "./californiaCandidateCommitteeResolver.js";
+import {resolveCaliforniaCandidateCommittee,type CalAccessCampaignCoverRow,type CalAccessFilerNameRow} from "./californiaCandidateCommitteeResolver.js";
 import {caCommitteeHold as hold,caCommitteeDate} from "./californiaReportedCommitteeSource.js";
 export type CaliforniaCommitteeReceiver={link_id:string;candidate_id:string;election_id:string;election_year:number;committee_id:string;link_source:string;
   link_candidate_name:string;link_committee_name:string;link_office_name:string;candidate_name:string;full_name:string;office_scope:string;office_name:string;district:string|null;election_date:string};
@@ -26,7 +26,20 @@ export async function loadCaliforniaCommitteeReceiver(db:Pick<Pool|PoolClient,"q
 export function qualifyCaliforniaCommitteeReceiver(r:CaliforniaCommitteeReceiver,covers:readonly Record<string,string>[]){
   const normalize=(s:string)=>s.trim().replace(/\s+/g," ").toUpperCase();
   if(r.link_office_name!==r.office_name||r.link_candidate_name!==normalize(r.candidate_name)||!r.full_name?.trim()||!covers.length||covers.some(c=>c.FILER_ID!==r.committee_id||c.CONTROL_YN!=="Y"))hold("canonical_receiving_context_mismatch");
-  const scoped=covers.filter(c=>{try{return caCommitteeDate(c.ELECT_DATE??"").startsWith(String(r.election_year)+"-")&&(r.district===null||/^\d+$/.test(c.DIST_NO??"")&&Number(c.DIST_NO)===Number(r.district));}catch{return false;}});
+  const scoped=covers.filter(c=>{try{return caCommitteeDate(c.ELECT_DATE??"").startsWith(String(r.election_year)+"-")&&districtMatches(r,c);}catch{return false;}});
   if(!scoped.length)hold("native_receiving_office_cycle_mismatch");
-  for(const candidateName of new Set([r.candidate_name,r.full_name])){const match=resolveCaliforniaCandidateCommittee({candidateName,officeName:r.office_name,electionYear:r.election_year,campaignCoverRows:scoped});if(match.status!=="matched"||match.controlledCommitteeId!==r.committee_id)hold("canonical_native_receiver_mismatch");}
+  if(!resolvesToLinkedCommittee(r,scoped))hold("canonical_native_receiver_mismatch");
+}
+const districtMatches=(r:CaliforniaCommitteeReceiver,c:CalAccessCampaignCoverRow)=>r.district===null||/^\d+$/.test((c.DIST_NO??"").trim())&&Number(c.DIST_NO)===Number(r.district);
+function resolvesToLinkedCommittee(r:CaliforniaCommitteeReceiver,covers:readonly CalAccessCampaignCoverRow[],filerNameRows?:readonly CalAccessFilerNameRow[]){
+  for(const candidateName of new Set([r.candidate_name,r.full_name])){const match=resolveCaliforniaCandidateCommittee({candidateName,officeName:r.office_name,electionYear:r.election_year,campaignCoverRows:covers,filerNameRows});if(match.status!=="matched"||match.controlledCommitteeId!==r.committee_id)return false;}
+  return true;
+}
+/** Write-time gate. The packet and the stored facts only carry the linked committee's own filings, so
+ * qualify cannot see an old-cycle committee still filing against the new election date. Run the same
+ * resolver auto-link uses over every cover row for this candidate/office/year/district and hold unless it
+ * still picks the linked committee. Rows the resolver would drop (other election years) are skipped first. */
+export function confirmCaliforniaCommitteeLink(r:CaliforniaCommitteeReceiver,evidence:{campaignCoverRows:readonly CalAccessCampaignCoverRow[];filerNameRows?:readonly CalAccessFilerNameRow[]}){
+  const year=String(r.election_year),covers=evidence.campaignCoverRows.filter(c=>(c.ELECT_DATE??"").includes(year)&&districtMatches(r,c));
+  if(!resolvesToLinkedCommittee(r,covers,evidence.filerNameRows))hold("stale_committee_link");
 }
