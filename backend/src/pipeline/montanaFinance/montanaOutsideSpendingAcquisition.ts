@@ -28,6 +28,7 @@ import {
 } from "./montanaCersClient.js";
 import { fetchMontanaCersCandidateSearchBodyByYear } from "./montanaCandidateCersResolver.js";
 import { storeMontanaCersArtifact } from "./montanaCersArtifactCache.js";
+import { createMontanaIeHttpArchive } from "./montanaNativeHttpArchive.js";
 import {
   MontanaCersParseError,
   parseMontanaCersIeCommitteeResults,
@@ -79,7 +80,8 @@ export async function acquireMontanaCersOutsideSpendingArtifacts(input: {
     throw new Error("Invalid Montana IE sweep timestamp");
   }
 
-  const listSession = await openIeCommitteeSearch(input.year, input.sessionOptions);
+  const archive = await createMontanaIeHttpArchive(input.year,input.cacheDir,input.sessionOptions);
+  const listSession = await openIeCommitteeSearch(input.year, archive.sessionOptions);
   const committeeBody = await listSession.get(
     buildMontanaCersUrl("searchResults/listFinancialCommitteeResults", buildMontanaCersDataTablesQuery(5_000))
   );
@@ -89,7 +91,7 @@ export async function acquireMontanaCersOutsideSpendingArtifacts(input: {
   for (const committee of committees) {
     // Fresh session per committee: rows carry no committee identity, so the
     // session's entity selection is the only binding.
-    const session = await openIeCommitteeSearch(input.year, input.sessionOptions);
+    const session = await openIeCommitteeSearch(input.year, archive.sessionOptions);
     const view = await session.postForm(buildMontanaCersUrl("searchResults/viewFinancialEntities"), {
       candidateId: "0",
       committeeId: String(committee.committeeId),
@@ -119,6 +121,7 @@ export async function acquireMontanaCersOutsideSpendingArtifacts(input: {
 
   const sweepBody = JSON.stringify({
     year: input.year,
+    originalArchiveDirectory: archive.relativeDirectory,
     committeeSearch: JSON.parse(committeeBody.text()) as unknown,
     committeeTransactions,
   });
@@ -126,7 +129,7 @@ export async function acquireMontanaCersOutsideSpendingArtifacts(input: {
   // before anything is stored.
   const sweep = parseMontanaCersIeSweepArtifact(sweepBody);
 
-  const registrationBody = await fetchMontanaCersCandidateSearchBodyByYear(input.year, input.sessionOptions);
+  const registrationBody = await fetchMontanaCersCandidateSearchBodyByYear(input.year, archive.sessionOptions);
   const registrationManifest = await storeMontanaCersArtifact({
     cacheDir: input.cacheDir,
     key: { type: "ie_registration_list", year: input.year },
