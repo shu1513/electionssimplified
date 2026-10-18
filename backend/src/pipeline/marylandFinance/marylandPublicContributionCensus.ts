@@ -170,7 +170,10 @@ export async function acquireMarylandPublicContributionCensus(input:
     const request = Object.freeze({...scope, pageNumber});
     const result = await fetchMarylandPublicContributionPage({
       ...request, outputPath: join(directory, `page-${String(pageNumber).padStart(4, "0")}.original.json`),
-      timeoutMs: Math.min(timeoutMs, Math.max(1, Math.floor(deadlineAt - performance.now()))),
+      // Clamp to the deadline so an adapter that ignores abort is still bounded,
+      // but round up and add 1 ms so the census timer always fires first and the
+      // failure reads census_timeout, not the request's own timeout.
+      timeoutMs: Math.min(timeoutMs, Math.max(1, Math.ceil(deadlineAt - performance.now()) + 1)),
       maxBytes, fetchImpl: boundedFetch,
       onCapture: capture => {
         capturedBytes += capture.byteCount;
