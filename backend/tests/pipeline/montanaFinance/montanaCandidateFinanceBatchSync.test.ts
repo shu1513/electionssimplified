@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { syncDueMontanaCandidateFinance } from "../../../src/pipeline/montanaFinance/montanaCandidateFinanceBatchSync.js";
 import type { MontanaCandidateFinanceDueRow } from "../../../src/pipeline/montanaFinance/montanaCandidateFinanceDueList.js";
 import * as committeeBatch from "../../../src/pipeline/montanaFinance/montanaReportedCommitteeBatchSync.js";
+import * as independentIeBatch from "../../../src/pipeline/montanaFinance/montanaIndependentIeBatchSync.js";
 
 function dueRow(overrides: Partial<MontanaCandidateFinanceDueRow>): MontanaCandidateFinanceDueRow {
   return {
@@ -31,6 +32,16 @@ afterEach(() => {
 });
 
 describe("syncDueMontanaCandidateFinance", () => {
+  it("runs independent IE with no legacy due rows or receipts, and preserves fault isolation",async()=>{
+    vi.stubEnv("CANDIDATE_FINANCE_ENABLED","true");vi.stubEnv("MONTANA_CAMPAIGN_FINANCE_ENABLED","true");vi.stubEnv("MONTANA_REPORTED_IE_ENABLED","true");
+    vi.spyOn(committeeBatch,"syncDueMontanaCommitteeReceipts").mockRejectedValue(new Error("receipt unavailable"));
+    const independent=vi.spyOn(independentIeBatch,"syncDueMontanaIndependentIe").mockResolvedValue({enabled:true,writtenCount:1} as never);
+    const noDue=await syncDueMontanaCandidateFinance({db,autoLinkMissingLinks:false,listDueRowsFn:vi.fn().mockResolvedValue({rows:[],totalDueRows:0}),log:()=>{}});
+    expect(noDue.independentIe).toEqual({enabled:true,writtenCount:1});expect(independent).toHaveBeenCalledWith(expect.objectContaining({db,maxCandidates:10}));
+    independent.mockRejectedValue(new Error("IE unavailable"));const sync=vi.fn().mockResolvedValue({status:"synced"}),acquireOutside=vi.fn();
+    const next=await syncDueMontanaCandidateFinance({db,autoLinkMissingLinks:false,forceRawDataRefresh:true,listDueRowsFn:vi.fn().mockResolvedValue({rows:[dueRow({})],totalDueRows:1}),acquireArtifactsFn:vi.fn(),acquireOutsideArtifactsFn:acquireOutside,syncCandidateFn:sync,log:()=>{}});
+    expect(next.succeeded).toBe(1);expect(acquireOutside).not.toHaveBeenCalled();expect(sync).toHaveBeenCalledWith(expect.objectContaining({outsideArtifacts:null}));
+  });
   it("runs the independent committee schedule when no legacy summary is due", async () => {
     const component=vi.spyOn(committeeBatch,"syncDueMontanaCommitteeReceipts").mockResolvedValue({enabled:true,writtenCount:1} as never);
     const result=await syncDueMontanaCandidateFinance({db,autoLinkMissingLinks:false,

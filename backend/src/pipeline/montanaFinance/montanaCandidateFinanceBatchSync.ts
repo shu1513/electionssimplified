@@ -8,7 +8,7 @@
 
 import type { Pool, PoolClient } from "pg";
 
-import { isMontanaCampaignFinanceRawDataRefreshEnabled } from "../../config/featureFlags.js";
+import { isMontanaCampaignFinanceRawDataRefreshEnabled, isMontanaReportedIeEnabled } from "../../config/featureFlags.js";
 import {
   autoLinkMissingMontanaCandidateFinanceLinks,
   type MontanaFinanceAutoLinkResult,
@@ -24,6 +24,7 @@ import {
 import { acquireMontanaCersCandidateFinanceArtifacts } from "./montanaCersArtifactAcquisition.js";
 import { acquireMontanaCersOutsideSpendingArtifacts } from "./montanaOutsideSpendingAcquisition.js";
 import { syncDueMontanaCommitteeReceipts } from "./montanaReportedCommitteeBatchSync.js";
+import { syncDueMontanaIndependentIe } from "./montanaIndependentIeBatchSync.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 type ConnectableQueryable = Queryable & { connect: () => Promise<PoolClient> };
@@ -54,6 +55,7 @@ export type MontanaCandidateFinanceBatchSyncInput = {
 };
 
 export type MontanaCandidateFinanceBatchSyncResult = {
+  independentIe?: Awaited<ReturnType<typeof syncDueMontanaIndependentIe>>;
   committeeReceipts?: Awaited<ReturnType<typeof syncDueMontanaCommitteeReceipts>>;
   dryRun: boolean;
   rawDataRefreshEnabled: boolean;
@@ -106,7 +108,11 @@ export async function syncDueMontanaCandidateFinance(
   // Failure of this optional component cannot suppress legacy acquisition.
   let committeeReceipts: MontanaCandidateFinanceBatchSyncResult["committeeReceipts"];
   try { committeeReceipts=await syncDueMontanaCommitteeReceipts({db:input.db,now,dryRun,maxCandidates,staleAfterDays,
-    electionLookbackDays,electionLookaheadDays}); } catch { log("Montana reported committee receipts unavailable; legacy sync continues"); }
+    electionLookbackDays,electionLookaheadDays,cacheDir:input.cacheDir}); } catch { log("Montana reported committee receipts unavailable; legacy sync continues"); }
+  let independentIe: MontanaCandidateFinanceBatchSyncResult["independentIe"];
+  const independentIeEnabled=isMontanaReportedIeEnabled();
+  try { independentIe=await syncDueMontanaIndependentIe({db:input.db,now,dryRun,maxCandidates,staleAfterDays,
+    electionLookbackDays,electionLookaheadDays,cacheDir:input.cacheDir}); } catch { log("Montana independent IE unavailable; direct sync continues"); }
 
   let autoLinkResults: MontanaFinanceAutoLinkResult[] = [];
   if (!dryRun && input.autoLinkMissingLinks !== false) {
@@ -147,7 +153,7 @@ export async function syncDueMontanaCandidateFinance(
   // leg — those candidates sync with outsideArtifacts: null, which
   // preserves any prior outside snapshot.
   const outsideSweepOkByYear = new Map<number, boolean>();
-  if (rawDataRefreshEnabled) {
+  if (rawDataRefreshEnabled && !independentIeEnabled) {
     for (const year of new Set(due.rows.map((row) => row.electionYear))) {
       try {
         await acquireOutside({ year, cacheDir: input.cacheDir, now });
@@ -176,7 +182,7 @@ export async function syncDueMontanaCandidateFinance(
         });
       }
       const result = await syncCandidate({
-        ...(outsideSweepOkByYear.get(row.electionYear) === false ? { outsideArtifacts: null } : {}),
+        ...(independentIeEnabled || outsideSweepOkByYear.get(row.electionYear) === false ? { outsideArtifacts: null } : {}),
         db: input.db,
         candidateId: row.candidateId,
         electionId: row.electionId,
@@ -214,6 +220,7 @@ export async function syncDueMontanaCandidateFinance(
   }
 
   return {
+    independentIe,
     committeeReceipts,
     dryRun,
     rawDataRefreshEnabled,

@@ -11,6 +11,7 @@ import { loadStandardStateFinanceSummariesByCandidateElection } from "../finance
 import { MONTANA_CERS_DASHBOARD_URL } from "./montanaCersClient.js";
 import { isMontanaFinanceEligibleOffice } from "./montanaFinanceEligibleOffices.js";
 import { overlayMontanaCommitteeReceipts } from "./montanaReportedCommitteeReader.js";
+import { overlayMontanaIndependentIe } from "./montanaIndependentIeReader.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
@@ -58,5 +59,6 @@ export async function loadMontanaCandidateFinanceSummariesByCandidateElection(
       outsideGroupBreakdowns: "mt_candidate_finance_outside_group_breakdowns",
     },
   });
+  await overlayMontanaIndependentIe(db,summaries,candidateRows,electionRows,MONTANA_OUTSIDE_COVERAGE_NOTE);
   return overlayMontanaCommitteeReceipts(db,summaries,candidateRows,electionRows);
 }
