@@ -9,6 +9,7 @@ import {
 } from "../address/ballotLookupFinanceShared.js";
 import { loadStandardStateFinanceSummariesByCandidateElection } from "../finance/standardStateFinanceBallotLookupLoader.js";
 import { isOhioFinanceEligibleOffice } from "./ohioFinanceEligibleOffices.js";
+import { overlayOhioCommitteeReceipts } from "./ohioCommitteeReader.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
@@ -29,7 +30,7 @@ export async function loadOhioCandidateFinanceSummariesByCandidateElection(
   candidateRows: readonly StateFinanceRequestCandidateRow[],
   electionRows: readonly StateFinanceRequestElectionRow[]
 ): Promise<Map<string, BallotLookupFinanceSummary>> {
-  return loadStandardStateFinanceSummariesByCandidateElection({
+  const summaries = await loadStandardStateFinanceSummariesByCandidateElection({
     db,
     candidateRows,
     electionRows,
@@ -48,4 +49,5 @@ export async function loadOhioCandidateFinanceSummariesByCandidateElection(
       outsideGroupBreakdowns: "oh_candidate_finance_outside_group_breakdowns",
     },
   });
+  return overlayOhioCommitteeReceipts(db, summaries, candidateRows, electionRows);
 }

@@ -340,6 +340,7 @@
     "missouri-candidates:finance:scheduler:worker": "tsx src/scripts/runMissouriCandidateFinanceSyncSchedulerWorker.ts",
     "missouri-candidates:finance:scheduler:trigger": "tsx src/scripts/triggerMissouriCandidateFinanceSync.ts",
     "ohio-candidates:finance:sync-due": "tsx src/scripts/syncDueOhioCandidateFinance.ts",
+    "ohio-committee-receipts:sync-due": "tsx src/scripts/syncDueOhioCommitteeReceipts.ts",
     "ohio-candidates:finance:raw:refresh": "tsx src/scripts/refreshOhioSosCampaignFinanceRawData.ts",
     "ohio-candidates:finance:scheduler:upsert": "tsx src/scripts/upsertOhioCandidateFinanceSyncScheduler.ts",
     "ohio-candidates:finance:scheduler:worker": "tsx src/scripts/runOhioCandidateFinanceSyncSchedulerWorker.ts",
