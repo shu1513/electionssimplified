@@ -23,8 +23,11 @@ describe("Montana independent committee schedule and gate",()=>{
     const query=vi.fn(async()=>({rows:[{link_id:"synthetic"}]})),connect=vi.fn();
     expect(await syncDueMontanaCommitteeReceipts({db:{query,connect} as never,dryRun:true})).toMatchObject({enabled:true,dryRun:true,totalDueRows:1,attemptedCount:0});expect(connect).not.toHaveBeenCalled();
   });
-  it("CLI accepts dry-run only; no identity, year, file, amount or source-clock overrides",()=>{
+  it("CLI accepts dry-run and deadline staleness; no identity, year, file, amount or source-clock overrides",()=>{
     expect(parseMontanaCommitteeArgs([])).toEqual({dryRun:false});expect(parseMontanaCommitteeArgs(["--dry-run"])).toEqual({dryRun:true});
+    expect(parseMontanaCommitteeArgs(["--stale-after-days","1"])).toEqual({dryRun:false,staleAfterDays:1});
+    expect(parseMontanaCommitteeArgs(["--dry-run","--stale-after-days=1"])).toEqual({dryRun:true,staleAfterDays:1});
     for(const args of [["--candidate-id","100"],["--year","2026"],["--cache-dir","x"],["--source-date","x"],["--force"],["--dry-run","--dry-run"]])expect(()=>parseMontanaCommitteeArgs(args)).toThrow();
+    for(const args of [["--stale-after-days"],["--stale-after-days=0"],["--stale-after-days=-1"],["--stale-after-days=1.5"],["--stale-after-days=9007199254740992"],["--stale-after-days=1","--stale-after-days=2"]])expect(()=>parseMontanaCommitteeArgs(args)).toThrow();
   });
 });

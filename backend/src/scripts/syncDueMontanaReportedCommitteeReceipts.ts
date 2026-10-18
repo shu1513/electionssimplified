@@ -2,11 +2,15 @@ import { pathToFileURL } from "node:url";
 import { Pool } from "pg";
 import { syncDueMontanaCommitteeReceipts } from "../pipeline/montanaFinance/montanaReportedCommitteeBatchSync.js";
 import { isMontanaReportedCommitteeReceiptsEnabled } from "../config/featureFlags.js";
+import { assertKnownCliFlags } from "./financeCliFlagGuard.js";
+import { readStrictPositiveIntegerFlag } from "../utils/cliFlags.js";
 
 // Process configuration only: no environment-file loading or identity selectors.
 export function parseMontanaCommitteeArgs(args:readonly string[]){
-  if(args.some(a=>a!=="--dry-run")||new Set(args).size!==args.length)throw new Error("Only --dry-run is supported");
-  return {dryRun:args.includes("--dry-run")};
+  assertKnownCliFlags(args,"Montana committee receipts",new Set(["--dry-run"]),new Set(["--stale-after-days"]));
+  if(args.filter(a=>a==="--dry-run").length>1)throw new Error("Provide --dry-run at most once");
+  const staleAfterDays=readStrictPositiveIntegerFlag(args,"--stale-after-days");
+  return {dryRun:args.includes("--dry-run"),...(staleAfterDays===undefined?{}:{staleAfterDays})};
 }
 async function main(){
   const options=parseMontanaCommitteeArgs(process.argv.slice(2));
