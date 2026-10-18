@@ -22,7 +22,7 @@ The shared factory (`createStandardStateFinanceSnapshotWriter`) after PR #488 + 
 |---|---|---|---|---|---|---|---|---|
 | alaska | 5 | →`candidate_filer_id`/`candidate_filer_name` | R; **deletes summary row when absent; unconditional stale deletes for omitted sections** (full-replace snapshot semantics — one-state, verified 2026-08-02) | 2000 | pool | G | — | std |
 | arizona | 5 | none | R | 2002 | pool | g | — | std |
-| california | 5 | no `district`; →`controlled_committee_id`/`_name` | C; +`debts_owed`; no `direct_contribution_total` | 2001 | self | — | — | std+`contributor_source_type`+`industry` |
+| california | 5 legacy + 3 independent reported-committee tables (357) | →`controlled_committee_id`/`_name`; new component rechecks native and canonical district | C legacy; independent source/group replacement with own source clock and attempt schedule | 2001 | self + independent pool transaction | canonical controlled receiver; complete native ZIP/table and current-amendment A/C control closure | signed receipt corrections; explicit transfers/memos/child rows excluded | std+`contributor_source_type`+`industry`; separately gated reported committee-interest overlay ([plan](plans/plan-california-finance-gaps.md)) |
 | colorado | 3 (no outside) | +`tracer_candidate_id` | C; only receipts+source | 2001 | self | — | — | std |
 | connecticut | 4 (no `outside_group_breakdowns`; outside groups since the 2026-09 IE PR, keyed by normalized committee name) | none | C; no direct/cash | 2008 | self | — | — | std |
 | districtOfColumbia | 5 | →`committee_key` | C | 2000 | pool | G | — | std |

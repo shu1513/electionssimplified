@@ -159,6 +159,7 @@
     "austin-candidates:finance:sync-due": "tsx src/scripts/syncDueAustinCandidateFinance.ts",
     "california-candidates:finance:sync": "tsx src/scripts/syncCaliforniaCandidateFinance.ts",
     "california-candidates:finance:sync-due": "tsx src/scripts/syncDueCaliforniaCandidateFinance.ts",
+    "california-candidates:finance:reported-committees:sync-due": "tsx src/scripts/syncDueCaliforniaReportedCommitteeReceipts.ts",
     "california-candidates:finance:raw:probe": "tsx src/scripts/probeCaliforniaCampaignFinanceRawData.ts",
     "california-candidates:finance:raw:refresh": "tsx src/scripts/refreshCaliforniaCampaignFinanceRawData.ts",
     "california-candidates:finance:raw:scheduler:upsert": "tsx src/scripts/upsertCaliforniaCampaignFinanceRawDataRefreshScheduler.ts",

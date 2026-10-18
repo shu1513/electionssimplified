@@ -91,6 +91,8 @@ export const isArizonaCampaignFinanceSyncEnabled = arizonaFinance.isSyncEnabled;
 
 const californiaFinance = defineStateFinanceFlagPair("CALIFORNIA_CAMPAIGN_FINANCE");
 export const isCaliforniaCampaignFinanceEnabled = californiaFinance.isEnabled;
+export const isCaliforniaReportedCommitteeReceiptsEnabled = (): boolean =>
+  isCaliforniaCampaignFinanceEnabled() && readBooleanEnv("CALIFORNIA_REPORTED_COMMITTEE_RECEIPTS_ENABLED", false);
 export const isCaliforniaCampaignFinanceSyncEnabled = californiaFinance.isSyncEnabled;
 export const isCaliforniaCampaignFinanceRawDataRefreshEnabled = californiaFinance.gate(
   "CALIFORNIA_CAMPAIGN_FINANCE_RAW_DATA_REFRESH_ENABLED"
