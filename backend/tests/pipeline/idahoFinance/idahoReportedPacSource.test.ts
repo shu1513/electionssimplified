@@ -80,5 +80,6 @@ describe("Idaho native itemized Political Committee source", () => {
     expect(aggregateIdahoPacRows([pacReceipt(), pacReceipt(2, "Synthetic PAC", -100)])).toMatchObject({ totalCents: 0, canceledGroupCount: 1, canceledRowCount: 2, groups: [] });
     expect(() => aggregateIdahoPacRows([pacReceipt(1, "Synthetic PAC", -1)])).toThrow(/negative_reported_pac_balance/);
     expect(idPacCents(0.29)).toBe(29); expect(() => idPacCents(0.001)).toThrow(/invalid_native_money/);
+    expect(() => idPacCents(90071992547409.9)).toThrow(/unsafe_native_money/);
   });
 });

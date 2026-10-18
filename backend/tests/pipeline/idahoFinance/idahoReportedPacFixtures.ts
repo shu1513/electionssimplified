@@ -1,6 +1,12 @@
 import { type IdahoPacScope } from "../../../src/pipeline/idahoFinance/idahoReportedPacSource.js";
+import type { IdahoPacReceiver } from "../../../src/pipeline/idahoFinance/idahoReportedPacReceiver.js";
 export const pacGuid = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 export const pacScope: IdahoPacScope = { registrationGuid: pacGuid(1), electionYear: 2026 };
+export const pacReceiver: IdahoPacReceiver = { link_id: pacGuid(30), candidate_id: pacGuid(31), election_id: pacGuid(32), election_year: 2026,
+  registration_guid: pacScope.registrationGuid, link_source: "sunshine_grid", link_candidate_name: "SYNTHETIC CANDIDATE",
+  link_filer_name: "Candidate, Synthetic", link_district: "1", link_office_name: "State Senator", candidate_name: "Synthetic Candidate",
+  full_name: "Synthetic Candidate", office_scope: "state_upper", office_name: "State Senator", district_name: "Legislative District 1",
+  legislative_district: 1, ballot_title: "State Senator", election_date: "2026-11-03" };
 export function pacReceipt(id = 1, name = "Synthetic PAC", amount = 100, subtype = "ITMY", sourceEntityId = 10) {
   return { guid: pacGuid(100 + id), transactionId: id, transactionVersionId: amount < 0 ? 2 : 1,
     filerReportId: 100, filerReportVersionId: 2, filerReportGuid: pacGuid(20), filerRegistrationGuid: pacScope.registrationGuid,

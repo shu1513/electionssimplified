@@ -30,6 +30,9 @@ export function idPacInteger(v: unknown, min = 0): number {
 }
 export function idPacCents(v: unknown): number {
   if (typeof v !== "number" || !Number.isFinite(v) || !/^-?\d+(?:\.\d{1,2})?$/.test(String(v))) idPacHold("invalid_native_money");
+  // The native DTO uses JSON numbers. Beyond this binary spacing, distinct
+  // source cents can collapse before parsing; a safe integer alone is weaker.
+  if (Math.abs(v) >= 2 ** 46) idPacHold("unsafe_native_money");
   const [whole, fraction = ""] = String(v).replace(/^-/, "").split(".");
   const exact = (BigInt(whole!) * 100n + BigInt(fraction.padEnd(2, "0"))) * (v < 0 ? -1n : 1n);
   if (exact > BigInt(Number.MAX_SAFE_INTEGER) || exact < BigInt(Number.MIN_SAFE_INTEGER)) idPacHold("unsafe_native_money"); return Number(exact);
@@ -52,15 +55,17 @@ function page(value: unknown, size: number): IdahoPacRow[] {
   if (!Array.isArray(p.items) || !metadata || idPacInteger(p.totalItems) !== p.items.length || p.items.length > size) idPacHold("incomplete_native_page");
   return p.items.map(idPacObject);
 }
-function profile(value: unknown, r: IdahoCandidateRegistrationRow) {
-  const p = idPacObject(envelope(value));
+export function validateIdahoPacNativeProfile(p: IdahoPacRow, r: IdahoCandidateRegistrationRow): void {
   if (p.filerRegistrationID !== r.filerRegistrationId || p.entityID !== r.filerEntityId || p.electionYear !== r.electionYear ||
     p.filerTypeCode !== "CAN" || p.registrationStatus !== "ACTIVE" || p.officeSought !== r.office ||
     idahoCandidateNameMatchConfidence([idPacText(p.fullName)], [idahoRegistrationRowName(r)]) === null) idPacHold("receiving_profile_mismatch");
   const location = (v: string) => v.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[^A-Z0-9]+/g, " ").trim();
   const zone = ` ${location(idPacText(p.officeDistrictTypeZone))} `;
   for (const value of [r.district, r.seatZone]) if (value && !zone.includes(` ${location(value)} `)) idPacHold("receiving_profile_district_mismatch");
-  idPacText(p.jurisdictionName); return p;
+  idPacText(p.jurisdictionName);
+}
+function profile(value: unknown, r: IdahoCandidateRegistrationRow) {
+  const p = idPacObject(envelope(value)); validateIdahoPacNativeProfile(p, r); return p;
 }
 function financialSummary(value: unknown) {
   const s = idPacObject(envelope(value));

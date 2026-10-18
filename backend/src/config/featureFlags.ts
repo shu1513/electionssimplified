@@ -227,6 +227,7 @@ export const isKansasCampaignFinanceSyncEnabled = kansasFinance.isSyncEnabled;
 const idahoFinance = defineStateFinanceFlagPair("IDAHO_CAMPAIGN_FINANCE");
 export const isIdahoCampaignFinanceEnabled = idahoFinance.isEnabled;
 export const isIdahoCampaignFinanceSyncEnabled = idahoFinance.isSyncEnabled;
+export const isIdahoReportedPacReceiptsEnabled = idahoFinance.gate("IDAHO_REPORTED_PAC_RECEIPTS_ENABLED");
 export const isIdahoCampaignFinanceRawDataRefreshEnabled = idahoFinance.gate(
   "IDAHO_CAMPAIGN_FINANCE_RAW_DATA_REFRESH_ENABLED"
 );
