@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { createReadStream } from "node:fs";
-import { copyFile, mkdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
+import { chmod, copyFile, mkdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
 import {
@@ -307,10 +307,14 @@ export async function storeOhioSosArtifact(input: {
   }
   const { sha256, byteSize } = await hashOhioSosFile(input.downloadPath);
 
-  await mkdir(paths.cacheDir, { recursive: true });
+  // The verified receipt reader requires private originals. Enforce this
+  // here rather than depending on the acquisition process's ambient umask.
+  await mkdir(paths.cacheDir, { recursive: true, mode: 0o700 });
+  await chmod(paths.cacheDir, 0o700);
   const tmpPath = `${paths.filePath}.tmp-${process.pid}-${retrievedAt.getTime()}`;
   await copyFile(input.downloadPath, tmpPath);
   try {
+    await chmod(tmpPath, 0o600);
     await rename(tmpPath, paths.filePath);
   } catch (error) {
     await rm(tmpPath, { force: true }).catch(() => {});
@@ -348,7 +352,7 @@ export async function storeOhioSosArtifact(input: {
   // window is milliseconds in an attended run and the installed bytes were
   // already validated, so the residual risk is stale metadata, not bad data.
   const tmpManifestPath = `${paths.manifestPath}.tmp-${process.pid}-${retrievedAt.getTime()}`;
-  await writeFile(tmpManifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+  await writeFile(tmpManifestPath, `${JSON.stringify(manifest, null, 2)}\n`, { encoding: "utf8", mode: 0o600, flag: "wx" });
   try {
     await rename(tmpManifestPath, paths.manifestPath);
   } catch (error) {
