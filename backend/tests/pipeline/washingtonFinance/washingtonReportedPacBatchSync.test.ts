@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { Pool } from "pg";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { createWashingtonPacSourceProducer } from "../../../src/pipeline/washingtonFinance/washingtonReportedPacCache.js";
+import { createWashingtonPacSourceProducer, readWashingtonPacSource } from "../../../src/pipeline/washingtonFinance/washingtonReportedPacCache.js";
 import { listDueWashingtonReportedPacReceipts, syncDueWashingtonReportedPacReceipts } from "../../../src/pipeline/washingtonFinance/washingtonReportedPacBatchSync.js";
 import { fixture, guid, scope } from "./washingtonReportedPacFixtures.js";
 const receiver = { link_id: guid(1), candidate_id: guid(2), election_id: guid(3), election_year: 2026, filer_id: scope.filerId,
@@ -13,7 +13,7 @@ const missing = { ...receiver, source_clock: null, source_manifest: null, source
   source_election: null, last_attempted_at: null, attempt_filer: null, attempt_committee: null, attempt_candidate: null, attempt_election: null, attempt_manifest: null };
 let dir: string;
 beforeEach(async () => { dir = await mkdtemp(join(tmpdir(), "wa-pac-batch-")); vi.stubEnv("WASHINGTON_CAMPAIGN_FINANCE_ENABLED", "true"); vi.stubEnv("WASHINGTON_REPORTED_PAC_RECEIPTS_ENABLED", "true"); vi.stubEnv("WASHINGTON_PDC_RAW_DATA_REFRESH_ENABLED", "false"); });
-afterEach(async () => { vi.unstubAllEnvs(); await rm(dir, { recursive: true, force: true }); });
+afterEach(async () => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); await rm(dir, { recursive: true, force: true }); });
 function database(rows: unknown[] = [missing]) {
   const query = vi.fn(async (sql: string) => {
     if (sql.includes("LEFT JOIN public.wa_reported_pac_sources")) return { rows };
@@ -51,6 +51,14 @@ describe("independent Washington PAC ordinary sync", () => {
   it("missing source writes only a nonfinancial attempt, never zeros", async () => {
     const { db, query } = database(), result = await syncDueWashingtonReportedPacReceipts({ db, cacheDir: dir });
     expect(result).toMatchObject({ writtenCount: 0, heldCount: 1, holds: { source_unavailable: 1 } });
+    expect(query.mock.calls.filter(c => /^(INSERT|UPDATE|DELETE)/.test(c[0])).every(c => c[0].includes("wa_reported_pac_attempts"))).toBe(true);
+  });
+  it("failed ordinary raw refresh retains prior source/date and never replaces accepted money", async () => {
+    const f = fixture(), saved = (await createWashingtonPacSourceProducer({ cacheDir: dir, fetchImpl: f.fetchImpl, minimumGapMs: 0 }).refresh(scope))!;
+    f.state.status = 503; vi.stubGlobal("fetch", f.fetchImpl); vi.stubEnv("WASHINGTON_PDC_RAW_DATA_REFRESH_ENABLED", "true");
+    const { db, query } = database(), result = await syncDueWashingtonReportedPacReceipts({ db, cacheDir: dir, refresh: true });
+    expect(result).toMatchObject({ writtenCount: 0, heldCount: 1, acquisitionStopped: true, holds: { native_transport_unavailable: 1 } });
+    expect((await readWashingtonPacSource({ ...scope, cacheDir: dir }))?.sourceRetrievedAt).toBe(saved.sourceRetrievedAt);
     expect(query.mock.calls.filter(c => /^(INSERT|UPDATE|DELETE)/.test(c[0])).every(c => c[0].includes("wa_reported_pac_attempts"))).toBe(true);
   });
   it("disabled or dry-run sync performs no financial writes", async () => {

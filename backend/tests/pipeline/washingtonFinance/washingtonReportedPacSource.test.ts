@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { aggregateWashingtonPacRows as aggregate, validateWashingtonPacScope } from "../../../src/pipeline/washingtonFinance/washingtonReportedPacSource.js";
+import { aggregateWashingtonPacRows as aggregate, validateWashingtonPacScope, waPacCents } from "../../../src/pipeline/washingtonFinance/washingtonReportedPacSource.js";
 import { createWashingtonPacSourceProducer as producer, isVerifiedWashingtonPacSource, readWashingtonPacSource,
   readWashingtonPacSourceHint } from "../../../src/pipeline/washingtonFinance/washingtonReportedPacCache.js";
 import { fixture, receipt, scope } from "./washingtonReportedPacFixtures.js";
@@ -17,6 +17,11 @@ async function manifest() {
   const body = JSON.parse(await readFile(join(cacheDir, ref.manifest), "utf8")); return { pointerFile, ref, body };
 }
 describe("Washington current reported PAC source", () => {
+  it("keeps exact cents at the safe-integer boundary and rejects money beyond it", () => {
+    expect(waPacCents("90071992547409.91")).toBe(Number.MAX_SAFE_INTEGER);
+    expect(waPacCents("-90071992547409.90")).toBe(-9007199254740990);
+    expect(() => waPacCents("90071992547409.92")).toThrow(/unsafe_native_money/);
+  });
   it("preserves opaque filer IDs with repeated spaces instead of normalizing their identity", () => {
     expect(() => validateWashingtonPacScope({ ...scope, filerId: "SYNTH  001" })).not.toThrow();
     expect(() => validateWashingtonPacScope({ ...scope, filerId: "SYNTH\n001" })).toThrow();
