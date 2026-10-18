@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { syncDueMontanaCandidateFinance } from "../../../src/pipeline/montanaFinance/montanaCandidateFinanceBatchSync.js";
 import type { MontanaCandidateFinanceDueRow } from "../../../src/pipeline/montanaFinance/montanaCandidateFinanceDueList.js";
+import * as committeeBatch from "../../../src/pipeline/montanaFinance/montanaReportedCommitteeBatchSync.js";
 
 function dueRow(overrides: Partial<MontanaCandidateFinanceDueRow>): MontanaCandidateFinanceDueRow {
   return {
@@ -26,9 +27,23 @@ const db = { query: vi.fn(), connect: vi.fn() } as never;
 
 afterEach(() => {
   vi.unstubAllEnvs();
+  vi.restoreAllMocks();
 });
 
 describe("syncDueMontanaCandidateFinance", () => {
+  it("runs the independent committee schedule when no legacy summary is due", async () => {
+    const component=vi.spyOn(committeeBatch,"syncDueMontanaCommitteeReceipts").mockResolvedValue({enabled:true,writtenCount:1} as never);
+    const result=await syncDueMontanaCandidateFinance({db,autoLinkMissingLinks:false,
+      listDueRowsFn:vi.fn().mockResolvedValue({rows:[],totalDueRows:0}),log:()=>{}});
+    expect(component).toHaveBeenCalledWith(expect.objectContaining({db,maxCandidates:10,electionLookbackDays:98,dryRun:false}));
+    expect(result.attempted).toBe(0);expect(result.committeeReceipts).toEqual({enabled:true,writtenCount:1});
+  });
+  it("continues legacy work after an independent component failure", async () => {
+    vi.spyOn(committeeBatch,"syncDueMontanaCommitteeReceipts").mockRejectedValue(new Error("synthetic component failure"));
+    const sync=vi.fn().mockResolvedValue({status:"synced"}),result=await syncDueMontanaCandidateFinance({db,autoLinkMissingLinks:false,
+      listDueRowsFn:vi.fn().mockResolvedValue({rows:[dueRow({})],totalDueRows:1}),syncCandidateFn:sync,log:()=>{}});
+    expect(sync).toHaveBeenCalledTimes(1);expect(result.succeeded).toBe(1);
+  });
   it("skips acquisition when the raw-refresh flag is off and syncs from cache", async () => {
     const acquire = vi.fn();
     const sync = vi.fn().mockResolvedValue({ status: "synced" });
