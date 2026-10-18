@@ -6,7 +6,7 @@ const envelope = (items: unknown[]) => ({ succeeded: true, data: { items, totalI
 export function nativeFixture() {
   let renamed = false;
   const registration = (n: number) => ({ guid: guid(n), filerEntityId: n, filerName: n === 1000 && renamed ? "Renamed synthetic filer" : `Synthetic filer ${n}`,
-    electionId: 10, electionYear: 2026, electionCycle: "2026 Election Cycle", filerStatus: "Active",
+    electionId: 10, electionYear: 2026, electionCycle: "2026 Election Cycle", filerStatus: n === 1000 && state.blankFilerStatus ? "" : "Active",
     filerTypeCode: n === 1000 ? "CAN" : "PAC", filerSubTypeCode: null, filerSubTypeName: null,
     firstnameLastname: n === 1000 ? "Synthetic Candidate" : null, firstName: n === 1000 ? "Synthetic" : null,
     lastName: n === 1000 ? "Candidate" : null, committeeName: n === 2000 ? "Synthetic Committee" : null,
@@ -23,6 +23,7 @@ export function nativeFixture() {
   });
   const state = {
     emptyReceiver: false, emptyIe: false, failReceipts: false, changeClosing: false, renameReceiverAfterReceipts: false, paperAmendment: false,
+    blankFilerStatus: false,
     receipts: [row(1, 1000), row(2, 1000, true), { ...row(3, 1000), transactionSourceTypeCode: "TBSN", sourceName: "Synthetic PAC Business" },
       { ...row(4, 1000), transactionAmount: 25, transactionSubTypeCode: "INKIND", sourceName: "SYNTHETIC COMMITTEE" },
       { ...row(5, 1000), transactionSubTypeCode: "LOAN" }],

@@ -33,5 +33,8 @@ async function main(){
   }finally{await db.end();}
 }
 if((process.argv[1]?pathToFileURL(process.argv[1]).href:null)===import.meta.url){
-  main().catch(()=>{console.error("New Hampshire reported finance sync failed");process.exitCode=1;});
+  main().catch((error:unknown)=>{
+    console.error("New Hampshire reported finance sync failed:",error instanceof Error?error.message:String(error));
+    process.exitCode=1;
+  });
 }

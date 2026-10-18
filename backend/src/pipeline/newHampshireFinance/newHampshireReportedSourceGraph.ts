@@ -80,6 +80,9 @@ function validateRegistry(base: NewHampshireReportedBase): void {
     const id = nhSourceInteger(row.filerEntityId);
     if (ids.has(id)) nhSourceHold("duplicate_registry_identity");
     ids.add(id); nhSourceGuid(row.guid); nhSourceText(row.filerName);
+    // Every field parseNewHampshireFilingEntityRow requires, so a cached base
+    // never fails to parse later (the batch reparses it outside per-receiver holds).
+    nhSourceText(row.filerTypeCode); nhSourceText(row.filerStatus);
     if (row.electionId !== base.electionCycleId || row.electionYear !== base.electionYear ||
       row.electionCycle !== `${base.electionYear} Election Cycle`) nhSourceHold("registry_cycle_mismatch");
   }

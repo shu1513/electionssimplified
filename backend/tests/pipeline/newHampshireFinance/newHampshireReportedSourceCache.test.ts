@@ -118,6 +118,13 @@ describe("New Hampshire immutable reported-source cache", () => {
     await expect(readNewHampshireReportedSource({ cacheDir, kind: "ie", electionYear: 2026 })).rejects.toMatchObject({ code: "cache_io_unavailable" });
   });
 
+  it("holds a registry whose row lacks a field the filing-entity parser requires", async () => {
+    const fixture = nativeFixture();
+    fixture.state.blankFilerStatus = true;
+    const producer = createNewHampshireReportedSourceProducer({ cacheDir, fetchImpl: fixture.fetchImpl, minimumGapMs: 0 });
+    await expect(producer.refreshBase(2026)).rejects.toMatchObject({ code: "invalid_native_text" });
+  });
+
   it("holds ambiguous candidate aliases instead of guessing target identity", async () => {
     const { producer, base } = await setup();
     const source = await producer.refreshComponent({ kind: "ie", electionYear: 2026, base: base.reference });
