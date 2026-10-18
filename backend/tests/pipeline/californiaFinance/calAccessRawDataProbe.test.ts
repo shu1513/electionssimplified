@@ -4,6 +4,8 @@ import path from "node:path";
 import { deflateRawSync } from "node:zlib";
 
 import { afterEach, describe, expect, it } from "vitest";
+import {createHash} from "node:crypto";
+import {scanCalAccessCompleteTable} from "../../../src/pipeline/californiaFinance/calAccessCompleteTableScan.js";
 
 import {
   listCalAccessRawDataZipEntries,
@@ -102,6 +104,29 @@ async function writeFixtureZip(entries: readonly ZipFixtureEntry[]): Promise<str
 }
 
 describe("calAccessRawDataProbe", () => {
+  it("scans complete source bytes after filtering and keeps an unterminated final row",async()=>{
+    const content="FILING_ID\tAMOUNT\r\n1\t10\r\n2\t20\r\n1\t-5",name="CalAccess/DATA/RCPT_CD.TSV",zipPath=await writeFixtureZip([{fileName:name,content,compressionMethod:8,forceZip64CentralDirectory:true}]),rows:Record<string,string>[]=[];
+    const result=await scanCalAccessCompleteTable({zipPath,fileName:name,firstColumnValues:new Set(["1"]),onRow:r=>rows.push(r)});
+    expect(rows).toEqual([{FILING_ID:"1",AMOUNT:"10"},{FILING_ID:"1",AMOUNT:"-5"}]);expect(result).toMatchObject({rows:3,selectedRows:2,bytes:Buffer.byteLength(content),sha256:createHash("sha256").update(content).digest("hex")});
+  });
+  it("rejects malformed selected widths, duplicated headers and incomplete byte controls",async()=>{
+    const name="CalAccess/DATA/RCPT_CD.TSV";
+    for(const content of["ID\tAMOUNT\n1\t10\textra\n","ID\tID\n1\t10\n"]){const zipPath=await writeFixtureZip([{fileName:name,content}]);await expect(scanCalAccessCompleteTable({zipPath,fileName:name,onRow:()=>{}})).rejects.toThrow(/width|headers/);}
+    const zipPath=await writeFixtureZip([{fileName:name,content:"ID\tAMOUNT\n1\t10\n"}]);await expect(scanCalAccessCompleteTable({zipPath,fileName:name,maxUncompressedBytes:1,onRow:()=>{}})).rejects.toThrow(/budget/);
+    const zip=makeZip([{fileName:name,content:"ID\tAMOUNT\n1\t10\n"}]),central=zip.indexOf(Buffer.from([0x50,0x4b,0x01,0x02]));zip.writeUInt32LE(zip.readUInt32LE(central+24)+1,central+24);await writeFile(zipPath,zip);
+    await expect(scanCalAccessCompleteTable({zipPath,fileName:name,onRow:()=>{}})).rejects.toThrow(/Incomplete/);
+  });
+  it("applies receiving-owner filters before decoding unrelated historical rows",async()=>{
+    const fileName="CalAccess/DATA/CVR_CAMPAIGN_DISCLOSURE_CD.TSV",content="FILING_ID\tFILER_ID\tFORM_TYPE\n1\t200\tF460\textra\n2\t100\tF460\n",zipPath=await writeFixtureZip([{fileName,content}]),rows:Record<string,string>[]=[];
+    const result=await scanCalAccessCompleteTable({zipPath,fileName,columnValues:{column:"FILER_ID",values:new Set(["100"])},onRow:r=>rows.push(r)});expect(result).toMatchObject({rows:2,selectedRows:1,bytes:Buffer.byteLength(content)});expect(rows[0]?.FILING_ID).toBe("2");
+    await expect(scanCalAccessCompleteTable({zipPath,fileName,columnValues:{column:"FILER_ID",values:new Set(["200"])},onRow:()=>{}})).rejects.toThrow(/width/);
+    await expect(scanCalAccessCompleteTable({zipPath,fileName,columnValues:{column:"MISSING",values:new Set(["100"])},onRow:()=>{}})).rejects.toThrow(/filter column/);
+  });
+  it("rejects duplicate table entries and propagates callback failure",async()=>{
+    const fileName="CalAccess/DATA/RCPT_CD.TSV",content="ID\tAMOUNT\n1\t10\n",zipPath=await writeFixtureZip([{fileName,content},{fileName,content}]);
+    await expect(scanCalAccessCompleteTable({zipPath,fileName,onRow:()=>{}})).rejects.toThrow(/ambiguous/);
+    const normal=await writeFixtureZip([{fileName,content,compressionMethod:8}]);await expect(scanCalAccessCompleteTable({zipPath:normal,fileName,onRow:()=>{throw Error("synthetic hold");}})).rejects.toThrow("synthetic hold");
+  });
   afterEach(async () => {
     const dirs = tempDirs;
     tempDirs = [];

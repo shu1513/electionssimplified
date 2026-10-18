@@ -250,6 +250,16 @@ export async function listCalAccessRawDataZipEntries(zipPath: string): Promise<C
   return (await readZipEntries(zipPath)).map(({ compressionMethodCode, localHeaderOffset, encrypted, ...entry }) => entry);
 }
 
+/** Open one checked entry for callers that must consume the complete table. */
+export async function openCalAccessRawDataTableStream(zipPath:string,fileName:string){
+  const matches=(await readZipEntries(zipPath)).filter(e=>e.fileName===fileName),entry=matches[0];
+  if(matches.length!==1||!entry||entry.isDirectory||entry.encrypted||![0,8].includes(entry.compressionMethodCode)||entry.compressedSize===0)
+    throw new Error("Missing, ambiguous or unsupported CAL-ACCESS table");
+  const start=await readEntryDataOffset(zipPath,entry),source=createReadStream(zipPath,{start,end:start+entry.compressedSize-1});
+  const stream=entry.compressionMethodCode===8?source.pipe(createInflateRaw()):source;
+  source.on("error",error=>stream.destroy(error));return {source,stream,entry};
+}
+
 async function readEntryDataOffset(zipPath: string, entry: InternalZipEntry): Promise<number> {
   const localHeader = await readFileRange(zipPath, entry.localHeaderOffset, 30);
   if (localHeader.readUInt32LE(0) !== LOCAL_FILE_HEADER_SIGNATURE) {
