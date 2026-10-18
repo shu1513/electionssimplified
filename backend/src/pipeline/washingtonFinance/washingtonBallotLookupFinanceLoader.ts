@@ -7,6 +7,7 @@ import type {
   StateFinanceRequestElectionRow,
 } from "../address/ballotLookupFinanceShared.js";
 import { loadStandardStateFinanceSummariesByCandidateElection } from "../finance/standardStateFinanceBallotLookupLoader.js";
+import { overlayWashingtonReportedPacReceipts } from "./washingtonReportedPacReader.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
@@ -32,7 +33,7 @@ export async function loadWashingtonCandidateFinanceSummariesByCandidateElection
   candidateRows: readonly StateFinanceRequestCandidateRow[],
   electionRows: readonly StateFinanceRequestElectionRow[]
 ): Promise<Map<string, BallotLookupFinanceSummary>> {
-  return loadStandardStateFinanceSummariesByCandidateElection({
+  const summaries = await loadStandardStateFinanceSummariesByCandidateElection({
     db,
     candidateRows,
     electionRows,
@@ -54,4 +55,5 @@ export async function loadWashingtonCandidateFinanceSummariesByCandidateElection
       outsideGroupBreakdowns: "wa_candidate_finance_outside_group_breakdowns",
     },
   });
+  return overlayWashingtonReportedPacReceipts(db, summaries, candidateRows, electionRows);
 }

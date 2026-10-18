@@ -20,7 +20,10 @@ export function waPacObject(v: unknown): WashingtonPacRow {
 }
 export function waPacCents(v: unknown): number {
   if (typeof v !== "string" || !/^-?\d+(?:\.\d{1,2})?$/.test(v)) waPacHold("invalid_native_money");
-  const n = Math.round(Number(v) * 100); if (!Number.isSafeInteger(n)) waPacHold("unsafe_native_money"); return n;
+  const [whole, fraction = ""] = v.replace(/^-/, "").split(".");
+  const exact = (BigInt(whole!) * 100n + BigInt(fraction.padEnd(2, "0"))) * (v.startsWith("-") ? -1n : 1n);
+  if (exact > BigInt(Number.MAX_SAFE_INTEGER) || exact < BigInt(Number.MIN_SAFE_INTEGER)) waPacHold("unsafe_native_money");
+  return Number(exact);
 }
 export function validateWashingtonPacScope(s: WashingtonPacScope): void {
   if (!Number.isSafeInteger(s.electionYear) || s.electionYear < 2000 || s.electionYear > 2100 ||
