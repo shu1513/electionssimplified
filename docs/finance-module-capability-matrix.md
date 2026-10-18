@@ -30,6 +30,7 @@ The shared factory (`createStandardStateFinanceSnapshotWriter`) after PR #488 + 
 | hawaii | 5 | +`election_period` | C+oR | 2000 | pool | g | — | std |
 | houston | factory wrapper | — | factory | factory | factory | — | — | — |
 | illinois | 5 | +`sbe_candidate_id`,`sbe_district_type`,`sbe_office`,`is_at_large`; →`committee_key` | R+oC; +`debts_owed` | 2000 | pool | G,M | `cash_on_hand` | std |
+| idaho | 5 via existing factory; independent reported-PAC source/group/attempt tables since migration 352 | →`registration_guid`/`filer_name` | existing snapshot unchanged; PAC source/groups atomic replace, stale/equal-clock guards | 2026 for reported PAC | pinned pool transaction | canonical person/office/district/cycle + unique active link; native identity and itemized TPAC category closure | signed receipt corrections before grouping | existing size/source-type; separate reported committee-interest overlay |
 | indiana | 3 (no outside) | none | R; only receipts+direct | 2000 | self | M | — | std+`pac_backed_industry` |
 | kentucky | 5 | +`candidate_key`; →`committee_key` | R | 2000 | pool | G | `cash_on_hand` | std |
 | losAngelesCity | 4 (no `outside_group_breakdowns`); `lacity_` prefix | different shape (city outlier) | — | none | self | — | — | — |
@@ -54,7 +55,7 @@ The shared factory (`createStandardStateFinanceSnapshotWriter`) after PR #488 + 
 | utah | 3 + **alt outside tables** (`supporting_committees`, `supporting_committee_industries`) | →`folder_id` | R; no outside | 1998 | self | — | — | `contribution_size` only |
 | vermont | 5 | +`filer_registration_guid`,`entity_id`; →`filer_name` | R | 2000 | pool | g | — | std+`contributor_source_type`+`donor` |
 | virginia | 3 (no outside) | +`committee_code` | C; only receipts+direct | 2000 | self | — | — | std |
-| washington | 5 | +`filer_id`,`candidacy_id` | C+oR | 2000 | pool | g | — | std+`employer`+`industry` |
+| washington | 5 legacy; independent PAC `sources`/`groups` plus nonfinancial `attempts` (migration 351) | +`filer_id`,`candidacy_id` | legacy C+oR; atomic PAC replacement after original-byte replay and canonical receiver locks | 2000 | pool | g; PAC full signed/count/provenance closure | PAC C.1 adjustments before positive-net groups | std+`employer`+`industry`; native reported PAC receipts |
 | wisconsin | 5 | +`entity_id`,`assigned_committee_id` | C | 2000 | pool | g | — | std+`employer`+`industry` |
 
 ### Writer outside-group identity columns
@@ -89,6 +90,7 @@ Val+ distribution before Missouri: pairing validation `G` in 12 (two message var
 | hawaii | standard | `committee_id` | `committee_id` |
 | houston / illinois / texas | wrappers over shared loader | — | — |
 | indiana | standard | `committee_id` | direct-only |
+| idaho | standard wrapper plus default-off reported-PAC overlay | `registration_guid` | `filer_key`; reported PAC groups use native source entity keys, full totals before top-five details; IE already wired, electioneering excluded |
 | kentucky | standard | `committee_key` | `committee_key` |
 | losAngelesCity | `losAngelesBallotLookupFinanceLoader.ts` | `fppc_committee_id` | city outlier |
 | louisiana | standard | `filer_number` | `filer_number` |
@@ -109,7 +111,7 @@ Val+ distribution before Missouri: pairing validation `G` in 12 (two message var
 | utah | standard | `folder_id` | alt tables |
 | vermont | standard | `filer_registration_guid` | `filer_registration_guid` |
 | virginia | standard | `committee_id` | direct-only |
-| washington | **wrapper over shared loader** (descriptor-cohort pilot) | `committee_id` | `sponsor_id`/`sponsor_name` via `outsideGroupIdentityColumns` |
+| washington | **wrapper over shared loader** plus default-off validated reported-PAC overlay; full totals before named-detail caps | `committee_id` | `sponsor_id`/`sponsor_name` via `outsideGroupIdentityColumns` |
 | wisconsin | **wrapper over shared loader** | `committee_id` | `sponsor_id`/`sponsor_name` via `outsideGroupIdentityColumns` |
 
 Mixed-identity states (link column ≠ outside column) are why the loader descriptor must be per-relation, not a single option.
@@ -169,12 +171,12 @@ Hand-verified from each module's writer/loader/due-list files. Legend: **W** = w
 
 | Module | Lines | Tables | W | L | D | AL/BS/SCH | Writer options | Loader options |
 |---|---|---|---|---|---|---|---|---|
-| ohio | 6,355 | `oh_` 5 | W | L | D (in batchSync) | 1/1/1 | floor 2000, pairing, `sos_bulk_export` supersession | donor-only evidence |
+| ohio | 6,355 + independent receipt component | `oh_` 5 + 3 reported-committee tables | W + pinned receipt transaction | L + uncapped committee overlay | D + independent source-clock/held rotation | 1/1/1 | floor 2000, pairing, `sos_bulk_export` supersession; migration 353 preserves legacy rows/clocks | donor-only outside evidence; report-year cash/in-kind registry/declared committees before separate returns, including unsorted |
 | northCarolina | 7,024 | `nc_` 5 | W | L | D (in batchSync) | 1/1/1 | floor 2000, pairing, `ncsbe_portal` supersession | donor-only evidence |
 | georgia | 4,569 | `ga_` 5 | W | L | D | 1/1/1 | floor 2026, signed cash, pairing, `peachfile_api` supersession | donor-only evidence |
 | rhodeIsland | 4,251 | `ri_` 5 | W | L | — (import-style) | 1/0/0 | floor 2026, signed cash, pairing, `erts_portal` supersession | donor-only, `contribution_size` only |
 | missouri | 4,702 | `mo_` 5 | W | L | D (`electionStage: "general"`, `selectElectionDate`, `linkColumns` +`link_source`, DIRECT office subset; migrated 2026-09-04) | 1/1/1 | floor 2024, pairing, `mec_portal` supersession, M+ | donor-only, PAC action label |
-| newHampshire | 4,056 | `nh_` 5 | W | L | bespoke — **stays** (general-stage shape plus a `candidateNames[]` spelling list that `chooseSyncCandidateName` verifies against the linked filer; one-state, load-bearing) | 1/1/0 | floor 2016, M+, `cfs_registration` supersession | `linkIdentityColumn: filing_entity_id`, `industry`+`contribution_size`, donor-only |
+| newHampshire | 4,056 | `nh_` 5 (plus 3 independent reported-finance tables, migration 350) | W | L + reported component overlay | bespoke — **stays** (general-stage shape plus a `candidateNames[]` spelling list that `chooseSyncCandidateName` verifies against the linked filer; one-state, load-bearing); separate reported-finance due list | 1/1/0 + independent reported sync | floor 2016, M+, `cfs_registration` supersession; reported components use current filing authority and original-byte cache replay | `linkIdentityColumn: filing_entity_id`, `industry`+`contribution_size`, donor-only; separately gated IE and reported committee receipts ([plan](plans/plan-new-hampshire-finance.md)) |
 | delaware | 3,896 | `de_` 5 | W | L | D (`electionStage: "general"`, `selectElectionDate`, `linkColumns` +`link_source`, `committee_id` → `cfId`; migrated 2026-09-04) | 1/1/0 | floor 2026, `cfrs_portal` supersession, M+ | defaults |
 | nevada | 1,879 | `nv_` 5 | W | L | — (import-style) | 0/0/0 | floor 2004, M+, `aurora_search` supersession | `linkIdentityColumn: filer_key`, `industry`+`contribution_size`, donor-only |
 | montana | 5,070 | `mt_` 5 | W | L | D (`electionStage: "general"`, `selectElectionDate`, `linkColumns` +`link_source`; Phase 2b pilot, migrated 2026-09-04) | 1/1/1 | floor 2024, pairing, `cers_portal` supersession, M+ | donor-only |

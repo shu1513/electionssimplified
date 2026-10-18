@@ -10,6 +10,7 @@ import {
 import { loadStandardStateFinanceSummariesByCandidateElection } from "../finance/standardStateFinanceBallotLookupLoader.js";
 import { IDAHO_CFS_PUBLIC_SITE_URL } from "./idahoCfsClient.js";
 import { isIdahoFinanceEligibleOffice } from "./idahoFinanceEligibleOffices.js";
+import { overlayIdahoReportedPacReceipts } from "./idahoReportedPacReader.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
@@ -25,7 +26,7 @@ export async function loadIdahoCandidateFinanceSummariesByCandidateElection(
   candidateRows: readonly StateFinanceRequestCandidateRow[],
   electionRows: readonly StateFinanceRequestElectionRow[]
 ): Promise<Map<string, BallotLookupFinanceSummary>> {
-  return loadStandardStateFinanceSummariesByCandidateElection({
+  const summaries = await loadStandardStateFinanceSummariesByCandidateElection({
     db,
     candidateRows,
     electionRows,
@@ -52,4 +53,5 @@ export async function loadIdahoCandidateFinanceSummariesByCandidateElection(
       outsideGroupBreakdowns: "id_candidate_finance_outside_group_breakdowns",
     },
   });
+  return overlayIdahoReportedPacReceipts(db,summaries,candidateRows,electionRows);
 }

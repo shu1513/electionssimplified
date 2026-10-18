@@ -151,6 +151,14 @@ export function isNewHampshireCampaignFinanceEnabled(): boolean {
   return readBooleanEnv("NEW_HAMPSHIRE_CAMPAIGN_FINANCE_ENABLED", false);
 }
 
+export function isNewHampshireReportedIeEnabled(): boolean {
+  return isNewHampshireCampaignFinanceEnabled() && readBooleanEnv("NEW_HAMPSHIRE_REPORTED_IE_ENABLED", false);
+}
+
+export function isNewHampshireReportedCommitteeReceiptsEnabled(): boolean {
+  return isNewHampshireCampaignFinanceEnabled() && readBooleanEnv("NEW_HAMPSHIRE_REPORTED_COMMITTEE_RECEIPTS_ENABLED", false);
+}
+
 export function isNevadaCampaignFinanceEnabled(): boolean {
   return readBooleanEnv("NEVADA_CAMPAIGN_FINANCE_ENABLED", false);
 }
@@ -229,6 +237,7 @@ export const isKansasCampaignFinanceSyncEnabled = kansasFinance.isSyncEnabled;
 const idahoFinance = defineStateFinanceFlagPair("IDAHO_CAMPAIGN_FINANCE");
 export const isIdahoCampaignFinanceEnabled = idahoFinance.isEnabled;
 export const isIdahoCampaignFinanceSyncEnabled = idahoFinance.isSyncEnabled;
+export const isIdahoReportedPacReceiptsEnabled = idahoFinance.gate("IDAHO_REPORTED_PAC_RECEIPTS_ENABLED");
 export const isIdahoCampaignFinanceRawDataRefreshEnabled = idahoFinance.gate(
   "IDAHO_CAMPAIGN_FINANCE_RAW_DATA_REFRESH_ENABLED"
 );
@@ -246,6 +255,7 @@ const ohioFinance = defineStateFinanceFlagPair("OHIO_CAMPAIGN_FINANCE");
 export const isOhioCampaignFinanceEnabled = ohioFinance.isEnabled;
 export const isOhioCampaignFinanceSyncEnabled = ohioFinance.isSyncEnabled;
 export const isOhioSosRawDataRefreshEnabled = ohioFinance.gate("OHIO_SOS_RAW_DATA_REFRESH_ENABLED");
+export const isOhioReportedCommitteeReceiptsEnabled = ohioFinance.gate("OHIO_REPORTED_COMMITTEE_RECEIPTS_ENABLED");
 
 const northCarolinaFinance = defineStateFinanceFlagPair("NORTH_CAROLINA_CAMPAIGN_FINANCE");
 export const isNorthCarolinaCampaignFinanceEnabled = northCarolinaFinance.isEnabled;
@@ -310,6 +320,8 @@ export const isFloridaCampaignFinanceBrowserExportEnabled = floridaFinance.gate(
 const washingtonFinance = defineStateFinanceFlagPair("WASHINGTON_CAMPAIGN_FINANCE");
 export const isWashingtonCampaignFinanceEnabled = washingtonFinance.isEnabled;
 export const isWashingtonCampaignFinanceSyncEnabled = washingtonFinance.isSyncEnabled;
+export const isWashingtonReportedPacReceiptsEnabled = washingtonFinance.gate("WASHINGTON_REPORTED_PAC_RECEIPTS_ENABLED");
+export const isWashingtonPdcRawDataRefreshEnabled = washingtonFinance.gate("WASHINGTON_PDC_RAW_DATA_REFRESH_ENABLED");
 
 const newYorkFinance = defineStateFinanceFlagPair("NEW_YORK_CAMPAIGN_FINANCE");
 export const isNewYorkCampaignFinanceEnabled = newYorkFinance.isEnabled;
