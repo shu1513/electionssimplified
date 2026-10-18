@@ -3,7 +3,8 @@ import { isOhioReportedCommitteeReceiptsEnabled, isOhioSosRawDataRefreshEnabled 
 import { OhioCommitteeReceiptError, ohioCommitteeHold } from "./ohioCommitteeReceipts.js";
 import { captureOhioCommitteeSource, ohioCommitteeCanonical, readOhioCommitteeNativeHint, readOhioCommitteeSource, readOhioCommitteeSourceHint,
   type OhioCommitteeSourcePacket } from "./ohioCommitteeSource.js";
-import { OH_COMMITTEE_CONTEXT_FROM, OH_COMMITTEE_CONTEXT_SELECT, OH_COMMITTEE_CONTEXT_WHERE, loadOhioCommitteeReceiver, type OhioCommitteeReceiver } from "./ohioCommitteeReceiver.js";
+import { OH_COMMITTEE_CONTEXT_FROM, OH_COMMITTEE_CONTEXT_SELECT, OH_COMMITTEE_CONTEXT_WHERE, OH_COMMITTEE_UNIQUE_ACTIVE_LINK_WHERE,
+  loadOhioCommitteeReceiver, type OhioCommitteeReceiver } from "./ohioCommitteeReceiver.js";
 import { OHIO_FINANCE_ELIGIBLE_OFFICE_KEYS } from "./ohioFinanceEligibleOffices.js";
 import { writeOhioCommitteeReceipts } from "./ohioCommitteeWriter.js";
 
@@ -32,8 +33,8 @@ export async function listDueOhioCommitteeReceipts(options:OhioCommitteeBatchOpt
     ${OH_COMMITTEE_CONTEXT_FROM}
     LEFT JOIN public.oh_reported_committee_sources s ON s.link_id=l.id AND s.election_year=l.election_year
     LEFT JOIN public.oh_reported_committee_attempts a ON a.link_id=l.id AND a.election_year=l.election_year
-    WHERE ${OH_COMMITTEE_CONTEXT_WHERE}
-      AND e.election_date >= (($2::timestamptz AT TIME ZONE 'UTC')::date-make_interval(days=>$3::int))
+    WHERE ${OH_COMMITTEE_CONTEXT_WHERE} AND ${OH_COMMITTEE_UNIQUE_ACTIVE_LINK_WHERE}
+      AND e.election_date >=(($2::timestamptz AT TIME ZONE 'UTC')::date-make_interval(days=>$3::int))
       AND e.election_date <= (($2::timestamptz AT TIME ZONE 'UTC')::date+make_interval(days=>$4::int))
     ORDER BY a.last_attempted_at ASC NULLS FIRST,e.election_date,l.candidate_name_normalized,l.id LIMIT 100001`,
   [[...OHIO_FINANCE_ELIGIBLE_OFFICE_KEYS],now.toISOString(),back,ahead]);

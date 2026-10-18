@@ -30,6 +30,17 @@ describe("saved native Ohio 31-U original replay", () => {
     await capture(); await writeFile(join(cacheDir, "31U_DETAIL_2026.json"), "invalid older bundle");
     expect(await readOhioSos31uDetailBundle({ cacheDir, cycleYear: 2026 })).toMatchObject([{ reportKey: "300", rows: [{ amountCents: 10000, direction: "support", year: 2026 }] }]);
   });
+  it("lets a parsed bundle refreshed after the newest original take precedence", async () => {
+    await capture();
+    const bundle = (retrievedAt: string) => JSON.stringify({ version: 1, cycleYear: 2026, retrievedAt, reports: [{ reportKey: "301",
+      rows: [{ reportKey: "301", spenderCommitteeName: "Later PAC", amountCents: 500, direction: "oppose", candidateNameOrBallotIssue: "X", office: null }] }] });
+    await writeFile(join(cacheDir, "31U_DETAIL_2026.json"), bundle("2026-02-01T00:00:00.000Z"));
+    expect(await readOhioSos31uDetailBundle({ cacheDir, cycleYear: 2026 })).toMatchObject([{ reportKey: "301", rows: [{ direction: "oppose" }] }]);
+    await writeFile(join(cacheDir, "31U_DETAIL_2026.json"), bundle("2025-12-01T00:00:00.000Z"));
+    expect(await readOhioSos31uDetailBundle({ cacheDir, cycleYear: 2026 })).toMatchObject([{ reportKey: "300" }]);
+    await writeFile(join(cacheDir, "31U_DETAIL_2026.json"), JSON.stringify({ rows: [{ key: "302", rows: [] }] }));
+    expect(await readOhioSos31uDetailBundle({ cacheDir, cycleYear: 2026 })).toMatchObject([{ reportKey: "300" }]);
+  });
   it("holds an incomplete new capture instead of falling back to an older bundle", async () => {
     await mkdir(root, { recursive: true, mode: 0o700 });
     await writeFile(join(cacheDir, "31U_DETAIL_2026.json"), JSON.stringify({ version: 1, cycleYear: 2026, reports: [] }));

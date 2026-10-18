@@ -82,7 +82,9 @@ describe("Ohio independent scheduling and ordinary job",()=>{
     vi.stubEnv("OHIO_REPORTED_COMMITTEE_RECEIPTS_ENABLED","true");vi.stubEnv("OHIO_CAMPAIGN_FINANCE_ENABLED","false");expect(isOhioReportedCommitteeReceiptsEnabled()).toBe(false);
   });
   it("finds missing receipts independently of legacy summaries",async()=>{const s=storage();s.state.due=[metadata()];const r=await listDueOhioCommitteeReceipts({db:s.db,cacheDir});expect(r.rows).toHaveLength(1);
-    expect(s.state.sql[0]).not.toContain("oh_candidate_finance_summaries");expect(s.state.sql[0]).toContain("make_interval");});
+    expect(s.state.sql[0]).not.toContain("oh_candidate_finance_summaries");expect(s.state.sql[0]).toContain("make_interval");
+    // Ambiguous links never record an attempt, so they must not occupy batch slots.
+    expect(s.state.sql[0]).toContain("sibling.link_status='active')=1");});
   it("defaults to 25 and retains the full due count",async()=>{const s=storage();s.state.due=Array.from({length:30},(_,i)=>metadata({link_id:`10000000-0000-4000-8000-${String(i).padStart(12,"0")}`}));
     const r=await listDueOhioCommitteeReceipts({db:s.db,cacheDir});expect(r.totalDueRows).toBe(30);expect(r.rows).toHaveLength(25);});
   it("rotates a held source for 24 hours",async()=>{const s=storage();s.state.due=[metadata({last_attempted_at:"2026-10-18T00:00:00Z",attempt_committee:receiver.committee_id,attempt_candidate:receiver.candidate_id,attempt_election:receiver.election_id,attempt_revision:"none:none"})];

@@ -21,6 +21,10 @@ export const OH_COMMITTEE_CONTEXT_FROM = `FROM public.oh_candidate_finance_links
 export const OH_COMMITTEE_CONTEXT_WHERE = `l.link_status='active' AND c.deleted_at IS NULL AND ce.status NOT IN ('lost','withdrawn')
   AND d.state='OH' AND e.race_type='office' AND e.election_stage='general'
   AND extract(year from e.election_date)::int=l.election_year AND (o.scope||'::'||o.canonical_name)=ANY($1::text[])`;
+/** Ambiguous receivers (several active links for one candidate/election) can
+ * never be written, so schedulers and readers exclude them up front. */
+export const OH_COMMITTEE_UNIQUE_ACTIVE_LINK_WHERE = `(SELECT count(*) FROM public.oh_candidate_finance_links sibling
+  WHERE sibling.candidate_id=l.candidate_id AND sibling.election_id=l.election_id AND sibling.link_status='active')=1`;
 export async function loadOhioCommitteeReceiver(db: Pick<Pool | PoolClient, "query">, linkId: string, lock = false): Promise<OhioCommitteeReceiver | null> {
   const result = await db.query<OhioCommitteeReceiver>(`SELECT ${OH_COMMITTEE_CONTEXT_SELECT} ${OH_COMMITTEE_CONTEXT_FROM}
     WHERE ${OH_COMMITTEE_CONTEXT_WHERE} AND l.id=$2::uuid ${lock ? "FOR UPDATE OF c,ce,e,d,o,l" : ""}`, [[...OHIO_FINANCE_ELIGIBLE_OFFICE_KEYS],linkId]);

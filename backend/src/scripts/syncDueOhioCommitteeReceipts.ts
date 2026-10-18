@@ -18,4 +18,4 @@ async function main(){
   const connectionString=process.env.DATABASE_URL?.trim();if(!connectionString)throw new Error("DATABASE_URL is required for Ohio committee receipts");
   const db=new Pool({connectionString});try{console.log(JSON.stringify({type:"ohio_committee_receipts_due_sync",...await syncDueOhioCommitteeReceipts({db,...options})}));}finally{await db.end();}
 }
-if(process.argv[1]&&pathToFileURL(process.argv[1]).href===import.meta.url)main().catch(()=>{console.error("Ohio committee receipt sync failed");process.exitCode=1;});
+if(process.argv[1]&&pathToFileURL(process.argv[1]).href===import.meta.url)main().catch((e:unknown)=>{console.error("Ohio committee receipt sync failed:",e instanceof Error?e.message:String(e));process.exitCode=1;});

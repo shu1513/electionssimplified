@@ -4,7 +4,7 @@ import { buildStateFinanceSummaryRequests,candidateElectionKey,officeInputFromEl
   type BallotLookupFinancePacInterest,type BallotLookupFinanceSummary,type StateFinanceRequestCandidateRow,type StateFinanceRequestElectionRow } from "../address/ballotLookupFinanceShared.js";
 import { classifyPacInterest,pacInterestDisplayName,UNCLASSIFIED_PAC_INTEREST } from "../finance/pacInterestClassifier.js";
 import { OHIO_FINANCE_ELIGIBLE_OFFICE_KEYS,isOhioFinanceEligibleOffice } from "./ohioFinanceEligibleOffices.js";
-import { OH_COMMITTEE_CONTEXT_FROM,OH_COMMITTEE_CONTEXT_SELECT,OH_COMMITTEE_CONTEXT_WHERE,type OhioCommitteeReceiver } from "./ohioCommitteeReceiver.js";
+import { OH_COMMITTEE_CONTEXT_FROM,OH_COMMITTEE_CONTEXT_SELECT,OH_COMMITTEE_CONTEXT_WHERE,OH_COMMITTEE_UNIQUE_ACTIVE_LINK_WHERE,type OhioCommitteeReceiver } from "./ohioCommitteeReceiver.js";
 import { OhioCommitteeReceiptError } from "./ohioCommitteeReceipts.js";
 import { readStoredOhioCommitteeComponent } from "./ohioCommitteeWriter.js";
 
@@ -21,8 +21,7 @@ export async function overlayOhioCommitteeReceipts(db:Pick<Pool|PoolClient,"quer
     ${OH_COMMITTEE_CONTEXT_FROM} JOIN jsonb_to_recordset($2::jsonb) AS requested(candidate_id uuid,election_id uuid)
       ON requested.candidate_id=l.candidate_id AND requested.election_id=l.election_id
     JOIN public.oh_reported_committee_sources s ON s.link_id=l.id AND s.election_year=l.election_year
-    WHERE ${OH_COMMITTEE_CONTEXT_WHERE} AND (SELECT count(*) FROM public.oh_candidate_finance_links sibling
-      WHERE sibling.candidate_id=l.candidate_id AND sibling.election_id=l.election_id AND sibling.link_status='active')=1`,
+    WHERE ${OH_COMMITTEE_CONTEXT_WHERE} AND ${OH_COMMITTEE_UNIQUE_ACTIVE_LINK_WHERE}`,
   [[...OHIO_FINANCE_ELIGIBLE_OFFICE_KEYS],JSON.stringify(requests)]);
   const seen=new Set<string>(),duplicates=new Set<string>();for(const r of result.rows){const key=candidateElectionKey(r.candidate_id,r.election_id);if(seen.has(key))duplicates.add(key);seen.add(key);}
   for(const row of result.rows){

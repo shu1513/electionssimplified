@@ -18,8 +18,10 @@ async function original(path: string, max: number) {
  * capture never falls back to an older parsed bundle. Annual discovery and
  * detail/cover reconciliation still run in the ordinary batch. */
 export async function readOhioSos31uOriginals(input: { cacheDir: string; cycleYear: number }): Promise<{
-  reportKey: string; rows: OhioSos31uDetailRow[];
-}[] | null> {
+  /** Newest original download clock; null when the capture holds no reports. */
+  retrievedAt: string | null;
+  reports: { reportKey: string; rows: OhioSos31uDetailRow[] }[];
+} | null> {
   if (!Number.isInteger(input.cycleYear) || input.cycleYear < 2000 || input.cycleYear > 2100) return unavailable();
   const parent = join(input.cacheDir, "original-details"), root = join(parent, String(input.cycleYear));
   try { await lstat(root); }
@@ -28,7 +30,7 @@ export async function readOhioSos31uOriginals(input: { cacheDir: string; cycleYe
   const raw = await original(join(root, "manifest.json"), 4 * 1024 * 1024);
   const m = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(raw));
   if (m?.version !== 1 || m.cycleYear !== input.cycleYear || !Array.isArray(m.entries) || m.entries.length > 2000) return unavailable();
-  const keys = new Set<string>(), reports = []; let bytes = 0;
+  const keys = new Set<string>(), reports = []; let bytes = 0, retrievedAt: string | null = null;
   for (const entry of m.entries) {
     if (!entry || typeof entry.reportKey !== "string" || !/^[1-9]\d*$/.test(entry.reportKey) || keys.has(entry.reportKey) ||
       entry.file !== `${entry.reportKey}.csv` || entry.sourceUrl !== ohioSos31uDetailUrl(entry.reportKey) ||
@@ -42,6 +44,7 @@ export async function readOhioSos31uOriginals(input: { cacheDir: string; cycleYe
     if (rows.some(row => !Number.isSafeInteger(row.amountCents) || !row.spenderCommitteeName.trim() ||
       row.year !== input.cycleYear && row.year !== input.cycleYear - 1)) return unavailable();
     reports.push({ reportKey: entry.reportKey, rows });
+    if (retrievedAt === null || entry.sourceRetrievedAt > retrievedAt) retrievedAt = entry.sourceRetrievedAt;
   }
-  return reports;
+  return { retrievedAt, reports };
 }
