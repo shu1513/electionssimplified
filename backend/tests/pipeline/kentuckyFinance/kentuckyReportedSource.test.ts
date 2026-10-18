@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { readFile, writeFile } from "node:fs/promises";
+import { readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import {
   kyCents,
@@ -102,5 +102,14 @@ describe("Kentucky reported originals", () => {
     expect(
       await readKentuckyReportedSource({ cacheDir: f.cacheDir, kind: "ie" }),
     ).toEqual(s);
+  });
+  it("holds a deleted original instead of crashing the batch", async () => {
+    const f = await fixture("committee");
+    cleanups.push(f.cleanup);
+    const s = await f.source();
+    await rm(join(f.cacheDir, s.controls[3]!.file));
+    await expect(
+      readKentuckyReportedSource({ cacheDir: f.cacheDir, kind: "committee" }),
+    ).rejects.toThrow("cache_missing");
   });
 });

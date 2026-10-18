@@ -160,13 +160,23 @@ export function kentuckyReportedUrls(kind: KentuckyReportedKind, date: string) {
   const csv = `${KY_REPORTED_URL}/${kind === "committee" ? "ExportContributors" : "IndependentExpenditureSearch/ExportIndependentExpenditures"}?${query}`;
   return [censusHtml, censusCsv, html, csv, csv, html, censusCsv, censusHtml];
 }
+/** A deleted cache directory or original is a held source, not a crash that
+ * stops the other component and the legacy sync behind it. */
+async function stat(path: string) {
+  try {
+    return await lstat(path);
+  } catch (e) {
+    if ((e as NodeJS.ErrnoException).code === "ENOENT") kyHold("cache_missing");
+    throw e;
+  }
+}
 async function privateDir(path: string) {
-  const s = await lstat(path);
+  const s = await stat(path);
   if (!s.isDirectory() || s.isSymbolicLink() || (s.mode & 0o777) !== 0o700)
     kyHold("unsafe_cache_dir");
 }
 async function bytes(path: string, max: number): Promise<Buffer> {
-  const s = await lstat(path);
+  const s = await stat(path);
   if (
     !s.isFile() ||
     s.isSymbolicLink() ||
@@ -319,7 +329,10 @@ export async function readKentuckyReportedSource(input: {
       await bytes(resolve(root, `${input.kind}-2026.latest.json`), 4096),
     );
   } catch (e) {
-    if ((e as NodeJS.ErrnoException).code === "ENOENT") return null;
+    // No pointer yet means never acquired; a missing original behind an
+    // existing pointer stays a hold so the batch can refresh or skip it.
+    if (e instanceof KentuckyReportedHold && e.code === "cache_missing")
+      return null;
     throw e;
   }
   if (!p || typeof p.generation !== "string" || typeof p.sha256 !== "string")

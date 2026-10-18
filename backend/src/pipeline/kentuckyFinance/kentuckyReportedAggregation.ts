@@ -1,4 +1,5 @@
 import { filterKentuckyContributionRecordsForCandidateCycle } from "./kentuckyDirectContributionAggregator.js";
+import { firstNamesConflict } from "../finance/personFirstNameNicknames.js";
 import { hasMiddleNameConflict } from "../finance/personNameMiddleEvidence.js";
 import {
   isKentuckyReportedPacket,
@@ -284,8 +285,9 @@ export function aggregateKentuckyReported(
         office = row["Office / Ballot Measure"]!,
         election = date(row["Election Date"]!);
       if (kyOffice(office) !== kyOffice(receiver.officeName)) continue;
-      // A shorter/variant label resembling this receiver but lacking a unique
-      // full census match is held, never treated as proof of zero spending.
+      // A shorter/variant label resembling this receiver (including a nickname
+      // the receiver link itself was accepted under) but lacking a unique full
+      // census match is held, never treated as proof of zero spending.
       const targets = censusTargets(target, office, election);
       const relevant = targets.some(
         (r) =>
@@ -298,7 +300,7 @@ export function aggregateKentuckyReported(
           possible = [...receivingNames].some((n) => {
             const parts = n.split(" ");
             return (
-              targetParts[0] === parts[0] &&
+              !firstNamesConflict(targetParts[0]!, parts[0]!) &&
               targetParts.at(-1) === parts.at(-1) &&
               !hasMiddleNameConflict({
                 candidateName: n,

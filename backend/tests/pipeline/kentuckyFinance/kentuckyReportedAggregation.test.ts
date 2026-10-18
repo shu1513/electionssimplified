@@ -165,4 +165,22 @@ describe("Kentucky signed receipt and explicit target attribution", () => {
     expect(a.groups).toEqual([]);
     expect(a.sourceRows).toBe(0);
   });
+  it("holds a nickname target the receiver link itself was accepted under", async () => {
+    const william = {
+      ...receiver,
+      candidateName: "Bill Example",
+      committeeName: "William A Example",
+    };
+    const nickname = await source("ie", {
+      censusExtra: [census("11/3/2026", { "First Name": "William A" })],
+      rows: [ie({ "Candidate Name": "Bill Example" })],
+    });
+    expect(() => aggregateKentuckyReported(william, nickname)).toThrow(
+      "ie_target_unresolved",
+    );
+    const other = await source("ie", {
+      censusExtra: [census("11/3/2026", { "First Name": "William A" })],
+    });
+    expect(aggregateKentuckyReported(william, other).supportCents).toBe(0);
+  });
 });
