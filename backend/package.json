@@ -402,6 +402,7 @@
     "district-of-columbia-candidates:finance:scheduler:worker": "tsx src/scripts/runDistrictOfColumbiaCandidateFinanceSyncSchedulerWorker.ts",
     "district-of-columbia-candidates:finance:scheduler:trigger": "tsx src/scripts/triggerDistrictOfColumbiaCandidateFinanceSync.ts",
     "kentucky-candidates:finance:sync-due": "tsx src/scripts/syncDueKentuckyCandidateFinance.ts",
+    "kentucky-candidates:finance:sync-reported": "tsx src/scripts/syncDueKentuckyReportedFinance.ts",
     "kentucky-candidates:finance:scheduler:upsert": "tsx src/scripts/upsertKentuckyCandidateFinanceSyncScheduler.ts",
     "kentucky-candidates:finance:scheduler:worker": "tsx src/scripts/runKentuckyCandidateFinanceSyncSchedulerWorker.ts",
     "kentucky-candidates:finance:scheduler:trigger": "tsx src/scripts/triggerKentuckyCandidateFinanceSync.ts",

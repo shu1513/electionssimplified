@@ -1,4 +1,5 @@
 import { firstNameVariants } from "../finance/personFirstNameNicknames.js";
+import { isKentuckyReportedIeEnabled } from "../../config/featureFlags.js";
 import type { Pool, PoolClient } from "pg";
 
 import { aggregateKentuckyDirectContributions } from "./kentuckyDirectContributionAggregator.js";
@@ -369,7 +370,7 @@ export async function syncKentuckyCandidateFinance(
   // spending, skip IE aggregation for non-statewide candidates entirely;
   // statewide races have no district ambiguity.
   const location = (input.location ?? input.district ?? "").trim();
-  const includeOutsideSpending = /statewide/i.test(location);
+  const includeOutsideSpending = /statewide/i.test(location) && !(electionYear === 2026 && isKentuckyReportedIeEnabled());
   const [candidateContributionRecords, independentExpenditureRecords] = await Promise.all([
     krefClient.downloadCandidateContributions(candidateContributionExportInput, input.krefClientOptions),
     includeOutsideSpending

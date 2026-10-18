@@ -13,6 +13,8 @@ import {
 import { createKentuckyKrefCandidateFinanceLinkResolver } from "./kentuckyCandidateFinanceLinkResolver.js";
 import { KENTUCKY_FINANCE_ELIGIBLE_OFFICE_KEYS, normalizeKentuckyKrefLocation } from "./kentuckyFinanceEligibleOffices.js";
 import type { KentuckyKrefClientOptions } from "./kentuckyKrefClient.js";
+import { isKentuckyReportedCommitteeEnabled, isKentuckyReportedIeEnabled } from "../../config/featureFlags.js";
+import { syncDueKentuckyReportedFinance, type KentuckyReportedBatchResult } from "./kentuckyReportedBatchSync.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 type ConnectableQueryable = Queryable & Pick<Pool, "connect">;
@@ -59,6 +61,7 @@ export type KentuckyCandidateFinanceBatchSyncItemResult = {
 };
 
 export type KentuckyCandidateFinanceBatchSyncResult = {
+  reported?: KentuckyReportedBatchResult;
   dryRun: boolean;
   now: string;
   staleAfterDays: number;
@@ -249,6 +252,9 @@ export async function syncDueKentuckyCandidateFinance(
     "electionLookaheadDays"
   );
   const dryRun = input.dryRun === true;
+  const reported = isKentuckyReportedCommitteeEnabled() || isKentuckyReportedIeEnabled()
+    ? await syncDueKentuckyReportedFinance({db:input.db as Pool,now,dryRun,maxCandidates:input.maxCandidates,
+      staleAfterDays:input.staleAfterDays,electionLookbackDays:input.electionLookbackDays,electionLookaheadDays:input.electionLookaheadDays}) : undefined;
   const syncFn = input.syncKentuckyCandidateFinanceFn ?? syncKentuckyCandidateFinance;
   let autoLinkAttemptedCount = 0;
   let autoLinkLinkedCount = 0;
@@ -350,6 +356,7 @@ export async function syncDueKentuckyCandidateFinance(
   return {
     dryRun,
     now: now.toISOString(),
+    ...(reported ? {reported} : {}),
     staleAfterDays,
     maxCandidates,
     dueCandidateCount: due.totalDueRows,

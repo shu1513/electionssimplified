@@ -10,6 +10,7 @@ import type {
 } from "../address/ballotLookupFinanceShared.js";
 import { buildOutsideIndustrySupportExplanation } from "../address/ballotLookupFinanceShared.js";
 import { isKentuckyFinanceEligibleOffice } from "./kentuckyFinanceEligibleOffices.js";
+import { attachKentuckyReportedFinance } from "./kentuckyReportedReader.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
@@ -176,7 +177,7 @@ function buildKentuckyFinanceSummaryRequests(
   return [...requests.values()];
 }
 
-export async function loadKentuckyCandidateFinanceSummariesByCandidateElection(
+async function loadKentuckyLegacyFinanceSummariesByCandidateElection(
   db: Queryable,
   candidateRows: readonly KentuckyBallotLookupFinanceCandidateRow[],
   electionRows: readonly KentuckyBallotLookupFinanceElectionRow[]
@@ -660,4 +661,14 @@ export async function loadKentuckyCandidateFinanceSummariesByCandidateElection(
       ];
     })
   );
+}
+
+export async function loadKentuckyCandidateFinanceSummariesByCandidateElection(
+  db: Queryable,
+  candidateRows: readonly KentuckyBallotLookupFinanceCandidateRow[],
+  electionRows: readonly KentuckyBallotLookupFinanceElectionRow[]
+): Promise<Map<string, BallotLookupFinanceSummary>> {
+  if (!isKentuckyCampaignFinanceEnabled()) return new Map();
+  const summaries = await loadKentuckyLegacyFinanceSummariesByCandidateElection(db,candidateRows,electionRows);
+  return attachKentuckyReportedFinance({db,requests:buildKentuckyFinanceSummaryRequests(candidateRows,electionRows),summaries});
 }

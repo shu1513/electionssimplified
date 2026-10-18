@@ -1,4 +1,5 @@
 import type { Pool, PoolClient } from "pg";
+import { isKentuckyReportedIeEnabled } from "../../config/featureFlags.js";
 
 import type { FinanceLabelClassification } from "../finance/financeLabelClassifier.js";
 import { upsertFinanceLabelClassification } from "../finance/financeIndustryClassificationService.js";
@@ -301,6 +302,7 @@ async function upsertSummary(input: {
   summary: KentuckyFinanceSummaryInput;
   syncedAt: Date;
 }): Promise<void> {
+  const preserveOutside = input.electionYear === 2026 && isKentuckyReportedIeEnabled();
   await input.db.query(
     `
       INSERT INTO public.ky_candidate_finance_summaries (
@@ -322,8 +324,8 @@ async function upsertSummary(input: {
         direct_contribution_total = EXCLUDED.direct_contribution_total,
         total_disbursements = EXCLUDED.total_disbursements,
         cash_on_hand = EXCLUDED.cash_on_hand,
-        outside_support_total = EXCLUDED.outside_support_total,
-        outside_oppose_total = EXCLUDED.outside_oppose_total,
+        outside_support_total = CASE WHEN $11::boolean THEN ky_candidate_finance_summaries.outside_support_total ELSE EXCLUDED.outside_support_total END,
+        outside_oppose_total = CASE WHEN $11::boolean THEN ky_candidate_finance_summaries.outside_oppose_total ELSE EXCLUDED.outside_oppose_total END,
         source_url = EXCLUDED.source_url,
         last_synced_at = EXCLUDED.last_synced_at
     `,
@@ -334,10 +336,11 @@ async function upsertSummary(input: {
       normalizeNullableAmount(input.summary.directContributionTotal, "direct contribution total"),
       normalizeNullableAmount(input.summary.totalDisbursements, "total disbursements"),
       normalizeNullableSignedAmount(input.summary.cashOnHand, "cash on hand"),
-      normalizeNullableAmount(input.summary.outsideSupportTotal, "outside support total"),
-      normalizeNullableAmount(input.summary.outsideOpposeTotal, "outside oppose total"),
+      preserveOutside ? null : normalizeNullableAmount(input.summary.outsideSupportTotal, "outside support total"),
+      preserveOutside ? null : normalizeNullableAmount(input.summary.outsideOpposeTotal, "outside oppose total"),
       normalizeOptionalText(input.summary.sourceUrl),
       input.syncedAt.toISOString(),
+      preserveOutside,
     ]
   );
 }
@@ -583,14 +586,17 @@ export async function replaceKentuckyCandidateFinanceSnapshot(
     }
     await deleteStaleDirectBreakdowns({ db, linkId, electionYear, breakdowns: input.directBreakdowns ?? [] });
 
-    for (const group of input.outsideGroups ?? []) {
-      await upsertOutsideGroup({ db, linkId, electionYear, group, syncedAt });
+    const preserveOutside = electionYear === 2026 && isKentuckyReportedIeEnabled();
+    if (!preserveOutside) {
+      for (const group of input.outsideGroups ?? []) {
+        await upsertOutsideGroup({ db, linkId, electionYear, group, syncedAt });
+      }
+      for (const breakdown of input.outsideGroupBreakdowns ?? []) {
+        await upsertOutsideGroupBreakdown({ db, linkId, electionYear, breakdown, syncedAt });
+      }
+      await deleteStaleOutsideGroupBreakdowns({ db, linkId, electionYear, breakdowns: input.outsideGroupBreakdowns ?? [] });
+      await deleteStaleOutsideGroups({ db, linkId, electionYear, groups: input.outsideGroups ?? [] });
     }
-    for (const breakdown of input.outsideGroupBreakdowns ?? []) {
-      await upsertOutsideGroupBreakdown({ db, linkId, electionYear, breakdown, syncedAt });
-    }
-    await deleteStaleOutsideGroupBreakdowns({ db, linkId, electionYear, breakdowns: input.outsideGroupBreakdowns ?? [] });
-    await deleteStaleOutsideGroups({ db, linkId, electionYear, groups: input.outsideGroups ?? [] });
 
     for (const classification of input.classifications ?? []) {
       await upsertFinanceLabelClassification({ db, classification });
@@ -600,8 +606,8 @@ export async function replaceKentuckyCandidateFinanceSnapshot(
       linkId,
       summaryWritten: Boolean(input.summary),
       directBreakdownsWritten: input.directBreakdowns?.length ?? 0,
-      outsideGroupsWritten: input.outsideGroups?.length ?? 0,
-      outsideGroupBreakdownsWritten: input.outsideGroupBreakdowns?.length ?? 0,
+      outsideGroupsWritten: preserveOutside ? 0 : input.outsideGroups?.length ?? 0,
+      outsideGroupBreakdownsWritten: preserveOutside ? 0 : input.outsideGroupBreakdowns?.length ?? 0,
     };
   });
 }

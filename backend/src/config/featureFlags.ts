@@ -371,6 +371,9 @@ export const isIllinoisCampaignFinanceSyncEnabled = illinoisFinance.isSyncEnable
 const kentuckyFinance = defineStateFinanceFlagPair("KENTUCKY_CAMPAIGN_FINANCE");
 export const isKentuckyCampaignFinanceEnabled = kentuckyFinance.isEnabled;
 export const isKentuckyCampaignFinanceSyncEnabled = kentuckyFinance.isSyncEnabled;
+export const isKentuckyReportedCommitteeEnabled = kentuckyFinance.gate("KENTUCKY_REPORTED_COMMITTEE_ENABLED");
+export const isKentuckyReportedIeEnabled = kentuckyFinance.gate("KENTUCKY_REPORTED_IE_ENABLED");
+export const isKentuckyReportedRawRefreshEnabled = kentuckyFinance.gate("KENTUCKY_REPORTED_RAW_REFRESH_ENABLED");
 
 const virginiaFinance = defineStateFinanceFlagPair("VIRGINIA_CAMPAIGN_FINANCE");
 export const isVirginiaCampaignFinanceEnabled = virginiaFinance.isEnabled;
