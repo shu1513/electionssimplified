@@ -21,9 +21,7 @@ export async function overlayMontanaCommitteeReceipts(db:Pick<Pool|PoolClient,"q
     ${MT_COMMITTEE_FROM} JOIN jsonb_to_recordset($2::jsonb) AS requested(candidate_id uuid,election_id uuid)
     ON requested.candidate_id=l.candidate_id AND requested.election_id=l.election_id
     JOIN public.mt_reported_committee_sources s ON s.link_id=l.id AND s.election_year=l.election_year
-    WHERE ${MT_COMMITTEE_WHERE} AND (SELECT count(*) FROM public.mt_candidate_finance_links sibling
-      WHERE sibling.link_status='active' AND ((sibling.candidate_id=l.candidate_id AND sibling.election_id=l.election_id)
-        OR (sibling.committee_id=l.committee_id AND sibling.election_year=l.election_year)))=1`,
+    WHERE ${MT_COMMITTEE_WHERE}`,
   [[...MONTANA_FINANCE_ELIGIBLE_OFFICE_KEYS],JSON.stringify(requests)]);
   const duplicates=new Set<string>(),seen=new Set<string>();for(const r of result.rows){const k=candidateElectionKey(r.candidate_id,r.election_id);if(seen.has(k))duplicates.add(k);seen.add(k);}
   for(const row of result.rows){

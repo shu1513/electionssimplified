@@ -79,7 +79,7 @@ describe("Montana independent IE storage and scheduling",()=>{
   it("schedules from its own source clock with default ten and never needs receipt/direct summaries",async()=>{
     enable();const rows=Array.from({length:12},()=>r),query=vi.fn(async()=>({rows:rows.map((v,i)=>({...v,link_id:String(i)}))})),connect=vi.fn();
     const result=await listDueMontanaIndependentIe({db:{query,connect} as never});expect(result.rows).toHaveLength(10);expect(result.totalDueRows).toBe(12);
-    const [sql,args]=query.mock.calls[0] as unknown as [string,unknown[]];expect(sql).toContain("s.source_retrieved_at");expect(sql).toContain("interval '24 hours'");expect(sql).not.toContain("mt_candidate_finance_summaries");expect(sql).not.toContain("mt_reported_committee");expect(args.slice(2,5)).toEqual([98,730,7]);
+    const [sql,args]=query.mock.calls[0] as unknown as [string,unknown[]];expect(sql).toContain("s.source_retrieved_at");expect(sql).toContain("interval '24 hours'");expect(sql).toContain("NOT EXISTS (SELECT 1 FROM public.mt_candidate_finance_links sibling");expect(sql).not.toContain("mt_candidate_finance_summaries");expect(sql).not.toContain("mt_reported_committee");expect(args.slice(2,5)).toEqual([98,730,7]);
     expect(await syncDueMontanaIndependentIe({db:{query,connect} as never,dryRun:true})).toMatchObject({enabled:true,totalDueRows:12,attemptedCount:0});expect(connect).not.toHaveBeenCalled();
     vi.stubEnv("MONTANA_CAMPAIGN_FINANCE_ENABLED","false");query.mockClear();expect(await syncDueMontanaIndependentIe({db:{query,connect} as never})).toMatchObject({enabled:false});expect(query).not.toHaveBeenCalled();
   });

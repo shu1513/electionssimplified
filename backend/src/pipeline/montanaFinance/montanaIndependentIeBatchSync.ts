@@ -8,7 +8,7 @@ import {acquireMontanaCersOutsideSpendingArtifacts} from "./montanaOutsideSpendi
 import {writeMontanaIndependentIe} from "./montanaIndependentIeWriter.js";
 
 type Db=Pick<Pool,"query">&{connect:()=>Promise<PoolClient>};
-export type MontanaIndependentIeOptions={db:Db;now?:Date;maxCandidates?:number;staleAfterDays?:number;electionLookbackDays?:number;electionLookaheadDays?:number;dryRun?:boolean;cacheDir?:string};
+export type MontanaIndependentIeOptions={db:Db;now?:Date;maxCandidates?:number;staleAfterDays?:number;electionLookbackDays?:number;electionLookaheadDays?:number;dryRun?:boolean;cacheDir?:string;forceRawDataRefresh?:boolean};
 const DAY=86400000,REVISION="mt-reported-ie-v1",integer=(n:number,min=1)=>{if(!Number.isSafeInteger(n)||n<min||n>100000)hold("invalid_batch_option");return n;};
 export async function listDueMontanaIndependentIe(o:MontanaIndependentIeOptions){
   const now=o.now??new Date();if(!Number.isFinite(now.getTime()))hold("invalid_batch_clock");const max=integer(o.maxCandidates??10),stale=integer(o.staleAfterDays??7),back=integer(o.electionLookbackDays??98,0),ahead=integer(o.electionLookaheadDays??730,0);
@@ -35,10 +35,10 @@ async function attempt(db:Db,expected:MontanaCommitteeReceiver){const c=await db
 export async function syncDueMontanaIndependentIe(o:MontanaIndependentIeOptions){
   const result={enabled:isMontanaReportedIeEnabled(),dryRun:o.dryRun===true,totalDueRows:0,attemptedCount:0,writtenCount:0,heldCount:0,savedSourceCount:0,capturedSourceCount:0,sourceRefreshFailures:0,totalCents:0,groupCount:0,holds:{} as Record<string,number>};
   if(!result.enabled)return result;const due=await listDueMontanaIndependentIe(o);result.totalDueRows=due.totalDueRows;if(result.dryRun)return result;
-  const sources=new Map<number,Promise<MontanaIndependentIePacket|null>>();
+  const force=o.forceRawDataRefresh===true,sources=new Map<number,Promise<MontanaIndependentIePacket|null>>();
   const source=(year:number)=>{if(!sources.has(year))sources.set(year,(async()=>{
     let saved:MontanaIndependentIePacket|null=null;try{saved=await readMontanaIndependentIeSource(year,o.cacheDir);}catch{}
-    if((!saved||Date.parse(saved.sourceRetrievedAt)<Date.now()-(o.staleAfterDays??7)*DAY)&&isMontanaCampaignFinanceRawDataRefreshEnabled()){
+    if((force||!saved||Date.parse(saved.sourceRetrievedAt)<Date.now()-(o.staleAfterDays??7)*DAY)&&isMontanaCampaignFinanceRawDataRefreshEnabled(force)){
       try{await acquireMontanaCersOutsideSpendingArtifacts({year,cacheDir:o.cacheDir});const fresh=await readMontanaIndependentIeSource(year,o.cacheDir);if(!fresh)hold("source_qualification_failed");saved=fresh;result.capturedSourceCount++;}
       catch{result.sourceRefreshFailures++;}
     }else if(saved)result.savedSourceCount++;

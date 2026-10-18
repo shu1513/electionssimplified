@@ -7,7 +7,7 @@ import { MONTANA_FINANCE_ELIGIBLE_OFFICE_KEYS } from "./montanaFinanceEligibleOf
 import { writeMontanaCommitteeReceipts } from "./montanaReportedCommitteeWriter.js";
 
 type Db=Pick<Pool,"query">&{connect:()=>Promise<PoolClient>};
-export type MontanaCommitteeBatchOptions={db:Db;now?:Date;maxCandidates?:number;staleAfterDays?:number;electionLookbackDays?:number;electionLookaheadDays?:number;dryRun?:boolean;cacheDir?:string};
+export type MontanaCommitteeBatchOptions={db:Db;now?:Date;maxCandidates?:number;staleAfterDays?:number;electionLookbackDays?:number;electionLookaheadDays?:number;dryRun?:boolean;cacheDir?:string;forceRawDataRefresh?:boolean};
 const DAY=86400000,integer=(n:number,min=1)=>{if(!Number.isSafeInteger(n)||n<min||n>100000)hold("invalid_batch_option");return n;};
 // Bump when native qualification semantics change; holds must not wait a full
 // day after a correction to the source parser. No monetary refresh is implied.
@@ -47,14 +47,15 @@ export async function syncDueMontanaCommitteeReceipts(input:MontanaCommitteeBatc
   const result={enabled:isMontanaReportedCommitteeReceiptsEnabled(),dryRun:input.dryRun===true,totalDueRows:0,attemptedCount:0,writtenCount:0,
     heldCount:0,savedSourceCount:0,capturedSourceCount:0,sourceRefreshFailures:0,sourceCacheFailures:0,totalCents:0,groupCount:0,holds:{} as Record<string,number>};
   if(!result.enabled)return result;const due=await listDueMontanaCommitteeReceipts(input);result.totalDueRows=due.totalDueRows;if(result.dryRun)return result;
+  const force=input.forceRawDataRefresh===true;
   for(const receiver of due.rows){
     result.attemptedCount++;
     try{
       await attempt(input.db,receiver);const scope={nativeCandidateId:Number(receiver.committee_id),electionYear:receiver.election_year};
       let saved:Awaited<ReturnType<typeof readMontanaCommitteePacket>>=null;
       try{saved=await readMontanaCommitteePacket(scope,input.cacheDir);}catch{result.sourceCacheFailures++;}
-      const stale=!saved||Date.parse(saved.sourceRetrievedAt)<Date.now()-(input.staleAfterDays??7)*DAY;
-      if(stale&&isMontanaCampaignFinanceRawDataRefreshEnabled()){
+      const stale=force||!saved||Date.parse(saved.sourceRetrievedAt)<Date.now()-(input.staleAfterDays??7)*DAY;
+      if(stale&&isMontanaCampaignFinanceRawDataRefreshEnabled(force)){
         try{saved=await acquireMontanaCommitteePacket(scope,input.cacheDir);result.capturedSourceCount++;}
         catch{result.sourceRefreshFailures++;/* A qualified saved source keeps its genuine date. */}
       }else if(saved)result.savedSourceCount++;

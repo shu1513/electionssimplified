@@ -22,7 +22,9 @@ export const MT_COMMITTEE_FROM=`FROM public.mt_candidate_finance_links l JOIN pu
   JOIN public.elections e ON e.id=l.election_id JOIN public.districts d ON d.id=e.district_id JOIN public.offices o ON o.id=e.office_id`;
 export const MT_COMMITTEE_WHERE=`l.link_status='active' AND c.deleted_at IS NULL AND ce.status NOT IN ('lost','withdrawn')
   AND d.state='MT' AND e.race_type='office' AND e.election_stage='general'
-  AND extract(year from e.election_date)::int=l.election_year AND (o.scope||'::'||o.canonical_name)=ANY($1::text[])`;
+  AND extract(year from e.election_date)::int=l.election_year AND (o.scope||'::'||o.canonical_name)=ANY($1::text[])
+  AND NOT EXISTS (SELECT 1 FROM public.mt_candidate_finance_links sibling WHERE sibling.id<>l.id AND sibling.link_status='active'
+    AND ((sibling.candidate_id=l.candidate_id AND sibling.election_id=l.election_id) OR (sibling.committee_id=l.committee_id AND sibling.election_year=l.election_year)))`;
 export async function loadMontanaCommitteeReceiver(db:Pick<Pool|PoolClient,"query">,id:string,lock=false):Promise<MontanaCommitteeReceiver|null>{
   const rows=await db.query<MontanaCommitteeReceiver>(`SELECT ${MT_COMMITTEE_SELECT} ${MT_COMMITTEE_FROM}
     WHERE ${MT_COMMITTEE_WHERE} AND l.id=$2::uuid ${lock?"FOR UPDATE OF c,ce,e,d,o,l":""}`,[[...MONTANA_FINANCE_ELIGIBLE_OFFICE_KEYS],id]);

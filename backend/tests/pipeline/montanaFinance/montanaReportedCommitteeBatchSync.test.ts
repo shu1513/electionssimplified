@@ -14,7 +14,7 @@ describe("Montana independent committee schedule and gate",()=>{
     const rows=Array.from({length:12},(_,i)=>({link_id:String(i)})),query=vi.fn(async()=>({rows})),db={query} as never;
     const r=await listDueMontanaCommitteeReceipts({db});expect(r.totalDueRows).toBe(12);expect(r.rows).toEqual(rows.slice(0,10));
     const [sql,args]=query.mock.calls[0] as unknown as [string,unknown[]];
-    expect(sql).toContain("s.source_retrieved_at");expect(sql).toContain("interval '24 hours'");expect(sql).toContain("a.last_attempted_at ASC NULLS FIRST");
+    expect(sql).toContain("s.source_retrieved_at");expect(sql).toContain("interval '24 hours'");expect(sql).toContain("a.last_attempted_at ASC NULLS FIRST");expect(sql).toContain("NOT EXISTS (SELECT 1 FROM public.mt_candidate_finance_links sibling");
     expect(sql).not.toContain("mt_candidate_finance_summaries");expect(args.slice(2,5)).toEqual([98,730,7]);expect(sql).toContain("a.source_revision<>$6");expect(args[5]).toBe("mt-reported-committee-v2-contact-order");
     await expect(listDueMontanaCommitteeReceipts({db,maxCandidates:0})).rejects.toThrow();
   });

@@ -108,11 +108,11 @@ export async function syncDueMontanaCandidateFinance(
   // Failure of this optional component cannot suppress legacy acquisition.
   let committeeReceipts: MontanaCandidateFinanceBatchSyncResult["committeeReceipts"];
   try { committeeReceipts=await syncDueMontanaCommitteeReceipts({db:input.db,now,dryRun,maxCandidates,staleAfterDays,
-    electionLookbackDays,electionLookaheadDays,cacheDir:input.cacheDir}); } catch { log("Montana reported committee receipts unavailable; legacy sync continues"); }
+    electionLookbackDays,electionLookaheadDays,cacheDir:input.cacheDir,forceRawDataRefresh:input.forceRawDataRefresh===true}); } catch { log("Montana reported committee receipts unavailable; legacy sync continues"); }
   let independentIe: MontanaCandidateFinanceBatchSyncResult["independentIe"];
   const independentIeEnabled=isMontanaReportedIeEnabled();
   try { independentIe=await syncDueMontanaIndependentIe({db:input.db,now,dryRun,maxCandidates,staleAfterDays,
-    electionLookbackDays,electionLookaheadDays,cacheDir:input.cacheDir}); } catch { log("Montana independent IE unavailable; direct sync continues"); }
+    electionLookbackDays,electionLookaheadDays,cacheDir:input.cacheDir,forceRawDataRefresh:input.forceRawDataRefresh===true}); } catch { log("Montana independent IE unavailable; direct sync continues"); }
 
   let autoLinkResults: MontanaFinanceAutoLinkResult[] = [];
   if (!dryRun && input.autoLinkMissingLinks !== false) {
