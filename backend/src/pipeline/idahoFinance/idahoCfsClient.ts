@@ -351,6 +351,9 @@ function parseCandidateRegistrationRow(value: unknown): IdahoCandidateRegistrati
   };
 }
 
+// Original-byte component replay uses the same native registration contract.
+export { parseCandidateRegistrationRow as parseIdahoCandidateRegistrationRow };
+
 function parseContributionRow(value: unknown): IdahoContributionRow {
   const row = objectValue(value, "contribution row");
   return {
