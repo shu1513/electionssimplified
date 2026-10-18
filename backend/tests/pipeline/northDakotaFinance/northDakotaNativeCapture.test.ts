@@ -1,11 +1,26 @@
 import { describe, expect, it } from "vitest";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { resolve } from "node:path";
 import {
+  downloadNorthDakotaPresignedFile,
   getNorthDakotaChartData,
   getNorthDakotaDataDownloadCatalog,
   type NorthDakotaCfrsJsonCapture,
 } from "../../../src/pipeline/northDakotaFinance/northDakotaCfrsClient.js";
 
 describe("North Dakota native response capture", () => {
+  it("never overwrites or deletes an existing immutable download", async () => {
+    const directory = await mkdtemp(resolve(tmpdir(), "nd-original-")), outputPath = resolve(directory, "original");
+    try {
+      await writeFile(outputPath, "existing original", { mode: 0o600 });
+      await expect(downloadNorthDakotaPresignedFile({ url: "https://example.invalid/file?temporary=secret", outputPath }, { fetchImpl: async () => new Response("new body") })).rejects.toThrow();
+      expect(await readFile(outputPath, "utf8")).toBe("existing original");
+    } finally { await rm(directory, { recursive: true, force: true }); }
+  });
+  it("keeps temporary query credentials out of network error messages", async () => {
+    await expect(downloadNorthDakotaPresignedFile({ url: "https://example.invalid/file?temporary=secret", outputPath: "/unused" }, { fetchImpl: async () => { throw Error("https://example.invalid/file?temporary=secret"); } })).rejects.toThrow("North Dakota CFRS presigned download failed (https://example.invalid/file)");
+  });
   it("captures unchanged complete bytes and actual response facts before parsing", async () => {
     const raw = ' {"isSuccess":true,"responseData":[]}\n';
     const captured: NorthDakotaCfrsJsonCapture[] = [];

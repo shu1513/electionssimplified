@@ -243,6 +243,7 @@ async function requestJsonEnvelope(input: {
       url,
       {
         method: input.method,
+        redirect: "error",
         headers: {
           Accept: "application/json, text/plain, */*",
           ...(input.method === "POST" ? { "Content-Type": "application/json" } : {}),
@@ -457,6 +458,9 @@ export type NorthDakotaPresignedDownloadResult = {
   outputPath: string;
   bytesWritten: number;
   sha256: string;
+  status: number;
+  startedAt: string;
+  completedAt: string;
 };
 
 export async function downloadNorthDakotaPresignedFile(
@@ -467,16 +471,16 @@ export async function downloadNorthDakotaPresignedFile(
   const timeoutMs = options?.timeoutMs ?? NORTH_DAKOTA_CFRS_FETCH_TIMEOUT_MS;
   requirePositiveInteger(timeoutMs, "North Dakota CFRS timeout");
   const fetchImpl = options?.fetchImpl ?? fetch;
+  const startedAt = new Date().toISOString();
 
   let response: Response;
   try {
     // The S3 host serves a valid public chain; no UA or CA workarounds here.
-    response = await fetchImpl(input.url, { signal: AbortSignal.timeout(timeoutMs) });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
+    response = await fetchImpl(input.url, { signal: AbortSignal.timeout(timeoutMs), redirect: "error" });
+  } catch {
     throw new NorthDakotaCfrsClientError(
       "network_error",
-      `North Dakota CFRS presigned download failed (${redactedUrl}): ${message}`
+      `North Dakota CFRS presigned download failed (${redactedUrl})`
     );
   }
   if (!response.ok || !response.body) {
@@ -519,18 +523,22 @@ export async function downloadNorthDakotaPresignedFile(
     );
   }, timeoutMs);
 
+  const destination = createWriteStream(outputPath, { mode: 0o600, flags: "wx" });
+  let created = false;
+  destination.once("open", () => { created = true; });
   try {
-    await pipeline(source, meter, createWriteStream(outputPath, { mode: 0o600 }));
+    await pipeline(source, meter, destination);
     await chmod(outputPath, 0o600);
     const outputStat = await stat(outputPath);
-    if (!outputStat.isFile() || outputStat.size === 0 || outputStat.size !== bytesWritten) {
+    const length = response.headers.get("content-length");
+    if (!outputStat.isFile() || outputStat.size === 0 || outputStat.size !== bytesWritten || (length !== null && Number(length) !== bytesWritten)) {
       throw new NorthDakotaCfrsClientError(
         "bad_response",
         `North Dakota CFRS presigned download wrote an invalid artifact: ${bytesWritten} bytes (${redactedUrl})`
       );
     }
   } catch (error) {
-    await rm(outputPath, { force: true }).catch(() => {});
+    if (created) await rm(outputPath, { force: true }).catch(() => {});
     throw error;
   } finally {
     clearTimeout(bodyTimeout);
@@ -542,6 +550,9 @@ export async function downloadNorthDakotaPresignedFile(
     outputPath,
     bytesWritten,
     sha256: hash.digest("hex"),
+    status: response.status,
+    startedAt,
+    completedAt: new Date().toISOString(),
   };
 }
 
@@ -568,7 +579,7 @@ export type NorthDakotaCommitteeRow = {
   registrationYear: string | null;
 };
 
-function parseCommitteeRow(value: unknown): NorthDakotaCommitteeRow {
+export function parseNorthDakotaCommitteeRow(value: unknown): NorthDakotaCommitteeRow {
   const row = objectValue(value, "committee row");
   const entityId = requiredString(row.entityId, "committee entityId");
   if (!/^\d{10}$/.test(entityId)) {
@@ -606,7 +617,7 @@ export async function getAllNorthDakotaCommittees(
         body: { pageNumber, pageSize },
         options,
       });
-      return parsePageEnvelope(envelope, parseCommitteeRow);
+      return parsePageEnvelope(envelope, parseNorthDakotaCommitteeRow);
     },
   });
 }
@@ -648,7 +659,7 @@ export type NorthDakotaTransactionRow = {
   orgType: string | null;
 };
 
-function parseTransactionRow(value: unknown): NorthDakotaTransactionRow {
+export function parseNorthDakotaTransactionRow(value: unknown): NorthDakotaTransactionRow {
   const row = objectValue(value, "transaction row");
   return {
     transactionID: requiredInteger(row.transactionID, "transactionID"),
@@ -726,7 +737,7 @@ export async function getAllNorthDakotaTransactions(
         body: { ...baseBody, pageNumber, pageSize },
         options,
       });
-      return parsePageEnvelope(envelope, parseTransactionRow);
+      return parsePageEnvelope(envelope, parseNorthDakotaTransactionRow);
     },
   });
 }
@@ -751,7 +762,7 @@ export type NorthDakotaChartSeries = {
   data: Array<{ description: string; amount: number }>;
 };
 
-function parseChartSeries(value: unknown): NorthDakotaChartSeries {
+export function parseNorthDakotaChartSeries(value: unknown): NorthDakotaChartSeries {
   const series = objectValue(value, "chart series");
   const data = series.data;
   if (!Array.isArray(data)) {
@@ -779,5 +790,5 @@ export async function getNorthDakotaChartData(
   if (!Array.isArray(responseData)) {
     throw new NorthDakotaCfrsClientError("bad_response", "Invalid North Dakota CFRS chart responseData");
   }
-  return responseData.map(parseChartSeries);
+  return responseData.map(parseNorthDakotaChartSeries);
 }

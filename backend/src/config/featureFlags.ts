@@ -185,6 +185,14 @@ export function isNorthDakotaCampaignFinanceEnabled(): boolean {
   return readBooleanEnv("NORTH_DAKOTA_CAMPAIGN_FINANCE_ENABLED", false);
 }
 
+export function isNorthDakotaReportedCommitteeEnabled(): boolean {
+  return isNorthDakotaCampaignFinanceEnabled() && readBooleanEnv("NORTH_DAKOTA_REPORTED_COMMITTEE_RECEIPTS_ENABLED", false);
+}
+
+export function isNorthDakotaIndependentIeEnabled(): boolean {
+  return isNorthDakotaCampaignFinanceEnabled() && readBooleanEnv("NORTH_DAKOTA_INDEPENDENT_IE_ENABLED", false);
+}
+
 // Gates every live CFRS portal call (registry fetch for auto-link, bulk file
 // refresh). v1 has no recurring sync, so there is deliberately no sync flag.
 export function isNorthDakotaCfrsRawDataRefreshEnabled(force = false): boolean {
