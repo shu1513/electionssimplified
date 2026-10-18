@@ -53,7 +53,7 @@ The shared factory (`createStandardStateFinanceSnapshotWriter`) after PR #488 + 
 | utah | 3 + **alt outside tables** (`supporting_committees`, `supporting_committee_industries`) | →`folder_id` | R; no outside | 1998 | self | — | — | `contribution_size` only |
 | vermont | 5 | +`filer_registration_guid`,`entity_id`; →`filer_name` | R | 2000 | pool | g | — | std+`contributor_source_type`+`donor` |
 | virginia | 3 (no outside) | +`committee_code` | C; only receipts+direct | 2000 | self | — | — | std |
-| washington | 5 | +`filer_id`,`candidacy_id` | C+oR | 2000 | pool | g | — | std+`employer`+`industry` |
+| washington | 5 legacy; independent PAC `sources`/`groups` plus nonfinancial `attempts` (migration 351) | +`filer_id`,`candidacy_id` | legacy C+oR; atomic PAC replacement after original-byte replay and canonical receiver locks | 2000 | pool | g; PAC full signed/count/provenance closure | PAC C.1 adjustments before positive-net groups | std+`employer`+`industry`; native reported PAC receipts |
 | wisconsin | 5 | +`entity_id`,`assigned_committee_id` | C | 2000 | pool | g | — | std+`employer`+`industry` |
 
 ### Writer outside-group identity columns
@@ -108,7 +108,7 @@ Val+ distribution before Missouri: pairing validation `G` in 12 (two message var
 | utah | standard | `folder_id` | alt tables |
 | vermont | standard | `filer_registration_guid` | `filer_registration_guid` |
 | virginia | standard | `committee_id` | direct-only |
-| washington | **wrapper over shared loader** (descriptor-cohort pilot) | `committee_id` | `sponsor_id`/`sponsor_name` via `outsideGroupIdentityColumns` |
+| washington | **wrapper over shared loader** plus default-off validated reported-PAC overlay; full totals before named-detail caps | `committee_id` | `sponsor_id`/`sponsor_name` via `outsideGroupIdentityColumns` |
 | wisconsin | **wrapper over shared loader** | `committee_id` | `sponsor_id`/`sponsor_name` via `outsideGroupIdentityColumns` |
 
 Mixed-identity states (link column ≠ outside column) are why the loader descriptor must be per-relation, not a single option.

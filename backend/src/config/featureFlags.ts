@@ -316,6 +316,8 @@ export const isFloridaCampaignFinanceBrowserExportEnabled = floridaFinance.gate(
 const washingtonFinance = defineStateFinanceFlagPair("WASHINGTON_CAMPAIGN_FINANCE");
 export const isWashingtonCampaignFinanceEnabled = washingtonFinance.isEnabled;
 export const isWashingtonCampaignFinanceSyncEnabled = washingtonFinance.isSyncEnabled;
+export const isWashingtonReportedPacReceiptsEnabled = washingtonFinance.gate("WASHINGTON_REPORTED_PAC_RECEIPTS_ENABLED");
+export const isWashingtonPdcRawDataRefreshEnabled = washingtonFinance.gate("WASHINGTON_PDC_RAW_DATA_REFRESH_ENABLED");
 
 const newYorkFinance = defineStateFinanceFlagPair("NEW_YORK_CAMPAIGN_FINANCE");
 export const isNewYorkCampaignFinanceEnabled = newYorkFinance.isEnabled;

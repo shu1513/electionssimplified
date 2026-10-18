@@ -378,6 +378,7 @@
     "houston-candidates:finance:scheduler:trigger": "tsx src/scripts/triggerHoustonCandidateFinanceSync.ts",
     "houston-candidates:finance:probe": "tsx src/scripts/probeHoustonCandidateFinance.ts",
     "washington-candidates:finance:sync-due": "tsx src/scripts/syncDueWashingtonCandidateFinance.ts",
+    "washington-reported-pac:sync-due": "tsx src/scripts/syncWashingtonReportedPacReceipts.ts",
     "washington-candidates:finance:scheduler:upsert": "tsx src/scripts/upsertWashingtonCandidateFinanceSyncScheduler.ts",
     "washington-candidates:finance:scheduler:worker": "tsx src/scripts/runWashingtonCandidateFinanceSyncSchedulerWorker.ts",
     "washington-candidates:finance:scheduler:trigger": "tsx src/scripts/triggerWashingtonCandidateFinanceSync.ts",
