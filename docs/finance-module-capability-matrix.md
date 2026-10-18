@@ -170,7 +170,7 @@ Hand-verified from each module's writer/loader/due-list files. Legend: **W** = w
 
 | Module | Lines | Tables | W | L | D | AL/BS/SCH | Writer options | Loader options |
 |---|---|---|---|---|---|---|---|---|
-| ohio | 6,355 | `oh_` 5 | W | L | D (in batchSync) | 1/1/1 | floor 2000, pairing, `sos_bulk_export` supersession | donor-only evidence |
+| ohio | 6,355 + independent receipt component | `oh_` 5 + 3 reported-committee tables | W + pinned receipt transaction | L + uncapped committee overlay | D + independent source-clock/held rotation | 1/1/1 | floor 2000, pairing, `sos_bulk_export` supersession; migration 353 preserves legacy rows/clocks | donor-only outside evidence; report-year cash/in-kind registry/declared committees before separate returns, including unsorted |
 | northCarolina | 7,024 | `nc_` 5 | W | L | D (in batchSync) | 1/1/1 | floor 2000, pairing, `ncsbe_portal` supersession | donor-only evidence |
 | georgia | 4,569 | `ga_` 5 | W | L | D | 1/1/1 | floor 2026, signed cash, pairing, `peachfile_api` supersession | donor-only evidence |
 | rhodeIsland | 4,251 | `ri_` 5 | W | L | — (import-style) | 1/0/0 | floor 2026, signed cash, pairing, `erts_portal` supersession | donor-only, `contribution_size` only |

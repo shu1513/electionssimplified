@@ -159,7 +159,9 @@ export type OhioCandidateFinanceBatchSyncResult = {
 
 const DEFAULT_MAX_CANDIDATES = 25;
 const DEFAULT_STALE_AFTER_DAYS = 7;
-const DEFAULT_POST_ELECTION_FINANCE_SYNC_GRACE_DAYS = 1;
+// Post-general is due December 11; annual is due January 29, followed by
+// the portal's five-day publication window and later corrections.
+const DEFAULT_POST_ELECTION_FINANCE_SYNC_GRACE_DAYS = 98;
 const DEFAULT_ELECTION_LOOKAHEAD_DAYS = 730;
 
 function assertValidDate(date: Date, label: string): void {

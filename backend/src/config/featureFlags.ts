@@ -253,6 +253,7 @@ const ohioFinance = defineStateFinanceFlagPair("OHIO_CAMPAIGN_FINANCE");
 export const isOhioCampaignFinanceEnabled = ohioFinance.isEnabled;
 export const isOhioCampaignFinanceSyncEnabled = ohioFinance.isSyncEnabled;
 export const isOhioSosRawDataRefreshEnabled = ohioFinance.gate("OHIO_SOS_RAW_DATA_REFRESH_ENABLED");
+export const isOhioReportedCommitteeReceiptsEnabled = ohioFinance.gate("OHIO_REPORTED_COMMITTEE_RECEIPTS_ENABLED");
 
 const northCarolinaFinance = defineStateFinanceFlagPair("NORTH_CAROLINA_CAMPAIGN_FINANCE");
 export const isNorthCarolinaCampaignFinanceEnabled = northCarolinaFinance.isEnabled;

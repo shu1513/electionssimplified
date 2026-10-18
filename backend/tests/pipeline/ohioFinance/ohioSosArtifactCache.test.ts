@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { chmod, mkdtemp, readFile, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -68,6 +68,17 @@ describe("ohioSosCycleArtifacts", () => {
 });
 
 describe("storeOhioSosArtifact", () => {
+  it("installs private originals and manifests regardless of incoming permissions", async () => {
+    const incoming = join(cacheDir, "incoming.csv");
+    await writeFile(incoming, await readFile(fixturePath("act_can_list_sample.csv")));
+    await chmod(incoming, 0o644);
+    await chmod(cacheDir, 0o755);
+    const manifest = await storeOhioSosArtifact({ cacheDir, productKey: "candidate_list", downloadPath: incoming, retrievedAt: NOW, now: NOW });
+    expect((await stat(cacheDir)).mode & 0o777).toBe(0o700);
+    expect((await stat(manifest.filePath)).mode & 0o777).toBe(0o600);
+    expect((await stat(manifest.manifestPath)).mode & 0o777).toBe(0o600);
+    expect(await readFile(manifest.filePath)).toEqual(await readFile(incoming));
+  });
   it("validates, hashes, and installs a download with a manifest", async () => {
     const manifest = await storeOhioSosArtifact({
       cacheDir,
