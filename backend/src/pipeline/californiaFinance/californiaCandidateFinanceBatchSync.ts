@@ -1,4 +1,5 @@
 import type { Pool, PoolClient } from "pg";
+import {syncDueCaliforniaCommitteeReceipts} from "./californiaReportedCommitteeBatchSync.js";
 
 import {
   syncCaliforniaCandidateFinance,
@@ -64,6 +65,7 @@ export type CaliforniaCandidateFinanceBatchSyncItemResult = {
 };
 
 export type CaliforniaCandidateFinanceBatchSyncResult = {
+  reportedCommittees?: Awaited<ReturnType<typeof syncDueCaliforniaCommitteeReceipts>>;
   dryRun: boolean;
   includeOutside: boolean;
   now: string;
@@ -358,7 +360,6 @@ export async function syncDueCaliforniaCandidateFinance(
   );
   const includeOutside = input.includeOutside !== false;
   const dryRun = input.dryRun === true;
-  const syncFn = input.syncCaliforniaCandidateFinanceFn ?? syncCaliforniaCandidateFinance;
   const resolutionData =
     input.rawDataResolutionData === undefined
       ? await loadCalAccessCommitteeResolutionData({
@@ -366,6 +367,10 @@ export async function syncDueCaliforniaCandidateFinance(
           cacheDir: input.rawDataCacheDir,
         })
       : input.rawDataResolutionData;
+  let reportedCommittees:CaliforniaCandidateFinanceBatchSyncResult["reportedCommittees"];
+  try{reportedCommittees=await syncDueCaliforniaCommitteeReceipts({db:input.db,now,dryRun,maxCandidates,staleAfterDays,electionLookbackDays:input.electionLookbackDays??98,electionLookaheadDays,cacheDir:input.rawDataCacheDir,resolutionData});}
+  catch{console.warn("California reported committee receipts unavailable; legacy sync continues");}
+  const syncFn = input.syncCaliforniaCandidateFinanceFn ?? syncCaliforniaCandidateFinance;
 
   // Auto-link writes candidate->committee links, so it must respect dryRun —
   // Pennsylvania's batch sync applies the same guard (a live CA "--dry-run"
@@ -472,6 +477,7 @@ export async function syncDueCaliforniaCandidateFinance(
 
   const syncedCandidateCount = results.filter((result) => result.ok).length;
   return {
+    reportedCommittees,
     dryRun,
     includeOutside,
     now: now.toISOString(),

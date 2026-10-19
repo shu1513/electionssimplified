@@ -1,6 +1,7 @@
 import type { Pool, PoolClient } from "pg";
 
 import { isCaliforniaCampaignFinanceEnabled } from "../../config/featureFlags.js";
+import {overlayCaliforniaCommitteeReceipts} from "./californiaReportedCommitteeReader.js";
 import {
   addFinanceBreakdown,
   buildOutsideIndustrySupportExplanation,
@@ -73,7 +74,7 @@ type CaliforniaFinanceOutsideIndustryRow = {
   source_url: string | null;
 };
 
-export async function loadCaliforniaCandidateFinanceSummariesByCandidateElection(
+async function loadCaliforniaLegacyFinanceSummariesByCandidateElection(
   db: Queryable,
   candidateRows: readonly CandidateRow[],
   electionRows: readonly ElectionRow[]
@@ -394,4 +395,9 @@ export async function loadCaliforniaCandidateFinanceSummariesByCandidateElection
       ];
     })
   );
+}
+
+export async function loadCaliforniaCandidateFinanceSummariesByCandidateElection(db:Queryable,candidateRows:readonly CandidateRow[],electionRows:readonly ElectionRow[]){
+  const summaries=await loadCaliforniaLegacyFinanceSummariesByCandidateElection(db,candidateRows,electionRows);
+  return overlayCaliforniaCommitteeReceipts(db,summaries,candidateRows,electionRows);
 }
