@@ -1,0 +1,30 @@
+# Oklahoma finance gaps
+
+## Source and existing behavior
+
+Guardian publishes independent expenditure, electioneering communication and state question reports through its public search. These are distinct categories: only explicit independent expenditures with an explicit candidate, office, stance and amount qualify for candidate IE. The existing Oklahoma pipeline reads contribution/loan ZIPs and writes direct totals and occupation/size breakdowns; it has no IE acquisition or aggregator. The new acquisition must run independently of direct finance, including when legacy summaries are fresh or a receipt download fails. Failed acquisition never establishes zero or replaces accepted money.
+
+The live receipt export has **Receipt Source Type** for the donor and a separate **Committee Type** for the receiver. Reported registered/unregistered candidate, PAC, party and special-function committee classes qualify as committees. Preserve their literal classes and reported names; these rows do not provide legal donor registration IDs. A receiver's committee type cannot classify its donors. Individual/business rows do not become committees by organization heuristics.
+
+## Readiness evidence and unresolved authority
+
+October 18, 2026 local research preserved genuine public catalog, search, ZIP and layout responses before parsing. Existing 90 Oklahoma tests passed. The existing Windows-1252/native-quote reader traversed 154,411 receipt rows for 2026 and 225,160 for 2025. Strict RFC CSV fails on these source exports; existing documented native quote recovery is not independent financial reconciliation. Missing IDs, amendments and negative rows still need receiver-specific controls before acceptance.
+
+The current IE search traversed all 20 native pages. There are 200 report entries: 199 direct report postbacks and one amendment-family selector. An initial diagnostic counted only the 199 direct buttons; that is not a complete financial count. Seventeen repeated five-column display contexts show why filer/name/period/date must not be invented as unique filing IDs. The first report contains an embedded PDF with a $100,000 total and explicit candidate/office/support/type fields. That research amount is not accepted candidate money. The amendment selector exposes two versions; establish current-version selection, complete report controls and stable closing inventory before financial implementation.
+
+## Small implementation steps
+
+1. Pure committee receipt aggregation and tests. Consume literal source classes, integer cents and complete receiver ledgers. Keep every reported group before display limits. Initially hold an entire receiver for committee amendments, negative/zero donation rows, duplicate IDs, unknown committee receipt types or ambiguous untyped committee names. Never publish a partial known subtotal. Loans, transfers and separately reported refunds are not donations; the eventual coverage note must describe the accepted basis exactly.
+2. Complete original-source acquisition and replay for IE and receipts, with real response clocks, status/EOF/byte hashes, native receiving identity and financial controls. Native PDF text/geometry remains in memory; derived proof files contain only aggregate counts/money/clocks and whole-file/code hashes. A saved browser page is identified as a browser capture, never fabricated as an HTTP response.
+3. Separate default-off components, own due selection/held-attempt rotation, canonical receiver locks, atomic writes, stale-source protection and full reader closure. Choose a migration number only after refreshing main and the local applied ledger. Applied migrations remain immutable. Preserve legacy totals, breakdowns and clocks.
+4. Run the ordinary local job with actual source acquisition. Compare all uncapped groups, names, counts, cents, receiving context and clocks in memory, then verify the production API and hydrated candidate card. Open and attach an Oklahoma-only PR after proof; verify CI at its current head. No merge, deploy or production activation.
+
+## Reporting deadlines and reruns
+
+The current [candidate calendar](https://oklahoma.gov/content/dam/ok/en/ethics/documents/events/2026/2026%20Candidate%20Reporting%20Calendar%20Election.pdf) requires pre-general reports **October 20–26**, covering August 11–October 19. General-election continuing receipt reports run October 20–November 1, due within 24 hours after the stated threshold. Post-general reports covering October 20–December 31 are due January 1–31, 2027.
+
+The [PAC calendar](https://www.oklahoma.gov/content/dam/ok/en/ethics/documents/events/2025/2026%20PAC%20Ltd%20and%20Unltd%20Gen%20and%20Spec%20Calendar%20v2025.1.pdf), [state-party calendar](https://oklahoma.gov/content/dam/ok/en/ethics/documents/events/2025/2026%20State%20Political%20Party%20Calendar%20v2023.2.pdf) and [noncommittee IE calendar](https://oklahoma.gov/content/dam/ok/en/ethics/documents/events/2025/2026%20NON%20Registered%20IE%20EC%20New%20Primary%20Date%20%20v2023.2.pdf) also put IE/EC pre-general filing on October 20–26, with next-business-day reports October 20–November 3 after the applicable threshold. PAC/party third-quarter filings close October 31; fourth-quarter filings close January 31, 2027. Noncommittee public reports cannot be amended according to their calendar; registered-committee amendment families must still be handled.
+
+Plan real reruns October 27/28 after the pre-election deadline, November 2/4/6 after quarterly/rapid reports, and February 1/3 after year-end, with later amendment checks. Retain the post-election cohort through the final deadlines. These are operational instructions, not newly created automations.
+
+Kansas donor names and all new Missouri publication remain held. No environment-file loading, AI providers or production actions are part of this work.
