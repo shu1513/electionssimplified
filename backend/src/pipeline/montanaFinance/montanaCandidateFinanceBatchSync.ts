@@ -8,7 +8,7 @@
 
 import type { Pool, PoolClient } from "pg";
 
-import { isMontanaCampaignFinanceRawDataRefreshEnabled } from "../../config/featureFlags.js";
+import { isMontanaCampaignFinanceRawDataRefreshEnabled, isMontanaReportedIeEnabled } from "../../config/featureFlags.js";
 import {
   autoLinkMissingMontanaCandidateFinanceLinks,
   type MontanaFinanceAutoLinkResult,
@@ -23,17 +23,16 @@ import {
 } from "./montanaCandidateFinanceSync.js";
 import { acquireMontanaCersCandidateFinanceArtifacts } from "./montanaCersArtifactAcquisition.js";
 import { acquireMontanaCersOutsideSpendingArtifacts } from "./montanaOutsideSpendingAcquisition.js";
+import { syncDueMontanaCommitteeReceipts } from "./montanaReportedCommitteeBatchSync.js";
+import { syncDueMontanaIndependentIe } from "./montanaIndependentIeBatchSync.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 type ConnectableQueryable = Queryable & { connect: () => Promise<PoolClient> };
 
 const DEFAULT_MAX_CANDIDATES = 10;
 const DEFAULT_STALE_AFTER_DAYS = 7;
-// Montana's post-general C-5 closing window: candidate reports are due the
-// 20th of the month; a November 3 general's final periodic report lands by
-// December 20 (47 days). One stale interval beyond that keeps the just-run
-// election in scope until the closing report has been picked up.
-const MONTANA_POST_ELECTION_REPORT_DUE_DAYS = 47;
+// Include post-general reports and later amendments beyond November's deadlines.
+const DEFAULT_ELECTION_LOOKBACK_DAYS = 98;
 const DEFAULT_ELECTION_LOOKAHEAD_DAYS = 730;
 
 export type MontanaCandidateFinanceBatchSyncInput = {
@@ -56,6 +55,8 @@ export type MontanaCandidateFinanceBatchSyncInput = {
 };
 
 export type MontanaCandidateFinanceBatchSyncResult = {
+  independentIe?: Awaited<ReturnType<typeof syncDueMontanaIndependentIe>>;
+  committeeReceipts?: Awaited<ReturnType<typeof syncDueMontanaCommitteeReceipts>>;
   dryRun: boolean;
   rawDataRefreshEnabled: boolean;
   autoLinkResults: MontanaFinanceAutoLinkResult[];
@@ -93,7 +94,7 @@ export async function syncDueMontanaCandidateFinance(
   const staleAfterDays = positiveInteger(input.staleAfterDays, DEFAULT_STALE_AFTER_DAYS, "staleAfterDays");
   const electionLookbackDays = positiveInteger(
     input.electionLookbackDays,
-    MONTANA_POST_ELECTION_REPORT_DUE_DAYS + staleAfterDays + 1,
+    DEFAULT_ELECTION_LOOKBACK_DAYS,
     "electionLookbackDays"
   );
   const electionLookaheadDays = positiveInteger(
@@ -103,6 +104,15 @@ export async function syncDueMontanaCandidateFinance(
   );
   const dryRun = input.dryRun === true;
   const rawDataRefreshEnabled = isMontanaCampaignFinanceRawDataRefreshEnabled(input.forceRawDataRefresh === true);
+  // Independent missing/source-clock schedule runs even if no legacy summary is due.
+  // Failure of this optional component cannot suppress legacy acquisition.
+  let committeeReceipts: MontanaCandidateFinanceBatchSyncResult["committeeReceipts"];
+  try { committeeReceipts=await syncDueMontanaCommitteeReceipts({db:input.db,now,dryRun,maxCandidates,staleAfterDays,
+    electionLookbackDays,electionLookaheadDays,cacheDir:input.cacheDir,forceRawDataRefresh:input.forceRawDataRefresh===true}); } catch { log("Montana reported committee receipts unavailable; legacy sync continues"); }
+  let independentIe: MontanaCandidateFinanceBatchSyncResult["independentIe"];
+  const independentIeEnabled=isMontanaReportedIeEnabled();
+  try { independentIe=await syncDueMontanaIndependentIe({db:input.db,now,dryRun,maxCandidates,staleAfterDays,
+    electionLookbackDays,electionLookaheadDays,cacheDir:input.cacheDir,forceRawDataRefresh:input.forceRawDataRefresh===true}); } catch { log("Montana independent IE unavailable; direct sync continues"); }
 
   let autoLinkResults: MontanaFinanceAutoLinkResult[] = [];
   if (!dryRun && input.autoLinkMissingLinks !== false) {
@@ -143,7 +153,7 @@ export async function syncDueMontanaCandidateFinance(
   // leg — those candidates sync with outsideArtifacts: null, which
   // preserves any prior outside snapshot.
   const outsideSweepOkByYear = new Map<number, boolean>();
-  if (rawDataRefreshEnabled) {
+  if (rawDataRefreshEnabled && !independentIeEnabled) {
     for (const year of new Set(due.rows.map((row) => row.electionYear))) {
       try {
         await acquireOutside({ year, cacheDir: input.cacheDir, now });
@@ -172,7 +182,7 @@ export async function syncDueMontanaCandidateFinance(
         });
       }
       const result = await syncCandidate({
-        ...(outsideSweepOkByYear.get(row.electionYear) === false ? { outsideArtifacts: null } : {}),
+        ...(independentIeEnabled || outsideSweepOkByYear.get(row.electionYear) === false ? { outsideArtifacts: null } : {}),
         db: input.db,
         candidateId: row.candidateId,
         electionId: row.electionId,
@@ -210,6 +220,8 @@ export async function syncDueMontanaCandidateFinance(
   }
 
   return {
+    independentIe,
+    committeeReceipts,
     dryRun,
     rawDataRefreshEnabled,
     autoLinkResults,
