@@ -71,6 +71,7 @@ export type OklahomaCandidateFinanceBatchSyncItemResult = {
 
 export type OklahomaCandidateFinanceBatchSyncResult = {
   reportedFinance?: OklahomaReportedBatchResult;
+  reportedFinanceError?: string;
   dryRun: boolean;
   now: string;
   staleAfterDays: number;
@@ -271,13 +272,24 @@ export async function syncDueOklahomaCandidateFinance(
   const now = input.now ?? new Date();
   assertValidDate(now, "now");
 
-  let reportedFinance:OklahomaReportedBatchResult|undefined;
+  let reportedFinance:OklahomaReportedBatchResult|undefined,reportedFinanceError:string|undefined;
   if(isOklahomaReportedCommitteeEnabled()||isOklahomaIndependentIeEnabled()){
-    if(!input.db.connect)throw Error("Oklahoma reported finance requires a pool");
-    reportedFinance=await syncDueOklahomaReportedFinance({db:input.db as Pick<Pool,"query"|"connect">,
-      now,dryRun:input.dryRun,refresh:input.forceRawDataRefresh,cacheDir:input.rawDataCacheDir,
-      maxCandidates:input.maxCandidates,staleAfterDays:input.staleAfterDays,
-      electionLookbackDays:input.electionLookbackDays,electionLookaheadDays:input.electionLookaheadDays});
+    // The reported components are independent of the legacy summaries: a
+    // failure here (option caps, database, unexpected parse error) is recorded
+    // and the legacy sync still runs. Prior component rows are retained.
+    // The legacy lookback is a one-day post-election grace; the reported
+    // cohort keeps its own lookback so January/February reruns still see
+    // November receivers.
+    try{
+      if(!input.db.connect)throw Error("Oklahoma reported finance requires a pool");
+      reportedFinance=await syncDueOklahomaReportedFinance({db:input.db as Pick<Pool,"query"|"connect">,
+        now,dryRun:input.dryRun,refresh:input.forceRawDataRefresh,cacheDir:input.rawDataCacheDir,
+        maxCandidates:input.maxCandidates,staleAfterDays:input.staleAfterDays,
+        electionLookaheadDays:input.electionLookaheadDays});
+    }catch(error){
+      reportedFinanceError=error instanceof Error?error.message:String(error);
+      console.error(`Oklahoma reported finance sync failed; legacy sync continues, prior component rows retained: ${reportedFinanceError}`);
+    }
   }
 
   const maxCandidates = normalizePositiveInteger(input.maxCandidates, DEFAULT_MAX_CANDIDATES, "maxCandidates");
@@ -407,6 +419,7 @@ export async function syncDueOklahomaCandidateFinance(
   const syncedCandidateCount = results.filter((result) => result.ok).length;
   return {
     ...(reportedFinance?{reportedFinance}:{}),
+    ...(reportedFinanceError?{reportedFinanceError}:{}),
     dryRun,
     now: now.toISOString(),
     staleAfterDays,
