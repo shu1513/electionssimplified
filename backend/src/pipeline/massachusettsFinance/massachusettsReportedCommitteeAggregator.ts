@@ -67,8 +67,9 @@ function nativeId(value: unknown): string {
 }
 
 /** Gross positive itemized monetary/in-kind committee contributions dated in
- * 2026, before separately reported expenditure-side returns. Explicit prior-
- * year contributions and transfers are excluded. Unresolved refund links or
+ * 2026, before separately reported expenditure-side returns. Transfers are
+ * excluded. Prior-year flags require report-year authority, not an inferred
+ * exclusion of a late filing. Unresolved refund links or
  * nonpositive committee donations hold the receiver, never a partial subtotal.
  * Reported labels and native contact IDs do not assert legal donor identity. */
 export function aggregateMassachusettsReportedCommittees(input: {
@@ -97,7 +98,8 @@ export function aggregateMassachusettsReportedCommittees(input: {
     if (row.recordTypeId !== 202 && row.recordTypeId !== 402) maReportedHold("unknown_receipt_type");
     if (typeof row.isTransfer !== "boolean" || typeof row.isPreviousYearContribution !== "boolean")
       maReportedHold("receipt_accounting_flags");
-    if (row.isTransfer || row.isPreviousYearContribution) continue;
+    if (row.isTransfer) continue;
+    if (row.isPreviousYearContribution) maReportedHold("previous_year_requires_authority");
     if (row.linkedRefundGuid !== null && row.linkedRefundGuid !== "")
       maReportedHold("refund_link_requires_authority");
     const amount = maReportedCents(row.amount);

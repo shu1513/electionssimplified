@@ -39,8 +39,13 @@ describe("Massachusetts explicit reported committee contributions", () => {
   it.each([299, 999, "202", undefined])("holds unsupported class %s before returning a known subtotal", type => {
     expect(() => run([receipt(), receipt({ id: "2", recordTypeId: type })])).toThrow(/unknown_receipt_type/);
   });
-  it("excludes transfers, explicit prior-year contributions and earlier calendar years", () => {
-    expect(run([receipt(), receipt({ id: "2", isTransfer: true }), receipt({ id: "3", isPreviousYearContribution: true }), receipt({ id: "4", date: "12/31/2025" })])).toMatchObject({ cents: 10001, occurrences: 1 });
+  it("excludes transfers and dates outside the calendar window", () => {
+    expect(run([receipt(), receipt({ id: "2", isTransfer: true }), receipt({ id: "4", date: "12/31/2025" })])).toMatchObject({ cents: 10001, occurrences: 1 });
+  });
+  it.each(["2026-10-19", "2027-01-21"])("holds an unresolved prior-year flag at %s without a partial known subtotal", observedDay => {
+    expect(() => aggregate({ receivingCpfId: "12345", electionYear: 2026, observedDay,
+      rows: [receipt(), receipt({ id: "late", isPreviousYearContribution: true })],
+    })).toThrow(/previous_year_requires_authority/);
   });
   it.each(["-$1.00", "($1.00)", "$0.00"])("holds a whole receiver for committee donation %s", amount => {
     expect(() => run([receipt(), receipt({ id: "2", amount })])).toThrow(/nonpositive_committee_donation/);
