@@ -7,13 +7,14 @@ import { OKLAHOMA_GUARDIAN_CONTRIBUTION_COLUMNS } from "../../../src/pipeline/ok
 import { readOklahomaReportedPacket,loadOklahomaReceiverPacket } from "../../../src/pipeline/oklahomaFinance/oklahomaReportedSource.js";
 import type { OklahomaReportedReceiver } from "../../../src/pipeline/oklahomaFinance/oklahomaReportedReceiver.js";
 export const receiver:OklahomaReportedReceiver={linkId:"11111111-1111-4111-8111-111111111111",candidateId:"22222222-2222-4222-8222-222222222222",electionId:"33333333-3333-4333-8333-333333333333",electionYear:2026,electionDate:"2026-11-03",candidateName:"Jane Example",fullName:"Jane Example",officeScope:"state_upper",canonicalOffice:"State Senator",canonicalDistrict:"1",entityId:"100",committeeName:"Friends of Example",linkSource:"guardian_bulk",linkOffice:"State Senator",linkDistrict:"1"};
-export function syntheticOklahomaPdf(options:{continuation?:boolean;continuationTarget?:string;total?:string;target?:string;office?:string;amount?:string;filer?:string;payee?:string;wrappedFiler?:boolean;blankReceivingCommitteeName?:boolean}={}) {
+export function syntheticOklahomaPdf(options:{continuation?:boolean;continuationTarget?:string;total?:string;target?:string;office?:string;amount?:string;filer?:string;payee?:string;wrappedFiler?:boolean;blankReceivingCommitteeName?:boolean;continuationBorders?:"none"|"amountRightMissing"}={}) {
   const total=options.total??(options.continuation?"200.02":"100.01"),text=(x:number,y:number,s:string)=>`BT /F1 6 Tf ${x} ${y} Td (${s.replace(/[()\\]/g,"\\$&")}) Tj ET\n`;
   const xs=[20,190,290,360,420,500,590];
   function page(header:boolean){let s=options.wrappedFiler?text(20,750,"Example")+text(300,745,"Other cover column")+text(20,740,"PAC"):text(20,750,options.filer??"Example PAC");
     if(header)s+=text(20,700,"$"+total);
     const ys=header?[600,570,500]:[600,530];
-    for(const x of xs)s+=`${x} ${ys[0]} m ${x} ${ys.at(-1)} l S\n`;
+    const verticals=header||!options.continuationBorders?xs:options.continuationBorders==="none"?[]:xs.filter(x=>x!==290);
+    for(const x of verticals)s+=`${x} ${ys[0]} m ${x} ${ys.at(-1)} l S\n`;
     for(const y of ys)s+=`20 ${y} m 590 ${y} l S\n`;
     if(header)["Candidate Name Office (Support/Oppose)","Amount","Type","Date Expense","Description","Expenditure Name Address"].forEach((v,i)=>s+=text(xs[i]!+2,582,v));
     const y=header?550:580;

@@ -90,10 +90,15 @@ export async function parseOklahomaIeReportPdf(bytes: Uint8Array): Promise<Oklah
         // syntax. Numeric-only seeds would silently skip malformed amounts.
         for(const c of cells.filter(c=>c.y>cutoff && c.left>=amount.box.left-.5 && c.left<amount.box.right-.5)) {
           const b=rectangle(c,borders);
-          if(!b)continue;
           // Cover/footer rectangles may cross the amount column on headerless
           // continuation pages. Only its actual painted column is a data cell.
-          if(Math.abs(b.left-amount.box.left)>.5||Math.abs(b.right-amount.box.right)>.5)continue;
+          // A skipped cell that reads as money is a data row with broken or
+          // shifted borders: dropping it would let reconciliation fail while a
+          // candidate whose only row it was still reads as $0, so hold instead.
+          if(!b||Math.abs(b.left-amount.box.left)>.5||Math.abs(b.right-amount.box.right)>.5){
+            if(/^[\s$(),.\d−-]+$/.test(c.text)&&/\d/.test(c.text))hold("pdf_amount_border");
+            continue;
+          }
           boxes.set(JSON.stringify(b),b);
         }
         for(const rb of boxes.values()) {
