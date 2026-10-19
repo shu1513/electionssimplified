@@ -75,6 +75,7 @@ async function main(): Promise<void> {
     const result = await syncDueMassachusettsCandidateFinance({
       db: pool,
       now: startedAt,
+      reportedRefresh: options.force,
       dryRun: options.dryRun,
       maxCandidates: options.maxCandidates,
       staleAfterDays: options.staleAfterDays,

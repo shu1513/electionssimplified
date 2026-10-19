@@ -1,4 +1,5 @@
 import type { Pool, PoolClient } from "pg";
+import { syncDueMassachusettsReportedFinance, type MassachusettsReportedBatchResult } from "./massachusettsReportedBatchSync.js";
 
 import { createStandardStateFinanceDueListQuery } from "../finance/standardStateFinanceDueListQuery.js";
 import type { FinanceIndustryClassifier } from "../finance/financeIndustryClassificationService.js";
@@ -50,6 +51,8 @@ export type MassachusettsCandidateFinanceBatchSyncInput = {
   aiClassificationMinAmount?: number;
   syncMassachusettsCandidateFinanceFn?: typeof syncMassachusettsCandidateFinance;
   resolveCandidateCommittee?: MassachusettsCandidateCommitteeResolver;
+  reportedCacheDir?: string;
+  reportedRefresh?: boolean;
 };
 
 export type MassachusettsCandidateFinanceBatchSyncItemResult = {
@@ -63,6 +66,7 @@ export type MassachusettsCandidateFinanceBatchSyncItemResult = {
 };
 
 export type MassachusettsCandidateFinanceBatchSyncResult = {
+  reportedFinance?: MassachusettsReportedBatchResult;
   dryRun: boolean;
   now: string;
   staleAfterDays: number;
@@ -141,6 +145,11 @@ export async function syncDueMassachusettsCandidateFinance(
     "electionLookaheadDays"
   );
   const dryRun = input.dryRun === true;
+  // Own due selection, source and failure preservation before legacy finance.
+  const reportedFinance = await syncDueMassachusettsReportedFinance({ db: input.db, now, dryRun,
+    cacheDir: input.reportedCacheDir, refresh: input.reportedRefresh, maxCandidates: input.maxCandidates,
+    staleAfterDays: input.staleAfterDays, electionLookbackDays: input.electionLookbackDays,
+    electionLookaheadDays: input.electionLookaheadDays });
   // Daily syncs intentionally auto-link eligible Massachusetts candidates unless explicitly disabled.
   const shouldAutoLinkMissingLinks = !dryRun && input.autoLinkMissingLinks !== false;
   const syncFn = input.syncMassachusettsCandidateFinanceFn ?? syncMassachusettsCandidateFinance;
@@ -236,6 +245,7 @@ export async function syncDueMassachusettsCandidateFinance(
 
   const syncedCandidateCount = results.filter((result) => result.ok).length;
   return {
+    reportedFinance,
     dryRun,
     now: now.toISOString(),
     staleAfterDays,

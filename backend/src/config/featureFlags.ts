@@ -411,6 +411,10 @@ export const isUtahCampaignFinanceSyncEnabled = utahFinance.isSyncEnabled;
 const massachusettsFinance = defineStateFinanceFlagPair("MASSACHUSETTS_CAMPAIGN_FINANCE");
 export const isMassachusettsCampaignFinanceEnabled = massachusettsFinance.isEnabled;
 export const isMassachusettsCampaignFinanceSyncEnabled = massachusettsFinance.isSyncEnabled;
+// Force requests source refresh; it cannot grant publication/acquisition.
+export const isMassachusettsReportedCommitteeEnabled = (): boolean => massachusettsFinance.gate("MASSACHUSETTS_REPORTED_COMMITTEE_ENABLED")();
+export const isMassachusettsIndependentIeEnabled = (): boolean => massachusettsFinance.gate("MASSACHUSETTS_INDEPENDENT_IE_ENABLED")();
+export const isMassachusettsReportedRawRefreshEnabled = (): boolean => massachusettsFinance.gate("MASSACHUSETTS_REPORTED_RAW_REFRESH_ENABLED")();
 
 const vermontFinance = defineStateFinanceFlagPair("VERMONT_CAMPAIGN_FINANCE");
 export const isVermontCampaignFinanceEnabled = vermontFinance.isEnabled;

@@ -2,12 +2,14 @@ import type { Pool, PoolClient } from "pg";
 
 import { isMassachusettsCampaignFinanceEnabled } from "../../config/featureFlags.js";
 import {
+  buildStateFinanceSummaryRequests,
   type BallotLookupFinanceSummary,
   type StateFinanceRequestCandidateRow,
   type StateFinanceRequestElectionRow,
 } from "../address/ballotLookupFinanceShared.js";
 import { loadStandardStateFinanceSummariesByCandidateElection } from "../finance/standardStateFinanceBallotLookupLoader.js";
 import { isMassachusettsFinanceEligibleElectionRow } from "./massachusettsFinanceEligibleOffices.js";
+import { attachMassachusettsReportedFinance } from "./massachusettsReportedReader.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
@@ -41,7 +43,7 @@ export async function loadMassachusettsCandidateFinanceSummariesByCandidateElect
   candidateRows: readonly StateFinanceRequestCandidateRow[],
   electionRows: readonly StateFinanceRequestElectionRow[]
 ): Promise<Map<string, BallotLookupFinanceSummary>> {
-  return loadStandardStateFinanceSummariesByCandidateElection({
+  const summaries = await loadStandardStateFinanceSummariesByCandidateElection({
     db,
     candidateRows,
     electionRows,
@@ -66,4 +68,6 @@ export async function loadMassachusettsCandidateFinanceSummariesByCandidateElect
       outsideGroupBreakdowns: "ma_candidate_finance_outside_group_breakdowns",
     },
   });
+  return attachMassachusettsReportedFinance({ db, summaries, requests: buildStateFinanceSummaryRequests("MA", candidateRows, electionRows,
+    row => isMassachusettsFinanceEligibleElectionRow(row)) });
 }
