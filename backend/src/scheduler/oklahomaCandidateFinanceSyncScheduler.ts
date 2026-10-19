@@ -239,6 +239,7 @@ export async function runOklahomaCandidateFinanceSyncJob(
       electionLookbackDays: data.electionLookbackDays,
       electionLookaheadDays: data.electionLookaheadDays,
       rawDataCacheDir: data.rawDataCacheDir,
+      forceRawDataRefresh: force,
     });
 
     return {

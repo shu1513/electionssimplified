@@ -1,6 +1,7 @@
 import type { Pool, PoolClient } from "pg";
 
 import { isOklahomaCampaignFinanceEnabled } from "../../config/featureFlags.js";
+import { attachOklahomaReportedFinance } from "./oklahomaReportedReader.js";
 import {
   addFinanceBreakdown,
   buildStateFinanceSummaryRequests,
@@ -44,7 +45,7 @@ type OklahomaFinanceDirectBreakdownRow = {
   source_url: string | null;
 };
 
-export async function loadOklahomaCandidateFinanceSummariesByCandidateElection(
+async function loadLegacyOklahomaCandidateFinanceSummariesByCandidateElection(
   db: Queryable,
   candidateRows: readonly CandidateRow[],
   electionRows: readonly ElectionRow[]
@@ -210,4 +211,12 @@ export async function loadOklahomaCandidateFinanceSummariesByCandidateElection(
       ];
     })
   );
+}
+
+export async function loadOklahomaCandidateFinanceSummariesByCandidateElection(
+  db: Queryable,candidateRows:readonly CandidateRow[],electionRows:readonly ElectionRow[]
+):Promise<Map<string,BallotLookupFinanceSummary>> {
+  const summaries=await loadLegacyOklahomaCandidateFinanceSummariesByCandidateElection(db,candidateRows,electionRows);
+  if(!isOklahomaCampaignFinanceEnabled())return summaries;
+  return attachOklahomaReportedFinance({db,requests:buildStateFinanceSummaryRequests("OK",candidateRows,electionRows),summaries});
 }

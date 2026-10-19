@@ -307,6 +307,13 @@ export const isOklahomaCampaignFinanceSyncEnabled = oklahomaFinance.isSyncEnable
 export const isOklahomaGuardianRawDataRefreshEnabled = oklahomaFinance.gate(
   "OKLAHOMA_GUARDIAN_RAW_DATA_REFRESH_ENABLED"
 );
+// Force requests acquisition; it never grants publication authority.
+export const isOklahomaReportedCommitteeEnabled = (): boolean =>
+  oklahomaFinance.isEnabled() && readBooleanEnv("OKLAHOMA_REPORTED_COMMITTEE_ENABLED", false);
+export const isOklahomaIndependentIeEnabled = (): boolean =>
+  oklahomaFinance.isEnabled() && readBooleanEnv("OKLAHOMA_INDEPENDENT_IE_ENABLED", false);
+export const isOklahomaReportedRawRefreshEnabled = (): boolean =>
+  oklahomaFinance.isEnabled() && readBooleanEnv("OKLAHOMA_REPORTED_RAW_REFRESH_ENABLED", false);
 
 const texasFinance = defineStateFinanceFlagPair("TEXAS_CAMPAIGN_FINANCE");
 export const isTexasCampaignFinanceEnabled = texasFinance.isEnabled;
