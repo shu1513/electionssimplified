@@ -199,7 +199,9 @@ export async function attachKentuckyReportedFinance(input: {
   if (kinds.includes("ie"))
     for (const key of wanted) {
       const s = output.get(key);
-      if (s)
+      // Legacy outside money is only frozen for 2026 (writer/sync gates);
+      // other cycles keep fresh legacy IE and must not carry this note.
+      if (s && s.cycle === 2026)
         output.set(key, {
           ...s,
           outside_spending: {

@@ -265,4 +265,29 @@ describe("Kentucky independent component transactions and reader closure", () =>
       validateKentuckyReportedClosure({ ...p.a, includedRows: 2 }, "committee"),
     ).toThrow();
   });
+  it("notes retained legacy IE only on 2026 summaries", async () => {
+    vi.stubEnv("KENTUCKY_CAMPAIGN_FINANCE_ENABLED", "true");
+    vi.stubEnv("KENTUCKY_REPORTED_IE_ENABLED", "true");
+    const { candidateElectionKey } =
+      await import("../../../src/pipeline/address/ballotLookupFinanceShared.js");
+    const req = (election: string) => ({
+      candidate_id: receiver.candidateId,
+      election_id: election,
+    });
+    const legacy = (cycle: number) =>
+      ({ cycle, outside_spending: { support_total: 100 } }) as any;
+    const output = await attachKentuckyReportedFinance({
+      db: { query: vi.fn(async () => ({ rows: [] })) } as any,
+      requests: [req("e2026"), req("e2027")],
+      summaries: new Map([
+        [candidateElectionKey(receiver.candidateId, "e2026"), legacy(2026)],
+        [candidateElectionKey(receiver.candidateId, "e2027"), legacy(2027)],
+      ]),
+    });
+    const note = (election: string) =>
+      output.get(candidateElectionKey(receiver.candidateId, election))!
+        .outside_spending.outside_coverage_note;
+    expect(note("e2026")).toMatch(/retained/);
+    expect(note("e2027")).toBeUndefined();
+  });
 });

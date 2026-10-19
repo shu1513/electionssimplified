@@ -62,6 +62,7 @@ export type KentuckyCandidateFinanceBatchSyncItemResult = {
 
 export type KentuckyCandidateFinanceBatchSyncResult = {
   reported?: KentuckyReportedBatchResult;
+  reportedError?: string;
   dryRun: boolean;
   now: string;
   staleAfterDays: number;
@@ -252,9 +253,20 @@ export async function syncDueKentuckyCandidateFinance(
     "electionLookaheadDays"
   );
   const dryRun = input.dryRun === true;
-  const reported = isKentuckyReportedCommitteeEnabled() || isKentuckyReportedIeEnabled()
-    ? await syncDueKentuckyReportedFinance({db:input.db as Pool,now,dryRun,maxCandidates:input.maxCandidates,
-      staleAfterDays:input.staleAfterDays,electionLookbackDays:input.electionLookbackDays,electionLookaheadDays:input.electionLookaheadDays}) : undefined;
+  // The component job is independent of the legacy sync: a failure there
+  // (unapplied migration, cache permissions, option bounds) is recorded in the
+  // result and must not stop the auto-link and due sync below.
+  let reported: KentuckyReportedBatchResult | undefined;
+  let reportedError: string | undefined;
+  if (isKentuckyReportedCommitteeEnabled() || isKentuckyReportedIeEnabled()) {
+    try {
+      reported = await syncDueKentuckyReportedFinance({db:input.db as Pool,now,dryRun,maxCandidates:input.maxCandidates,
+        staleAfterDays:input.staleAfterDays,electionLookbackDays:input.electionLookbackDays,electionLookaheadDays:input.electionLookaheadDays});
+    } catch (error) {
+      reportedError = error instanceof Error ? error.message : String(error);
+      console.error("Kentucky reported components failed; continuing with legacy sync:", reportedError);
+    }
+  }
   const syncFn = input.syncKentuckyCandidateFinanceFn ?? syncKentuckyCandidateFinance;
   let autoLinkAttemptedCount = 0;
   let autoLinkLinkedCount = 0;
@@ -357,6 +369,7 @@ export async function syncDueKentuckyCandidateFinance(
     dryRun,
     now: now.toISOString(),
     ...(reported ? {reported} : {}),
+    ...(reportedError ? {reportedError} : {}),
     staleAfterDays,
     maxCandidates,
     dueCandidateCount: due.totalDueRows,
