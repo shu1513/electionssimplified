@@ -24,7 +24,7 @@ async function main() {
   try {
     const result = await syncDueNorthDakotaReportedFinance({ db, ...options });
     console.log(JSON.stringify({ type: "north_dakota_reported_finance_sync", result }));
-    if (result.heldCount || result.sourceUnavailableCount) process.exitCode = 1;
+    if (result.heldCount || result.sourceUnavailableCount || result.refreshFailedCount) process.exitCode = 1;
   } finally { await db.end(); }
 }
 if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) main().catch((error: unknown) => {

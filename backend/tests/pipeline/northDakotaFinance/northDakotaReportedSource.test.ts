@@ -1,8 +1,8 @@
-import { mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, readdir, rm, utimes, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { acquireNorthDakotaReportedPacket, isNorthDakotaReportedPacket, loadNorthDakotaReportedPacket, readNorthDakotaReportedPacket } from "../../../src/pipeline/northDakotaFinance/northDakotaReportedSource.js";
+import { acquireNorthDakotaReportedPacket, isNorthDakotaReportedPacket, loadNorthDakotaReportedPacket, ND_REPORTED_RAW_RETENTION_MS, readNorthDakotaReportedPacket } from "../../../src/pipeline/northDakotaFinance/northDakotaReportedSource.js";
 
 import { aggregateNorthDakotaReportedCommittees } from "../../../src/pipeline/northDakotaFinance/northDakotaReportedAggregation.js";
 import { northDakotaReportedIeFixture as source, northDakotaReportedCommitteeFixture } from "./northDakotaReportedFixture.js";
@@ -11,7 +11,7 @@ beforeEach(async () => {
   vi.stubEnv("AI_API_CALLS_ALLOWED", "false"); vi.stubEnv("NORTH_DAKOTA_CAMPAIGN_FINANCE_ENABLED", "true"); vi.stubEnv("NORTH_DAKOTA_CFRS_RAW_DATA_REFRESH_ENABLED", "true");
   cacheDir = await mkdtemp(resolve(tmpdir(), "nd-reported-test-"));
 });
-afterEach(async () => { vi.unstubAllEnvs(); await rm(cacheDir, { recursive: true, force: true }); });
+afterEach(async () => { vi.unstubAllEnvs(); vi.restoreAllMocks(); await rm(cacheDir, { recursive: true, force: true }); });
 const directory = async () => resolve(cacheDir, "reported-components", (await readdir(resolve(cacheDir, "reported-components"))).find(n => n.startsWith("ie-") && !n.endsWith(".pointer"))!);
 
 describe("North Dakota independent native source graph", () => {
@@ -68,6 +68,26 @@ describe("North Dakota independent native source graph", () => {
     const pointer = resolve(cacheDir, "reported-components", "ie.latest"), before = await readFile(pointer, "utf8");
     await expect(acquireNorthDakotaReportedPacket("ie", { cacheDir, clientOptions: { fetchImpl: source({ changeClosing: true }).fetchImpl } })).rejects.toThrow();
     expect(await readFile(pointer, "utf8")).toBe(before);
+  });
+  it("replays the last qualified packet when a routine refresh fails, but not an explicit one", async () => {
+    const packet = await acquireNorthDakotaReportedPacket("ie", { cacheDir, clientOptions: { fetchImpl: source().fetchImpl } });
+    vi.spyOn(Date, "now").mockReturnValue(Date.parse(packet.sourceAt) + 2 * 86400000);
+    const failing = { fetchImpl: async () => { throw Error("portal down"); } }, onRefreshError = vi.fn();
+    const replay = await loadNorthDakotaReportedPacket("ie", { cacheDir, clientOptions: failing, onRefreshError });
+    expect(replay.sourceAt).toBe(packet.sourceAt); expect(onRefreshError).toHaveBeenCalledTimes(1);
+    await expect(loadNorthDakotaReportedPacket("ie", { cacheDir, clientOptions: failing, refresh: true })).rejects.toThrow();
+    await rm(resolve(cacheDir, "reported-components"), { recursive: true, force: true });
+    await expect(loadNorthDakotaReportedPacket("ie", { cacheDir, clientOptions: failing })).rejects.toThrow();
+  });
+  it("prunes raw originals outside the retention window but keeps hash metadata and the latest packet", async () => {
+    await expect(acquireNorthDakotaReportedPacket("ie", { cacheDir, clientOptions: { fetchImpl: source({ chartCents: 9999 }).fetchImpl } })).rejects.toThrow();
+    const failed = await directory(), old = new Date(Date.now() - ND_REPORTED_RAW_RETENTION_MS - 60000);
+    await acquireNorthDakotaReportedPacket("ie", { cacheDir, clientOptions: { fetchImpl: source().fetchImpl } });
+    const latest = resolve(cacheDir, "reported-components", await readFile(resolve(cacheDir, "reported-components", "ie.latest"), "utf8"));
+    await utimes(failed, old, old); await utimes(latest, old, old);
+    await acquireNorthDakotaReportedPacket("ie", { cacheDir, clientOptions: { fetchImpl: source().fetchImpl } });
+    expect((await readdir(failed)).sort()).toEqual(["captures.ndjson", "manifest.json"]);
+    expect((await readdir(latest)).filter(n => n.endsWith(".original"))).toHaveLength(7);
   });
   it("rejects tampering, permissive originals and escaped paths", async () => {
     await acquireNorthDakotaReportedPacket("ie", { cacheDir, clientOptions: { fetchImpl: source().fetchImpl } });

@@ -45,6 +45,8 @@ export type NorthDakotaReportedBatchResult = {
   ieWrittenCount: number;
   heldCount: number;
   sourceUnavailableCount: number;
+  /** Routine refreshes that failed; the last qualified packet was replayed instead. */
+  refreshFailedCount: number;
   totalCommitteeCents: number;
   supportCents: number;
   opposeCents: number;
@@ -91,6 +93,7 @@ export async function syncDueNorthDakotaReportedFinance(
     ieWrittenCount: 0,
     heldCount: 0,
     sourceUnavailableCount: 0,
+    refreshFailedCount: 0,
     totalCommitteeCents: 0,
     supportCents: 0,
     opposeCents: 0,
@@ -104,7 +107,8 @@ export async function syncDueNorthDakotaReportedFinance(
   for (const kind of kinds) {
     let source: NorthDakotaReportedPacket | null = null;
     try {
-      source = await loadNorthDakotaReportedPacket(kind, { cacheDir: options.cacheDir, refresh: options.refresh });
+      source = await loadNorthDakotaReportedPacket(kind, { cacheDir: options.cacheDir, refresh: options.refresh,
+        onRefreshError: () => { result.refreshFailedCount++; } });
     } catch {
       // Each complete source graph fails independently; retain prior rows.
     }

@@ -46,6 +46,8 @@ export type NorthDakotaCandidateFinanceBatchSyncInput = {
 
 export type NorthDakotaCandidateFinanceBatchSyncResult = {
   reported?: NorthDakotaReportedBatchResult;
+  /** Set when the reported-component job threw; the legacy sync still ran. */
+  reportedError?: string;
   dryRun: boolean;
   totalDueRows: number;
   attempted: number;
@@ -71,9 +73,16 @@ export async function syncDueNorthDakotaCandidateFinance(
   const electionLookaheadDays = input.electionLookaheadDays ?? DEFAULT_ELECTION_LOOKAHEAD_DAYS;
   const dryRun = input.dryRun === true;
   // Independent component work runs even when legacy summaries are fresh or
-  // legacy direct artifacts later fail. Each source retains its own clock.
-  const reported = await syncDueNorthDakotaReportedFinance({ db: input.db, now, dryRun, cacheDir: input.cacheDir,
-    maxCandidates, staleAfterDays, electionLookbackDays, electionLookaheadDays });
+  // legacy direct artifacts later fail. Each source retains its own clock, and
+  // a failure there (option caps, new tables, pg) never stops the legacy sync.
+  let reported: NorthDakotaReportedBatchResult | undefined, reportedError: string | undefined;
+  try {
+    reported = await syncDueNorthDakotaReportedFinance({ db: input.db, now, dryRun, cacheDir: input.cacheDir,
+      maxCandidates, staleAfterDays, electionLookbackDays, electionLookaheadDays });
+  } catch (error) {
+    reportedError = error instanceof Error ? error.message : String(error);
+    log(`North Dakota reported finance components failed; legacy sync continues: ${reportedError}`);
+  }
 
   const listDueRows = input.listDueRowsFn ?? listDueNorthDakotaCandidateFinanceSyncRows;
   const due = await listDueRows(input.db, {
@@ -123,7 +132,8 @@ export async function syncDueNorthDakotaCandidateFinance(
   }
 
   return {
-    ...(reported.enabled ? { reported } : {}),
+    ...(reported?.enabled ? { reported } : {}),
+    ...(reportedError !== undefined ? { reportedError } : {}),
     dryRun,
     totalDueRows: due.totalDueRows,
     attempted: due.rows.length,

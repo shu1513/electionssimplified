@@ -26,6 +26,11 @@ describe("North Dakota independent component batch", () => {
       listDueRowsFn: vi.fn().mockResolvedValue({ rows: [], totalDueRows: 0 }), log: vi.fn() });
     expect(result.attempted).toBe(0); expect(result.reported?.writtenCount).toBe(50);
   });
+  it("keeps the legacy batch running when the reported job throws", async () => {
+    h.list.mockRejectedValue(Error("relation nd_reported_finance_components does not exist")); const log = vi.fn();
+    const result = await syncDueNorthDakotaCandidateFinance({ db: database().db, now, listDueRowsFn: vi.fn().mockResolvedValue({ rows: [], totalDueRows: 0 }), log });
+    expect(result.reported).toBeUndefined(); expect(result.reportedError).toMatch(/does not exist/); expect(log).toHaveBeenCalledTimes(1);
+  });
   it("defaults to 25 receivers and writes both independently qualified components", async () => {
     const d = database(), r = await syncDueNorthDakotaReportedFinance({ db: d.db, now });
     expect(r).toMatchObject({ eligibleCount: 30, dueCount: 30, selectedCount: 25, attemptedCount: 50, writtenCount: 50, committeeWrittenCount: 25, ieWrittenCount: 25 });

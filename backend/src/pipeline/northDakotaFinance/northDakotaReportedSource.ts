@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
-import { appendFile, lstat, mkdir, readFile, rename, writeFile } from "node:fs/promises";
+import { appendFile, lstat, mkdir, readdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { isNorthDakotaCfrsRawDataRefreshEnabled } from "../../config/featureFlags.js";
 import {
@@ -50,6 +50,20 @@ function freeze(value: any): void {
 }
 export function isNorthDakotaReportedPacket(value: unknown): value is NorthDakotaReportedPacket {
   return !!value && typeof value === "object" && qualified.has(value);
+}
+/** Raw originals carry contributor PII. Only the packet behind `<kind>.latest`
+ * keeps them past this window; every other packet directory (including failed
+ * acquisitions) keeps just manifest.json and captures.ndjson hash metadata. */
+export const ND_REPORTED_RAW_RETENTION_MS = 7 * 86400000;
+async function pruneRawOriginals(cache: string, kind: NorthDakotaReportedKind): Promise<void> {
+  let keep = "";
+  try { keep = (await readFile(resolve(cache, `${kind}.latest`), "utf8")).trim(); } catch { /* no qualified packet yet */ }
+  for (const name of await readdir(cache)) {
+    if (name === keep || !new RegExp(`^${kind}-[0-9a-f-]{36}$`).test(name)) continue;
+    const dir = resolve(cache, name), s = await lstat(dir);
+    if (!s.isDirectory() || Date.now() - s.mtimeMs < ND_REPORTED_RAW_RETENTION_MS) continue;
+    for (const file of await readdir(dir)) if (file.endsWith(".original")) await rm(resolve(dir, file), { force: true });
+  }
 }
 const root = (cacheDir?: string): string => resolve(cacheDir ?? process.env.NORTH_DAKOTA_CFRS_RAW_DATA_CACHE_DIR ?? "scratch/north-dakota-campaign-finance/cfrs", "reported-components");
 const sameRows = (a: readonly unknown[], b: readonly unknown[]): boolean => ndCanonical(a.map(ndCanonical).sort()) === ndCanonical(b.map(ndCanonical).sort());
@@ -189,6 +203,8 @@ export async function acquireNorthDakotaReportedPacket(kind: NorthDakotaReported
   if (!isNorthDakotaCfrsRawDataRefreshEnabled()) ndHold("raw_refresh_disabled");
   const cache = root(options.cacheDir), name = `${kind}-${randomUUID()}`, dir = resolve(cache, name);
   await mkdir(dir, { recursive: true, mode: 0o700 });
+  // Housekeeping never blocks acquisition; the next run sweeps again.
+  await pruneRawOriginals(cache, kind).catch(() => {});
   const captures: Capture[] = []; let role = "";
   async function save(c: Omit<Capture, "file" | "sha256" | "bytes">, bytes: Uint8Array) {
     if (captures.length >= 1000) ndHold("capture_budget");
@@ -241,7 +257,11 @@ export async function acquireNorthDakotaReportedPacket(kind: NorthDakotaReported
   await writeFile(temporary, name, { mode: 0o600, flag: "wx" }); await rename(temporary, resolve(cache, `${kind}.latest`));
   return packet;
 }
-export async function loadNorthDakotaReportedPacket(kind: NorthDakotaReportedKind, options: { cacheDir?: string; refresh?: boolean } = {}): Promise<NorthDakotaReportedPacket> {
+export async function loadNorthDakotaReportedPacket(kind: NorthDakotaReportedKind, options: {
+  cacheDir?: string; refresh?: boolean; clientOptions?: Omit<NorthDakotaCfrsClientOptions, "onJsonResponse">;
+  /** Called when a routine (non-explicit) refresh fails and the last qualified packet is used instead. */
+  onRefreshError?: (error: unknown) => void;
+} = {}): Promise<NorthDakotaReportedPacket> {
   const cache = root(options.cacheDir);
   let cached: NorthDakotaReportedPacket | undefined;
   try {
@@ -253,7 +273,15 @@ export async function loadNorthDakotaReportedPacket(kind: NorthDakotaReportedKin
     if (!(e instanceof NorthDakotaReportedHold) && !(e instanceof SyntaxError) && !(e instanceof Error && "code" in e && e.code === "ENOENT")) throw e;
     cached = undefined;
   }
-  if (isNorthDakotaCfrsRawDataRefreshEnabled() && (options.refresh || !cached || Date.now() - Date.parse(cached.sourceAt) >= 86400000)) return acquireNorthDakotaReportedPacket(kind, options);
+  if (isNorthDakotaCfrsRawDataRefreshEnabled() && (options.refresh || !cached || Date.now() - Date.parse(cached.sourceAt) >= 86400000)) {
+    try { return await acquireNorthDakotaReportedPacket(kind, options); }
+    catch (error) {
+      // Last known good: the cached packet already passed every closure check
+      // and keeps its own observation clock. Explicit refreshes still fail.
+      if (options.refresh || !cached) throw error;
+      options.onRefreshError?.(error);
+    }
+  }
   if (!cached) ndHold("source_unavailable");
   return cached;
 }
