@@ -119,7 +119,7 @@ async function main(): Promise<void> {
     );
     // The batch is fail-visible (per-candidate errors are recorded and the
     // run continues); the exit code still has to say so for shell callers.
-    if (result.failed > 0) {
+    if (result.failed > 0 || result.reportedError !== undefined) {
       process.exitCode = 1;
     }
   } finally {

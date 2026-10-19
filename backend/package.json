@@ -473,6 +473,7 @@
     "north-dakota-candidates:finance:auto-link": "tsx src/scripts/autoLinkNorthDakotaCandidateFinance.ts",
     "north-dakota-candidates:finance:raw:refresh": "tsx src/scripts/refreshNorthDakotaCampaignFinanceRawData.ts",
     "north-dakota-candidates:finance:sync-due": "tsx src/scripts/syncDueNorthDakotaCandidateFinance.ts",
+    "north-dakota-candidates:finance:reported:sync-due": "tsx src/scripts/syncDueNorthDakotaReportedFinance.ts",
     "new-hampshire-candidates:finance:raw:refresh": "tsx src/scripts/refreshNewHampshireCampaignFinanceRawData.ts",
     "new-hampshire-candidates:finance:auto-link": "tsx src/scripts/autoLinkNewHampshireCandidateFinance.ts",
     "new-hampshire-candidates:finance:sync-due": "tsx src/scripts/syncDueNewHampshireCandidateFinance.ts",

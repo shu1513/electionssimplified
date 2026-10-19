@@ -12,6 +12,7 @@ import type { Pool, PoolClient } from "pg";
 
 import { isNorthDakotaCampaignFinanceEnabled } from "../../config/featureFlags.js";
 import {
+  buildStateFinanceSummaryRequests,
   officeInputFromElectionRow,
   type BallotLookupFinanceSummary,
   type StateFinanceRequestCandidateRow,
@@ -21,6 +22,7 @@ import { loadStandardStateFinanceSummariesByCandidateElection } from "../finance
 import { NORTH_DAKOTA_DIRECT_COVERAGE_NOTE } from "./northDakotaDirectContributionAggregator.js";
 import { isNorthDakotaFinanceEligibleOffice } from "./northDakotaFinanceEligibleOffices.js";
 import { NORTH_DAKOTA_CFRS_SOURCE_URL } from "./northDakotaFinanceWriter.js";
+import { attachNorthDakotaReportedFinance } from "./northDakotaReportedReader.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
@@ -35,7 +37,7 @@ export async function loadNorthDakotaCandidateFinanceSummariesByCandidateElectio
   candidateRows: readonly StateFinanceRequestCandidateRow[],
   electionRows: readonly StateFinanceRequestElectionRow[]
 ): Promise<Map<string, BallotLookupFinanceSummary>> {
-  return loadStandardStateFinanceSummariesByCandidateElection({
+  const summaries = await loadStandardStateFinanceSummariesByCandidateElection({
     db,
     candidateRows,
     electionRows,
@@ -55,4 +57,6 @@ export async function loadNorthDakotaCandidateFinanceSummariesByCandidateElectio
       outsideGroupBreakdowns: "nd_candidate_finance_outside_group_breakdowns",
     },
   });
+  return attachNorthDakotaReportedFinance({ db, summaries, requests: buildStateFinanceSummaryRequests("ND", candidateRows, electionRows,
+    row => isNorthDakotaFinanceEligibleOffice(officeInputFromElectionRow(row))) });
 }

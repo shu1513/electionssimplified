@@ -2,10 +2,12 @@
 // cache-only sync. One parse per cached artifact is shared across the whole
 // batch (the memoizing loader). Per-candidate failures are recorded and the
 // batch continues (fail-visible, never fail-silent). No auto-link pass here:
-// auto-link fetches the live registry and has its own CLI and gate, so this
-// batch never reaches the portal. Every step is injectable.
+// auto-link fetches the live registry and has its own CLI and gate. The
+// separately gated reported components may acquire original portal data
+// before the legacy cache-only work. Every legacy step is injectable.
 
 import type { Pool, PoolClient } from "pg";
+import { syncDueNorthDakotaReportedFinance, type NorthDakotaReportedBatchResult } from "./northDakotaReportedBatchSync.js";
 
 import {
   listDueNorthDakotaCandidateFinanceSyncRows,
@@ -43,6 +45,9 @@ export type NorthDakotaCandidateFinanceBatchSyncInput = {
 };
 
 export type NorthDakotaCandidateFinanceBatchSyncResult = {
+  reported?: NorthDakotaReportedBatchResult;
+  /** Set when the reported-component job threw; the legacy sync still ran. */
+  reportedError?: string;
   dryRun: boolean;
   totalDueRows: number;
   attempted: number;
@@ -67,6 +72,17 @@ export async function syncDueNorthDakotaCandidateFinance(
     input.electionLookbackDays ?? NORTH_DAKOTA_POST_ELECTION_REPORT_DUE_DAYS + staleAfterDays + 1;
   const electionLookaheadDays = input.electionLookaheadDays ?? DEFAULT_ELECTION_LOOKAHEAD_DAYS;
   const dryRun = input.dryRun === true;
+  // Independent component work runs even when legacy summaries are fresh or
+  // legacy direct artifacts later fail. Each source retains its own clock, and
+  // a failure there (option caps, new tables, pg) never stops the legacy sync.
+  let reported: NorthDakotaReportedBatchResult | undefined, reportedError: string | undefined;
+  try {
+    reported = await syncDueNorthDakotaReportedFinance({ db: input.db, now, dryRun, cacheDir: input.cacheDir,
+      maxCandidates, staleAfterDays, electionLookbackDays, electionLookaheadDays });
+  } catch (error) {
+    reportedError = error instanceof Error ? error.message : String(error);
+    log(`North Dakota reported finance components failed; legacy sync continues: ${reportedError}`);
+  }
 
   const listDueRows = input.listDueRowsFn ?? listDueNorthDakotaCandidateFinanceSyncRows;
   const due = await listDueRows(input.db, {
@@ -116,6 +132,8 @@ export async function syncDueNorthDakotaCandidateFinance(
   }
 
   return {
+    ...(reported?.enabled ? { reported } : {}),
+    ...(reportedError !== undefined ? { reportedError } : {}),
     dryRun,
     totalDueRows: due.totalDueRows,
     attempted: due.rows.length,
