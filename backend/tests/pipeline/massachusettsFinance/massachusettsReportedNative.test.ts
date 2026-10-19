@@ -71,6 +71,15 @@ describe("Massachusetts native IE allocations", () => {
     ["duplicate expense", () => parent({ expenditures: [expense(), expense()], expenditureTotal: "$246.90", expenditureItemizedTotal: "$246.90" })],
     ["non-IE type", () => parent({ expenditures: [expense({ recordTypeDescription: "Electioneering" })] })],
   ] as const)("holds receiver for %s", (_, make) => expect(() => aggregate(make())).toThrow());
+  it("vetoes printed targets that contradict the full name, not only the display name", () => {
+    const run = (r: Partial<MassachusettsReportedReceiver>, printed: string) =>
+      aggregateMassachusettsNativeIe({ ...receiver, ...r } as MassachusettsReportedReceiver, [{ iepac: true, value: parent({ expenditures: [expense({ affectedCandidateName: printed })] }) }], "2026-10-19");
+    expect(() => run({ fullName: "Ada A Smith" }, "Ada B Smith")).toThrow();
+    expect(() => run({ fullName: "Ada Smith Jr" }, "Smith, Ada Sr")).toThrow();
+    expect(() => run({ candidateName: "Ada A Smith", fullName: "Ada Smith" }, "Smith, Ada B")).toThrow();
+    expect(run({ fullName: "Ada A Smith" }, "Smith, Ada Andrea").supportCents).toBe(12345);
+    expect(run({ candidateName: "Addie Smith", fullName: "Ada Smith" }, "Smith, Ada").supportCents).toBe(12345);
+  });
   it("does not hold an unrelated named receiver for another bad parent", () => {
     expect(aggregate(parent({ expenditureTotal: "$999", expenditures: [expense({ relatedCpfId: 1002, affectedCandidateName: "Alex Doe" })] })).totalCents).toBe(0);
   });

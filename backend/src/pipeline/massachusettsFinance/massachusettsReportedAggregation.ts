@@ -59,10 +59,14 @@ export function aggregateMassachusettsNativeIe(receiver: MassachusettsReportedRe
       if (!name || /[;&/]|\b(?:and|or)\b/i.test(name)) maHold("joint_ie_target");
       // Identity comes from CPF. The printed target must corroborate it;
       // accepting a contradictory name would turn a source mistake into money.
-      const keys = normalizeMassachusettsCandidateNameKeys(name),
-        corroborates = [...normalizeMassachusettsCandidateNameKeys(receiver.candidateName)].some(k => keys.has(k));
-      if (!corroborates || hasMiddleNameConflict({ candidateName: receiver.candidateName, rowNames: [name],
-        normalizePersonName: n => [...normalizeMassachusettsCandidateNameKeys(n)][0] ?? "" })) maHold("contradictory_ie_target");
+      // Both canonical names were validated against OCPF, so either may
+      // corroborate, and a middle or generational conflict with either vetoes
+      // ("Ada Smith" / "Ada A Smith" must not accept a printed "Ada B Smith").
+      const keys = normalizeMassachusettsCandidateNameKeys(name), own = [...new Set([receiver.candidateName, receiver.fullName])],
+        normalizePersonName = (n: string) => [...normalizeMassachusettsCandidateNameKeys(n)][0] ?? "",
+        corroborates = own.some(n => [...normalizeMassachusettsCandidateNameKeys(n)].some(k => keys.has(k))),
+        conflicts = own.some(n => hasMiddleNameConflict({ candidateName: n, rowNames: [name], normalizePersonName }));
+      if (!corroborates || conflicts) maHold("contradictory_ie_target");
       const day = maDay(r.date);
       if (day > observedDay) maHold("future_ie_expense");
       if (!day.startsWith("2026-")) continue;
