@@ -14,6 +14,7 @@ import {
 } from "./hawaiiCandidateFinanceSync.js";
 import { HAWAII_FINANCE_ELIGIBLE_OFFICE_KEYS, normalizeHawaiiCscDistrict } from "./hawaiiFinanceEligibleOffices.js";
 import type { HawaiiCscClientOptions } from "./hawaiiCscClient.js";
+import { syncDueHawaiiReportedFinance, type HawaiiReportedBatchResult } from "./hawaiiReportedBatchSync.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 type ConnectableQueryable = Queryable & Pick<Pool, "connect">;
@@ -47,6 +48,8 @@ export type HawaiiCandidateFinanceBatchSyncInput = {
   aiClassificationMinAmount?: number;
   syncHawaiiCandidateFinanceFn?: typeof syncHawaiiCandidateFinance;
   resolveCandidateCommittee?: HawaiiCandidateCommitteeResolver;
+  reportedCacheDir?: string;
+  reportedRefresh?: boolean;
 };
 
 export type HawaiiCandidateFinanceBatchSyncItemResult = {
@@ -71,6 +74,7 @@ export type HawaiiCandidateFinanceBatchSyncResult = {
   autoLinkAttemptedCount: number;
   autoLinkLinkedCount: number;
   results: HawaiiCandidateFinanceBatchSyncItemResult[];
+  reportedFinance?: HawaiiReportedBatchResult;
 };
 
 const DEFAULT_MAX_CANDIDATES = 25;
@@ -138,6 +142,10 @@ export async function syncDueHawaiiCandidateFinance(
     "electionLookaheadDays"
   );
   const dryRun = input.dryRun === true;
+  const reportedFinance = await syncDueHawaiiReportedFinance({ db: input.db, now, dryRun,
+    cacheDir: input.reportedCacheDir, refresh: input.reportedRefresh, maxCandidates: input.maxCandidates,
+    staleAfterDays: input.staleAfterDays, electionLookbackDays: input.electionLookbackDays,
+    electionLookaheadDays: input.electionLookaheadDays });
   // Daily syncs intentionally auto-link eligible Hawaii candidates unless explicitly disabled.
   const shouldAutoLinkMissingLinks = !dryRun && input.autoLinkMissingLinks !== false;
   const syncFn = input.syncHawaiiCandidateFinanceFn ?? syncHawaiiCandidateFinance;
@@ -244,5 +252,6 @@ export async function syncDueHawaiiCandidateFinance(
     autoLinkAttemptedCount,
     autoLinkLinkedCount,
     results,
+    reportedFinance,
   };
 }

@@ -80,6 +80,7 @@ async function main(): Promise<void> {
       staleAfterDays: options.staleAfterDays,
       electionLookbackDays: options.electionLookbackDays,
       electionLookaheadDays: options.electionLookaheadDays,
+      reportedRefresh: options.force,
     });
 
     console.log(JSON.stringify(toSyncDueHawaiiCandidateFinanceScriptOutput({ startedAt, options, result }), null, 2));
