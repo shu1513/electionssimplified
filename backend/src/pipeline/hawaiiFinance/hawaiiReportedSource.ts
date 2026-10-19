@@ -1,7 +1,7 @@
 import { mkdir } from "node:fs/promises";
 import { resolve } from "node:path";
 import { isHawaiiReportedRawRefreshEnabled } from "../../config/featureFlags.js";
-import { hiAdd, hiCents as hiSourceCents, hiFreeze, hiHash, hiHold, HawaiiReportedHold, type HawaiiReportedKind } from "./hawaiiReportedCore.js";
+import { hiAdd, hiCents as hiSourceCents, hiFreeze, hiHash, hiHawaiiDay, hiHold, HawaiiReportedHold, type HawaiiReportedKind } from "./hawaiiReportedCore.js";
 import { createHawaiiOriginalGraph, isHawaiiOriginalGraph, listHawaiiOriginalDirectories, readHawaiiOriginalGraph, type HawaiiOriginalGraph } from "./hawaiiReportedOriginals.js";
 import { readHawaiiNativeFiler, readHawaiiRegistry, readHawaiiRoster, readHawaiiSoda } from "./hawaiiReportedProtocol.js";
 import type { HawaiiNativeRegistryRow } from "./hawaiiReportedNative.js";
@@ -43,7 +43,7 @@ export async function qualifyHawaiiReportedGraph(graph: HawaiiOriginalGraph, kin
       if (names.size !== 1 || typeof own[0]?.noncandidate_committee_name !== "string") hiHold("spender_identity_changed");
       const name = own[0].noncandidate_committee_name;
       const control = await readHawaiiNativeFiler(read, { prefix: `ie_parent_${index}`, noncandidate: true, registry, name,
-        electionPeriod: "2024-2026", asOfDay: new Date().toISOString().slice(0, 10) });
+        electionPeriod: "2024-2026", asOfDay: hiHawaiiDay(graph.records[0]!.completedAt) });
       const sum = own.reduce((n, r) => hiAdd(n, hiSourceCents(r.amount)), 0);
       if (control.cents !== sum) hiHold("ie_parent_control");
       parentControls.push({ registration, name, rows: own.length, cents: sum });

@@ -1,4 +1,4 @@
-import { hiAdd, hiCanonical, hiCents, hiDay, hiFreeze, hiHash, hiHold, hiNameKey, hiRequired, type HawaiiReportedKind } from "./hawaiiReportedCore.js";
+import { hiAdd, hiCanonical, hiCents, hiDay, hiFreeze, hiHash, hiHawaiiDay, hiHold, hiNameKey, hiRequired, type HawaiiReportedKind } from "./hawaiiReportedCore.js";
 import { aggregateHawaiiReportedCommittees } from "./hawaiiReportedCommitteeAggregator.js";
 import { aggregateHawaiiReportedIe } from "./hawaiiReportedIeAggregator.js";
 import { hiDirectLinkSeatMatches, hiPersonMatches, qualifyHawaiiOfficialReceiver } from "./hawaiiReportedIdentity.js";
@@ -19,7 +19,7 @@ function baseReceiver(packet: HawaiiReportedPacket, receiver: HawaiiReportedRece
   qualifyHawaiiOfficialReceiver({ ...receiver, seat: receiver, roster: packet.roster });
 }
 function directAggregation(p: HawaiiReportedPacket, receiver: HawaiiReportedReceiver) {
-  const period = receiver.electionPeriod!, start = period === "2022-2026" ? "2022-11-09" : "2024-11-06", asOf = p.capturedAt.slice(0, 10);
+  const period = receiver.electionPeriod!, start = period === "2022-2026" ? "2022-11-09" : "2024-11-06", asOf = hiHawaiiDay(p.sourceAt);
   const senders = new Set<string>();
   for (const r of p.senderRows) {
     if (r.cc_reg_no !== receiver.entityId) continue;
@@ -56,7 +56,7 @@ export async function loadHawaiiReceiverPacket(packet: HawaiiReportedPacket, rec
   async function qualify(graph: HawaiiOriginalGraph): Promise<HawaiiReceiverPacket> {
     let reads = 0; const read: HawaiiOriginalGraph["read"] = async (...args) => { reads++; return graph.read(...args); };
     const control = await readHawaiiNativeFiler(read, { prefix: "receiver", noncandidate: false, registry: packet.candidateRegistry,
-      name: native[0]!.name, office: expectedOffice, district: receiver.canonicalDistrict, electionPeriod: receiver.electionPeriod!, asOfDay: packet.capturedAt.slice(0, 10) });
+      name: native[0]!.name, office: expectedOffice, district: receiver.canonicalDistrict, electionPeriod: receiver.electionPeriod!, asOfDay: hiHawaiiDay(packet.sourceAt) });
     if (control.cents !== sum || reads !== graph.records.length) hiHold("native_receipt_control");
     const f = hiGraphFacts(graph);
     if (f.capturedAt < packet.publisherUpdatedAt) hiHold("native_profile_predates_ledger");
@@ -81,7 +81,7 @@ export function aggregateHawaiiReported(receiver: HawaiiReportedReceiver, source
   const p = source.packet; baseReceiver(p, receiver);
   if (p.kind === "ie") {
     const a = aggregateHawaiiReportedIe({ ...receiver, seat: receiver, roster: p.roster, rows: p.rows, parentControls: p.parentControls,
-      electionPeriod: "2024-2026", windowStart: "2024-11-06", windowEnd: "2026-11-03", asOfDay: p.capturedAt.slice(0, 10) });
+      electionPeriod: "2024-2026", windowStart: "2024-11-06", windowEnd: "2026-11-03", asOfDay: hiHawaiiDay(p.sourceAt) });
     return { ...a, groups: a.groups.map(g => ({ ...g, sourceClass: "reported independent spender", evidence: "native_closed_b2" })) };
   }
   const a = directAggregation(p, receiver);

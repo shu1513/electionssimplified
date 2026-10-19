@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { aggregateHawaiiReportedCommittees, type HawaiiPublishedRow } from "../../../src/pipeline/hawaiiFinance/hawaiiReportedCommitteeAggregator.js";
-import { hiAdd, hiCents, hiDay, hiNameKey } from "../../../src/pipeline/hawaiiFinance/hawaiiReportedCore.js";
+import { hiAdd, hiCents, hiDay, hiHawaiiDay, hiNameKey } from "../../../src/pipeline/hawaiiFinance/hawaiiReportedCore.js";
 
 const receiver = "CC9999999001";
 function row(id: string, changes: HawaiiPublishedRow = {}): HawaiiPublishedRow {
@@ -110,6 +110,12 @@ describe("Hawaii reported committee foundation", () => {
 });
 
 describe("Hawaii exact source primitives", () => {
+  it("anchors future-date checks to the original Hawaii capture day across UTC midnight", () => {
+    expect(hiHawaiiDay("2026-10-20T09:59:59.000Z")).toBe("2026-10-19");
+    expect(hiHawaiiDay("2026-10-20T10:00:00.000Z")).toBe("2026-10-20");
+    expect(hiHawaiiDay("2027-01-01T01:00:00.000Z")).toBe("2026-12-31");
+    expect(() => hiHawaiiDay("not an instant")).toThrow("invalid_capture_clock");
+  });
   it("retains cents and signs without binary-float rounding", () => {
     expect(hiCents("$ 1,234.5")).toBe(123_450);
     expect(hiCents("0.01")).toBe(1);

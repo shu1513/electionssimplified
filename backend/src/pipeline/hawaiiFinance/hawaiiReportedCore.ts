@@ -48,6 +48,15 @@ export function hiDay(value: unknown): string {
   if (!Number.isFinite(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== day) hiHold("invalid_source_date");
   return day;
 }
+/** Filing calendar days follow Hawaii time. Replay uses the original capture
+ * instant, so an originally future-dated row cannot age into valid authority. */
+export function hiHawaiiDay(instant: string): string {
+  const date = new Date(instant);
+  if (!Number.isFinite(date.getTime())) hiHold("invalid_capture_clock");
+  const parts = Object.fromEntries(new Intl.DateTimeFormat("en-US", { timeZone: "Pacific/Honolulu", year: "numeric", month: "2-digit", day: "2-digit" })
+    .formatToParts(date).map(p => [p.type, p.value]));
+  return hiDay(`${parts.year}-${parts.month}-${parts.day}`);
+}
 export const hiCanonical = (value: unknown): string => JSON.stringify(value, (_key, item) =>
   item && typeof item === "object" && !Array.isArray(item)
     ? Object.fromEntries(Object.entries(item).sort(([a], [b]) => a.localeCompare(b))) : item);
