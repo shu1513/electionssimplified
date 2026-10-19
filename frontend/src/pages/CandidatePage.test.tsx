@@ -1192,6 +1192,36 @@ describe("CandidatePage", () => {
     expect(screen.getByText("Campaign Finance Information").closest("summary")).not.toHaveTextContent("State Senator");
   });
 
+  it("keeps the arrival race's finance when the candidate has withdrawn from it", async () => {
+    // Arrived from the Governor race the candidate withdrew from: the reader
+    // still gets that race's finance, not the other race's.
+    stubApiRoutes({ ...ANONYMOUS });
+    renderCandidate(
+      () => ({
+        ...candidateDetail({
+          elections: [
+            candidateElection({ status: "withdrawn" }),
+            candidateElection({
+              candidate_election_id: "ce-2",
+              election_id: "e-2",
+              official_ballot_title: "State Senator",
+            }),
+          ],
+        }),
+        ongoing_finance: { "ce-1": financeSummary(), "ce-2": financeSummary() },
+      }),
+      "c-1",
+      {
+        backTo: { path: "/elections/e-1", label: "Governor" },
+        electionId: "e-1",
+        candidates: [{ id: "c-1", name: "Jordan Voter" }],
+      }
+    );
+
+    await screen.findByRole("heading", { name: "Campaign Finance Information — Governor" });
+    expect(screen.queryByRole("heading", { name: "Campaign Finance Information — State Senator" })).not.toBeInTheDocument();
+  });
+
   it("renders no finance section when the ongoing election has no finance for the candidate", async () => {
     stubApiRoutes({ ...ANONYMOUS });
     renderCandidate(() => ({
