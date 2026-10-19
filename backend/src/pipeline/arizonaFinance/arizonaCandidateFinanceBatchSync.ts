@@ -1,4 +1,5 @@
 import type { Pool, PoolClient } from "pg";
+import { syncDueArizonaReportedFinance, type ArizonaReportedBatchResult } from "./arizonaReportedBatchSync.js";
 
 import {
   syncArizonaCandidateFinance,
@@ -36,7 +37,9 @@ export type ArizonaFinanceAutoLinkCandidateElection = {
 };
 
 export type ArizonaCandidateFinanceBatchSyncInput = {
-  db: Queryable;
+  db: Queryable & Pick<Pool,"connect">;
+  reportedCacheDir?: string;
+  reportedRefresh?: boolean;
   now?: Date;
   dryRun?: boolean;
   maxCandidates?: number;
@@ -66,6 +69,7 @@ export type ArizonaCandidateFinanceBatchSyncItemResult = {
 };
 
 export type ArizonaCandidateFinanceBatchSyncResult = {
+  reportedFinance?: ArizonaReportedBatchResult;
   dryRun: boolean;
   now: string;
   staleAfterDays: number;
@@ -334,6 +338,10 @@ export async function syncDueArizonaCandidateFinance(
     "electionLookaheadDays"
   );
   const dryRun = input.dryRun === true;
+  const reportedFinance = await syncDueArizonaReportedFinance({db:input.db,now,dryRun,
+    cacheDir:input.reportedCacheDir,refresh:input.reportedRefresh,maxCandidates:input.maxCandidates,
+    staleAfterDays:input.staleAfterDays,electionLookbackDays:input.electionLookbackDays,
+    electionLookaheadDays:input.electionLookaheadDays});
   const syncFn = input.syncArizonaCandidateFinanceFn ?? syncArizonaCandidateFinance;
   const results: ArizonaCandidateFinanceBatchSyncItemResult[] = [];
   let autoLinkAttemptedCount = 0;
@@ -458,6 +466,7 @@ export async function syncDueArizonaCandidateFinance(
 
   const syncedCandidateCount = results.filter((result) => result.ok).length;
   return {
+    reportedFinance,
     dryRun,
     now: now.toISOString(),
     staleAfterDays,
