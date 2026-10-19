@@ -17,6 +17,15 @@ export class OklahomaReportedCommitteeHold extends Error {
 function hold(code: string): never { throw new OklahomaReportedCommitteeHold(code); }
 const literal = (value: string): string => value.normalize("NFC").trim().replace(/\s+/g, " ");
 const knownClasses = new Set<string>(OKLAHOMA_REPORTED_COMMITTEE_CLASSES);
+// Exact labels from Guardian's public receipt-type control. Prior/associated
+// committee assets and funds are transfers, not this metric's new donations.
+const excludedReceiptTypes = new Set([
+  "Loan", "Refund", "Transfer of Assets from Prior Committee Unregistered",
+  "Transfer-In of Funds from Prior Candidate Committee Registered",
+  "Transfer-In of Funds from Associated Committee Registered",
+  "Transfer-In of Funds from Associated Committee Unregistered",
+  "Transfer of Assets from Prior Committee Registered",
+]);
 function add(a: number, b: number): number {
   const n = a + b;
   if (!Number.isSafeInteger(n)) hold("unsafe_money");
@@ -64,7 +73,7 @@ export function aggregateOklahomaReportedCommittees(input: {
       continue;
     }
     const type = row["Receipt Type"].trim();
-    if (["Loan", "Refund", "Transfer In", "Transfer-In"].includes(type)) continue;
+    if (excludedReceiptTypes.has(type)) continue;
     if (!["Monetary", "In-Kind"].includes(type)) hold("unsupported_committee_receipt_type");
     const year = yearOfDate(row["Receipt Date"]);
     if (year < input.electionYear - 1 || year > input.electionYear) continue;

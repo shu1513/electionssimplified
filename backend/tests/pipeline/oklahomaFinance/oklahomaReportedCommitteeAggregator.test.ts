@@ -28,7 +28,10 @@ describe("Oklahoma reported committee receipt foundation", () => {
     expect(run([row({ "Receipt Date": "12/31/2024" }), row({ "Receipt ID": "2", "Receipt Date": "1/1/2025" }), row({ "Receipt ID": "3", "Receipt Date": "1/1/2027" })]).cents).toBe(125_001);
   });
   it("excludes explicit loans, transfers and separately reported refunds", () => {
-    expect(run(["Loan", "Transfer In", "Transfer-In", "Refund"].map((type, i) => row({ "Receipt ID": String(i), "Receipt Type": type }))).cents).toBe(0);
+    const types = ["Loan", "Refund", "Transfer of Assets from Prior Committee Unregistered",
+      "Transfer-In of Funds from Prior Candidate Committee Registered", "Transfer-In of Funds from Associated Committee Registered",
+      "Transfer-In of Funds from Associated Committee Unregistered", "Transfer of Assets from Prior Committee Registered"];
+    expect(run(types.map((type, i) => row({ "Receipt ID": String(i), "Receipt Type": type }))).cents).toBe(0);
   });
   it.each([
     [{ Amended: "Y" }, "committee_correction"], [{ "Receipt Amount": "-10" }, "nonpositive_committee_donation"],
@@ -36,6 +39,7 @@ describe("Oklahoma reported committee receipt foundation", () => {
     [{ "Receipt Amount": "1$00" }, "invalid_money"], [{ "Receipt Amount": "1,2" }, "invalid_money"],
     [{ "Receipt Amount": "999999999999999" }, "unsafe_money"], [{ "Receipt Date": "2/30/2026" }, "invalid_date"],
     [{ "Receipt Type": "Other" }, "unsupported_committee_receipt_type"], [{ "Last Name": "" }, "missing_committee_name"],
+    [{ "Receipt Type": "Transfer-In" }, "unsupported_committee_receipt_type"],
     [{ "Receipt Source Type": "", "Last Name": "Unresolved PAC" }, "unresolved_committee_class"],
     [{ "Receipt Source Type": "Future Committee Class" }, "unresolved_committee_class"],
     [{ "Committee Type": "Political Action Committee" }, "receiving_class"], [{ "Receipt ID": "" }, "receipt_identity"],
