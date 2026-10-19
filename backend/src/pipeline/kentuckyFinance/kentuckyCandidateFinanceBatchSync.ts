@@ -13,6 +13,8 @@ import {
 import { createKentuckyKrefCandidateFinanceLinkResolver } from "./kentuckyCandidateFinanceLinkResolver.js";
 import { KENTUCKY_FINANCE_ELIGIBLE_OFFICE_KEYS, normalizeKentuckyKrefLocation } from "./kentuckyFinanceEligibleOffices.js";
 import type { KentuckyKrefClientOptions } from "./kentuckyKrefClient.js";
+import { isKentuckyReportedCommitteeEnabled, isKentuckyReportedIeEnabled } from "../../config/featureFlags.js";
+import { syncDueKentuckyReportedFinance, type KentuckyReportedBatchResult } from "./kentuckyReportedBatchSync.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 type ConnectableQueryable = Queryable & Pick<Pool, "connect">;
@@ -59,6 +61,8 @@ export type KentuckyCandidateFinanceBatchSyncItemResult = {
 };
 
 export type KentuckyCandidateFinanceBatchSyncResult = {
+  reported?: KentuckyReportedBatchResult;
+  reportedError?: string;
   dryRun: boolean;
   now: string;
   staleAfterDays: number;
@@ -249,6 +253,20 @@ export async function syncDueKentuckyCandidateFinance(
     "electionLookaheadDays"
   );
   const dryRun = input.dryRun === true;
+  // The component job is independent of the legacy sync: a failure there
+  // (unapplied migration, cache permissions, option bounds) is recorded in the
+  // result and must not stop the auto-link and due sync below.
+  let reported: KentuckyReportedBatchResult | undefined;
+  let reportedError: string | undefined;
+  if (isKentuckyReportedCommitteeEnabled() || isKentuckyReportedIeEnabled()) {
+    try {
+      reported = await syncDueKentuckyReportedFinance({db:input.db as Pool,now,dryRun,maxCandidates:input.maxCandidates,
+        staleAfterDays:input.staleAfterDays,electionLookbackDays:input.electionLookbackDays,electionLookaheadDays:input.electionLookaheadDays});
+    } catch (error) {
+      reportedError = error instanceof Error ? error.message : String(error);
+      console.error("Kentucky reported components failed; continuing with legacy sync:", reportedError);
+    }
+  }
   const syncFn = input.syncKentuckyCandidateFinanceFn ?? syncKentuckyCandidateFinance;
   let autoLinkAttemptedCount = 0;
   let autoLinkLinkedCount = 0;
@@ -350,6 +368,8 @@ export async function syncDueKentuckyCandidateFinance(
   return {
     dryRun,
     now: now.toISOString(),
+    ...(reported ? {reported} : {}),
+    ...(reportedError ? {reportedError} : {}),
     staleAfterDays,
     maxCandidates,
     dueCandidateCount: due.totalDueRows,

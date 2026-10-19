@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   replaceKentuckyCandidateFinanceSnapshot,
@@ -41,6 +41,21 @@ function createMockDb() {
 }
 
 describe("kentuckyFinanceWriter", () => {
+  afterEach(() => vi.unstubAllEnvs());
+  it("preserves 2026 legacy IE totals and all outside rows when the independent IE gate is on", async () => {
+    vi.stubEnv("KENTUCKY_CAMPAIGN_FINANCE_ENABLED", "true");
+    vi.stubEnv("KENTUCKY_REPORTED_IE_ENABLED", "true");
+    const db = createMockDb();
+    const result = await replaceKentuckyCandidateFinanceSnapshot({db,link:{...baseLink(),electionYear:2026},
+      summary:{totalReceipts:1000,outsideSupportTotal:0,outsideOpposeTotal:0}});
+    expect(result.outsideGroupsWritten).toBe(0);
+    const sql = db.query.mock.calls.map(call => String(call[0]));
+    expect(sql.some(s => /(?:INSERT INTO|DELETE FROM) public\.ky_candidate_finance_outside/.test(s))).toBe(false);
+    const summary = db.query.mock.calls.find(call => String(call[0]).includes("INSERT INTO public.ky_candidate_finance_summaries"));
+    expect(summary?.[1]?.slice(6,8)).toEqual([null,null]);
+    expect(summary?.[1]?.[10]).toBe(true);
+    expect(String(summary?.[0])).toContain("CASE WHEN $11::boolean THEN ky_candidate_finance_summaries.outside_support_total");
+  });
   it("upserts Kentucky finance links with normalized keys and nullable fields", async () => {
     const db = {
       query: vi.fn().mockResolvedValue({ rows: [{ id: LINK_ID }], rowCount: 1 }),
@@ -154,6 +169,7 @@ describe("kentuckyFinanceWriter", () => {
       125_000,
       "https://secure.kentucky.gov/kref/publicsearch/ExportContributors",
       "2026-07-08T09:10:11.000Z",
+      false,
     ]);
     expect(sql.filter((statement) => statement.includes("INSERT INTO public.ky_candidate_finance_direct_breakdowns"))).toHaveLength(1);
     expect(sql.filter((statement) => statement.includes("INSERT INTO public.ky_candidate_finance_outside_groups"))).toHaveLength(1);
