@@ -446,6 +446,19 @@ export function CandidatePage() {
   // can legitimately check several rows.
   const railChoice = navState?.electionId !== undefined ? choiceForElection(navState.electionId) : undefined;
   const railPickedIds = new Set((railChoice?.picks ?? []).map((pick) => pick.candidate_id));
+  // Campaign finance is scoped to the race the reader came from: a candidate
+  // in two concurrent races (a sitting state legislator running for Congress)
+  // otherwise shows both races' finance under a page the reader opened for
+  // one of them. Deep links (no arrival race) and arrivals whose race is
+  // missing from this candidate's elections (a stale roster snapshot) fall
+  // back to every ongoing race. A withdrawn or eliminated candidacy in the
+  // arrival race still counts: the reader came from that race, and the money
+  // raised for it is the finance they are looking for.
+  const arrivalFinanceElections =
+    navState?.electionId !== undefined
+      ? ongoingElections.filter((election) => election.election_id === navState.electionId)
+      : [];
+  const financeElections = arrivalFinanceElections.length > 0 ? arrivalFinanceElections : ongoingElections;
 
   // Display label for the back slot: when the destination is an election,
   // its official ballot title runs to legal-name length ("For United States
@@ -708,12 +721,12 @@ export function CandidatePage() {
           </div>
         ) : null}
 
-        {ongoingElections.map((election, index) => (
+        {financeElections.map((election, index) => (
           <OngoingElectionFinance
             key={election.candidate_election_id}
             election={election}
             summary={ongoingFinance[election.candidate_election_id] ?? null}
-            showElection={ongoingElections.length > 1}
+            showElection={financeElections.length > 1}
             exposureRef={index === 0 ? financeRef : undefined}
           />
         ))}
