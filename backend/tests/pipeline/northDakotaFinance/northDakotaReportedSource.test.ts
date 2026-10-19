@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { acquireNorthDakotaReportedPacket, isNorthDakotaReportedPacket, loadNorthDakotaReportedPacket, readNorthDakotaReportedPacket } from "../../../src/pipeline/northDakotaFinance/northDakotaReportedSource.js";
 
+import { aggregateNorthDakotaReportedCommittees } from "../../../src/pipeline/northDakotaFinance/northDakotaReportedAggregation.js";
 import { northDakotaReportedIeFixture as source, northDakotaReportedCommitteeFixture } from "./northDakotaReportedFixture.js";
 let cacheDir: string;
 beforeEach(async () => {
@@ -21,6 +22,14 @@ describe("North Dakota independent native source graph", () => {
     const manifest = await readFile(resolve(cacheDir, "reported-components", name, "manifest.json"), "utf8");
     expect(manifest).not.toContain("temporary=secret");
     expect(packet.contributions[0]!.contributorName).toBe("Example PAC");
+  });
+  it("covers every catalog year so all-years charts still close once next-year money appears", async () => {
+    const packet = await acquireNorthDakotaReportedPacket("committee", { cacheDir, clientOptions: northDakotaReportedCommitteeFixture({ nextYear: true }) });
+    expect(packet).toMatchObject({ sourceRows: 2, sourceCents: 15000, windowEnd: "2026-12-31" });
+    const name = await readFile(resolve(cacheDir, "reported-components", "committee.latest"), "utf8");
+    expect(JSON.parse(await readFile(resolve(cacheDir, "reported-components", name, "manifest.json"), "utf8")).years).toEqual([2025, 2026, 2027]);
+    // Published receipts stay inside the candidacy window.
+    expect(aggregateNorthDakotaReportedCommittees({ entityId: "1010000002", windowStart: packet.windowStart, windowEnd: packet.windowEnd, rows: packet.contributions })).toMatchObject({ cents: 10000, occurrences: 1 });
   });
   it("rejects named contribution drift and incomplete download EOF", async () => {
     await expect(acquireNorthDakotaReportedPacket("committee", { cacheDir, clientOptions: northDakotaReportedCommitteeFixture({ badDonor: true }) })).rejects.toThrow(/named_committee_multiset/);

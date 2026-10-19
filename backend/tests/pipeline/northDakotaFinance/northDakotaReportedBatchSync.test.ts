@@ -65,5 +65,9 @@ describe("North Dakota independent component batch", () => {
     vi.stubEnv("NORTH_DAKOTA_CAMPAIGN_FINANCE_ENABLED", "false"); const d = database();
     expect((await syncDueNorthDakotaReportedFinance({ db: d.db, now })).enabled).toBe(false);
     expect(d.query).not.toHaveBeenCalled(); expect(h.load).not.toHaveBeenCalled();
+    // Legacy CLI values beyond this job's caps must not break the legacy batch while the flags are off.
+    expect((await syncDueNorthDakotaReportedFinance({ db: d.db, now, maxCandidates: 5000, staleAfterDays: 400 })).enabled).toBe(false);
+    vi.stubEnv("NORTH_DAKOTA_CAMPAIGN_FINANCE_ENABLED", "true");
+    await expect(syncDueNorthDakotaReportedFinance({ db: d.db, now, maxCandidates: 5000 })).rejects.toThrow(/batch option/);
   });
 });

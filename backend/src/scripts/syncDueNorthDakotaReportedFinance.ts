@@ -27,6 +27,6 @@ async function main() {
     if (result.heldCount || result.sourceUnavailableCount) process.exitCode = 1;
   } finally { await db.end(); }
 }
-if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) main().catch(() => {
-  console.error("North Dakota reported finance sync failed; prior component rows retained."); process.exitCode = 1;
+if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) main().catch((error: unknown) => {
+  console.error(`North Dakota reported finance sync failed; prior component rows retained: ${error instanceof Error ? error.message : String(error)}`); process.exitCode = 1;
 });

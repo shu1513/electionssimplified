@@ -59,6 +59,8 @@ export type NorthDakotaPhaseZeroArgs = {
   currentElection: string;
 };
 
+const PROBE_RUN_ID = `${process.pid}-${Date.now()}`;
+
 const DEFAULT_ARGS: NorthDakotaPhaseZeroArgs = {
   // Every year the catalog offers for Contributions/Expenditures; the chart
   // controls are all-years totals, so the run refuses a partial year list.
@@ -205,7 +207,9 @@ async function downloadCatalogArtifact(input: {
     throw new Error(`North Dakota catalog is missing ${input.dataType} ${input.year}`);
   }
   const url = await input.client.getDownloadFileUrl(row.id, input.clientOptions);
-  const outputPath = join(input.scratchDir, `${input.dataType.replaceAll(" ", "_")}_${input.year}.csv`);
+  // Downloads are immutable originals (exclusive create), so each run gets its
+  // own file name instead of failing on a previous run's artifact.
+  const outputPath = join(input.scratchDir, `${input.dataType.replaceAll(" ", "_")}_${input.year}.${PROBE_RUN_ID}.csv`);
   const download = await input.client.downloadPresignedFile({ url, outputPath }, input.clientOptions);
   const text = decodeNorthDakotaCsvBytes(await readFile(download.outputPath));
   return { sha256: download.sha256, bytesWritten: download.bytesWritten, text };

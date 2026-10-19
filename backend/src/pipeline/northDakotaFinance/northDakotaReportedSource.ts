@@ -28,7 +28,16 @@ type Capture = {
   role: string; file: string; url: string; method: "GET" | "POST"; body: Record<string, unknown> | null;
   status: number; contentType: string | null; startedAt: string; completedAt: string; bytes: number; sha256: string;
 };
-type Manifest = { version: 1; kind: NorthDakotaReportedKind; electionYear: 2026; captures: Capture[] };
+type Manifest = { version: 1; kind: NorthDakotaReportedKind; electionYear: 2026; years: number[]; captures: Capture[] };
+/** Official charts are all-years totals, so acquisition must cover every
+ * ledger year (2027 money appears during the 2026 year-end filing window).
+ * Publication stays inside the 2025–2026 candidacy window. */
+function validYears(value: unknown): value is number[] {
+  return Array.isArray(value) && value.length >= 2 && value.length <= 10 && value.includes(2025) && value.includes(2026)
+    && value.every((y, i) => Number.isSafeInteger(y) && y === value[0] + i);
+}
+const catalogContributionYears = (rows: readonly { dataType: string; year: string | number }[]): number[] =>
+  rows.filter(r => r.dataType === "Contributions").map(r => Number(r.year)).sort((a, b) => a - b);
 export type NorthDakotaReportedPacket = Readonly<{
   kind: NorthDakotaReportedKind; electionYear: 2026; registry: readonly NorthDakotaCommitteeRow[];
   contributions: readonly NorthDakotaContributionCsvRow[]; ie: readonly NorthDakotaTransactionRow[];
@@ -58,7 +67,8 @@ export async function readNorthDakotaReportedPacket(directory: string): Promise<
   if (!ds.isDirectory() || ds.isSymbolicLink() || (ds.mode & 0o077)) ndHold("private_packet_directory");
   const manifestBytes = await privateFile(resolve(dir, "manifest.json"));
   const m = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(manifestBytes)) as Manifest;
-  if (m.version !== 1 || !["committee", "ie"].includes(m.kind) || m.electionYear !== 2026 || !Array.isArray(m.captures) || m.captures.length < 7 || m.captures.length > 1000) ndHold("packet_manifest");
+  if (m.version !== 1 || !["committee", "ie"].includes(m.kind) || m.electionYear !== 2026 || !validYears(m.years) || !Array.isArray(m.captures) || m.captures.length < 7 || m.captures.length > 1000) ndHold("packet_manifest");
+  const years = m.years;
   const records = new Map<string, { capture: Capture; native: any; bytes: Buffer }[]>();
   let previous = "", started = "", completed = "";
   for (let i = 0; i < m.captures.length; i++) {
@@ -99,8 +109,13 @@ export async function readNorthDakotaReportedPacket(directory: string): Promise<
   if (!sameRows(registryRaw, pages("registry:close", "Committee/getPublicCandidatesCommitteeDataList", {}))) ndHold("registry_changed");
   const registry = registryRaw.map(parseNorthDakotaCommitteeRow);
   if (!registry.length || new Set(registry.map(r => r.entityId)).size !== registry.length || new Set(registry.map(r => r.orgID)).size !== registry.length) ndHold("registry_identity");
+  const catalog = m.kind === "committee" ? one("catalog") : null;
+  if (catalog) {
+    if (catalog.capture.url !== `${NORTH_DAKOTA_CFRS_PUBLIC_SERVICE_BASE_URL}/AccessReport/getDataDownloadDataList` || catalog.capture.method !== "POST" || ndCanonical(catalog.capture.body) !== ndCanonical({ pageNumber: 1, pageSize: 500 }) || !Array.isArray(catalog.native?.data) || catalog.native.totalRecords !== catalog.native.data.length) ndHold("catalog_contract");
+    if (ndCanonical(catalogContributionYears(catalog.native.data)) !== ndCanonical(years)) ndHold("packet_years");
+  }
   const tx: NorthDakotaTransactionRow[] = [], category = m.kind === "committee" ? "CON" : "IE";
-  for (const year of [2025, 2026]) {
+  for (const year of years) {
     const body = { transactionCategory: category, sortColumn: "transactionDate", sortDirection: "DESC", transactionYear: String(year), ...(m.kind === "ie" ? { orgTypeCode: "104" } : {}) };
     const opening = pages(`transactions:${year}:open`, "CommitteeTransactions/getAllPublicTransactionDataList", body);
     if (!sameRows(opening, pages(`transactions:${year}:close`, "CommitteeTransactions/getAllPublicTransactionDataList", body))) ndHold("transactions_changed");
@@ -114,11 +129,10 @@ export async function readNorthDakotaReportedPacket(directory: string): Promise<
   let contributions: NorthDakotaContributionCsvRow[] = [], windowStart = "2025-01-01", windowEnd = "2026-12-31", sourceCents = 0;
   const slices: Record<string, Map<string, number>> = {};
   const addSlice = (name: string, label: string, cents: number) => { const s = slices[name] ??= new Map(); s.set(label, ndAdd(s.get(label) ?? 0, cents)); };
-  if (m.kind === "committee") {
-    const catalog = one("catalog");
-    if (catalog.capture.url !== `${NORTH_DAKOTA_CFRS_PUBLIC_SERVICE_BASE_URL}/AccessReport/getDataDownloadDataList` || catalog.capture.method !== "POST" || ndCanonical(catalog.capture.body) !== ndCanonical({ pageNumber: 1, pageSize: 500 }) || !Array.isArray(catalog.native?.data) || catalog.native.totalRecords !== catalog.native.data.length) ndHold("catalog_contract");
+  if (catalog) {
+    const entries: any[] = catalog.native.data;
     function file(type: string, year: number): Buffer {
-      const match = catalog.native.data.filter((r: any) => r.dataType === type && String(r.year) === String(year));
+      const match = entries.filter((r: any) => r.dataType === type && String(r.year) === String(year));
       if (match.length !== 1 || !Number.isSafeInteger(match[0].id) || match[0].id <= 0) ndHold("catalog_selection");
       const mint = one(`mint:${type}:${year}`), f = one(`file:${type}:${year}`);
       if (mint.capture.url !== `${NORTH_DAKOTA_CFRS_PUBLIC_SERVICE_BASE_URL}/AccessReport/getDataDownloadfile/${match[0].id}` || mint.capture.method !== "POST" || ndCanonical(mint.capture.body) !== "{}") ndHold("mint_contract");
@@ -132,7 +146,7 @@ export async function readNorthDakotaReportedPacket(directory: string): Promise<
     if (windowStart !== "2025-01-01") ndHold("cycle_window");
     const filed = parseNorthDakotaFiledReportCsv(decodeNorthDakotaCsvBytes(file("Filed reports", 2026)));
     if (filed.errors.length || filed.recoveredRowCount || !filed.rows.length) ndHold("filed_inventory");
-    for (const year of [2025, 2026]) {
+    for (const year of years) {
       const parsed = parseNorthDakotaContributionCsv(decodeNorthDakotaCsvBytes(file("Contributions", year)));
       if (parsed.errors.length || parsed.recoveredRowCount) ndHold("contribution_csv");
       validateNorthDakotaReportedContributions({ year, csv: parsed.rows, api: tx.filter(r => r.transactionDate.startsWith(`${year}-`)), registry });
@@ -145,7 +159,7 @@ export async function readNorthDakotaReportedPacket(directory: string): Promise<
   } else {
     for (const r of tx) {
       const registered = registry.find(s => s.entityId === r.entityID), cents = apiAmountToCents(r.transactionAmount);
-      if (!registered || registered.orgID !== r.orgID || ndLiteral(registered.orgName) !== ndLiteral(r.committeeName) || r.transactionTypeDesc !== "Independent Expenditures" || r.orgType !== "Independent Expenditure Committee" || !/^202[56]-/.test(r.transactionDate) || !Number.isSafeInteger(cents) || cents <= 0) ndHold("ie_dataset");
+      if (!registered || registered.orgID !== r.orgID || ndLiteral(registered.orgName) !== ndLiteral(r.committeeName) || r.transactionTypeDesc !== "Independent Expenditures" || r.orgType !== "Independent Expenditure Committee" || !years.includes(Number(r.transactionDate.slice(0, 4))) || !Number.isSafeInteger(cents) || cents <= 0) ndHold("ie_dataset");
       sourceCents = ndAdd(sourceCents, cents);
       addSlice("By Recipient Type", r.entityTypeDesc || "Lumpsum", cents); addSlice("By Committee Type", registered.orgType, cents);
     }
@@ -191,13 +205,21 @@ export async function acquireNorthDakotaReportedPacket(kind: NorthDakotaReported
   } };
   role = "registry:open"; await getAllNorthDakotaCommittees({}, clientOptions);
   const category = kind === "committee" ? "CON" : "IE";
+  let catalog: Awaited<ReturnType<typeof getNorthDakotaDataDownloadCatalog>> = [], years: number[] = [];
+  if (kind === "committee") {
+    role = "catalog"; catalog = await getNorthDakotaDataDownloadCatalog(clientOptions);
+    years = catalogContributionYears(catalog);
+  } else {
+    for (let year = 2025; year <= Math.max(2026, new Date().getUTCFullYear()); year++) years.push(year);
+  }
+  if (!validYears(years)) ndHold("packet_years");
   async function transactions(phase: "open" | "close") {
-    for (const year of [2025, 2026]) { role = `transactions:${year}:${phase}`; await getAllNorthDakotaTransactions({ transactionCategory: category, transactionYear: year, ...(kind === "ie" ? { orgTypeCode: "104" } : {}) }, clientOptions); }
+    for (const year of years) { role = `transactions:${year}:${phase}`; await getAllNorthDakotaTransactions({ transactionCategory: category, transactionYear: year, ...(kind === "ie" ? { orgTypeCode: "104" } : {}) }, clientOptions); }
   }
   await transactions("open");
   if (kind === "committee") {
-    role = "catalog"; const catalog = await getNorthDakotaDataDownloadCatalog(clientOptions);
-    for (const [type, year] of [["Reporting Schedules", 2026], ["Reporting Schedules", 2027], ["Contributions", 2025], ["Contributions", 2026], ["Filed reports", 2026]] as const) {
+    const wanted: readonly (readonly [string, number])[] = [["Reporting Schedules", 2026], ["Reporting Schedules", 2027], ...years.map(year => ["Contributions", year] as const), ["Filed reports", 2026]];
+    for (const [type, year] of wanted) {
       const match = catalog.filter(r => r.dataType === type && String(r.year) === String(year));
       if (match.length !== 1) ndHold("catalog_selection");
       role = `mint:${type}:${year}`; const url = await getNorthDakotaDataDownloadFileUrl(match[0]!.id, clientOptions);
@@ -212,7 +234,7 @@ export async function acquireNorthDakotaReportedPacket(kind: NorthDakotaReported
   await transactions("close");
   role = "registry:close"; await getAllNorthDakotaCommittees({}, clientOptions);
   role = "chart"; await getNorthDakotaChartData(kind === "committee" ? "contributions" : "independentExpenditures", clientOptions);
-  const manifest: Manifest = { version: 1, kind, electionYear: 2026, captures };
+  const manifest: Manifest = { version: 1, kind, electionYear: 2026, years, captures };
   await writeFile(resolve(dir, "manifest.json"), JSON.stringify(manifest), { mode: 0o600, flag: "wx" });
   const packet = await readNorthDakotaReportedPacket(dir);
   const temporary = resolve(cache, `${kind}-${randomUUID()}.pointer`);

@@ -66,17 +66,19 @@ type Due = {
 export async function syncDueNorthDakotaReportedFinance(
   options: NorthDakotaReportedBatchOptions,
 ): Promise<NorthDakotaReportedBatchResult> {
-  const now = options.now ?? new Date(),
-    max = int(options.maxCandidates, 25, 1000),
-    stale = options.staleAfterDays === 0 ? 0 : int(options.staleAfterDays, 7, 365),
-    lookback = int(options.electionLookbackDays, 103, 550),
-    lookahead = int(options.electionLookaheadDays, 730, 1000);
-  if (!Number.isFinite(now.getTime()))
-    throw new Error("Invalid NorthDakota reported batch clock");
   const kinds: NorthDakotaReportedKind[] = [
     ...(isNorthDakotaReportedCommitteeEnabled() ? ["committee" as const] : []),
     ...(isNorthDakotaIndependentIeEnabled() ? ["ie" as const] : []),
   ];
+  // Validate options only when enabled: the legacy batch forwards its own
+  // uncapped CLI values and must keep working while these flags are off.
+  const now = options.now ?? new Date(),
+    max = kinds.length ? int(options.maxCandidates, 25, 1000) : 0,
+    stale = !kinds.length || options.staleAfterDays === 0 ? 0 : int(options.staleAfterDays, 7, 365),
+    lookback = kinds.length ? int(options.electionLookbackDays, 103, 550) : 0,
+    lookahead = kinds.length ? int(options.electionLookaheadDays, 730, 1000) : 0;
+  if (!Number.isFinite(now.getTime()))
+    throw new Error("Invalid NorthDakota reported batch clock");
   const result: NorthDakotaReportedBatchResult = {
     enabled: kinds.length > 0,
     dryRun: options.dryRun === true,
