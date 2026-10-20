@@ -41,6 +41,24 @@ describe("EmbedHomePage", () => {
     expect(screen.queryByRole("link", { name: "My elections" })).not.toBeInTheDocument();
   });
 
+  it("never shows the site's sample elections: the box is the search alone", async () => {
+    // The home page lists sample elections under its search for a visitor
+    // who does not yet know what the site is (NearbyElections). The box sits
+    // inside a publisher's article, where that list would be someone else's
+    // content; it keeps the bare search. Even with a geo hint on offer, the
+    // box never asks for it.
+    const fetchMock = stubApiRoutes({
+      "/api/me": apiError(401, "unauthorized", "Not logged in"),
+      "/api/geo-hint": { location: { state: "CA", city: "Fresno", coordinates: null } },
+    });
+    renderHome();
+    await screen.findByRole("heading", { level: 1 });
+    await waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    expect(fetchMock.mock.calls.map(([input]) => String(input))).not.toContain("/api/geo-hint");
+    expect(screen.queryByRole("heading", { level: 2, name: /Sample elections/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("combobox", { name: "Sort by" })).not.toBeInTheDocument();
+  });
+
   it("tags the credit link with an allowlisted publisher code from the frame URL", async () => {
     window.location.hash = "#pub=alpha-news";
     renderHome();

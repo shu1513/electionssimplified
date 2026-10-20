@@ -44,6 +44,10 @@ export function EmbedHomePage() {
     // div is what gets measured: the outer one is always as tall as the frame.
     <div className="embed-box flex min-h-screen flex-col justify-center bg-page text-ink">
       <div ref={contentRef}>
+        {/* The hero alone: the site's home page adds its sample elections
+            under the search (NearbyElections), but inside a publisher's
+            article that list would be someone else's content, so the box
+            stays the search. EmbedHomePage.test.tsx pins this. */}
         <LandingHero framed />
         {/* The box's one credit, and the front page's one way to the site. Its
           bottom padding matches the headline's top padding (LandingHero), so
