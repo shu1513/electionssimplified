@@ -1,3 +1,4 @@
+import { overlayNewMexicoReportedFinance } from "./newMexicoReportedReader.js";
 import type { Pool, PoolClient } from "pg";
 
 import { isNewMexicoCampaignFinanceEnabled } from "../../config/featureFlags.js";
@@ -128,7 +129,7 @@ export async function loadNewMexicoCandidateFinanceSummariesByCandidateElection(
   );
 
   if (summaryResult.rows.length === 0) {
-    return new Map();
+    return overlayNewMexicoReportedFinance(db, new Map(), candidateRows, electionRows);
   }
 
   const selectedRequests = summaryResult.rows.map((row) => ({
@@ -350,7 +351,7 @@ export async function loadNewMexicoCandidateFinanceSummariesByCandidateElection(
     );
   }
 
-  return new Map(
+  const summaries = new Map(
     summaryResult.rows.map((row) => {
       const key = candidateElectionKey(row.candidate_id, row.election_id);
       const topDirectDonorOccupations = directOccupationsByCandidateElection.get(key) ?? [];
@@ -394,4 +395,5 @@ export async function loadNewMexicoCandidateFinanceSummariesByCandidateElection(
       ];
     })
   );
+  return overlayNewMexicoReportedFinance(db, summaries, candidateRows, electionRows);
 }
