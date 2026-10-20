@@ -216,7 +216,7 @@ export function NearbyElections() {
       <section aria-labelledby="nearby-elections-heading" className={sectionClass}>
         {rule}
         <h2 id="nearby-elections-heading" className={headingClass}>
-          Sample elections near {label}
+          Sample elections in {label}
         </h2>
         {caveat}
         <div className="mt-[18px] flex justify-end">{sortControl}</div>
@@ -237,7 +237,7 @@ export function NearbyElections() {
     <section aria-labelledby="nearby-elections-heading" className={sectionClass}>
       {rule}
       <h2 id="nearby-elections-heading" className={headingClass}>
-        Sample elections near {label} on {formatElectionDate(sampleDate)}
+        Sample elections in {label} on {formatElectionDate(sampleDate)}
       </h2>
       {caveat}
       <ElectionList

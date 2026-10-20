@@ -178,7 +178,7 @@ describe("HomePage nearby elections", () => {
     // One heading names the place and the date; the list's own date heading
     // is withheld so the date is said once.
     expect(
-      await screen.findByRole("heading", { level: 2, name: "Sample elections near Fresno, CA on November 3, 2026" })
+      await screen.findByRole("heading", { level: 2, name: "Sample elections in Fresno, CA on November 3, 2026" })
     ).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Elections on November 3, 2026" })).not.toBeInTheDocument();
     // The pitch stays the page's only h1; this block is a section under it.
@@ -240,7 +240,7 @@ describe("HomePage nearby elections", () => {
     // The list is gone, but the block, its control and the error remain, so
     // another sort can be picked to recover.
     await waitFor(() => expect(screen.queryByRole("link", { name: /Mayor of Fresno/ })).not.toBeInTheDocument());
-    expect(screen.getByRole("heading", { level: 2, name: "Sample elections near Fresno, CA" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: "Sample elections in Fresno, CA" })).toBeInTheDocument();
     expect(screen.getByRole("combobox", { name: "Sort by" })).toHaveValue("district_size");
     await userEvent.setup().selectOptions(screen.getByRole("combobox", { name: "Sort by" }), "vote_power");
     expect(await screen.findByRole("link", { name: /Mayor of Fresno/ })).toBeInTheDocument();
@@ -250,7 +250,7 @@ describe("HomePage nearby elections", () => {
     const fetchMock = stubNearbyFetch({ pointResolve: "fail" });
     renderHome();
     expect(
-      await screen.findByRole("heading", { level: 2, name: "Sample elections near Fresno, CA on November 3, 2026" })
+      await screen.findByRole("heading", { level: 2, name: "Sample elections in Fresno, CA on November 3, 2026" })
     ).toBeInTheDocument();
     expect(fetchMock.mock.calls.filter(([path]) => path === "/api/address/resolve")).toHaveLength(2);
   });
@@ -261,7 +261,7 @@ describe("HomePage nearby elections", () => {
     });
     renderHome();
     expect(
-      await screen.findByRole("heading", { level: 2, name: "Sample elections near Fresno, CA on November 3, 2026" })
+      await screen.findByRole("heading", { level: 2, name: "Sample elections in Fresno, CA on November 3, 2026" })
     ).toBeInTheDocument();
     expect(fetchMock.mock.calls.filter(([path]) => path === "/api/address/resolve")).toHaveLength(1);
   });
@@ -270,7 +270,7 @@ describe("HomePage nearby elections", () => {
     const fetchMock = stubNearbyFetch({ pointResolve: "empty" });
     renderHome();
     expect(
-      await screen.findByRole("heading", { level: 2, name: "Sample elections near Fresno, CA on November 3, 2026" })
+      await screen.findByRole("heading", { level: 2, name: "Sample elections in Fresno, CA on November 3, 2026" })
     ).toBeInTheDocument();
     expect(fetchMock.mock.calls.filter(([path]) => path === "/api/address/resolve")).toHaveLength(2);
   });
@@ -279,7 +279,7 @@ describe("HomePage nearby elections", () => {
     stubNearbyFetch({ geoHint: { ok: true, status: 200, body: { location: null } } });
     renderHome();
     expect(
-      await screen.findByRole("heading", { level: 2, name: "Sample elections near Los Angeles, CA on November 3, 2026" })
+      await screen.findByRole("heading", { level: 2, name: "Sample elections in Los Angeles, CA on November 3, 2026" })
     ).toBeInTheDocument();
   });
 
@@ -289,7 +289,7 @@ describe("HomePage nearby elections", () => {
     });
     renderHome();
     expect(
-      await screen.findByRole("heading", { level: 2, name: "Sample elections near Los Angeles, CA on November 3, 2026" })
+      await screen.findByRole("heading", { level: 2, name: "Sample elections in Los Angeles, CA on November 3, 2026" })
     ).toBeInTheDocument();
     const resolveBody = JSON.parse(
       (fetchMock.mock.calls.find(([path]) => path === "/api/address/resolve")?.[1] as { body: string }).body
@@ -307,7 +307,7 @@ describe("HomePage nearby elections", () => {
     await userEvent.setup().selectOptions(select, "district_size");
     await waitFor(() => expect(screen.getByRole("combobox", { name: "Sort by" })).toHaveValue("district_size"));
     expect(screen.getByRole("combobox", { name: "Sort by" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { level: 2, name: /Sample elections near Fresno/ })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: /Sample elections in Fresno/ })).toBeInTheDocument();
   });
 
   it("keeps the list and the select mounted while a sort change is in flight", async () => {
@@ -319,7 +319,7 @@ describe("HomePage nearby elections", () => {
     // previous races (placeholder data), and the control shows the new
     // choice. (The select itself re-renders inside the new sort's first
     // section, so only presence is pinned, not identity.)
-    expect(screen.getByRole("heading", { level: 2, name: /Sample elections near Fresno/ })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: /Sample elections in Fresno/ })).toBeInTheDocument();
     expect(screen.getByRole("combobox", { name: "Sort by" })).toHaveValue("district_size");
     expect(screen.getByRole("link", { name: /Mayor of Fresno/ })).toBeInTheDocument();
   });
