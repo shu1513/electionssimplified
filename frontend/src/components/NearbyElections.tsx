@@ -197,10 +197,14 @@ export function NearbyElections() {
     </label>
   );
 
-  // Notice-to-heading gap: 41px on phones (the hero's 12px plus one 29px
-  // ladder step, so the sample reads as a second block, not the search's
-  // footnote); from `sm` up the hero's own 59px already does that.
-  const sectionClass = "mx-auto max-w-3xl px-4 pt-[29px] pb-8 sm:pt-0";
+  // A light rule separates the hero from the sample, with the header's
+  // logo-to-headline gap on both sides of it (owner, 2026-10-20): measured
+  // 42px on phones and 73px from `sm` up. Above the rule the hero's own
+  // bottom padding gives 12px / 59px and the section's top padding makes up
+  // the rest; below it the heading's margin is the full gap.
+  const sectionClass = "mx-auto max-w-3xl px-4 pt-[29px] pb-8 sm:pt-[14px]";
+  const rule = <hr className="border-line" />;
+  const headingClass = "mt-[42px] text-center text-heading font-bold text-ink sm:mt-[73px]";
   const caveat = <p className="mt-1 text-center text-sm text-ink">Enter address above to see your own elections</p>;
 
   // A failed ballot fetch (a sort change during a Render cold start, say)
@@ -210,7 +214,8 @@ export function NearbyElections() {
   if (ballot.isError) {
     return (
       <section aria-labelledby="nearby-elections-heading" className={sectionClass}>
-        <h2 id="nearby-elections-heading" className="text-center text-heading font-bold text-ink">
+        {rule}
+        <h2 id="nearby-elections-heading" className={headingClass}>
           Sample elections near {label}
         </h2>
         {caveat}
@@ -230,7 +235,8 @@ export function NearbyElections() {
   // caveat sits under it as plain text.
   return (
     <section aria-labelledby="nearby-elections-heading" className={sectionClass}>
-      <h2 id="nearby-elections-heading" className="text-center text-heading font-bold text-ink">
+      {rule}
+      <h2 id="nearby-elections-heading" className={headingClass}>
         Sample elections near {label} on {formatElectionDate(sampleDate)}
       </h2>
       {caveat}
