@@ -523,6 +523,60 @@ export async function loadDbDistricts(db: Queryable, wanted: MappedDistrict[]): 
   return new Map(result.rows.map((row) => [`${row.district_type}:${row.geoid_compact}`, row]));
 }
 
+// Last day local candidates could file for the Nov 2026 general, per state
+// (California: Aug 7, extended to Aug 12 for seats with no incumbent filing).
+// A district searched on or before this date with nothing found was searched
+// before its races were knowable. States not listed get no check. Only city,
+// school, and special districts file this late; state, federal, and county
+// seats filed for the spring primary.
+export const LOCAL_FILING_CLOSE_2026: Readonly<Record<string, string>> = {
+  CA: "2026-08-12",
+};
+const LATE_FILING_DISTRICT_TYPES = new Set(["place", "school_elementary", "school_secondary", "school_unified", "local_special"]);
+
+/**
+ * A district with no upcoming election whose last election search ran on or
+ * before the state's local filing close: the empty result predates the
+ * candidate list, so the district still needs election discovery.
+ */
+export function isPreFilingEmptySearch(input: {
+  state: string;
+  districtType: string;
+  lastElectionsSearchedAt: string;
+  hasUpcomingElection: boolean;
+  asOfDate: string;
+}): boolean {
+  const filingClose = LOCAL_FILING_CLOSE_2026[input.state];
+  if (
+    !filingClose ||
+    !LATE_FILING_DISTRICT_TYPES.has(input.districtType) ||
+    input.hasUpcomingElection ||
+    input.asOfDate <= filingClose
+  ) {
+    return false;
+  }
+  return input.lastElectionsSearchedAt.slice(0, 10) <= filingClose;
+}
+
+async function loadDistrictsWithUpcomingElections(
+  db: Queryable,
+  districtIds: string[],
+  asOfDate: string,
+  horizonDays: number
+): Promise<Set<string>> {
+  const result = await db.query<{ district_id: string }>(
+    `
+      SELECT DISTINCT e.district_id::text AS district_id
+      FROM public.elections AS e
+      WHERE e.district_id = ANY($1::uuid[])
+        AND e.election_date >= $2::date
+        AND (e.election_date - $2::date)::int <= $3::int
+    `,
+    [districtIds, asOfDate, horizonDays]
+  );
+  return new Set(result.rows.map((row) => row.district_id));
+}
+
 async function loadOpenElectionsDeferrals(db: Queryable, asOfDate: string): Promise<Set<string>> {
   const result = await db.query<{ district_id: string }>(
     `
@@ -615,6 +669,7 @@ export async function buildCoverageReport(
     horizonDays: input.horizonDays,
   });
   const dueRosterDeferrals = await loadDueRosterDeferrals(db, input.asOfDate, districtIds);
+  const withUpcomingElections = await loadDistrictsWithUpcomingElections(db, districtIds, input.asOfDate, input.horizonDays);
 
   const staleCutoff = new Date(input.asOfDate);
   staleCutoff.setDate(staleCutoff.getDate() - 180);
@@ -710,6 +765,28 @@ export async function buildCoverageReport(
             election_id: null,
             state: row.state,
             label: row.name,
+            election_date: null,
+          },
+          [districtId]
+        );
+      }
+    } else if (
+      isPreFilingEmptySearch({
+        state: row.state,
+        districtType: row.district_type,
+        lastElectionsSearchedAt: row.last_elections_searched_at,
+        hasUpcomingElection: withUpcomingElections.has(districtId),
+        asOfDate: input.asOfDate,
+      })
+    ) {
+      if (!openElectionsDeferrals.has(districtId)) {
+        attach(
+          {
+            stage: "election_discovery",
+            target_id: districtId,
+            election_id: null,
+            state: row.state,
+            label: `${row.name} — searched ${row.last_elections_searched_at.slice(0, 10)}, before local filing closed ${LOCAL_FILING_CLOSE_2026[row.state]}`,
             election_date: null,
           },
           [districtId]

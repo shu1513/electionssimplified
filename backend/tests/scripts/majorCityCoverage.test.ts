@@ -1,6 +1,50 @@
 import { describe, expect, it } from "vitest";
 
-import { localSpecialOverlaps, pointInPolygon, samplePoints } from "../../src/scripts/majorCityCoverage.js";
+import {
+  isPreFilingEmptySearch,
+  localSpecialOverlaps,
+  pointInPolygon,
+  samplePoints,
+} from "../../src/scripts/majorCityCoverage.js";
+
+describe("majorCityCoverage pre-filing empty search", () => {
+  const base = {
+    state: "CA",
+    districtType: "school_unified",
+    lastElectionsSearchedAt: "2026-07-04 10:00:00-07",
+    hasUpcomingElection: false,
+    asOfDate: "2026-10-20",
+  };
+
+  it("flags a California district searched before filing closed with no election found", () => {
+    expect(isPreFilingEmptySearch(base)).toBe(true);
+  });
+
+  it("counts a search on the extension's last day as before close", () => {
+    expect(isPreFilingEmptySearch({ ...base, lastElectionsSearchedAt: "2026-08-12 18:00:00-07" })).toBe(true);
+  });
+
+  it("treats a search after filing closed as covered", () => {
+    expect(isPreFilingEmptySearch({ ...base, lastElectionsSearchedAt: "2026-08-13 09:00:00-07" })).toBe(false);
+  });
+
+  it("ignores districts that already have an upcoming election", () => {
+    expect(isPreFilingEmptySearch({ ...base, hasUpcomingElection: true })).toBe(false);
+  });
+
+  it("does not flag before filing has closed", () => {
+    expect(isPreFilingEmptySearch({ ...base, asOfDate: "2026-08-01" })).toBe(false);
+  });
+
+  it("skips state and county districts, which filed for the spring primary", () => {
+    expect(isPreFilingEmptySearch({ ...base, districtType: "state_upper" })).toBe(false);
+    expect(isPreFilingEmptySearch({ ...base, districtType: "county" })).toBe(false);
+  });
+
+  it("skips states with no listed filing close", () => {
+    expect(isPreFilingEmptySearch({ ...base, state: "TX" })).toBe(false);
+  });
+});
 
 const square = { rings: [[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]] };
 const squareWithHole = {
