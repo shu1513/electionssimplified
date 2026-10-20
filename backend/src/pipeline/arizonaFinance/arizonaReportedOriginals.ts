@@ -32,21 +32,35 @@ function validMeta(m: ArizonaOriginalCapture): boolean {
     (!Object.hasOwn(m,"declaredLength") || m.declaredLength===null ||
       (Number.isSafeInteger(m.declaredLength) && m.declaredLength!>=0 && (!!m.contentEncoding || m.declaredLength===m.bytes)));
 }
+/** Roles whose saved bodies replay can use: receiving income ledgers and the
+ * global IE population. Every other original stays on disk for audit only. */
+export const AZ_REPLAY_ROLES: ReadonlySet<string> = new Set(["receiving_income_complete", "global_ie_closing", "global_ie_confirmation"]);
 /** Only raw bodies and neutral capture metadata are persisted. Query selectors,
- * cookies and identities never become cache filenames or derived manifests. */
-export async function savedArizonaOriginals(cache: string): Promise<ArizonaOriginal[]> {
+ * cookies and identities never become cache filenames or derived manifests.
+ * Replay parses only the newest batch directories, so memory does not grow
+ * with every past batch kept on disk. */
+export async function savedArizonaOriginals(cache: string, newestDirectories = 8): Promise<ArizonaOriginal[]> {
   await mkdir(cache, { recursive: true, mode: 0o700 }); await directory(cache);
-  const result: ArizonaOriginal[] = [];
+  const batches: { path: string; records: ArizonaOriginalCapture[]; newest: string }[] = [];
   for (const name of (await readdir(cache)).filter(n => /^source-originals-[0-9a-f-]{36}$/.test(n))) {
     try {
       const path = resolve(cache, name); await directory(path);
       const records = (await privateBytes(resolve(path, "manifest.ndjson"), 2 * 1024 * 1024)).toString("utf8").trim().split("\n").map(x => JSON.parse(x));
-      let previous = "";
+      const usable: ArizonaOriginalCapture[] = []; let previous = "";
       for (const [i,m] of records.entries()) {
         // Failed/partial responses are genuine originals but never authority.
         if (m.file !== String(i+1).padStart(4,"0")+".original" || !azIso(m.startedAt) || !azIso(m.completedAt) || m.startedAt < previous) break;
-        previous = m.completedAt;
-        if (!validMeta(m)) continue;
+        previous = m.completedAt; usable.push(m);
+      }
+      if (usable.length) batches.push({ path, records: usable, newest: previous });
+    } catch { /* An invalid saved directory cannot grant source authority. */ }
+  }
+  batches.sort((a,b) => b.newest.localeCompare(a.newest));
+  const result: ArizonaOriginal[] = [];
+  for (const { path, records } of batches.slice(0, newestDirectories)) {
+    try {
+      for (const m of records) {
+        if (!validMeta(m) || !AZ_REPLAY_ROLES.has(m.role)) continue;
         const raw = await privateBytes(resolve(path, m.file), 32 * 1024 * 1024);
         if (raw.length !== m.bytes || azHash(raw) !== m.sha256) continue;
         result.push({ meta:m, value:parseArizonaReportedJson(new TextDecoder("utf-8",{fatal:true}).decode(raw)) });

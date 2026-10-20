@@ -18,6 +18,7 @@ async function main() {
   try { console.log(JSON.stringify(await runArizonaReportedFinance(process.argv.slice(2),db))); }
   finally { await db.end(); }
 }
-if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) main().catch(() => {
-  console.error("Arizona reported finance failed; existing observations retained"); process.exitCode = 1;
+if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) main().catch((error: unknown) => {
+  const cause = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+  console.error(`Arizona reported finance failed; existing observations retained (${cause})`); process.exitCode = 1;
 });

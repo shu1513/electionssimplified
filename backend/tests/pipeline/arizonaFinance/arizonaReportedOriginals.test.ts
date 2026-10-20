@@ -10,12 +10,19 @@ describe("Arizona private untouched originals",()=>{
   it("saves raw numeric lexemes before parsing, with private modes and honest clocks",async()=>{
     const body='{"amount":90071992547409.91,"memo":"synthetic"}';
     vi.stubGlobal("fetch",vi.fn(async()=>new Response(body,{headers:{"content-type":"application/json","content-length":String(Buffer.byteLength(body))}})));
-    const root=await cache(),cap=await createArizonaOriginalCapture(root),o=await cap.capture("synthetic_receipt",url,new URLSearchParams());
+    const root=await cache(),cap=await createArizonaOriginalCapture(root),o=await cap.capture("receiving_income_complete",url,new URLSearchParams());
     expect(o.value.amount).toBe("90071992547409.91");const dir=resolve(root,(await readdir(root))[0]!);
     expect((await readFile(resolve(dir,"0001.original"))).toString()).toBe(body);
     expect((await lstat(dir)).mode&0o077).toBe(0);expect((await lstat(resolve(dir,"0001.original"))).mode&0o077).toBe(0);
     const replay=await savedArizonaOriginals(root);expect(replay).toHaveLength(1);expect(replay[0]!.meta.completedAt).toBe(o.meta.completedAt);
     expect(await readFile(resolve(dir,"manifest.ndjson"),"utf8")).not.toContain("CategoryType");
+  });
+  it("replays only the newest batch directories and replayable roles",async()=>{
+    vi.stubGlobal("fetch",vi.fn(async()=>new Response('{"data":[]}',{headers:{"content-type":"application/json"}})));
+    const root=await cache(),clocks:string[]=[];
+    for(let i=0;i<3;i++){const cap=await createArizonaOriginalCapture(root);clocks.push((await cap.capture("receiving_income_complete",url,new URLSearchParams())).meta.completedAt);await cap.capture("report_catalog_opening",url,new URLSearchParams());}
+    expect((await savedArizonaOriginals(root)).map(o=>o.meta.role)).toEqual(["receiving_income_complete","receiving_income_complete","receiving_income_complete"]);
+    expect((await savedArizonaOriginals(root,2)).map(o=>o.meta.completedAt)).toEqual([clocks[2],clocks[1]]);
   });
   it("does not admit a complete-looking body with a mismatched declared length on replay",async()=>{
     vi.stubGlobal("fetch",vi.fn(async()=>new Response('{"data":[]}',{headers:{"content-type":"application/json","content-length":"999"}})));
