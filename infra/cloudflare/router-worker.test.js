@@ -114,15 +114,26 @@ describe("isApiPath", () => {
 });
 
 describe("geoHintFromCf", () => {
-  it("returns the US state and city, normalized", () => {
+  it("returns the US state and city, normalized, with the point when there is one", () => {
     assert.deepEqual(geoHintFromCf({ country: "us", regionCode: "ca", city: " Fresno " }), {
       state: "CA",
       city: "Fresno",
+      coordinates: null,
     });
-    assert.deepEqual(geoHintFromCf({ country: "US", regionCode: "DC", city: "Washington" }), {
-      state: "DC",
-      city: "Washington",
-    });
+    assert.deepEqual(
+      geoHintFromCf({ country: "US", regionCode: "DC", city: "Washington", latitude: "38.89510", longitude: "-77.03640" }),
+      { state: "DC", city: "Washington", coordinates: { lat: 38.8951, lng: -77.0364 } }
+    );
+    // Half a point, or one off the globe, is no point.
+    assert.equal(geoHintFromCf({ country: "US", regionCode: "CA", city: "Fresno", latitude: "36.7" }).coordinates, null);
+    assert.equal(
+      geoHintFromCf({ country: "US", regionCode: "CA", city: "Fresno", latitude: "91", longitude: "0" }).coordinates,
+      null
+    );
+    assert.equal(
+      geoHintFromCf({ country: "US", regionCode: "CA", city: "Fresno", latitude: "abc", longitude: "0" }).coordinates,
+      null
+    );
   });
 
   it("returns null outside the US, without a state, or without a city", () => {
@@ -256,7 +267,14 @@ describe("fetch handler", () => {
     // own property, which is what the handler reads.
     const request = new Request(`https://electionssimplified.com${GEO_HINT_PATH}`);
     Object.defineProperty(request, "cf", {
-      value: { country: "US", regionCode: "CA", city: "Fresno", postalCode: "93721" },
+      value: {
+        country: "US",
+        regionCode: "CA",
+        city: "Fresno",
+        postalCode: "93721",
+        latitude: "36.73780",
+        longitude: "-119.78710",
+      },
     });
     const response = await worker.fetch(request, ENV);
 
@@ -267,8 +285,11 @@ describe("fetch handler", () => {
     assert.equal(response.headers.get("cache-control"), "no-store");
     // Edge-authored responses get the same security headers as proxied ones.
     assert.equal(response.headers.get("x-content-type-options"), "nosniff");
-    // Postal code deliberately not relayed (see the geo hint comment).
-    assert.deepEqual(await response.json(), { location: { state: "CA", city: "Fresno" } });
+    // Postal code deliberately not relayed (see the geo hint comment); the
+    // point is, as numbers.
+    assert.deepEqual(await response.json(), {
+      location: { state: "CA", city: "Fresno", coordinates: { lat: 36.7378, lng: -119.7871 } },
+    });
   });
 
   it("serves a null geo hint when Cloudflare attached no usable location", async () => {

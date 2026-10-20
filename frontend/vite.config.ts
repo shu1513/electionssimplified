@@ -38,11 +38,18 @@ const apiProxyTarget = process.env.ADDRESS_API_PROXY_TARGET ?? "http://127.0.0.1
 // /api/geo-hint is answered by the Cloudflare Worker in production
 // (infra/cloudflare/router-worker.js), so a dev stack has no edge to answer
 // it and the home page's nearby-elections block never shows. DEV_GEO_HINT
-// ("CA/Fresno": state abbreviation, slash, city) stubs the hint in dev; unset,
-// the path proxies to the backend and 404s like a Worker-less deploy.
+// ("CA/Fresno" or "CA/Fresno/36.7378,-119.7871": state abbreviation, city,
+// optional lat,lng) stubs the hint in dev; unset, the path proxies to the
+// backend and 404s like a Worker-less deploy.
 const devGeoHint = (() => {
-  const match = /^([A-Za-z]{2})\/(.+)$/.exec(process.env.DEV_GEO_HINT?.trim() ?? "");
-  return match ? { state: match[1].toUpperCase(), city: match[2].trim() } : null;
+  const match = /^([A-Za-z]{2})\/([^/]+?)(?:\/(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?))?$/.exec(
+    process.env.DEV_GEO_HINT?.trim() ?? ""
+  );
+  if (!match) {
+    return null;
+  }
+  const coordinates = match[3] !== undefined ? { lat: Number(match[3]), lng: Number(match[4]) } : null;
+  return { state: match[1].toUpperCase(), city: match[2].trim(), coordinates };
 })();
 const devGeoHintPlugin: Plugin = {
   name: "voteapp-dev-geo-hint",

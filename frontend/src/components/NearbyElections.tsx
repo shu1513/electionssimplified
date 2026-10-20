@@ -29,12 +29,12 @@ function nearestDate(elections: Pick<ElectionSummary, "election_date">[], today:
  * will not search; their own city's races, in the same cards the ballot page
  * uses, say it for us.
  *
- * Three hops, all existing endpoints: the edge's geo hint (state + city from
- * the visitor's IP, see GeoHint), the address API's region partial-ballot
- * path for that city (statewide races plus the city's own when the name
- * matches exactly one incorporated place), then the ballot for those
- * districts in the anonymous vote-power order — the same list a city search
- * lands on, rendered by the same ElectionList.
+ * Three hops, all existing endpoints: the edge's geo hint (state, city and
+ * Cloudflare's point for the visitor's IP, see GeoHint), the address API's
+ * district lookup for that point (every district type, like a street
+ * address; the region partial-ballot path for the city when the point
+ * fails), then the ballot for those districts in paper-ballot order,
+ * rendered by the same ElectionList the ballot page uses.
  *
  * Renders nothing until the list is ready and nothing at all when any hop
  * fails or comes back empty: no hint (local dev 404s the path unless
@@ -53,22 +53,38 @@ export function NearbyElections() {
 
   const resolution = useQuery({
     queryKey: ["nearby-resolve", location?.state ?? "", location?.city ?? ""],
-    queryFn: () => {
+    queryFn: async () => {
       if (!location) {
         throw new Error("nearby resolve ran without a location");
+      }
+      // The matched address the ballot's partial banner would name. No
+      // accepted_terms_version: nothing was clicked, and the endpoint serves
+      // a search without it.
+      const address = `${location.city}, ${location.state}`;
+      // Cloudflare's point first: it is only the centre of the IP block's
+      // area, but the full district lookup for that point shows what a whole
+      // ballot looks like — House seat, legislature, county, city, school
+      // board — which is the point of a sample. region_state must stay out
+      // of this body: the resolver takes the region path before looking at
+      // coordinates.
+      if (location.coordinates) {
+        try {
+          return await apiRequest<AddressResolution>("/api/address/resolve", {
+            method: "POST",
+            body: { address, allow_partial: true, coordinates: location.coordinates },
+          });
+        } catch {
+          // The point matched no geography, or the geocoder is down: the
+          // city path below still gives the statewide and city races.
+        }
       }
       return apiRequest<AddressResolution>("/api/address/resolve", {
         method: "POST",
         body: {
-          address: `${location.city}, ${location.state}`,
+          address,
           allow_partial: true,
           region_state: location.state,
           region_locality: location.city,
-          // No region_postal_code on purpose: the hint carries none (IP
-          // geolocation is city-grade; a ZIP guess would add a county and
-          // legislative races that are wrong more often than the city is).
-          // No accepted_terms_version: nothing was clicked, and the endpoint
-          // serves a search without it.
         },
       });
     },
@@ -79,12 +95,15 @@ export function NearbyElections() {
   const districtIds = resolution.data?.districts.map((district) => district.id) ?? [];
   const districtKey = districtIds.join(",");
 
-  // Same key as BallotPage's query, so a later city search for the same
-  // districts reads this response from cache.
+  // state_baseline is the paper-ballot order (federal, state, county, city,
+  // school, judicial, measures: the sort the Picks and Draft pages use), so
+  // the sample reads top to bottom like the ballot it previews. Request-only
+  // and not in BALLOT_SORTS, so ElectionList gets no `sort` and renders the
+  // payload's order as plain cards.
   const ballot = useQuery({
-    queryKey: ["ballot", districtKey, "vote_power"],
+    queryKey: ["ballot", districtKey, "state_baseline"],
     queryFn: () =>
-      apiRequest<BallotSummary>(`/api/ballot?district_ids=${encodeURIComponent(districtKey)}&sort=vote_power`),
+      apiRequest<BallotSummary>(`/api/ballot?district_ids=${encodeURIComponent(districtKey)}&sort=state_baseline`),
     enabled: districtIds.length > 0,
     retry: false,
   });
@@ -121,10 +140,10 @@ export function NearbyElections() {
     // ladder step, so the sample reads as a second block, not the search's
     // footnote); from `sm` up the hero's own 59px already does that.
     <section aria-labelledby="nearby-elections-heading" className="mx-auto max-w-3xl px-4 pt-[29px] pb-8 sm:pt-0">
-      <h2 id="nearby-elections-heading" className="text-heading font-bold text-ink">
+      <h2 id="nearby-elections-heading" className="text-center text-heading font-bold text-ink">
         Sample elections near {label} on {formatElectionDate(sampleDate)}
       </h2>
-      <p className="mt-1 text-sm text-ink">Enter your address above for your full ballot.</p>
+      <p className="mt-1 text-center text-sm text-ink">Enter address above for your full ballot</p>
       <ElectionList
         elections={elections}
         hideDateHeadings
@@ -133,8 +152,7 @@ export function NearbyElections() {
         // A detail page's back link returns to this page as it was opened.
         backTo={{ path: here.pathname + here.search, label: "Home" }}
         raceType={null}
-        railSort={railSortForBallotSort("vote_power")}
-        sort="vote_power"
+        railSort={railSortForBallotSort("state_baseline")}
       />
     </section>
   );

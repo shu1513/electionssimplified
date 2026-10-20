@@ -114,14 +114,18 @@ export const CLIENT_IP_HEADER = "X-Voteapp-Client-IP";
 // servers for a value that is only ever a hint. So the Worker answers this
 // one path itself and nothing is proxied.
 //
-// US state + city only. The postal code is deliberately left out: IP
-// geolocation is city-grade at best, and a ZIP guess would pull a county
-// and legislative districts into the partial ballot that are wrong more
-// often than the city is. The response is per-visitor (no-store) and holds
-// nothing the visitor's own browser does not already imply.
+// US state + city, plus Cloudflare's point for the connection when it has
+// one. The point is city-grade at best (the centre of the IP block's area,
+// not a home), but it lets the address API run its full district lookup so
+// the sample shows what a whole ballot looks like — House seat, legislature,
+// county, school board — for a place near the visitor. The page labels it a
+// sample; the postal code is left out since the point already says more.
+// The response is per-visitor (no-store) and holds nothing the visitor's
+// own browser does not already imply.
 export const GEO_HINT_PATH = "/api/geo-hint";
 
-/** The {state, city} hint from a request's Cloudflare geo data, or null. */
+/** The {state, city, coordinates} hint from a request's Cloudflare geo
+ * data, or null. coordinates is null when Cloudflare gave no usable point. */
 export function geoHintFromCf(cf) {
   if (!cf || typeof cf !== "object") {
     return null;
@@ -136,7 +140,12 @@ export function geoHintFromCf(cf) {
   if (country !== "US" || !/^[A-Z]{2}$/.test(state) || !city) {
     return null;
   }
-  return { state, city };
+  // Cloudflare gives latitude/longitude as strings ("36.73780").
+  const lat = Number.parseFloat(cf.latitude);
+  const lng = Number.parseFloat(cf.longitude);
+  const coordinates =
+    Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180 ? { lat, lng } : null;
+  return { state, city, coordinates };
 }
 
 export function geoHintResponse(request) {

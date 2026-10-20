@@ -79,13 +79,16 @@ const NEARBY_ELECTIONS = [
   electionSummary({ id: "e4", official_ballot_title: "Spring runoff", election_date: "2027-04-06" }),
 ];
 
-function stubNearbyFetch(
-  geoHint: { ok: boolean; status: number; body: unknown } = {
-    ok: true,
-    status: 200,
-    body: { location: { state: "CA", city: "Fresno" } },
-  }
-) {
+const FRESNO_POINT = { lat: 36.7378, lng: -119.7871 };
+
+function stubNearbyFetch({
+  geoHint = { ok: true, status: 200, body: { location: { state: "CA", city: "Fresno", coordinates: FRESNO_POINT } } },
+  pointResolve = "ok",
+}: {
+  geoHint?: { ok: boolean; status: number; body: unknown };
+  /** Whether the coordinate resolve succeeds or 422s (point matched nothing). */
+  pointResolve?: "ok" | "fail";
+} = {}) {
   const fetchMock = vi.fn().mockImplementation(async (path: string, init?: { body?: string }) => {
     const respond = (body: unknown, ok = true, status = 200) => ({
       ok,
@@ -97,18 +100,21 @@ function stubNearbyFetch(
       return respond(geoHint.body, geoHint.ok, geoHint.status);
     }
     if (path === "/api/address/resolve") {
-      // What the block sends: the region path for the hinted city, no ZIP,
-      // no terms version (nothing was clicked).
-      expect(JSON.parse(init?.body ?? "{}")).toEqual({
-        address: "Fresno, CA",
-        allow_partial: true,
-        region_state: "CA",
-        region_locality: "Fresno",
-      });
+      const body = JSON.parse(init?.body ?? "{}") as Record<string, unknown>;
+      if ("coordinates" in body) {
+        // The point first: no region fields (the resolver would take the
+        // region path over the point), no terms version (nothing was clicked).
+        expect(body).toEqual({ address: "Fresno, CA", allow_partial: true, coordinates: FRESNO_POINT });
+        return pointResolve === "ok"
+          ? respond({ ...NEARBY_RESOLUTION, scope: "exact" })
+          : respond({ error: { code: "not_found", message: "no match" } }, false, 422);
+      }
+      // The city fallback.
+      expect(body).toEqual({ address: "Fresno, CA", allow_partial: true, region_state: "CA", region_locality: "Fresno" });
       return respond(NEARBY_RESOLUTION);
     }
     if (path.startsWith("/api/ballot?")) {
-      expect(path).toBe("/api/ballot?district_ids=d-ca%2Cd-fresno&sort=vote_power");
+      expect(path).toBe("/api/ballot?district_ids=d-ca%2Cd-fresno&sort=state_baseline");
       return respond({ district_ids: ["d-ca", "d-fresno"], districts: [], elections: NEARBY_ELECTIONS });
     }
     if (path === "/api/address/autocomplete") {
@@ -133,7 +139,7 @@ describe("HomePage nearby elections", () => {
     expect(screen.queryByRole("heading", { name: "Elections on November 3, 2026" })).not.toBeInTheDocument();
     // The pitch stays the page's only h1; this block is a section under it.
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
-    expect(screen.getByText("Enter your address above for your full ballot.")).toBeInTheDocument();
+    expect(screen.getByText("Enter address above for your full ballot")).toBeInTheDocument();
 
     // The nearest date's races, in the ballot's order, as ElectionList cards,
     // each title linking to its election page; a later date is left out.
@@ -143,8 +149,28 @@ describe("HomePage nearby elections", () => {
     expect(screen.queryByRole("link", { name: /Spring runoff/ })).not.toBeInTheDocument();
   });
 
+  it("falls back to the city path when the point resolves nothing", async () => {
+    const fetchMock = stubNearbyFetch({ pointResolve: "fail" });
+    renderHome();
+    expect(
+      await screen.findByRole("heading", { level: 2, name: "Sample elections near Fresno, CA on November 3, 2026" })
+    ).toBeInTheDocument();
+    expect(fetchMock.mock.calls.filter(([path]) => path === "/api/address/resolve")).toHaveLength(2);
+  });
+
+  it("goes straight to the city path when the hint carries no point", async () => {
+    const fetchMock = stubNearbyFetch({
+      geoHint: { ok: true, status: 200, body: { location: { state: "CA", city: "Fresno", coordinates: null } } },
+    });
+    renderHome();
+    expect(
+      await screen.findByRole("heading", { level: 2, name: "Sample elections near Fresno, CA on November 3, 2026" })
+    ).toBeInTheDocument();
+    expect(fetchMock.mock.calls.filter(([path]) => path === "/api/address/resolve")).toHaveLength(1);
+  });
+
   it("renders nothing when the edge has no location for the visitor", async () => {
-    const fetchMock = stubNearbyFetch({ ok: true, status: 200, body: { location: null } });
+    const fetchMock = stubNearbyFetch({ geoHint: { ok: true, status: 200, body: { location: null } } });
     renderHome();
     await waitFor(() => expect(fetchMock).toHaveBeenCalledWith("/api/geo-hint", expect.anything()));
     // Give the chain a tick: no resolve, no ballot, no section.
@@ -154,7 +180,9 @@ describe("HomePage nearby elections", () => {
   });
 
   it("renders nothing when the hint path is missing (a backend reached without the Worker)", async () => {
-    const fetchMock = stubNearbyFetch({ ok: false, status: 404, body: { error: { code: "not_found", message: "Not found" } } });
+    const fetchMock = stubNearbyFetch({
+      geoHint: { ok: false, status: 404, body: { error: { code: "not_found", message: "Not found" } } },
+    });
     renderHome();
     await waitFor(() => expect(fetchMock).toHaveBeenCalledWith("/api/geo-hint", expect.anything()));
     await waitFor(() => expect(fetchMock.mock.calls.length).toBeGreaterThanOrEqual(2));
