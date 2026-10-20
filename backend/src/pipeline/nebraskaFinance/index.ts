@@ -3,6 +3,7 @@ export * from "./nebraskaCandidateCommitteeResolver.js";
 export * from "./nebraskaCandidateFinanceSync.js";
 export * from "./nebraskaCandidateFinanceAutoLink.js";
 export * from "./nebraskaCandidateFinanceBatchSync.js";
+export * from "./nebraskaReportedBatchSync.js";
 export * from "./nebraskaFinanceEligibleOffices.js";
 export * from "./nebraskaFinanceWriter.js";
 export * from "./nebraskaNadcArtifactCache.js";
