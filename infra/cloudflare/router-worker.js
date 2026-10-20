@@ -102,6 +102,56 @@ export function classifyCrawler(userAgent) {
 // copies itself before stamping.
 export const CLIENT_IP_HEADER = "X-Voteapp-Client-IP";
 
+// ------------------------------------------------------------- geo hint ----
+// The home page lists the elections near the visitor before they type
+// anything (frontend/src/components/NearbyElections.tsx). The only place
+// that knows roughly where a visitor is without asking them is this hop:
+// Cloudflare attaches its IP geolocation to every request as request.cf
+// (city, regionCode, country ...), free on every plan and never spoofable
+// by the client. Neither origin can see it — CF-* data stops at Render's own
+// Cloudflare edge, as the client-IP comment explains — and relaying it as
+// yet another trusted header would mean a second gated header on both
+// servers for a value that is only ever a hint. So the Worker answers this
+// one path itself and nothing is proxied.
+//
+// US state + city only. The postal code is deliberately left out: IP
+// geolocation is city-grade at best, and a ZIP guess would pull a county
+// and legislative districts into the partial ballot that are wrong more
+// often than the city is. The response is per-visitor (no-store) and holds
+// nothing the visitor's own browser does not already imply.
+export const GEO_HINT_PATH = "/api/geo-hint";
+
+/** The {state, city} hint from a request's Cloudflare geo data, or null. */
+export function geoHintFromCf(cf) {
+  if (!cf || typeof cf !== "object") {
+    return null;
+  }
+  const country = typeof cf.country === "string" ? cf.country.trim().toUpperCase() : "";
+  const state = typeof cf.regionCode === "string" ? cf.regionCode.trim().toUpperCase() : "";
+  const city = typeof cf.city === "string" ? cf.city.trim() : "";
+  // regionCode is ISO 3166-2 without the country prefix; for the US that is
+  // the two-letter postal abbreviation the address API's region_state takes
+  // (DC included). Territories carry a US-PR style code under their own
+  // country, so they never pass the US check.
+  if (country !== "US" || !/^[A-Z]{2}$/.test(state) || !city) {
+    return null;
+  }
+  return { state, city };
+}
+
+export function geoHintResponse(request) {
+  if (request.method !== "GET") {
+    return new Response(JSON.stringify({ error: { code: "method_not_allowed", message: "Use GET" } }), {
+      status: 405,
+      headers: { "content-type": "application/json", allow: "GET", "cache-control": "no-store" },
+    });
+  }
+  return new Response(JSON.stringify({ location: geoHintFromCf(request.cf) }), {
+    status: 200,
+    headers: { "content-type": "application/json", "cache-control": "no-store" },
+  });
+}
+
 // Baseline security headers, stamped on every response the Worker returns
 // (proxied, redirect, or error) — neither origin sets them itself. The edge
 // is authoritative: values here overwrite any upstream copy so the policy
@@ -404,6 +454,13 @@ export default {
           { status: 503 }
         )
       );
+    }
+
+    // Answered at the edge, never proxied (see the geo hint section). Sits
+    // after the origin checks on purpose so a misconfigured Worker fails the
+    // same way on every path.
+    if (url.pathname === GEO_HINT_PATH) {
+      return withSecurityHeaders(geoHintResponse(request), url.pathname);
     }
 
     url.hostname = upstreamHost;

@@ -5,8 +5,9 @@ import { createMemoryRouter, RouterProvider } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { PRE_SEARCH_NOTICE, TERMS_VERSION } from "@voteapp/api-client";
 import { HomePage } from "./HomePage";
+import { electionSummary } from "../test/fixtures";
 
-const ADDRESS_LABEL = "Enter address or ZIP to see your elections and candidates";
+const ADDRESS_LABEL = "Enter address or ZIP to see your own elections and candidates";
 
 function renderHome() {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -57,6 +58,136 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.unstubAllGlobals();
+});
+
+// The three hops behind the nearby-elections block, keyed by path prefix so
+// the ballot query's district_ids/sort query string matches too.
+const NEARBY_RESOLUTION = {
+  matched_address: "Fresno, CA",
+  address_match_count: 1,
+  scope: "region",
+  districts: [
+    { id: "d-ca", district_type: "statewide", geoid_compact: "06", name: "California", state: "CA", population: null, representation_power_score: null },
+    { id: "d-fresno", district_type: "place", geoid_compact: "0627000", name: "Fresno city, California", state: "CA", population: null, representation_power_score: null },
+  ],
+};
+const FRESNO = { id: "d-fresno", district_type: "place", name: "Fresno city, California", state: "CA" };
+const NEARBY_ELECTIONS = [
+  electionSummary({ id: "e1", district_id: FRESNO.id, district: FRESNO, official_ballot_title: "Mayor of Fresno" }),
+  electionSummary({ id: "e2", official_ballot_title: "Governor" }),
+  electionSummary({ id: "e3", official_ballot_title: "Lieutenant Governor" }),
+  electionSummary({ id: "e4", official_ballot_title: "Spring runoff", election_date: "2027-04-06" }),
+];
+
+function stubNearbyFetch(
+  geoHint: { ok: boolean; status: number; body: unknown } = {
+    ok: true,
+    status: 200,
+    body: { location: { state: "CA", city: "Fresno" } },
+  }
+) {
+  const fetchMock = vi.fn().mockImplementation(async (path: string, init?: { body?: string }) => {
+    const respond = (body: unknown, ok = true, status = 200) => ({
+      ok,
+      status,
+      headers: new Headers(),
+      json: async () => body,
+    });
+    if (path === "/api/geo-hint") {
+      return respond(geoHint.body, geoHint.ok, geoHint.status);
+    }
+    if (path === "/api/address/resolve") {
+      // What the block sends: the region path for the hinted city, no ZIP,
+      // no terms version (nothing was clicked).
+      expect(JSON.parse(init?.body ?? "{}")).toEqual({
+        address: "Fresno, CA",
+        allow_partial: true,
+        region_state: "CA",
+        region_locality: "Fresno",
+      });
+      return respond(NEARBY_RESOLUTION);
+    }
+    if (path.startsWith("/api/ballot?")) {
+      expect(path).toBe("/api/ballot?district_ids=d-ca%2Cd-fresno&sort=vote_power");
+      return respond({ district_ids: ["d-ca", "d-fresno"], districts: [], elections: NEARBY_ELECTIONS });
+    }
+    if (path === "/api/address/autocomplete") {
+      return respond({ suggestions: [] });
+    }
+    return respond({ user: null });
+  });
+  vi.stubGlobal("fetch", fetchMock);
+  return fetchMock;
+}
+
+describe("HomePage nearby elections", () => {
+  it("lists the hinted city's races under the search in the ballot page's cards", async () => {
+    stubNearbyFetch();
+    renderHome();
+
+    // One heading names the place and the date; the list's own date heading
+    // is withheld so the date is said once.
+    expect(
+      await screen.findByRole("heading", { level: 2, name: "Sample elections near Fresno, CA on November 3, 2026" })
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Elections on November 3, 2026" })).not.toBeInTheDocument();
+    // The pitch stays the page's only h1; this block is a section under it.
+    expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+    expect(screen.getByText("Enter your address above for your full ballot.")).toBeInTheDocument();
+
+    // The nearest date's races, in the ballot's order, as ElectionList cards,
+    // each title linking to its election page; a later date is left out.
+    expect(screen.getByRole("link", { name: /Mayor of Fresno/ })).toHaveAttribute("href", "/elections/e1");
+    expect(screen.getByRole("link", { name: /^Governor/ })).toHaveAttribute("href", "/elections/e2");
+    expect(screen.getByRole("link", { name: /Lieutenant Governor/ })).toHaveAttribute("href", "/elections/e3");
+    expect(screen.queryByRole("link", { name: /Spring runoff/ })).not.toBeInTheDocument();
+  });
+
+  it("renders nothing when the edge has no location for the visitor", async () => {
+    const fetchMock = stubNearbyFetch({ ok: true, status: 200, body: { location: null } });
+    renderHome();
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith("/api/geo-hint", expect.anything()));
+    // Give the chain a tick: no resolve, no ballot, no section.
+    await waitFor(() => expect(fetchMock.mock.calls.length).toBeGreaterThanOrEqual(2));
+    expect(fetchMock.mock.calls.map(([path]) => path)).not.toContain("/api/address/resolve");
+    expect(screen.queryByRole("heading", { level: 2 })).not.toBeInTheDocument();
+  });
+
+  it("renders nothing when the hint path is missing (a backend reached without the Worker)", async () => {
+    const fetchMock = stubNearbyFetch({ ok: false, status: 404, body: { error: { code: "not_found", message: "Not found" } } });
+    renderHome();
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith("/api/geo-hint", expect.anything()));
+    await waitFor(() => expect(fetchMock.mock.calls.length).toBeGreaterThanOrEqual(2));
+    expect(fetchMock.mock.calls.map(([path]) => path)).not.toContain("/api/address/resolve");
+    expect(screen.queryByRole("heading", { level: 2 })).not.toBeInTheDocument();
+  });
+
+  it("skips the lookups for a verified user, who is leaving for the saved ballot", async () => {
+    const fetchMock = stubNearbyFetch();
+    fetchMock.mockImplementation(async (path: string) => ({
+      ok: true,
+      status: 200,
+      headers: new Headers(),
+      json: async () =>
+        path === "/api/me"
+          ? { user: { id: "u1", email: "v@example.com", email_verified: true, terms_version: TERMS_VERSION } }
+          : path === "/api/address/autocomplete"
+            ? { suggestions: [] }
+            : {},
+    }));
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const router = createMemoryRouter([
+      { path: "/", element: <HomePage /> },
+      { path: "/me/ballot", element: <p>saved ballot</p> },
+    ]);
+    render(
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
+    );
+    await waitFor(() => expect(router.state.location.pathname).toBe("/me/ballot"));
+    expect(fetchMock.mock.calls.map(([path]) => path)).not.toContain("/api/geo-hint");
+  });
 });
 
 describe("HomePage pre-search notice", () => {

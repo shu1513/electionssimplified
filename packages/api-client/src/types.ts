@@ -26,6 +26,16 @@ export type AddressResolution = {
   scope: "exact" | "zip" | "region";
 };
 
+// GET /api/geo-hint, answered by the Cloudflare Worker from its IP
+// geolocation (infra/cloudflare/router-worker.js, GEO_HINT_PATH): the
+// visitor's approximate US state and city, or null when unknown or outside
+// the US. City-grade at best — it seeds the home page's nearby-elections
+// list and never stands in for the address search. A backend reached
+// without the Worker (local dev) 404s the path, which callers treat as null.
+export type GeoHint = {
+  location: { state: string; city: string } | null;
+};
+
 export type AddressSuggestion = {
   place_id: string;
   description: string;

@@ -5,10 +5,12 @@ import worker, {
   ASSET_CACHE_TTL_SECONDS,
   CLIENT_IP_HEADER,
   EDGE_CACHE_TTL_SECONDS,
+  GEO_HINT_PATH,
   ROOT_FILE_CACHE_TTL_SECONDS,
   SESSION_COOKIE_NAME,
   classifyCrawler,
   crawlerLogPath,
+  geoHintFromCf,
   hasSessionCookie,
   isApiPath,
   isCacheablePublicPage,
@@ -108,6 +110,32 @@ describe("isApiPath", () => {
     for (const path of ["/", "/apifoo", "/elections/x", "/sitemap.xml.bak"]) {
       assert.equal(isApiPath(path), false, path);
     }
+  });
+});
+
+describe("geoHintFromCf", () => {
+  it("returns the US state and city, normalized", () => {
+    assert.deepEqual(geoHintFromCf({ country: "us", regionCode: "ca", city: " Fresno " }), {
+      state: "CA",
+      city: "Fresno",
+    });
+    assert.deepEqual(geoHintFromCf({ country: "US", regionCode: "DC", city: "Washington" }), {
+      state: "DC",
+      city: "Washington",
+    });
+  });
+
+  it("returns null outside the US, without a state, or without a city", () => {
+    assert.equal(geoHintFromCf(undefined), null);
+    assert.equal(geoHintFromCf({}), null);
+    assert.equal(geoHintFromCf({ country: "CA", regionCode: "ON", city: "Toronto" }), null);
+    // Puerto Rico is its own country code at Cloudflare, not a US region.
+    assert.equal(geoHintFromCf({ country: "PR", regionCode: "PR", city: "San Juan" }), null);
+    assert.equal(geoHintFromCf({ country: "US", city: "Fresno" }), null);
+    assert.equal(geoHintFromCf({ country: "US", regionCode: "CA" }), null);
+    assert.equal(geoHintFromCf({ country: "US", regionCode: "CA", city: "" }), null);
+    // Anything that is not a two-letter code is not a state.
+    assert.equal(geoHintFromCf({ country: "US", regionCode: "California", city: "Fresno" }), null);
   });
 });
 
@@ -219,6 +247,47 @@ describe("fetch handler", () => {
     assert.equal(calls[0].headers.get(CLIENT_IP_HEADER), "203.0.113.9");
     assert.equal(calls[1].headers.get(CLIENT_IP_HEADER), "203.0.113.9");
     assert.equal(calls[2].headers.get(CLIENT_IP_HEADER), null);
+  });
+
+  it("answers the geo hint at the edge from request.cf without proxying", async () => {
+    const calls = stubFetch();
+
+    // Node's Request has no cf property; the runtime attaches it as a plain
+    // own property, which is what the handler reads.
+    const request = new Request(`https://electionssimplified.com${GEO_HINT_PATH}`);
+    Object.defineProperty(request, "cf", {
+      value: { country: "US", regionCode: "CA", city: "Fresno", postalCode: "93721" },
+    });
+    const response = await worker.fetch(request, ENV);
+
+    assert.equal(calls.length, 0);
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get("content-type"), "application/json");
+    // Per-visitor: must never be cached by a browser or shared cache.
+    assert.equal(response.headers.get("cache-control"), "no-store");
+    // Edge-authored responses get the same security headers as proxied ones.
+    assert.equal(response.headers.get("x-content-type-options"), "nosniff");
+    // Postal code deliberately not relayed (see the geo hint comment).
+    assert.deepEqual(await response.json(), { location: { state: "CA", city: "Fresno" } });
+  });
+
+  it("serves a null geo hint when Cloudflare attached no usable location", async () => {
+    const calls = stubFetch();
+    const response = await worker.fetch(new Request(`https://electionssimplified.com${GEO_HINT_PATH}`), ENV);
+    assert.equal(calls.length, 0);
+    assert.equal(response.status, 200);
+    assert.deepEqual(await response.json(), { location: null });
+  });
+
+  it("405s a non-GET geo hint request", async () => {
+    const calls = stubFetch();
+    const response = await worker.fetch(
+      new Request(`https://electionssimplified.com${GEO_HINT_PATH}`, { method: "POST" }),
+      ENV
+    );
+    assert.equal(calls.length, 0);
+    assert.equal(response.status, 405);
+    assert.equal(response.headers.get("allow"), "GET");
   });
 
   it("preserves method and headers on the proxied request", async () => {

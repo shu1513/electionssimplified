@@ -361,6 +361,7 @@ export function ElectionList({
   raceType,
   railSort,
   sort,
+  hideDateHeadings = false,
 }: {
   elections: ElectionSummary[];
   /** District-size sorts group by level. Vote-power groups appear only
@@ -399,6 +400,10 @@ export function ElectionList({
    * — district-size sorts fall back to vote_power), recorded so the rail's
    * always-engaged sort control starts where the list was. */
   railSort?: RailSortKey;
+  /** Skip the "Elections on {date}" heading over each date group: for a
+   * caller whose own heading already names the one date it shows (the home
+   * page's nearby sample). */
+  hideDateHeadings?: boolean;
 }) {
   const {
     listState,
@@ -514,7 +519,9 @@ export function ElectionList({
           {/* The ballot pages carry no h1 banner; these date headings are the
               page's identity, so they read as full sentences and lead the
               visual hierarchy. */}
-          <h2 className="text-heading font-bold text-ink">Elections on {formatElectionDate(group.date)}</h2>
+          {hideDateHeadings ? null : (
+            <h2 className="text-heading font-bold text-ink">Elections on {formatElectionDate(group.date)}</h2>
+          )}
           {levelSections ? (
             // Keyed on the sort too, so flipping biggest ↔ smallest remounts
             // every section open even where a level's first race is unchanged.
