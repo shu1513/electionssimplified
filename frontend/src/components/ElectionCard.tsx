@@ -230,16 +230,20 @@ function ElectionSection({ label, count, children, colorClass = "text-ink hover:
         </svg>
       </button>
   );
-  const header = heading ? <h2 className="min-w-0 flex-1">{toggle}</h2> : toggle;
   return (
     <section>
       {aside ? (
-        <div className="flex items-center justify-between gap-3">
-          {heading ? header : <div className="min-w-0 flex-1">{toggle}</div>}
-          {aside}
+        // The toggle keeps its natural width (grow, never shrink), so on a
+        // narrow screen the aside wraps under it, still at the right, instead
+        // of squeezing the label into a word per line.
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+          {heading ? <h2 className="grow">{toggle}</h2> : <div className="grow">{toggle}</div>}
+          <div className="ml-auto">{aside}</div>
         </div>
+      ) : heading ? (
+        <h2>{toggle}</h2>
       ) : (
-        header
+        toggle
       )}
       {open ? <div className="mt-2 space-y-3 box:mt-[6px] box:space-y-[11px]">{children}</div> : null}
     </section>

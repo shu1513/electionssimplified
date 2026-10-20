@@ -141,7 +141,7 @@ export function NearbyElections() {
   // ballot query's sort and ElectionList's grouping with it. It sits at the
   // right end of the list's first section row.
   const sortControl = (
-    <label className="flex items-center gap-2 text-sm text-ink-soft">
+    <label className="flex items-center gap-2 whitespace-nowrap text-sm text-ink-soft">
       Sort by
       <select
         value={sort}
