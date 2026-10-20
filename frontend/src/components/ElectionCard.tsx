@@ -233,12 +233,14 @@ function ElectionSection({ label, count, children, colorClass = "text-ink hover:
   return (
     <section>
       {aside ? (
-        // The toggle keeps its natural width (grow, never shrink), so on a
-        // narrow screen the aside wraps under it, still at the right, instead
-        // of squeezing the label into a word per line.
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+        // The toggle keeps its natural width (grow, never shrink), so the
+        // label is never squeezed into a word per line. When the aside fits
+        // it sits at the right end of the toggle's row; when it does not,
+        // wrap-reverse puts its line ABOVE the toggle and justify-between
+        // leaves it, alone on that line, at the left.
+        <div className="flex flex-wrap-reverse items-center justify-between gap-x-3 gap-y-1">
           {heading ? <h2 className="grow">{toggle}</h2> : <div className="grow">{toggle}</div>}
-          <div className="ml-auto">{aside}</div>
+          {aside}
         </div>
       ) : heading ? (
         <h2>{toggle}</h2>
