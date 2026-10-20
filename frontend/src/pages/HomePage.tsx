@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router";
 import type { MetaFunction } from "react-router";
 import { APP_NAME, useMe } from "@voteapp/api-client";
 import { LandingHero, TAGLINE } from "../components/LandingHero";
+import { NearbyElections } from "../components/NearbyElections";
 import { pageMeta } from "../lib/pageMeta";
 
 // Server-rendered head for the home page: the same title useDocumentTitle
@@ -29,14 +30,23 @@ export function HomePage() {
   // Returning verified users land on their saved ballot; ?new=1 is the
   // escape hatch for a one-off anonymous search.
   const oneOffSearch = searchParams.get("new") !== null;
+  const redirecting = Boolean(me?.email_verified) && !oneOffSearch;
   useEffect(() => {
-    if (me?.email_verified && !oneOffSearch) {
+    if (redirecting) {
       navigate("/me/ballot", { replace: true });
     }
-  }, [me, oneOffSearch, navigate]);
+  }, [redirecting, navigate]);
 
-
-  return <LandingHero />;
+  return (
+    <>
+      <LandingHero />
+      {/* Only once identity is known and this visitor is staying: a verified
+          user is leaving for their saved ballot and must not spend three API
+          calls on a list they never see. The site only — the newsroom box
+          (EmbedHomePage) keeps the bare hero. */}
+      {me !== undefined && !redirecting ? <NearbyElections /> : null}
+    </>
+  );
 }
 
 export default HomePage;

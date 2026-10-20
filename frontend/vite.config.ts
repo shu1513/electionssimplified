@@ -1,6 +1,6 @@
 import { execSync } from "node:child_process";
 import path from "node:path";
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
 import { reactRouter } from "@react-router/dev/vite";
 import tailwindcss from "@tailwindcss/vite";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
@@ -34,10 +34,41 @@ const uploadSourceMaps = Boolean(process.env.SENTRY_AUTH_TOKEN?.trim());
 // point its frontend at a backend on an alternate ADDRESS_API_PORT while the
 // main checkout's backend still holds 3001.
 const apiProxyTarget = process.env.ADDRESS_API_PROXY_TARGET ?? "http://127.0.0.1:3001";
+
+// /api/geo-hint is answered by the Cloudflare Worker in production
+// (infra/cloudflare/router-worker.js), so a dev stack has no edge to answer
+// it and the home page's nearby-elections block never shows. DEV_GEO_HINT
+// ("CA/Fresno" or "CA/Fresno/36.7378,-119.7871": state abbreviation, city,
+// optional lat,lng) stubs the hint in dev; unset, the path proxies to the
+// backend and 404s like a Worker-less deploy.
+const devGeoHint = (() => {
+  const match = /^([A-Za-z]{2})\/([^/]+?)(?:\/(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?))?$/.exec(
+    process.env.DEV_GEO_HINT?.trim() ?? ""
+  );
+  if (!match) {
+    return null;
+  }
+  const coordinates = match[3] !== undefined ? { lat: Number(match[3]), lng: Number(match[4]) } : null;
+  return { state: match[1].toUpperCase(), city: match[2].trim(), coordinates };
+})();
+const devGeoHintPlugin: Plugin = {
+  name: "voteapp-dev-geo-hint",
+  // configureServer middlewares run ahead of Vite's own, including the /api
+  // proxy, so this path never reaches the backend while the stub is on.
+  configureServer(server) {
+    server.middlewares.use("/api/geo-hint", (_req, res) => {
+      res.setHeader("content-type", "application/json");
+      res.setHeader("cache-control", "no-store");
+      res.end(JSON.stringify({ location: devGeoHint }));
+    });
+  },
+};
+
 export default defineConfig({
   plugins: [
     reactRouter(),
     tailwindcss(),
+    ...(devGeoHint ? [devGeoHintPlugin] : []),
     ...(uploadSourceMaps
       ? [
           sentryVitePlugin({

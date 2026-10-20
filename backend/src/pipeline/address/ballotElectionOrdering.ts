@@ -42,9 +42,11 @@ type Queryable = Pick<Pool | PoolClient, "query">;
 // chosen sort orders the races WITHIN each date. `vote_power` (the default)
 // sorts by the computed vote-power score descending; `district_size` sorts
 // by government level (presidential → federal → state → county → city, see
-// ballotLevelRank) and then by district population descending (largest
-// electorate first); `district_size_smallest` reverses both keys. Unknown
-// populations sort last in both directions. The level key is what lets the
+// ballotLevelRank), then by vote-power score descending within the level,
+// then by district population descending (largest electorate first);
+// `district_size_smallest` reverses the level walk and the population key,
+// vote power still leading within a level. Unknown populations sort last in
+// both directions. The level key is what lets the
 // list pages render one collapsible section per level under these two sorts
 // as consecutive runs of the payload. Office races with no published candidate list sink
 // below every other race under all of these — see hasNothingToRead.
@@ -380,8 +382,12 @@ function compareBySort(
     }
     return compareBySort(a, b, "vote_power", null, printedTitles);
   }
-  if (sort === "vote_power") {
-    // Higher vote-power score first; unknown scores (null) sort last.
+  if (sort === "vote_power" || sort === "district_size" || sort === "district_size_smallest") {
+    // Higher vote-power score first; unknown scores (null) sort last. The
+    // district-size sorts order the LEVELS (sortBallotElections, above the
+    // followed tier) and inside a level fall back to this same order, so a
+    // level section reads top-down by where the vote carries most weight;
+    // population only breaks vote-power ties there.
     const aScore = typeof a.vote_power.score === "number" ? a.vote_power.score : Number.NEGATIVE_INFINITY;
     const bScore = typeof b.vote_power.score === "number" ? b.vote_power.score : Number.NEGATIVE_INFINITY;
     if (aScore !== bScore) {
@@ -389,10 +395,9 @@ function compareBySort(
     }
   }
   if (sort === "district_size" || sort === "district_size_smallest") {
-    // Level was already compared in sortBallotElections (above the followed
-    // tier); here only population remains. district_size: larger population
-    // first; district_size_smallest: smaller first. Unknown populations
-    // (null) sort last in both directions.
+    // district_size: larger population first; district_size_smallest:
+    // smaller first. Unknown populations (null) sort last in both
+    // directions.
     const missing = sort === "district_size" ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY;
     const aPopulation = typeof a.district.population === "number" ? a.district.population : missing;
     const bPopulation = typeof b.district.population === "number" ? b.district.population : missing;

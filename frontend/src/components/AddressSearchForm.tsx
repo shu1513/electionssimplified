@@ -291,7 +291,7 @@ export function AddressSearchForm({
                 giving up. The explainer button sits beside the <label>, not
                 inside it: a button inside a label would join the field's
                 accessible name and is a labelable element in its own right. */}
-            <div className={landing ? "pb-px pl-[18px] text-sm font-semibold text-ink-soft" : "pb-1 text-sm font-semibold text-ink"}>
+            <div className={landing ? "pb-px pl-[18px] text-sm font-semibold text-ink" : "pb-1 text-sm font-semibold text-ink"}>
               <label htmlFor="address">{label}</label>{" "}
               <span className="whitespace-nowrap font-normal">
                 (

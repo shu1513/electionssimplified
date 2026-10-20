@@ -187,7 +187,7 @@ describe("applyBallotElectionOrdering", () => {
     ]);
   });
 
-  it("orders by district population descending when sort=district_size, unknown populations last", async () => {
+  it("orders by vote power inside a level under sort=district_size, population descending among ties, unknown populations last", async () => {
     const result = await applyBallotElectionOrdering(
       { query: makeFollowsQuery([]) },
       makeSummary([
@@ -198,21 +198,29 @@ describe("applyBallotElectionOrdering", () => {
       { sort: "district_size" }
     );
 
-    expect(result.elections.map((e) => e.id)).toEqual([electionB, electionA, electionC]);
+    // The 9.8M-person district is the biggest, but its vote is the weakest;
+    // the two 95s lead and population only splits them.
+    expect(result.elections.map((e) => e.id)).toEqual([electionA, electionC, electionB]);
   });
 
-  it("orders by district population ascending when sort=district_size_smallest, unknown populations still last", async () => {
+  it("orders by vote power inside a level under sort=district_size_smallest too, population ascending among ties, unknown still last", async () => {
     const result = await applyBallotElectionOrdering(
       { query: makeFollowsQuery([]) },
       makeSummary([
-        { id: electionA, population: 250_000 },
-        { id: electionB, population: 9_800_000 },
-        { id: electionC, population: null },
+        { id: electionA, vote_power_score: 50, population: 250_000 },
+        { id: electionB, vote_power_score: 50, population: 9_800_000 },
+        { id: electionC, vote_power_score: 50, population: null },
+        { id: "dddddddd-4444-4444-8444-dddddddddddd", vote_power_score: 80, population: 9_800_000 },
       ]),
       { sort: "district_size_smallest" }
     );
 
-    expect(result.elections.map((e) => e.id)).toEqual([electionA, electionB, electionC]);
+    expect(result.elections.map((e) => e.id)).toEqual([
+      "dddddddd-4444-4444-8444-dddddddddddd",
+      electionA,
+      electionB,
+      electionC,
+    ]);
   });
 
   it("walks the government levels before population under the district-size sorts", async () => {

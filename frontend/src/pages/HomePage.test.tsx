@@ -5,8 +5,15 @@ import { createMemoryRouter, RouterProvider } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { PRE_SEARCH_NOTICE, TERMS_VERSION } from "@voteapp/api-client";
 import { HomePage } from "./HomePage";
+import { electionSummary, retentionElection } from "../test/fixtures";
 
-const ADDRESS_LABEL = "Enter address or ZIP to see your elections and candidates";
+const ADDRESS_LABEL = "Enter address or ZIP to see your own elections and candidates";
+
+// For tests about the search form: keeps the nearby sample's geo hint in
+// flight so the block never mounts and never adds resolve calls of its own.
+// A fetch stub returns this for /api/geo-hint and its own answer otherwise.
+const holdGeoHint = (path: string): Promise<never> | undefined =>
+  path === "/api/geo-hint" ? new Promise<never>(() => {}) : undefined;
 
 function renderHome() {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -28,20 +35,28 @@ function renderHome() {
 function stubResolveFetch(
   resolution: Record<string, unknown> = { matched_address: "123 Main St", address_match_count: 1, districts: [], scope: "exact" }
 ) {
-  const fetchMock = vi.fn().mockImplementation(async (path: string) => ({
-    ok: true,
-    status: 200,
-    headers: new Headers(),
-    json: async () =>
-      path === "/api/address/resolve"
-        ? resolution
-        : // The autocomplete suggest call races these tests on a real 275ms
-          // debounce timer; it must get a well-formed (empty) response, not
-          // the fallthrough body, whenever it happens to fire in time.
-          path === "/api/address/autocomplete"
-          ? { suggestions: [] }
-          : { user: null },
-  }));
+  const fetchMock = vi.fn().mockImplementation(async (path: string) => {
+    // These tests are about the search form. The nearby sample's geo hint
+    // stays in flight so the block never mounts (a settled hint, found or
+    // not, would start its own resolve calls and muddy the call counts).
+    if (path === "/api/geo-hint") {
+      return new Promise(() => {});
+    }
+    return {
+      ok: true,
+      status: 200,
+      headers: new Headers(),
+      json: async () =>
+        path === "/api/address/resolve"
+          ? resolution
+          : // The autocomplete suggest call races these tests on a real 275ms
+            // debounce timer; it must get a well-formed (empty) response, not
+            // the fallthrough body, whenever it happens to fire in time.
+            path === "/api/address/autocomplete"
+            ? { suggestions: [] }
+            : { user: null },
+    };
+  });
   vi.stubGlobal("fetch", fetchMock);
   return fetchMock;
 }
@@ -57,6 +72,308 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.unstubAllGlobals();
+});
+
+// The three hops behind the nearby-elections block, keyed by path prefix so
+// the ballot query's district_ids/sort query string matches too.
+const NEARBY_RESOLUTION = {
+  matched_address: "Fresno, CA",
+  address_match_count: 1,
+  scope: "region",
+  districts: [
+    { id: "d-ca", district_type: "statewide", geoid_compact: "06", name: "California", state: "CA", population: null, representation_power_score: null },
+    { id: "d-fresno", district_type: "place", geoid_compact: "0627000", name: "Fresno city, California", state: "CA", population: null, representation_power_score: null },
+  ],
+};
+const FRESNO = { id: "d-fresno", district_type: "place", name: "Fresno city, California", state: "CA" };
+const NEARBY_ELECTIONS = [
+  electionSummary({ id: "e1", district_id: FRESNO.id, district: FRESNO, official_ballot_title: "Mayor of Fresno" }),
+  electionSummary({ id: "e2", official_ballot_title: "Governor" }),
+  electionSummary({ id: "e3", official_ballot_title: "Lieutenant Governor" }),
+  electionSummary({ id: "e4", official_ballot_title: "Spring runoff", election_date: "2027-04-06" }),
+];
+
+const FRESNO_POINT = { lat: 36.7378, lng: -119.7871 };
+// The component's DEFAULT_LOCATION: Los Angeles City Hall.
+const LA_POINT = { lat: 34.0537, lng: -118.2427 };
+const POINTS: Record<string, { lat: number; lng: number }> = { "Fresno, CA": FRESNO_POINT, "Los Angeles, CA": LA_POINT };
+
+function stubNearbyFetch({
+  geoHint = { ok: true, status: 200, body: { location: { state: "CA", city: "Fresno", coordinates: FRESNO_POINT } } },
+  pointResolve = "ok",
+  hangBallotSorts = [],
+  failBallotSorts = [],
+  elections = NEARBY_ELECTIONS,
+}: {
+  geoHint?: { ok: boolean; status: number; body: unknown };
+  /** Whether the coordinate resolve succeeds, 422s (point matched nothing),
+   * or answers 200 with no districts. */
+  pointResolve?: "ok" | "fail" | "empty";
+  /** Ballot sorts whose fetch never settles, to observe the in-flight state. */
+  hangBallotSorts?: string[];
+  /** Ballot sorts whose fetch answers 503. */
+  failBallotSorts?: string[];
+  /** The ballot's races; defaults to the Fresno sample. */
+  elections?: ReturnType<typeof electionSummary>[];
+} = {}) {
+  const fetchMock = vi.fn().mockImplementation(async (path: string, init?: { body?: string }) => {
+    const respond = (body: unknown, ok = true, status = 200) => ({
+      ok,
+      status,
+      headers: new Headers(),
+      json: async () => body,
+    });
+    if (path === "/api/geo-hint") {
+      return respond(geoHint.body, geoHint.ok, geoHint.status);
+    }
+    if (path === "/api/address/resolve") {
+      const body = JSON.parse(init?.body ?? "{}") as Record<string, unknown>;
+      const address = body.address as string;
+      expect(Object.keys(POINTS)).toContain(address);
+      const [city] = address.split(", ");
+      if ("coordinates" in body) {
+        // The point first: no region fields (the resolver would take the
+        // region path over the point), no terms version (nothing was clicked).
+        expect(body).toEqual({ address, allow_partial: true, coordinates: POINTS[address] });
+        if (pointResolve === "fail") {
+          return respond({ error: { code: "not_found", message: "no match" } }, false, 422);
+        }
+        return respond({
+          ...NEARBY_RESOLUTION,
+          matched_address: address,
+          scope: "exact",
+          districts: pointResolve === "empty" ? [] : NEARBY_RESOLUTION.districts,
+        });
+      }
+      // The city fallback.
+      expect(body).toEqual({ address, allow_partial: true, region_state: "CA", region_locality: city });
+      return respond({ ...NEARBY_RESOLUTION, matched_address: address });
+    }
+    if (path.startsWith("/api/ballot?")) {
+      const sort = /&sort=([a-z_]+)$/.exec(path)?.[1] ?? "";
+      expect(path).toBe(`/api/ballot?district_ids=d-ca%2Cd-fresno&sort=${sort}`);
+      expect(["vote_power", "district_size", "district_size_smallest"]).toContain(sort);
+      if (hangBallotSorts.includes(sort)) {
+        return new Promise(() => {});
+      }
+      if (failBallotSorts.includes(sort)) {
+        return respond({ error: { code: "service_unavailable", message: "Service unavailable" } }, false, 503);
+      }
+      return respond({ district_ids: ["d-ca", "d-fresno"], districts: [], elections });
+    }
+    if (path === "/api/address/autocomplete") {
+      return respond({ suggestions: [] });
+    }
+    return respond({ user: null });
+  });
+  vi.stubGlobal("fetch", fetchMock);
+  return fetchMock;
+}
+
+describe("HomePage nearby elections", () => {
+  it("lists the hinted city's races under the search in the ballot page's cards", async () => {
+    stubNearbyFetch();
+    renderHome();
+
+    // One heading names the place and the date; the list's own date heading
+    // is withheld so the date is said once.
+    expect(
+      await screen.findByRole("heading", { level: 2, name: "Sample elections near Fresno, CA on November 3, 2026" })
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Elections on November 3, 2026" })).not.toBeInTheDocument();
+    // The pitch stays the page's only h1; this block is a section under it.
+    expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+    expect(screen.getByText("Enter address above to see your own elections")).toBeInTheDocument();
+
+    // The nearest date's races, in the ballot's order, as ElectionList cards,
+    // each title linking to its election page; a later date is left out.
+    expect(screen.getByRole("link", { name: /Mayor of Fresno/ })).toHaveAttribute("href", "/elections/e1");
+    expect(screen.getByRole("link", { name: /^Governor/ })).toHaveAttribute("href", "/elections/e2");
+    expect(screen.getByRole("link", { name: /Lieutenant Governor/ })).toHaveAttribute("href", "/elections/e3");
+    expect(screen.queryByRole("link", { name: /Spring runoff/ })).not.toBeInTheDocument();
+  });
+
+  it("offers the ballot page's sorts and refetches the sample in the chosen one, kept in the URL", async () => {
+    const fetchMock = stubNearbyFetch();
+    const { router } = renderHome();
+    const select = await screen.findByRole("combobox", { name: "Sort by" });
+    expect(select).toHaveValue("vote_power");
+    expect(screen.getByRole("option", { name: "Biggest districts" })).toBeInTheDocument();
+    expect(screen.queryByRole("option", { name: /issues/i })).not.toBeInTheDocument();
+    await userEvent.setup().selectOptions(select, "district_size");
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith("/api/ballot?district_ids=d-ca%2Cd-fresno&sort=district_size", expect.anything())
+    );
+    // The district-size sort heads the cards with level sections.
+    expect(await screen.findByRole("button", { name: /City: Fresno/ })).toBeInTheDocument();
+    // The choice lives in the URL (replace, not push) so a race's back link
+    // and a refresh both return to this order.
+    expect(router.state.location.search).toBe("?sort=district_size");
+    expect(router.state.historyAction).toBe("REPLACE");
+  });
+
+  it("reads an initial ?sort= from the URL and ignores an unknown value", async () => {
+    const fetchMock = stubNearbyFetch();
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const router = createMemoryRouter([{ path: "/", element: <HomePage /> }], {
+      initialEntries: ["/?sort=district_size_smallest"],
+    });
+    render(
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
+    );
+    expect(await screen.findByRole("combobox", { name: "Sort by" })).toHaveValue("district_size_smallest");
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/ballot?district_ids=d-ca%2Cd-fresno&sort=district_size_smallest",
+      expect.anything()
+    );
+    await router.navigate("/?sort=bogus");
+    await waitFor(() => expect(screen.getByRole("combobox", { name: "Sort by" })).toHaveValue("vote_power"));
+  });
+
+  it("keeps the heading and the sort select when a sort's ballot fetch fails", async () => {
+    stubNearbyFetch({ failBallotSorts: ["district_size"] });
+    renderHome();
+    const select = await screen.findByRole("combobox", { name: "Sort by" });
+    await userEvent.setup().selectOptions(select, "district_size");
+    // The list is gone, but the block, its control and the error remain, so
+    // another sort can be picked to recover.
+    await waitFor(() => expect(screen.queryByRole("link", { name: /Mayor of Fresno/ })).not.toBeInTheDocument());
+    expect(screen.getByRole("heading", { level: 2, name: "Sample elections near Fresno, CA" })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Sort by" })).toHaveValue("district_size");
+    await userEvent.setup().selectOptions(screen.getByRole("combobox", { name: "Sort by" }), "vote_power");
+    expect(await screen.findByRole("link", { name: /Mayor of Fresno/ })).toBeInTheDocument();
+  });
+
+  it("falls back to the city path when the point resolves nothing", async () => {
+    const fetchMock = stubNearbyFetch({ pointResolve: "fail" });
+    renderHome();
+    expect(
+      await screen.findByRole("heading", { level: 2, name: "Sample elections near Fresno, CA on November 3, 2026" })
+    ).toBeInTheDocument();
+    expect(fetchMock.mock.calls.filter(([path]) => path === "/api/address/resolve")).toHaveLength(2);
+  });
+
+  it("goes straight to the city path when the hint carries no point", async () => {
+    const fetchMock = stubNearbyFetch({
+      geoHint: { ok: true, status: 200, body: { location: { state: "CA", city: "Fresno", coordinates: null } } },
+    });
+    renderHome();
+    expect(
+      await screen.findByRole("heading", { level: 2, name: "Sample elections near Fresno, CA on November 3, 2026" })
+    ).toBeInTheDocument();
+    expect(fetchMock.mock.calls.filter(([path]) => path === "/api/address/resolve")).toHaveLength(1);
+  });
+
+  it("falls back to the city path when the point resolves to no district rows (200, empty)", async () => {
+    const fetchMock = stubNearbyFetch({ pointResolve: "empty" });
+    renderHome();
+    expect(
+      await screen.findByRole("heading", { level: 2, name: "Sample elections near Fresno, CA on November 3, 2026" })
+    ).toBeInTheDocument();
+    expect(fetchMock.mock.calls.filter(([path]) => path === "/api/address/resolve")).toHaveLength(2);
+  });
+
+  it("samples Los Angeles City Hall when the edge has no location for the visitor", async () => {
+    stubNearbyFetch({ geoHint: { ok: true, status: 200, body: { location: null } } });
+    renderHome();
+    expect(
+      await screen.findByRole("heading", { level: 2, name: "Sample elections near Los Angeles, CA on November 3, 2026" })
+    ).toBeInTheDocument();
+  });
+
+  it("samples Los Angeles City Hall when the hint path is missing (a backend reached without the Worker)", async () => {
+    const fetchMock = stubNearbyFetch({
+      geoHint: { ok: false, status: 404, body: { error: { code: "not_found", message: "Not found" } } },
+    });
+    renderHome();
+    expect(
+      await screen.findByRole("heading", { level: 2, name: "Sample elections near Los Angeles, CA on November 3, 2026" })
+    ).toBeInTheDocument();
+    const resolveBody = JSON.parse(
+      (fetchMock.mock.calls.find(([path]) => path === "/api/address/resolve")?.[1] as { body: string }).body
+    ) as Record<string, unknown>;
+    expect(resolveBody.coordinates).toEqual(LA_POINT);
+  });
+
+  it("keeps the sort select when the chosen sort has no section row to carry it", async () => {
+    // Three retention races only: under the district-size sort the date has
+    // no level run (retention is grouped apart), so the control falls back
+    // to its own row instead of vanishing — it is the only way back.
+    stubNearbyFetch({ elections: [retentionElection("r1"), retentionElection("r2"), retentionElection("r3")] });
+    renderHome();
+    const select = await screen.findByRole("combobox", { name: "Sort by" });
+    await userEvent.setup().selectOptions(select, "district_size");
+    await waitFor(() => expect(screen.getByRole("combobox", { name: "Sort by" })).toHaveValue("district_size"));
+    expect(screen.getByRole("combobox", { name: "Sort by" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 2, name: /Sample elections near Fresno/ })).toBeInTheDocument();
+  });
+
+  it("keeps the list and the select mounted while a sort change is in flight", async () => {
+    stubNearbyFetch({ hangBallotSorts: ["district_size"] });
+    renderHome();
+    const select = await screen.findByRole("combobox", { name: "Sort by" });
+    await userEvent.setup().selectOptions(select, "district_size");
+    // The district_size fetch never settles: the block stays up with the
+    // previous races (placeholder data), and the control shows the new
+    // choice. (The select itself re-renders inside the new sort's first
+    // section, so only presence is pinned, not identity.)
+    expect(screen.getByRole("heading", { level: 2, name: /Sample elections near Fresno/ })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Sort by" })).toHaveValue("district_size");
+    expect(screen.getByRole("link", { name: /Mayor of Fresno/ })).toBeInTheDocument();
+  });
+
+  it("sends a sample card's back link to the home URL as opened, ?new=1 included", async () => {
+    stubNearbyFetch();
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const router = createMemoryRouter(
+      [
+        { path: "/", element: <HomePage /> },
+        { path: "/elections/:id", element: <p>election</p> },
+      ],
+      { initialEntries: ["/?new=1"] }
+    );
+    render(
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
+    );
+    await userEvent.setup().click(await screen.findByRole("link", { name: /Mayor of Fresno/ }));
+    await waitFor(() => expect(router.state.location.pathname).toBe("/elections/e1"));
+    // A bare "/" would bounce a verified one-off visitor to /me/ballot.
+    expect((router.state.location.state as { backTo: { path: string; label: string } }).backTo).toEqual({
+      path: "/?new=1",
+      label: "Home",
+    });
+  });
+
+  it("skips the lookups for a verified user, who is leaving for the saved ballot", async () => {
+    const fetchMock = stubNearbyFetch();
+    fetchMock.mockImplementation(async (path: string) => holdGeoHint(path) ?? ({
+      ok: true,
+      status: 200,
+      headers: new Headers(),
+      json: async () =>
+        path === "/api/me"
+          ? { user: { id: "u1", email: "v@example.com", email_verified: true, terms_version: TERMS_VERSION } }
+          : path === "/api/address/autocomplete"
+            ? { suggestions: [] }
+            : {},
+    }));
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const router = createMemoryRouter([
+      { path: "/", element: <HomePage /> },
+      { path: "/me/ballot", element: <p>saved ballot</p> },
+    ]);
+    render(
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
+    );
+    await waitFor(() => expect(router.state.location.pathname).toBe("/me/ballot"));
+    expect(fetchMock.mock.calls.map(([path]) => path)).not.toContain("/api/geo-hint");
+  });
 });
 
 describe("HomePage pre-search notice", () => {
@@ -277,6 +594,9 @@ describe("HomePage ZIP partial flow", () => {
     // outlive a newer partial search just because /api/me was slow.
     sessionStorage.setItem(PENDING_KEY, JSON.stringify(["stale-district"]));
     const fetchMock = vi.fn().mockImplementation(async (path: string) => {
+      if (path === "/api/geo-hint") {
+        return holdGeoHint(path);
+      }
       if (path === "/api/me") {
         return new Promise(() => {}); // identity never resolves
       }
@@ -309,7 +629,7 @@ describe("HomePage ZIP partial flow", () => {
       main_text: "United States",
       secondary_text: "",
     };
-    const fetchMock = vi.fn().mockImplementation(async (path: string) => ({
+    const fetchMock = vi.fn().mockImplementation(async (path: string) => holdGeoHint(path) ?? ({
       ok: true,
       status: 200,
       headers: new Headers(),
@@ -361,6 +681,9 @@ describe("HomePage ZIP partial flow", () => {
       releaseRetrieve = resolve;
     });
     const fetchMock = vi.fn().mockImplementation(async (path: string) => {
+      if (path === "/api/geo-hint") {
+        return holdGeoHint(path);
+      }
       if (path === "/api/address/autocomplete/retrieve") {
         // Held open until the test releases it — the window under test.
         await retrieveGate;
@@ -411,7 +734,7 @@ describe("HomePage ZIP partial flow", () => {
       main_text: "Los Angeles",
       secondary_text: "CA, USA",
     };
-    const fetchMock = vi.fn().mockImplementation(async (path: string) => ({
+    const fetchMock = vi.fn().mockImplementation(async (path: string) => holdGeoHint(path) ?? ({
       ok: true,
       status: 200,
       headers: new Headers(),

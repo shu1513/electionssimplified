@@ -186,7 +186,7 @@ function splitVotePowerGroups(elections: ElectionSummary[]) {
  * state so returning from a detail page restores their disclosures.
  */
 function ElectionSection({ label, count, children, colorClass = "text-ink hover:text-rausch-deep",
-  open: controlledOpen, onOpenChange, heading = false,
+  open: controlledOpen, onOpenChange, heading = false, aside,
 }: {
   label: string;
   count: number;
@@ -197,6 +197,9 @@ function ElectionSection({ label, count, children, colorClass = "text-ink hover:
   /** Render the toggle as an h2 at the date headings' size: for a section
    * that sits beside "Elections on {date}", not inside one. */
   heading?: boolean;
+  /** A control shown at the right end of the toggle's row, outside the
+   * button (the home sample's sort select). */
+  aside?: ReactNode;
 }) {
   const [localOpen, setOpen] = useState(true);
   const open = controlledOpen ?? localOpen;
@@ -229,7 +232,21 @@ function ElectionSection({ label, count, children, colorClass = "text-ink hover:
   );
   return (
     <section>
-      {heading ? <h2>{toggle}</h2> : toggle}
+      {aside ? (
+        // The toggle keeps its natural width (grow, never shrink), so the
+        // label is never squeezed into a word per line. When the aside fits
+        // it sits at the right end of the toggle's row; when it does not,
+        // wrap-reverse puts its line ABOVE the toggle and justify-between
+        // leaves it, alone on that line, at the left.
+        <div className="flex flex-wrap-reverse items-center justify-between gap-x-3 gap-y-1">
+          {heading ? <h2 className="grow">{toggle}</h2> : <div className="grow">{toggle}</div>}
+          {aside}
+        </div>
+      ) : heading ? (
+        <h2>{toggle}</h2>
+      ) : (
+        toggle
+      )}
       {open ? <div className="mt-2 space-y-3 box:mt-[6px] box:space-y-[11px]">{children}</div> : null}
     </section>
   );
@@ -361,6 +378,8 @@ export function ElectionList({
   raceType,
   railSort,
   sort,
+  hideDateHeadings = false,
+  firstSectionAside,
 }: {
   elections: ElectionSummary[];
   /** District-size sorts group by level. Vote-power groups appear only
@@ -399,6 +418,14 @@ export function ElectionList({
    * — district-size sorts fall back to vote_power), recorded so the rail's
    * always-engaged sort control starts where the list was. */
   railSort?: RailSortKey;
+  /** Skip the "Elections on {date}" heading over each date group: for a
+   * caller whose own heading already names the one date it shows (the home
+   * page's nearby sample). */
+  hideDateHeadings?: boolean;
+  /** A control for the right end of the list's first section row (the
+   * first vote-power band or level section); above the cards when the
+   * list has no sections. The home sample puts its sort select here. */
+  firstSectionAside?: ReactNode;
 }) {
   const {
     listState,
@@ -506,20 +533,36 @@ export function ElectionList({
         ))}
       </SeatRun>
     ));
+  // Whether the first date group has a section row to carry the aside: a
+  // level run (district-size sorts) or a vote-power band. A retention-only
+  // or all-awaiting date has neither, and the plain-card branch always
+  // renders it; otherwise the aside gets its own row above the list, so a
+  // caller whose only control it is (the home sample's sort) keeps it.
+  const firstGroup = groups[0];
+  const asideInSection =
+    firstGroup !== undefined &&
+    (levelSections
+      ? splitLevelRuns(firstGroup.contested).length > 0
+      : votePowerDates.has(firstGroup.date)
+        ? splitVotePowerGroups(firstGroup.contested).length > 0
+        : true);
   return (
     <div className="mt-[18px] space-y-[29px]">
-      {groups.map((group) => (
+      {firstSectionAside && !asideInSection ? <div className="flex justify-end">{firstSectionAside}</div> : null}
+      {groups.map((group, groupIndex) => (
         // One date section, with grouped retention after its contested races.
         <section key={group.date}>
           {/* The ballot pages carry no h1 banner; these date headings are the
               page's identity, so they read as full sentences and lead the
               visual hierarchy. */}
-          <h2 className="text-heading font-bold text-ink">Elections on {formatElectionDate(group.date)}</h2>
+          {hideDateHeadings ? null : (
+            <h2 className="text-heading font-bold text-ink">Elections on {formatElectionDate(group.date)}</h2>
+          )}
           {levelSections ? (
             // Keyed on the sort too, so flipping biggest ↔ smallest remounts
             // every section open even where a level's first race is unchanged.
             <div className="mt-3 space-y-[18px] box:mt-[11px] box:space-y-[8px]">
-              {splitLevelRuns(group.contested).map((run) => {
+              {splitLevelRuns(group.contested).map((run, runIndex) => {
                 const location = levelLocation(run.level, run.elections);
                 return (
                   <ElectionSection
@@ -528,6 +571,7 @@ export function ElectionList({
                     count={run.elections.length}
                     open={isSectionOpen(`${group.date}:level:${run.level}`)}
                     onOpenChange={(open) => setSectionOpen(`${group.date}:level:${run.level}`, open)}
+                    aside={groupIndex === 0 && runIndex === 0 ? firstSectionAside : undefined}
                   >
                     {renderCards(run.elections, true, location.districtId)}
                   </ElectionSection>
@@ -536,7 +580,7 @@ export function ElectionList({
             </div>
           ) : votePowerDates.has(group.date) ? (
             <div className="mt-3 space-y-[18px] box:mt-[11px] box:space-y-[8px]">
-              {splitVotePowerGroups(group.contested).map((band) => (
+              {splitVotePowerGroups(group.contested).map((band, bandIndex) => (
                 <ElectionSection
                   key={`vote_power-${band.rating}`}
                   label={`My vote power: ${band.label}`}
@@ -544,6 +588,7 @@ export function ElectionList({
                   colorClass={votePowerBadgeClass(band.rating)}
                   open={isSectionOpen(`${group.date}:${band.rating}`)}
                   onOpenChange={(open) => setVotePowerOpen(`${group.date}:${band.rating}`, open)}
+                  aside={groupIndex === 0 && bandIndex === 0 ? firstSectionAside : undefined}
                 >
                   {renderCards(band.elections, false)}
                 </ElectionSection>
@@ -551,7 +596,10 @@ export function ElectionList({
               {renderCards(group.contested.filter(isRetentionRace))}
             </div>
           ) : (
-            <div className="mt-2 space-y-3">{renderCards(group.contested)}</div>
+            <div className="mt-2 space-y-3">
+              {groupIndex === 0 && firstSectionAside ? <div className="flex justify-end">{firstSectionAside}</div> : null}
+              {renderCards(group.contested)}
+            </div>
           )}
           {group.retention.length > 0 ? (
             <div className="mt-3">

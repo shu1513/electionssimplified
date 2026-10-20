@@ -14,8 +14,10 @@
     },
     {
       "name": "frontend",
-      "runtimeExecutable": "npm",
+      "runtimeExecutable": "env",
       "runtimeArgs": [
+        "DEV_GEO_HINT=CA/Fresno/36.7378,-119.7871",
+        "npm",
         "run",
         "dev",
         "--prefix",
@@ -74,6 +76,7 @@
         "API_INTERNAL_URL=http://127.0.0.1:3101",
         "VITE_CHATBOT_ENABLED=true",
         "VITE_USAGE_ANALYTICS_ENABLED=true",
+        "DEV_GEO_HINT=CA/Fresno/36.7378,-119.7871",
         "npm",
         "run",
         "dev",
