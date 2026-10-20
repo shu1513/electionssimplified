@@ -114,7 +114,7 @@ function stubNearbyFetch({
       return respond(NEARBY_RESOLUTION);
     }
     if (path.startsWith("/api/ballot?")) {
-      expect(path).toBe("/api/ballot?district_ids=d-ca%2Cd-fresno&sort=state_baseline");
+      expect(path).toBe("/api/ballot?district_ids=d-ca%2Cd-fresno&sort=district_size");
       return respond({ district_ids: ["d-ca", "d-fresno"], districts: [], elections: NEARBY_ELECTIONS });
     }
     if (path === "/api/address/autocomplete") {

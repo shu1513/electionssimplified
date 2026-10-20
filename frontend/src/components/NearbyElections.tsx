@@ -33,7 +33,7 @@ function nearestDate(elections: Pick<ElectionSummary, "election_date">[], today:
  * Cloudflare's point for the visitor's IP, see GeoHint), the address API's
  * district lookup for that point (every district type, like a street
  * address; the region partial-ballot path for the city when the point
- * fails), then the ballot for those districts in paper-ballot order,
+ * fails), then the ballot for those districts biggest district first,
  * rendered by the same ElectionList the ballot page uses.
  *
  * Renders nothing until the list is ready and nothing at all when any hop
@@ -95,15 +95,14 @@ export function NearbyElections() {
   const districtIds = resolution.data?.districts.map((district) => district.id) ?? [];
   const districtKey = districtIds.join(",");
 
-  // state_baseline is the paper-ballot order (federal, state, county, city,
-  // school, judicial, measures: the sort the Picks and Draft pages use), so
-  // the sample reads top to bottom like the ballot it previews. Request-only
-  // and not in BALLOT_SORTS, so ElectionList gets no `sort` and renders the
-  // payload's order as plain cards.
+  // Biggest districts first, as the newsroom box lists a ballot: Federal,
+  // State, County, City, School, each under its own level label once. The
+  // printed order was tried and rejected for the sample — states like
+  // California open with their state offices, so the level labels repeated.
   const ballot = useQuery({
-    queryKey: ["ballot", districtKey, "state_baseline"],
+    queryKey: ["ballot", districtKey, "district_size"],
     queryFn: () =>
-      apiRequest<BallotSummary>(`/api/ballot?district_ids=${encodeURIComponent(districtKey)}&sort=state_baseline`),
+      apiRequest<BallotSummary>(`/api/ballot?district_ids=${encodeURIComponent(districtKey)}&sort=district_size`),
     enabled: districtIds.length > 0,
     retry: false,
   });
@@ -152,7 +151,8 @@ export function NearbyElections() {
         // A detail page's back link returns to this page as it was opened.
         backTo={{ path: here.pathname + here.search, label: "Home" }}
         raceType={null}
-        railSort={railSortForBallotSort("state_baseline")}
+        railSort={railSortForBallotSort("district_size")}
+        sort="district_size"
       />
     </section>
   );
