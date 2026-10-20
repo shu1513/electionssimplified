@@ -555,9 +555,14 @@ export function isPreFilingEmptySearch(input: {
   ) {
     return false;
   }
-  return input.lastElectionsSearchedAt.slice(0, 10) <= filingClose;
+  // The timestamp text renders in the database session's zone (UTC on prod),
+  // so an evening Pacific search already reads as the next day there. Compare
+  // the US local date of the instant instead.
+  return usLatestLocalDateIso(new Date(input.lastElectionsSearchedAt)) <= filingClose;
 }
 
+// Office races only: a measure can qualify before candidate filing closes, so
+// a pre-filing search that found one still says nothing about the seats.
 async function loadDistrictsWithUpcomingElections(
   db: Queryable,
   districtIds: string[],
@@ -569,6 +574,7 @@ async function loadDistrictsWithUpcomingElections(
       SELECT DISTINCT e.district_id::text AS district_id
       FROM public.elections AS e
       WHERE e.district_id = ANY($1::uuid[])
+        AND e.race_type = 'office'
         AND e.election_date >= $2::date
         AND (e.election_date - $2::date)::int <= $3::int
     `,
@@ -770,7 +776,11 @@ export async function buildCoverageReport(
           [districtId]
         );
       }
-    } else if (
+      continue;
+    }
+    const searchedAt = new Date(row.last_elections_searched_at);
+    if (
+      !openElectionsDeferrals.has(districtId) &&
       isPreFilingEmptySearch({
         state: row.state,
         districtType: row.district_type,
@@ -779,20 +789,21 @@ export async function buildCoverageReport(
         asOfDate: input.asOfDate,
       })
     ) {
-      if (!openElectionsDeferrals.has(districtId)) {
-        attach(
-          {
-            stage: "election_discovery",
-            target_id: districtId,
-            election_id: null,
-            state: row.state,
-            label: `${row.name} — searched ${row.last_elections_searched_at.slice(0, 10)}, before local filing closed ${LOCAL_FILING_CLOSE_2026[row.state]}`,
-            election_date: null,
-          },
-          [districtId]
-        );
-      }
-    } else if (new Date(row.last_elections_searched_at) < staleCutoff) {
+      attach(
+        {
+          stage: "election_discovery",
+          target_id: districtId,
+          election_id: null,
+          state: row.state,
+          label: `${row.name} — searched ${usLatestLocalDateIso(searchedAt)}, before local filing closed ${LOCAL_FILING_CLOSE_2026[row.state]}`,
+          election_date: null,
+        },
+        [districtId]
+      );
+    }
+    // Staleness is a separate count, not an alternative to the gap above: a
+    // pre-filing search can also be older than 180 days.
+    if (searchedAt < staleCutoff) {
       for (const { cityIndex } of cityIndexesByDistrictId.get(districtId) ?? []) {
         perCity[cityIndex].districts_stale_180d += 1;
       }

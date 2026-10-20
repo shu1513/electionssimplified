@@ -24,6 +24,11 @@ describe("majorCityCoverage pre-filing empty search", () => {
     expect(isPreFilingEmptySearch({ ...base, lastElectionsSearchedAt: "2026-08-12 18:00:00-07" })).toBe(true);
   });
 
+  it("reads the timestamp as an instant, not as the database session's rendered date", () => {
+    // Same instant as 2026-08-12 18:00 Pacific, rendered by a UTC session.
+    expect(isPreFilingEmptySearch({ ...base, lastElectionsSearchedAt: "2026-08-13 01:00:00+00" })).toBe(true);
+  });
+
   it("treats a search after filing closed as covered", () => {
     expect(isPreFilingEmptySearch({ ...base, lastElectionsSearchedAt: "2026-08-13 09:00:00-07" })).toBe(false);
   });
