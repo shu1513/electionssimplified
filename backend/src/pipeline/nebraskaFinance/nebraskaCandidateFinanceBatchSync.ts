@@ -1,5 +1,7 @@
 import { stat } from "node:fs/promises";
 import type { Pool, PoolClient } from "pg";
+import { syncDueNebraskaReportedFinance } from "./nebraskaReportedBatchSync.js";
+import { isNebraskaReportedCommitteeEnabled, isNebraskaReportedIeEnabled } from "../../config/featureFlags.js";
 
 import { mergeCycleArtifactRows } from "../finance/cycleArtifactRows.js";
 import {
@@ -66,6 +68,7 @@ export type NebraskaCandidateFinanceBatchSyncItemResult = {
 };
 
 export type NebraskaCandidateFinanceBatchSyncResult = {
+  reportedFinance?: Awaited<ReturnType<typeof syncDueNebraskaReportedFinance>>;
   dryRun: boolean;
   now: string;
   staleAfterDays: number;
@@ -287,6 +290,20 @@ export async function syncDueNebraskaCandidateFinance(
   const dryRun = input.dryRun === true;
   const syncFn = input.syncNebraskaCandidateFinanceFn ?? syncNebraskaCandidateFinance;
 
+  // Run native components before annual-file acquisition. A missing annual
+  // artifact or failed direct aggregation must not gate independent IE work.
+  let reportedFinance: NebraskaCandidateFinanceBatchSyncResult["reportedFinance"];
+  if (isNebraskaReportedCommitteeEnabled() || isNebraskaReportedIeEnabled()) {
+    try {
+      const db = input.db as Pick<Pool, "query" | "connect">;
+      if (typeof db.connect !== "function") throw new Error("Nebraska reported finance requires a connection pool");
+      reportedFinance = await syncDueNebraskaReportedFinance({ db, now, dryRun, maxCandidates, staleAfterDays,
+        electionLookaheadDays, electionLookbackDays: input.electionLookbackDays });
+    } catch {
+      console.warn("Nebraska reported finance batch unavailable; continuing annual direct sync");
+    }
+  }
+
   if (!dryRun && input.autoLinkMissingLinks !== false) {
     try {
       const missingLinkCandidates = await listNebraskaCandidateElectionsMissingFinanceLinks(input.db, {
@@ -415,6 +432,7 @@ export async function syncDueNebraskaCandidateFinance(
 
   const syncedCandidateCount = results.filter((result) => result.ok).length;
   return {
+    ...(reportedFinance ? { reportedFinance } : {}),
     dryRun,
     now: now.toISOString(),
     staleAfterDays,

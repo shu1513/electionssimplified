@@ -1,6 +1,7 @@
 import type { Pool, PoolClient } from "pg";
 
 import { isNebraskaCampaignFinanceEnabled } from "../../config/featureFlags.js";
+import { overlayNebraskaReportedFinance } from "./nebraskaReportedReader.js";
 import {
   addFinanceBreakdown,
   buildStateFinanceSummaryRequests,
@@ -98,7 +99,7 @@ export async function loadNebraskaCandidateFinanceSummariesByCandidateElection(
   );
 
   if (summaryResult.rows.length === 0) {
-    return new Map();
+    return overlayNebraskaReportedFinance(db, new Map(), candidateRows, electionRows);
   }
 
   const selectedRequests = summaryResult.rows.map((row) => ({
@@ -172,7 +173,7 @@ export async function loadNebraskaCandidateFinanceSummariesByCandidateElection(
     }
   }
 
-  return new Map(
+  const summaries = new Map<string, BallotLookupFinanceSummary>(
     summaryResult.rows.map((row) => {
       const key = candidateElectionKey(row.candidate_id, row.election_id);
       const topDirectDonorOccupations = directOccupationsByCandidateElection.get(key) ?? [];
@@ -209,4 +210,5 @@ export async function loadNebraskaCandidateFinanceSummariesByCandidateElection(
       ];
     })
   );
+  return overlayNebraskaReportedFinance(db, summaries, candidateRows, electionRows);
 }

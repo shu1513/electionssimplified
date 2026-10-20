@@ -137,6 +137,9 @@ const nebraskaFinance = defineStateFinanceFlagPair("NEBRASKA_CAMPAIGN_FINANCE");
 export const isNebraskaCampaignFinanceEnabled = nebraskaFinance.isEnabled;
 export const isNebraskaCampaignFinanceSyncEnabled = nebraskaFinance.isSyncEnabled;
 export const isNebraskaNadcRawDataRefreshEnabled = nebraskaFinance.gate("NEBRASKA_NADC_RAW_DATA_REFRESH_ENABLED");
+// Separate default-off gates: native IE never depends on annual direct files.
+export const isNebraskaReportedIeEnabled = (): boolean => nebraskaFinance.gate("NEBRASKA_REPORTED_IE_ENABLED")();
+export const isNebraskaReportedCommitteeEnabled = (): boolean => nebraskaFinance.gate("NEBRASKA_REPORTED_COMMITTEE_ENABLED")();
 
 const indianaFinance = defineStateFinanceFlagPair("INDIANA_CAMPAIGN_FINANCE");
 export const isIndianaCampaignFinanceEnabled = indianaFinance.isEnabled;

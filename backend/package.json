@@ -285,6 +285,7 @@
     "indiana-candidates:finance:scheduler:worker": "tsx src/scripts/runIndianaCandidateFinanceSyncSchedulerWorker.ts",
     "indiana-candidates:finance:scheduler:trigger": "tsx src/scripts/triggerIndianaCandidateFinanceSync.ts",
     "nebraska-candidates:finance:sync-due": "tsx src/scripts/syncDueNebraskaCandidateFinance.ts",
+    "nebraska-candidates:finance:reported:sync-due": "tsx src/scripts/syncDueNebraskaReportedFinance.ts",
     "nebraska-candidates:finance:raw:refresh": "tsx src/scripts/refreshNebraskaNadcRawData.ts",
     "nebraska-candidates:finance:scheduler:upsert": "tsx src/scripts/upsertNebraskaCandidateFinanceSyncScheduler.ts",
     "nebraska-candidates:finance:scheduler:worker": "tsx src/scripts/runNebraskaCandidateFinanceSyncSchedulerWorker.ts",
