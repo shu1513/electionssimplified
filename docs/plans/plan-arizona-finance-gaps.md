@@ -1,0 +1,49 @@
+# Arizona finance gaps
+
+## Source audit and priority
+
+Arizona is the next actionable state in the private ranked plan: 60 linked general-election candidates, provisional priority 45, ahead of Nebraska 40.8. Higher-scoring Indiana, Colorado and Utah retain their documented source holds. The source audit and implementation plan were saved privately before application money code changed.
+
+1. **Does the state publish outside spending?** Yes. The [Arizona public reporting application](https://seethemoney.az.gov/Reporting/Explore) exposes separate independent-expenditure support/opposition queries, current report catalogs and full report children. Native cash, refund and credit classes are distinct. A generic newer API search mixes expenditure classes and does not establish a complete IE ledger.
+2. **Is acquisition already called?** Yes, but the existing snapshot fetches income first, silently caps populations, drops nonpositive rows and prevents IE acquisition when income fails. Legacy summary due clocks also suppress independent work.
+3. **Can direct committee donors be identified from source classes?** Yes. Raw income rows explicitly distinguish candidate-committee, PAC and party contributions, candidate-committee/PAC in-kind contributions, and a signed candidate-committee return. The old mapped DTO loses these fields. Individuals, family money, loans, CCEC funds, partnerships, corporations, labor organizations and non-contribution income do not become political committees from their names.
+
+The [SOS finance page](https://azsos.gov/elections/campaign-finance-reporting), [candidate guide](https://azsos.gov/sites/default/files/docs/2025-2026-Candidate-Campaign-Finance-Guide-2026-0505.pdf) and actual native controls establish the 2025–2026 cycle. The initial scope is this cycle and the November 3, 2026 general election, not whole-candidacy history.
+
+## Source authority
+
+Two date-sorted paged IE sweeps returned the same 1,672 count but different occurrence bags. Use complete single responses, reject truncated totals, preserve duplicate occurrences and compare opening/closing populations. One qualified source graph closed support 1,213 plus opposition 459 to the unchanged full 1,672-row population. Four-decimal amounts include fractional-cent allocations; never round individual rows into published cents.
+
+Current report catalogs and full children are financial controls. In source research, 25 receiving income occurrences closed to current report children. A distinct IE payer's full 26-allocation population also closed on dates, exact amounts, payee, type and financial context, preserving 23 repeated identical occurrences. Research diagnostics do not grant write authority. Filed-PDF summary-column exploration was not qualified and supplies no money here.
+
+Saved originals are read first where their contents bind receiving scope. Cached income must carry the receiving ID and current registry label and reconcile to complete current report children. Native target IE bodies omit a receiving ID, so Both/Support/Oppose target queries are always acquired live, with opening/closing target and registry checks. Full payer populations close against current parent children before a positive target component can be accepted. Unknown classes, changing report sets, unexplained parent differences, fractional cents, unresolved IE refunds, conflicting names and negative committee-label nets hold the whole affected component. Replay parses only the newest eight batch directories and only receiving-income and global IE roles; older originals stay on disk for audit without growing batch memory.
+
+Native candidate profiles include ordinary and participating Clean Elections candidates. Native Senate labels use `District No.`; canonical app district names additionally contain chamber, GEOID and state. Validate both canonical display/full person names with middle/generation evidence, office, district, date and active status. A committee may serve the same person's primary and general elections; a link to another person remains ambiguous. Recheck canonical context under the write lock and when reading stored money.
+
+Untouched response bodies retain actual capture clocks, EOF, status, MIME, byte count and integrity metadata. Future-dated financial rows are tested against the original capture day in Arizona, never replay day. Financial identities/selectors stay in RAM or genuine private originals. Derived proofs contain aggregate counts, cents and clocks only; no screenshots. Private files/directories use 600/700 permissions and skip symlinks and environment files.
+
+## Implementation and operation
+
+Separate `ARIZONA_REPORTED_COMMITTEE_ENABLED`, `ARIZONA_INDEPENDENT_IE_ENABLED` and `ARIZONA_REPORTED_RAW_REFRESH_ENABLED` gates default off beneath global and state finance flags. Sync additionally requires both global/state sync gates. Refresh cannot enable a component or grant live-source permission.
+
+The existing batch invokes independent work before legacy direct finance. The component-only operational entrypoint is `backend/src/scripts/syncArizonaReportedFinance.ts`; it uses explicit process environment and never loads an environment file. Ordinary defaults are 25 candidates, seven-day freshness, daily failed-attempt rotation and a 98-day post-election window. General-election losers remain eligible after election day. `--force` requests retry/refresh while preserving every gate. A source-cache initialization failure holds every selected component as unavailable, and any other component batch failure is reported as `reportedFinanceError` in the legacy result; neither blocks auto-link or legacy direct finance.
+
+Migration 363 creates independent component/group/attempt tables. It was allocated after refreshing main and checking the local ledger: 384 applied entries, highest prefix 362. Applied Hawaii 362 remains immutable and separate. Atomic component replacement accepts only sealed, frozen source packets; unsuccessful acquisition never writes zero or advances a successful source clock. Full uncapped stored names, groups, counts, cents, context, source facts and clocks are validated before any presentation cap. Legacy money and headline clocks are preserved.
+
+Before handoff: ordinary real local batches without candidate/source overrides; independent full-ledger comparison in RAM; actual production HTTP API and hydrated candidate card; Arizona-only PR; exact-head CI. No merge, deploy or production activation. Kansas donor names and all new Missouri publication remain held. No AI-provider calls, environment-file contents, new agents or automations.
+
+## Local verification
+
+Ordinary default batches, without candidate, amount or source-fixture overrides, accepted 63 components across 59 eligible receivers: 30 committee components (25 positive, five zero) and 33 IE components (five positive, 28 zero). There are 760 stored groups, 12,924 full source occurrences and 928 included occurrences. Accepted committee receipts total $730,524.61; accepted outside support totals $93,544.25 and opposition $0. These are totals of qualified linked components, not statewide totals. Other observations remain held for source/context conflicts, fractional allocations, incomplete parent closure or unavailable responses; none became zero or a partially known subtotal. A follow-up ordinary invocation selected no due work and made no source requests. The last acquisition batch used the application's HTTP transport without injected cookies.
+
+The full native/source/store/reference proof compared every uncapped reported name, cent, occurrence, canonical context, source fact and clock in RAM. It independently reconstructed each source metadata digest and checked complete parent occurrence bags; the component graphs contain 229 report observations and 16,657 parent-row observations, including shared controls reused across candidates. All legacy financial rows, headline clocks and older migration ledger entries remained unchanged.
+
+The actual production HTTP API and hydrated candidate card matched storage. The example showed $44,250 in committee money across 41 reported groups, five named disclosure links, and $45,101.88 support across two spenders (card display $45,102). Cycle, reported-identity, return and rapid-report coverage notes rendered. No screenshot or financial identity was persisted in a derived proof. Pipeline, CLI, scheduler and shared feature-gate checks pass 213 tests across 23 files; backend TypeScript and migration-file checks pass. All new publication gates remain off by default.
+
+## Deadlines and required reruns
+
+The [SOS schedule](https://azsos.gov/sites/default/files/docs/2025-2028-CF-Reporting-Dates-CCEC-Excluded.pdf), effective February 6, 2026, sets **October 19** for PAC/party, standing and section 16-926(H) IE reports covering October 1–17. Ordinary candidate Q3 reports were due **October 15**, through September 30. Additional Clean Elections reporting is separate.
+
+Q4 reports are due **January 15, 2027**. Candidate coverage is October 1–December 31; committee/IE coverage is October 18–December 31. [Section 16-958](https://www.azleg.gov/ars/16/00958.htm) adds applicable monthly/Tuesday supplemental IE reporting and one-business-day reporting after the threshold during the final two weeks. This implementation does not establish complete rapid-report coverage.
+
+Rerun the component entrypoint with `--force` and permitted source refresh **October 20/21**, after applicable late filings through **November 4**, and **January 16/18, 2027**, then check amendments. This bypasses seven-day freshness while preserving every acquisition/publication gate; run enough bounded batches to rotate through the eligible cohort. Late filings require these reruns even when a pre-election snapshot currently closes. These are manual operational instructions, not automations.

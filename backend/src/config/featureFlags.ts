@@ -88,6 +88,12 @@ export function isCandidateFinanceSyncEnabled(force = false): boolean {
 const arizonaFinance = defineStateFinanceFlagPair("ARIZONA_CAMPAIGN_FINANCE");
 export const isArizonaCampaignFinanceEnabled = arizonaFinance.isEnabled;
 export const isArizonaCampaignFinanceSyncEnabled = arizonaFinance.isSyncEnabled;
+export const isArizonaReportedCommitteeEnabled = (): boolean =>
+  isCandidateFinanceEnabled() && arizonaFinance.gate("ARIZONA_REPORTED_COMMITTEE_ENABLED")();
+export const isArizonaIndependentIeEnabled = (): boolean =>
+  isCandidateFinanceEnabled() && arizonaFinance.gate("ARIZONA_INDEPENDENT_IE_ENABLED")();
+export const isArizonaReportedRawRefreshEnabled = (): boolean =>
+  isCandidateFinanceEnabled() && arizonaFinance.gate("ARIZONA_REPORTED_RAW_REFRESH_ENABLED")();
 
 const californiaFinance = defineStateFinanceFlagPair("CALIFORNIA_CAMPAIGN_FINANCE");
 export const isCaliforniaCampaignFinanceEnabled = californiaFinance.isEnabled;

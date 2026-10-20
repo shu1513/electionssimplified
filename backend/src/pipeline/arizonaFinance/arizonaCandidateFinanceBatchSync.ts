@@ -1,4 +1,5 @@
 import type { Pool, PoolClient } from "pg";
+import { syncDueArizonaReportedFinance, type ArizonaReportedBatchResult } from "./arizonaReportedBatchSync.js";
 
 import {
   syncArizonaCandidateFinance,
@@ -36,7 +37,9 @@ export type ArizonaFinanceAutoLinkCandidateElection = {
 };
 
 export type ArizonaCandidateFinanceBatchSyncInput = {
-  db: Queryable;
+  db: Queryable & Pick<Pool,"connect">;
+  reportedCacheDir?: string;
+  reportedRefresh?: boolean;
   now?: Date;
   dryRun?: boolean;
   maxCandidates?: number;
@@ -66,6 +69,8 @@ export type ArizonaCandidateFinanceBatchSyncItemResult = {
 };
 
 export type ArizonaCandidateFinanceBatchSyncResult = {
+  reportedFinance?: ArizonaReportedBatchResult;
+  reportedFinanceError?: string;
   dryRun: boolean;
   now: string;
   staleAfterDays: number;
@@ -334,6 +339,19 @@ export async function syncDueArizonaCandidateFinance(
     "electionLookaheadDays"
   );
   const dryRun = input.dryRun === true;
+  // Reported components run first but never block auto-link or legacy direct
+  // finance: an option outside the component limits or an unexpected error is
+  // reported in the result instead of rejecting the whole batch.
+  let reportedFinance: ArizonaReportedBatchResult | undefined;
+  let reportedFinanceError: string | undefined;
+  try {
+    reportedFinance = await syncDueArizonaReportedFinance({db:input.db,now,dryRun,
+      cacheDir:input.reportedCacheDir,refresh:input.reportedRefresh,maxCandidates:input.maxCandidates,
+      staleAfterDays:input.staleAfterDays,electionLookbackDays:input.electionLookbackDays,
+      electionLookaheadDays:input.electionLookaheadDays});
+  } catch (error) {
+    reportedFinanceError = error instanceof Error ? error.message : String(error);
+  }
   const syncFn = input.syncArizonaCandidateFinanceFn ?? syncArizonaCandidateFinance;
   const results: ArizonaCandidateFinanceBatchSyncItemResult[] = [];
   let autoLinkAttemptedCount = 0;
@@ -458,6 +476,8 @@ export async function syncDueArizonaCandidateFinance(
 
   const syncedCandidateCount = results.filter((result) => result.ok).length;
   return {
+    reportedFinance,
+    reportedFinanceError,
     dryRun,
     now: now.toISOString(),
     staleAfterDays,
