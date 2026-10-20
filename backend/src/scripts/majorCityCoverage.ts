@@ -523,6 +523,66 @@ export async function loadDbDistricts(db: Queryable, wanted: MappedDistrict[]): 
   return new Map(result.rows.map((row) => [`${row.district_type}:${row.geoid_compact}`, row]));
 }
 
+// Last day local candidates could file for the Nov 2026 general, per state
+// (California: Aug 7, extended to Aug 12 for seats with no incumbent filing).
+// A district searched on or before this date with nothing found was searched
+// before its races were knowable. States not listed get no check. Only city,
+// school, and special districts file this late; state, federal, and county
+// seats filed for the spring primary.
+export const LOCAL_FILING_CLOSE_2026: Readonly<Record<string, string>> = {
+  CA: "2026-08-12",
+};
+// The general those filings were for. The check is moot once it has passed.
+export const GENERAL_ELECTION_2026 = "2026-11-03";
+const LATE_FILING_DISTRICT_TYPES = new Set(["place", "school_elementary", "school_secondary", "school_unified", "local_special"]);
+
+/**
+ * A district with no office race on the Nov 2026 general whose last election
+ * search ran on or before the state's local filing close: the empty result
+ * predates the candidate list, so the district still needs election
+ * discovery. Only applies between the filing close and election day.
+ */
+export function isPreFilingEmptySearch(input: {
+  state: string;
+  districtType: string;
+  lastElectionsSearchedAt: string;
+  hasUpcomingElection: boolean;
+  asOfDate: string;
+}): boolean {
+  const filingClose = LOCAL_FILING_CLOSE_2026[input.state];
+  if (
+    !filingClose ||
+    !LATE_FILING_DISTRICT_TYPES.has(input.districtType) ||
+    input.hasUpcomingElection ||
+    input.asOfDate <= filingClose ||
+    input.asOfDate > GENERAL_ELECTION_2026
+  ) {
+    return false;
+  }
+  // The timestamp text renders in the database session's zone (UTC on prod),
+  // so an evening Pacific search already reads as the next day there. Compare
+  // the US local date of the instant instead.
+  return usLatestLocalDateIso(new Date(input.lastElectionsSearchedAt)) <= filingClose;
+}
+
+// Districts with an office race on the Nov 2026 general, the election the
+// filing close belongs to; the report horizon is irrelevant here. Office
+// races only: a measure can qualify before candidate filing closes, so a
+// pre-filing search that found one still says nothing about the seats.
+async function loadDistrictsWithGeneralOfficeRace(db: Queryable, districtIds: string[]): Promise<Set<string>> {
+  const result = await db.query<{ district_id: string }>(
+    `
+      SELECT DISTINCT e.district_id::text AS district_id
+      FROM public.elections AS e
+      WHERE e.district_id = ANY($1::uuid[])
+        AND e.race_type = 'office'
+        AND e.election_date = $2::date
+    `,
+    [districtIds, GENERAL_ELECTION_2026]
+  );
+  return new Set(result.rows.map((row) => row.district_id));
+}
+
 async function loadOpenElectionsDeferrals(db: Queryable, asOfDate: string): Promise<Set<string>> {
   const result = await db.query<{ district_id: string }>(
     `
@@ -615,6 +675,7 @@ export async function buildCoverageReport(
     horizonDays: input.horizonDays,
   });
   const dueRosterDeferrals = await loadDueRosterDeferrals(db, input.asOfDate, districtIds);
+  const withGeneralOfficeRace = await loadDistrictsWithGeneralOfficeRace(db, districtIds);
 
   const staleCutoff = new Date(input.asOfDate);
   staleCutoff.setDate(staleCutoff.getDate() - 180);
@@ -715,7 +776,34 @@ export async function buildCoverageReport(
           [districtId]
         );
       }
-    } else if (new Date(row.last_elections_searched_at) < staleCutoff) {
+      continue;
+    }
+    const searchedAt = new Date(row.last_elections_searched_at);
+    if (
+      !openElectionsDeferrals.has(districtId) &&
+      isPreFilingEmptySearch({
+        state: row.state,
+        districtType: row.district_type,
+        lastElectionsSearchedAt: row.last_elections_searched_at,
+        hasUpcomingElection: withGeneralOfficeRace.has(districtId),
+        asOfDate: input.asOfDate,
+      })
+    ) {
+      attach(
+        {
+          stage: "election_discovery",
+          target_id: districtId,
+          election_id: null,
+          state: row.state,
+          label: `${row.name} — searched ${usLatestLocalDateIso(searchedAt)}, before local filing closed ${LOCAL_FILING_CLOSE_2026[row.state]}`,
+          election_date: null,
+        },
+        [districtId]
+      );
+    }
+    // Staleness is a separate count, not an alternative to the gap above: a
+    // pre-filing search can also be older than 180 days.
+    if (searchedAt < staleCutoff) {
       for (const { cityIndex } of cityIndexesByDistrictId.get(districtId) ?? []) {
         perCity[cityIndex].districts_stale_180d += 1;
       }
