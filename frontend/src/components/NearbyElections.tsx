@@ -137,6 +137,30 @@ export function NearbyElections() {
   }
   const label = `${location.city}, ${location.state}`;
 
+  // BallotPage's sort control, markup and all; the select changes the
+  // ballot query's sort and ElectionList's grouping with it. It sits at the
+  // right end of the list's first section row.
+  const sortControl = (
+    <label className="flex items-center gap-2 text-sm text-ink-soft">
+      Sort by
+      <select
+        value={sort}
+        onChange={(event) => {
+          const next = event.target.value as BallotSort;
+          track("list_control", { control: "sort", value: next });
+          setSort(next);
+        }}
+        className="rounded-md border border-line bg-white px-2 py-1.5 text-sm text-ink focus:border-ink focus:outline-none"
+      >
+        {PUBLIC_BALLOT_SORTS.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+
   // Same frame as BallotPage's list: its container width, and the heading at
   // the date-group step ("Elections on {date}") it stands in for. The one
   // caveat sits under it as plain text.
@@ -149,29 +173,10 @@ export function NearbyElections() {
         Sample elections near {label} on {formatElectionDate(sampleDate)}
       </h2>
       <p className="mt-1 text-center text-sm text-ink">Enter address above for your full ballot</p>
-      {/* BallotPage's sort control, markup and all; the select changes the
-          ballot query's sort and ElectionList's grouping with it. */}
-      <label className="mt-4 flex items-center gap-2 text-sm text-ink-soft">
-        Sort by
-        <select
-          value={sort}
-          onChange={(event) => {
-            const next = event.target.value as BallotSort;
-            track("list_control", { control: "sort", value: next });
-            setSort(next);
-          }}
-          className="rounded-md border border-line bg-white px-2 py-1.5 text-sm text-ink focus:border-ink focus:outline-none"
-        >
-          {PUBLIC_BALLOT_SORTS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      </label>
       <ElectionList
         elections={elections}
         hideDateHeadings
+        firstSectionAside={sortControl}
         savedAreaWeights={savedAreaWeights}
         choicesByElectionId={me === null ? draftChoicesByElectionId(draft) : choiceByElectionId}
         // A detail page's back link returns to this page as it was opened.
