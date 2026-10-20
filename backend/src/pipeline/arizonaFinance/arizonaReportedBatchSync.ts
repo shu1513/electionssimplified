@@ -2,7 +2,7 @@ import type { Pool } from "pg";
 import { isArizonaReportedCommitteeEnabled, isArizonaIndependentIeEnabled, isArizonaReportedRawRefreshEnabled, isCandidateFinanceSyncEnabled, isArizonaCampaignFinanceSyncEnabled } from "../../config/featureFlags.js";
 import { listArizonaReportedReceivers, lockArizonaReportedReceiver, writeArizonaReportedComponent, aggregateArizonaReported, type ArizonaReportedReceiver } from "./arizonaReportedStore.js";
 import { createArizonaReportedSource } from "./arizonaReportedSource.js";
-import { AZ_REPORTED_REVISION, azCanonical, azHash, azAdd, ArizonaReportedHold, type ArizonaReportedKind } from "./arizonaReportedCore.js";
+import { AZ_REPORTED_REVISION, azCanonical, azHash, azAdd, azHold, ArizonaReportedHold, type ArizonaReportedKind } from "./arizonaReportedCore.js";
 
 export type ArizonaReportedBatchOptions = {
   db: Pick<Pool, "query" | "connect">; cacheDir?: string; now?: Date; dryRun?: boolean; refresh?: boolean;
@@ -52,7 +52,11 @@ export async function syncDueArizonaReportedFinance(options: ArizonaReportedBatc
   result.dueCount = due.length;
   const selected = due.slice(0,max); result.selectedCount = selected.length;
   if (!selected.length) return result;
-  const source = await createArizonaReportedSource({cacheDir:options.cacheDir,refresh:options.refresh,allowLive:isArizonaReportedRawRefreshEnabled()});
+  // A cache directory or filesystem failure holds every selected component as
+  // an unavailable source; it never aborts the batch or legacy direct finance.
+  let source: Awaited<ReturnType<typeof createArizonaReportedSource>>;
+  try { source = await createArizonaReportedSource({cacheDir:options.cacheDir,refresh:options.refresh,allowLive:isArizonaReportedRawRefreshEnabled()}); }
+  catch { source = { load: async () => azHold("source_unavailable") }; }
   for (const item of selected) for (const kind of item.kinds) {
     if (!result.dryRun) {
       const c = await options.db.connect(); let begun = false, accepted = false;

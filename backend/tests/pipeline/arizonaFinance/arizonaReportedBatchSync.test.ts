@@ -48,6 +48,12 @@ describe("Arizona independent component due selection",()=>{
     const result=await syncDueArizonaReportedFinance({db:db as any,now,refresh:true});expect(result.committeeWrittenCount).toBe(0);expect(result.ieWrittenCount).toBe(1);
     expect(h.factory).toHaveBeenCalledWith(expect.objectContaining({allowLive:false}));
   });
+  it("holds every selected component when source cache initialization fails",async()=>{
+    h.factory.mockRejectedValue(Object.assign(Error("EACCES: permission denied"),{code:"EACCES"}));
+    const result=await syncDueArizonaReportedFinance({db:db as any,now,refresh:true});
+    expect(result.attemptedCount).toBe(2);expect(result.writtenCount).toBe(0);expect(result.heldReasons).toEqual({source_unavailable:2});
+    expect(result.sourceUnavailableCount).toBe(2);expect(result.refreshFailedCount).toBe(2);expect(h.load).not.toHaveBeenCalled();
+  });
   it("reports unavailable source requests separately from context/closure holds",async()=>{
     h.load.mockImplementation(async(receiver,kind)=>{if(kind==="committee")throw new ArizonaReportedHold("source_unavailable");return{receiver,kind};});
     const result=await syncDueArizonaReportedFinance({db:db as any,now});expect(result.sourceUnavailableCount).toBe(1);expect(result.refreshFailedCount).toBe(0);expect(result.ieWrittenCount).toBe(1);
