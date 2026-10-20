@@ -114,7 +114,7 @@ function stubNearbyFetch({
       return respond(NEARBY_RESOLUTION);
     }
     if (path.startsWith("/api/ballot?")) {
-      expect(path).toBe("/api/ballot?district_ids=d-ca%2Cd-fresno&sort=vote_power");
+      expect(path).toMatch(/^\/api\/ballot\?district_ids=d-ca%2Cd-fresno&sort=(vote_power|district_size|district_size_smallest)$/);
       return respond({ district_ids: ["d-ca", "d-fresno"], districts: [], elections: NEARBY_ELECTIONS });
     }
     if (path === "/api/address/autocomplete") {
@@ -147,6 +147,21 @@ describe("HomePage nearby elections", () => {
     expect(screen.getByRole("link", { name: /^Governor/ })).toHaveAttribute("href", "/elections/e2");
     expect(screen.getByRole("link", { name: /Lieutenant Governor/ })).toHaveAttribute("href", "/elections/e3");
     expect(screen.queryByRole("link", { name: /Spring runoff/ })).not.toBeInTheDocument();
+  });
+
+  it("offers the ballot page's sorts and refetches the sample in the chosen one", async () => {
+    const fetchMock = stubNearbyFetch();
+    renderHome();
+    const select = await screen.findByRole("combobox", { name: "Sort by" });
+    expect(select).toHaveValue("vote_power");
+    expect(screen.getByRole("option", { name: "Biggest districts" })).toBeInTheDocument();
+    expect(screen.queryByRole("option", { name: /issues/i })).not.toBeInTheDocument();
+    await userEvent.setup().selectOptions(select, "district_size");
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith("/api/ballot?district_ids=d-ca%2Cd-fresno&sort=district_size", expect.anything())
+    );
+    // The district-size sort heads the cards with level sections.
+    expect(await screen.findByRole("button", { name: /City: Fresno/ })).toBeInTheDocument();
   });
 
   it("falls back to the city path when the point resolves nothing", async () => {

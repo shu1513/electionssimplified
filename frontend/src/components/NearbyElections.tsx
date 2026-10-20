@@ -1,14 +1,17 @@
+import { useState } from "react";
 import { useLocation } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
   apiRequest,
   formatElectionDate,
+  PUBLIC_BALLOT_SORTS,
   railSortForBallotSort,
   useElectionChoices,
   useMe,
   useMyResearchAreas,
 } from "@voteapp/api-client";
-import type { AddressResolution, BallotSummary, ElectionSummary, GeoHint } from "@voteapp/api-client";
+import type { AddressResolution, BallotSort, BallotSummary, ElectionSummary, GeoHint } from "@voteapp/api-client";
+import { track } from "../lib/usage";
 import { ElectionList } from "./ElectionCard";
 import { draftChoicesByElectionId, useBallotDraft } from "../lib/ballotDraft";
 import { usLatestLocalDate } from "../lib/usLatestLocalDate";
@@ -95,12 +98,14 @@ export function NearbyElections() {
   const districtIds = resolution.data?.districts.map((district) => district.id) ?? [];
   const districtKey = districtIds.join(",");
 
-  // Same key as BallotPage's default query, so a later search for the same
+  // The ballot page's public sorts, as local state: the home URL is
+  // edge-cached and personal to nobody, so the choice stays on the page.
+  const [sort, setSort] = useState<BallotSort>("vote_power");
+  // Same key as BallotPage's query, so a later search for the same
   // districts reads this response from cache.
   const ballot = useQuery({
-    queryKey: ["ballot", districtKey, "vote_power"],
-    queryFn: () =>
-      apiRequest<BallotSummary>(`/api/ballot?district_ids=${encodeURIComponent(districtKey)}&sort=vote_power`),
+    queryKey: ["ballot", districtKey, sort],
+    queryFn: () => apiRequest<BallotSummary>(`/api/ballot?district_ids=${encodeURIComponent(districtKey)}&sort=${sort}`),
     enabled: districtIds.length > 0,
     retry: false,
   });
@@ -123,12 +128,9 @@ export function NearbyElections() {
   // headings of its own.
   const allElections = ballot.data?.elections ?? [];
   const sampleDate = nearestDate(allElections, usLatestLocalDate());
-  // The ballot page's own default order and bands ("My vote power: High"),
-  // so the sample looks exactly like the page a search lands on. Other
-  // orders were tried and dropped: the printed order (California opens with
-  // state offices, so level labels repeated), biggest-district-first
-  // (measures above the Governor inside a level), and level groups with
-  // vote power inside.
+  // The ballot page's own order and bands ("My vote power: High", or the
+  // level sections of the district-size sorts), so the sample looks exactly
+  // like the page a search lands on.
   const elections = allElections.filter((election) => election.election_date === sampleDate);
   if (!location || !sampleDate || elections.length === 0) {
     return null;
@@ -147,6 +149,26 @@ export function NearbyElections() {
         Sample elections near {label} on {formatElectionDate(sampleDate)}
       </h2>
       <p className="mt-1 text-center text-sm text-ink">Enter address above for your full ballot</p>
+      {/* BallotPage's sort control, markup and all; the select changes the
+          ballot query's sort and ElectionList's grouping with it. */}
+      <label className="mt-4 flex items-center gap-2 text-sm text-ink-soft">
+        Sort by
+        <select
+          value={sort}
+          onChange={(event) => {
+            const next = event.target.value as BallotSort;
+            track("list_control", { control: "sort", value: next });
+            setSort(next);
+          }}
+          className="rounded-md border border-line bg-white px-2 py-1.5 text-sm text-ink focus:border-ink focus:outline-none"
+        >
+          {PUBLIC_BALLOT_SORTS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </label>
       <ElectionList
         elections={elections}
         hideDateHeadings
@@ -155,8 +177,8 @@ export function NearbyElections() {
         // A detail page's back link returns to this page as it was opened.
         backTo={{ path: here.pathname + here.search, label: "Home" }}
         raceType={null}
-        railSort={railSortForBallotSort("vote_power")}
-        sort="vote_power"
+        railSort={railSortForBallotSort(sort)}
+        sort={sort}
       />
     </section>
   );
