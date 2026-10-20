@@ -1,6 +1,7 @@
 import type { Pool, PoolClient } from "pg";
+import { overlayDcCommitteeFinance } from "./dcCommitteeReader.js";
 
-import { isDistrictOfColumbiaCampaignFinanceEnabled } from "../../config/featureFlags.js";
+import { isDcReportedCommitteeEnabled, isDistrictOfColumbiaCampaignFinanceEnabled } from "../../config/featureFlags.js";
 import type {
   BallotLookupFinanceSummary,
   StateFinanceRequestCandidateRow,
@@ -17,7 +18,7 @@ export async function loadDistrictOfColumbiaCandidateFinanceSummariesByCandidate
   candidateRows: readonly StateFinanceRequestCandidateRow[],
   electionRows: readonly StateFinanceRequestElectionRow[]
 ): Promise<Map<string, BallotLookupFinanceSummary>> {
-  return loadStandardStateFinanceSummariesByCandidateElection({
+  const loadLegacy = () => loadStandardStateFinanceSummariesByCandidateElection({
     db,
     candidateRows,
     electionRows,
@@ -57,4 +58,12 @@ export async function loadDistrictOfColumbiaCandidateFinanceSummariesByCandidate
       outsideGroupBreakdowns: "dc_candidate_finance_outside_group_breakdowns",
     },
   });
+  let summaries: Map<string, BallotLookupFinanceSummary>;
+  try {
+    summaries = await loadLegacy();
+  } catch (e) {
+    if (!isDcReportedCommitteeEnabled()) throw e;
+    summaries = new Map();
+  }
+  return overlayDcCommitteeFinance(db, summaries, candidateRows, electionRows);
 }

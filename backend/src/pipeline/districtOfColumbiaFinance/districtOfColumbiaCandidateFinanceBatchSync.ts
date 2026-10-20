@@ -1,4 +1,6 @@
 import type { Pool, PoolClient } from "pg";
+import { isDcReportedCommitteeEnabled } from "../../config/featureFlags.js";
+import { syncDueDcCommitteeFinance } from "./dcCommitteeBatchSync.js";
 
 import type { FinanceIndustryClassifier } from "../finance/financeIndustryClassificationService.js";
 import { createStandardStateFinanceDueListQuery } from "../finance/standardStateFinanceDueListQuery.js";
@@ -102,6 +104,7 @@ export type DistrictOfColumbiaCandidateFinanceBatchSyncItemResult = {
 };
 
 export type DistrictOfColumbiaCandidateFinanceBatchSyncResult = {
+  reportedCommittees?: Awaited<ReturnType<typeof syncDueDcCommitteeFinance>>;
   dryRun: boolean;
   now: string;
   staleAfterDays: number;
@@ -344,6 +347,17 @@ export async function syncDueDistrictOfColumbiaCandidateFinance(
     "electionLookaheadDays"
   );
   const dryRun = input.dryRun === true;
+  let reportedCommittees: DistrictOfColumbiaCandidateFinanceBatchSyncResult["reportedCommittees"];
+  if (isDcReportedCommitteeEnabled()) {
+    try {
+      reportedCommittees = await syncDueDcCommitteeFinance({
+        db: input.db, now, dryRun, maxCandidates, staleAfterDays,
+        electionLookaheadDays, electionLookbackDays: input.electionLookbackDays,
+      });
+    } catch {
+      console.warn("DC reported committee batch unavailable; continuing legacy finance sync");
+    }
+  }
   const syncFn = input.syncDistrictOfColumbiaCandidateFinanceFn ?? syncDistrictOfColumbiaCandidateFinance;
   const ocfDataByYear = new Map<number, DistrictOfColumbiaOcfDataForYear>(
     input.ocfDataByYear ? [...input.ocfDataByYear.entries()] : []
@@ -522,6 +536,7 @@ export async function syncDueDistrictOfColumbiaCandidateFinance(
     selectedCandidateCount: due.rows.length,
     syncedCandidateCount,
     failedCandidateCount: results.length - syncedCandidateCount,
+    reportedCommittees,
     autoLinkAttemptedCount,
     autoLinkLinkedCount,
     results,
