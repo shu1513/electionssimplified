@@ -41,6 +41,11 @@ describe("majorCityCoverage pre-filing empty search", () => {
     expect(isPreFilingEmptySearch({ ...base, asOfDate: "2026-08-01" })).toBe(false);
   });
 
+  it("stops flagging once the general election has passed", () => {
+    expect(isPreFilingEmptySearch({ ...base, asOfDate: "2026-11-03" })).toBe(true);
+    expect(isPreFilingEmptySearch({ ...base, asOfDate: "2026-11-04" })).toBe(false);
+  });
+
   it("skips state and county districts, which filed for the spring primary", () => {
     expect(isPreFilingEmptySearch({ ...base, districtType: "state_upper" })).toBe(false);
     expect(isPreFilingEmptySearch({ ...base, districtType: "county" })).toBe(false);

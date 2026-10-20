@@ -532,12 +532,15 @@ export async function loadDbDistricts(db: Queryable, wanted: MappedDistrict[]): 
 export const LOCAL_FILING_CLOSE_2026: Readonly<Record<string, string>> = {
   CA: "2026-08-12",
 };
+// The general those filings were for. The check is moot once it has passed.
+export const GENERAL_ELECTION_2026 = "2026-11-03";
 const LATE_FILING_DISTRICT_TYPES = new Set(["place", "school_elementary", "school_secondary", "school_unified", "local_special"]);
 
 /**
- * A district with no upcoming election whose last election search ran on or
- * before the state's local filing close: the empty result predates the
- * candidate list, so the district still needs election discovery.
+ * A district with no office race on the Nov 2026 general whose last election
+ * search ran on or before the state's local filing close: the empty result
+ * predates the candidate list, so the district still needs election
+ * discovery. Only applies between the filing close and election day.
  */
 export function isPreFilingEmptySearch(input: {
   state: string;
@@ -551,7 +554,8 @@ export function isPreFilingEmptySearch(input: {
     !filingClose ||
     !LATE_FILING_DISTRICT_TYPES.has(input.districtType) ||
     input.hasUpcomingElection ||
-    input.asOfDate <= filingClose
+    input.asOfDate <= filingClose ||
+    input.asOfDate > GENERAL_ELECTION_2026
   ) {
     return false;
   }
@@ -561,24 +565,20 @@ export function isPreFilingEmptySearch(input: {
   return usLatestLocalDateIso(new Date(input.lastElectionsSearchedAt)) <= filingClose;
 }
 
-// Office races only: a measure can qualify before candidate filing closes, so
-// a pre-filing search that found one still says nothing about the seats.
-async function loadDistrictsWithUpcomingElections(
-  db: Queryable,
-  districtIds: string[],
-  asOfDate: string,
-  horizonDays: number
-): Promise<Set<string>> {
+// Districts with an office race on the Nov 2026 general, the election the
+// filing close belongs to; the report horizon is irrelevant here. Office
+// races only: a measure can qualify before candidate filing closes, so a
+// pre-filing search that found one still says nothing about the seats.
+async function loadDistrictsWithGeneralOfficeRace(db: Queryable, districtIds: string[]): Promise<Set<string>> {
   const result = await db.query<{ district_id: string }>(
     `
       SELECT DISTINCT e.district_id::text AS district_id
       FROM public.elections AS e
       WHERE e.district_id = ANY($1::uuid[])
         AND e.race_type = 'office'
-        AND e.election_date >= $2::date
-        AND (e.election_date - $2::date)::int <= $3::int
+        AND e.election_date = $2::date
     `,
-    [districtIds, asOfDate, horizonDays]
+    [districtIds, GENERAL_ELECTION_2026]
   );
   return new Set(result.rows.map((row) => row.district_id));
 }
@@ -675,7 +675,7 @@ export async function buildCoverageReport(
     horizonDays: input.horizonDays,
   });
   const dueRosterDeferrals = await loadDueRosterDeferrals(db, input.asOfDate, districtIds);
-  const withUpcomingElections = await loadDistrictsWithUpcomingElections(db, districtIds, input.asOfDate, input.horizonDays);
+  const withGeneralOfficeRace = await loadDistrictsWithGeneralOfficeRace(db, districtIds);
 
   const staleCutoff = new Date(input.asOfDate);
   staleCutoff.setDate(staleCutoff.getDate() - 180);
@@ -785,7 +785,7 @@ export async function buildCoverageReport(
         state: row.state,
         districtType: row.district_type,
         lastElectionsSearchedAt: row.last_elections_searched_at,
-        hasUpcomingElection: withUpcomingElections.has(districtId),
+        hasUpcomingElection: withGeneralOfficeRace.has(districtId),
         asOfDate: input.asOfDate,
       })
     ) {
