@@ -202,7 +202,10 @@ export function NearbyElections() {
   // 42px on phones and 73px from `sm` up. Above the rule the hero's own
   // bottom padding gives 12px / 59px and the section's top padding makes up
   // the rest; below it the heading's margin is the full gap.
-  const sectionClass = "mx-auto max-w-3xl px-4 pt-[29px] pb-8 sm:pt-[14px]";
+  // The rule runs edge to edge; only the heading and list sit in the
+  // ballot page's column.
+  const sectionClass = "pt-[29px] pb-8 sm:pt-[14px]";
+  const columnClass = "mx-auto max-w-3xl px-4";
   const rule = <hr className="border-line" />;
   const headingClass = "mt-[42px] text-center text-heading font-bold text-ink sm:mt-[73px]";
   const caveat = <p className="mt-1 text-center text-sm text-ink">Enter address above to see your own elections</p>;
@@ -215,13 +218,15 @@ export function NearbyElections() {
     return (
       <section aria-labelledby="nearby-elections-heading" className={sectionClass}>
         {rule}
-        <h2 id="nearby-elections-heading" className={headingClass}>
-          Sample elections near {label}
-        </h2>
-        {caveat}
-        <div className="mt-[18px] flex justify-end">{sortControl}</div>
-        <div className="mt-4">
-          <ErrorNotice error={ballot.error} />
+        <div className={columnClass}>
+          <h2 id="nearby-elections-heading" className={headingClass}>
+            Sample elections in {label}
+          </h2>
+          {caveat}
+          <div className="mt-[18px] flex justify-end">{sortControl}</div>
+          <div className="mt-4">
+            <ErrorNotice error={ballot.error} />
+          </div>
         </div>
       </section>
     );
@@ -236,22 +241,24 @@ export function NearbyElections() {
   return (
     <section aria-labelledby="nearby-elections-heading" className={sectionClass}>
       {rule}
-      <h2 id="nearby-elections-heading" className={headingClass}>
-        Sample elections near {label} on {formatElectionDate(sampleDate)}
-      </h2>
-      {caveat}
-      <ElectionList
-        elections={elections}
-        hideDateHeadings
-        firstSectionAside={sortControl}
-        savedAreaWeights={savedAreaWeights}
-        choicesByElectionId={me === null ? draftChoicesByElectionId(draft) : choiceByElectionId}
-        // A detail page's back link returns to this page as it was opened.
-        backTo={{ path: here.pathname + here.search, label: "Home" }}
-        raceType={null}
-        railSort={railSortForBallotSort(sort)}
-        sort={sort}
-      />
+      <div className={columnClass}>
+        <h2 id="nearby-elections-heading" className={headingClass}>
+          Sample elections in {label} on {formatElectionDate(sampleDate)}
+        </h2>
+        {caveat}
+        <ElectionList
+          elections={elections}
+          hideDateHeadings
+          firstSectionAside={sortControl}
+          savedAreaWeights={savedAreaWeights}
+          choicesByElectionId={me === null ? draftChoicesByElectionId(draft) : choiceByElectionId}
+          // A detail page's back link returns to this page as it was opened.
+          backTo={{ path: here.pathname + here.search, label: "Home" }}
+          raceType={null}
+          railSort={railSortForBallotSort(sort)}
+          sort={sort}
+        />
+      </div>
     </section>
   );
 }
