@@ -533,8 +533,22 @@ export function ElectionList({
         ))}
       </SeatRun>
     ));
+  // Whether the first date group has a section row to carry the aside: a
+  // level run (district-size sorts) or a vote-power band. A retention-only
+  // or all-awaiting date has neither, and the plain-card branch always
+  // renders it; otherwise the aside gets its own row above the list, so a
+  // caller whose only control it is (the home sample's sort) keeps it.
+  const firstGroup = groups[0];
+  const asideInSection =
+    firstGroup !== undefined &&
+    (levelSections
+      ? splitLevelRuns(firstGroup.contested).length > 0
+      : votePowerDates.has(firstGroup.date)
+        ? splitVotePowerGroups(firstGroup.contested).length > 0
+        : true);
   return (
     <div className="mt-[18px] space-y-[29px]">
+      {firstSectionAside && !asideInSection ? <div className="flex justify-end">{firstSectionAside}</div> : null}
       {groups.map((group, groupIndex) => (
         // One date section, with grouped retention after its contested races.
         <section key={group.date}>

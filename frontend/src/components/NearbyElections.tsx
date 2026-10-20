@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "react-router";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import {
   apiRequest,
   formatElectionDate,
@@ -15,6 +15,16 @@ import { track } from "../lib/usage";
 import { ElectionList } from "./ElectionCard";
 import { draftChoicesByElectionId, useBallotDraft } from "../lib/ballotDraft";
 import { usLatestLocalDate } from "../lib/usLatestLocalDate";
+
+// Where the sample points when the edge has no usable location for the
+// visitor (outside the US, a VPN exit it cannot place, a backend reached
+// without the Worker): Los Angeles City Hall, 200 N Spring St. A sample is
+// an example, and the biggest city's ballot is the most recognizable one.
+const DEFAULT_LOCATION: NonNullable<GeoHint["location"]> = {
+  state: "CA",
+  city: "Los Angeles",
+  coordinates: { lat: 34.0537, lng: -118.2427 },
+};
 
 /** The nearest election date on or after today, else the latest one. */
 function nearestDate(elections: Pick<ElectionSummary, "election_date">[], today: string): string | null {
@@ -39,11 +49,12 @@ function nearestDate(elections: Pick<ElectionSummary, "election_date">[], today:
  * fails), then the ballot for those districts in the vote-power order,
  * rendered by the same ElectionList the ballot page uses.
  *
- * Renders nothing until the list is ready and nothing at all when any hop
- * fails or comes back empty: no hint (local dev 404s the path unless
- * DEV_GEO_HINT is set; VPNs and non-US visitors get null), an unsupported
- * region, no upcoming races. No skeleton — the block appears under the hero
- * when it is ready rather than shifting the page while it loads.
+ * Renders nothing until the list is ready and nothing at all when the
+ * resolve or ballot hop fails or comes back empty. A missing hint (local
+ * dev 404s the path unless DEV_GEO_HINT is set; VPNs and non-US visitors
+ * get null) falls back to DEFAULT_LOCATION. No skeleton — the block appears
+ * under the hero when it is ready rather than shifting the page while it
+ * loads.
  */
 export function NearbyElections() {
   const hint = useQuery({
@@ -52,7 +63,9 @@ export function NearbyElections() {
     retry: false,
     staleTime: Infinity,
   });
-  const location = hint.data?.location ?? null;
+  // Null only while the hint is still in flight; once it has settled with no
+  // location (or failed), the sample points at the default.
+  const location = hint.data?.location ?? (hint.isPending ? null : DEFAULT_LOCATION);
 
   const resolution = useQuery({
     queryKey: ["nearby-resolve", location?.state ?? "", location?.city ?? ""],
@@ -72,10 +85,15 @@ export function NearbyElections() {
       // coordinates.
       if (location.coordinates) {
         try {
-          return await apiRequest<AddressResolution>("/api/address/resolve", {
+          const pointResolution = await apiRequest<AddressResolution>("/api/address/resolve", {
             method: "POST",
             body: { address, allow_partial: true, coordinates: location.coordinates },
           });
+          // A point can resolve to keys with no district rows (200, empty):
+          // that is nothing to show, so the city path gets its turn too.
+          if (pointResolution.districts.length > 0) {
+            return pointResolution;
+          }
         } catch {
           // The point matched no geography, or the geocoder is down: the
           // city path below still gives the statewide and city races.
@@ -95,7 +113,7 @@ export function NearbyElections() {
     retry: false,
     staleTime: Infinity,
   });
-  const districtIds = resolution.data?.districts.map((district) => district.id) ?? [];
+  const districtIds = (resolution.data?.districts ?? []).map((district) => district.id);
   const districtKey = districtIds.join(",");
 
   // The ballot page's public sorts, as local state: the home URL is
@@ -108,6 +126,10 @@ export function NearbyElections() {
     queryFn: () => apiRequest<BallotSummary>(`/api/ballot?district_ids=${encodeURIComponent(districtKey)}&sort=${sort}`),
     enabled: districtIds.length > 0,
     retry: false,
+    // A sort change swaps the key; the old list stays rendered (and with it
+    // the select the visitor just used) until the new order lands, instead
+    // of the whole section unmounting for the round trip.
+    placeholderData: keepPreviousData,
   });
 
   // The same personalization inputs BallotPage hands the cards: saved
