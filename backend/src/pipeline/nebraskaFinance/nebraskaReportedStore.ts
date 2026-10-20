@@ -381,9 +381,13 @@ export async function writeNebraskaReportedComponent(input: {
           oldFacts.financial.observedAt <= v.facts.financial.observedAt,
         "older_source",
       );
+      // Same originals under a changed canonical receiver (alias, legacy name,
+      // owner count) are rewritten below; the stored row would otherwise fail
+      // its receiver binding on every read until the cached packets expire.
       if (
         oldFacts.registry.observedAt === v.facts.registry.observedAt &&
-        oldFacts.financial.observedAt === v.facts.financial.observedAt
+        oldFacts.financial.observedAt === v.facts.financial.observedAt &&
+        isDeepStrictEqual(old.receiver_context, v.receiver)
       ) {
         const rows = (
           await c.query(
