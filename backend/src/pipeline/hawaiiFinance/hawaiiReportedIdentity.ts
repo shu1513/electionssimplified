@@ -10,9 +10,11 @@ export function hiDirectLinkSeatMatches(seat: HawaiiReportedSeat & { linkOffice:
     && (seat.officeScope === "statewide" ? !seat.linkDistrict : normalizeHawaiiCscDistrict(seat.linkDistrict) === seat.canonicalDistrict);
 }
 
-export const hiPersonKey = (value: string): string => value.normalize("NFKD").replace(/\p{M}/gu, "")
-  .toUpperCase().replace(/['\u2018\u2019\u02bb`]/g, "").replace(/[^A-Z0-9]+/g, " ")
-  .replace(/\b(JR|SR|II|III|IV)\b/g, " ").replace(/\s+/g, " ").trim();
+/** Generation-preserving key: "Doe, John Jr." and "Doe, John Sr." stay two people. */
+export const hiPersonIdentityKey = (value: string): string => value.normalize("NFKD").replace(/\p{M}/gu, "")
+  .toUpperCase().replace(/['\u2018\u2019\u02bb`]/g, "").replace(/[^A-Z0-9]+/g, " ").replace(/\s+/g, " ").trim();
+export const hiPersonKey = (value: string): string =>
+  hiPersonIdentityKey(value).replace(/\b(JR|SR|II|III|IV)\b/g, " ").replace(/\s+/g, " ").trim();
 export function hiPersonMatches(name: string, aliases: readonly string[]): boolean {
   const suffixes = (s: string) => [...s.toUpperCase().matchAll(/\b(?:JR|SR|II|III|IV)\b/g)].map(m => m[0]);
   const named = suffixes(name), official = new Set(aliases.flatMap(suffixes));

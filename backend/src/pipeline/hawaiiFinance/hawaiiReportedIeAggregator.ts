@@ -1,6 +1,6 @@
 import { hiAdd, hiCents, hiDay, hiHold, hiNameKey, hiRequired } from "./hawaiiReportedCore.js";
 import type { HawaiiPublishedRow } from "./hawaiiReportedCommitteeAggregator.js";
-import { hiOfficialContest, hiPersonKey, hiPersonMatches, qualifyHawaiiOfficialReceiver,
+import { hiOfficialContest, hiPersonIdentityKey, hiPersonKey, hiPersonMatches, qualifyHawaiiOfficialReceiver,
   type HawaiiOfficialCandidate, type HawaiiReportedSeat } from "./hawaiiReportedIdentity.js";
 
 export type HawaiiIeGroup = { key: string; name: string; stance: "support" | "oppose"; cents: number; occurrences: number };
@@ -40,7 +40,10 @@ export function aggregateHawaiiReportedIe(input: {
   if (input.electionPeriod !== "2024-2026") hiHold("ie_election_period");
   const start = hiDay(input.windowStart), end = hiDay(input.windowEnd), asOf = hiDay(input.asOfDay);
   if (start !== "2024-11-06" || end !== "2026-11-03" || asOf < start) hiHold("ie_window");
-  const official = qualifyHawaiiOfficialReceiver(input), aliases = [official.legalName, official.ballotName];
+  // Canonical names stay in the alias set: an official roster that omits the
+  // middle name must not let "Rowan B." spending land on canonical "Rowan A.".
+  const official = qualifyHawaiiOfficialReceiver(input);
+  const aliases = [official.legalName, official.ballotName, input.candidateName, input.fullName];
   const rows = input.rows.filter(r => r.election_period === input.electionPeriod);
   if (!rows.length) hiHold("expense_population_missing");
   const seen = new Set<string>(), ledgers = new Map<string, { rows: number; cents: number; name: string }>();
@@ -71,7 +74,7 @@ export function aggregateHawaiiReportedIe(input: {
     const target = hiRequired(r.candidate_name_s), stance = hiRequired(r.support_oppose);
     if (!["Support", "Oppose"].includes(stance)) hiHold("unknown_ie_stance");
     const matches = targetMatches(target, input.roster);
-    const identities = new Map(matches.map(o => [JSON.stringify([hiPersonKey(o.legalName), o.contest]), o]));
+    const identities = new Map(matches.map(o => [JSON.stringify([hiPersonIdentityKey(o.legalName), o.contest]), o]));
     if (jointOrGroup(target) || identities.size !== 1) {
       if (mayRefer(target, aliases) || jointOrGroup(target)) hiHold("unallocable_ie_target");
       continue;

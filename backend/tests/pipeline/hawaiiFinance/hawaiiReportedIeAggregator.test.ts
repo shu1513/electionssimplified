@@ -59,6 +59,19 @@ describe("Hawaii independent reported spending", () => {
     const i = input(); i.roster = [{ ...official, legalName: "Synthetic, Rowan B." }];
     expect(() => aggregateHawaiiReportedIe(i)).toThrow("official_receiving_seat");
   });
+  it("holds a middle-name conflict with the canonical name when the official roster omits the middle", () => {
+    const i = input([row("b", { candidate_name_s: "Rowan B. Synthetic" })]);
+    i.roster = [{ ...official, legalName: "Synthetic, Rowan" }];
+    expect(() => aggregateHawaiiReportedIe(i)).toThrow("contradictory_ie_alias");
+    expect(aggregateHawaiiReportedIe({ ...i, rows: [row("a")], parentControls: input([row("a")]).parentControls }).totalCents).toBe(10_025);
+  });
+  it("keeps Jr. and Sr. in the same contest as two identities for an unsuffixed target", () => {
+    const sr = { ...official, legalName: "Synthetic, Rowan A. Sr.", ballotName: "SYNTHETIC, Rowan Sr." };
+    const jr = { ...official, legalName: "Synthetic, Rowan A. Jr.", ballotName: "SYNTHETIC, Rowan Jr." };
+    const i = { ...input(), candidateName: "Rowan Synthetic Sr.", fullName: "Rowan A. Synthetic Sr.", roster: [jr, sr] };
+    expect(() => aggregateHawaiiReportedIe(i)).toThrow("unallocable_ie_target");
+    expect(aggregateHawaiiReportedIe({ ...i, rows: [row("sr", { candidate_name_s: "Rowan A. Synthetic Sr." })] }).totalCents).toBe(10_025);
+  });
   it("holds cross-seat name ambiguity instead of assigning by canonical district alone", () => {
     const i = input(); i.roster.push({ ...official, contest: "STATE REPRESENTATIVE, DIST 98" });
     expect(() => aggregateHawaiiReportedIe(i)).toThrow("unallocable_ie_target");
