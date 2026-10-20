@@ -205,7 +205,7 @@ export function NearbyElections() {
   const sectionClass = "mx-auto max-w-3xl px-4 pt-[29px] pb-8 sm:pt-[14px]";
   const rule = <hr className="border-line" />;
   const headingClass = "mt-[42px] text-center text-heading font-bold text-ink sm:mt-[73px]";
-  const caveat = <p className="mt-1 text-center text-sm text-ink">Enter address above to see your own elections</p>;
+  const caveat = <p className="mt-1 text-center text-sm text-ink">Enter address in the search bar above to see your own elections</p>;
 
   // A failed ballot fetch (a sort change during a Render cold start, say)
   // must not take the block and its only control with it: the heading,
