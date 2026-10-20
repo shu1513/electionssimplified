@@ -362,7 +362,6 @@ export function ElectionList({
   railSort,
   sort,
   hideDateHeadings = false,
-  levelSections: levelSectionsRequested,
 }: {
   elections: ElectionSummary[];
   /** District-size sorts group by level. Vote-power groups appear only
@@ -405,11 +404,6 @@ export function ElectionList({
    * caller whose own heading already names the one date it shows (the home
    * page's nearby sample). */
   hideDateHeadings?: boolean;
-  /** Head the cards with government-level sections ("Federal", "State:
-   * California", "County: …") under any sort — for a caller that already
-   * ordered its list by level (the home page's sample). Sections follow the
-   * payload's runs, never a reorder. */
-  levelSections?: boolean;
 }) {
   const {
     listState,
@@ -434,7 +428,7 @@ export function ElectionList({
   // Navigation uses the same qualifying dates as the displayed list,
   // even when its pool includes races hidden by the active tab.
   const pool = groupListElections(contestsPool ?? elections, votePowerDates);
-  const levelSections = levelSectionsRequested ?? (sort === "district_size" || sort === "district_size_smallest");
+  const levelSections = sort === "district_size" || sort === "district_size_smallest";
   // Every contest carries its government level and the section label the
   // district-size sorts head that level with ("City: Berkeley"), under EVERY
   // list sort: the rail offers the district sorts from any arrival, ordering

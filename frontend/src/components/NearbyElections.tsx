@@ -2,8 +2,6 @@ import { useLocation } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
   apiRequest,
-  BALLOT_LEVELS,
-  ballotLevel,
   formatElectionDate,
   railSortForBallotSort,
   useElectionChoices,
@@ -14,17 +12,6 @@ import type { AddressResolution, BallotSummary, ElectionSummary, GeoHint } from 
 import { ElectionList } from "./ElectionCard";
 import { draftChoicesByElectionId, useBallotDraft } from "../lib/ballotDraft";
 import { usLatestLocalDate } from "../lib/usLatestLocalDate";
-
-/** The index of a race's government level in BALLOT_LEVELS (biggest first). */
-function levelRank(election: ElectionSummary): number {
-  const level = ballotLevel(
-    election.office?.scope,
-    election.district.district_type,
-    election.discovery_contest_family,
-    election.office?.canonical_name
-  );
-  return BALLOT_LEVELS.findIndex((option) => option.key === level);
-}
 
 /** The nearest election date on or after today, else the latest one. */
 function nearestDate(elections: Pick<ElectionSummary, "election_date">[], today: string): string | null {
@@ -46,8 +33,7 @@ function nearestDate(elections: Pick<ElectionSummary, "election_date">[], today:
  * Cloudflare's point for the visitor's IP, see GeoHint), the address API's
  * district lookup for that point (every district type, like a street
  * address; the region partial-ballot path for the city when the point
- * fails), then the ballot for those districts, grouped by level with the
- * vote-power order inside each,
+ * fails), then the ballot for those districts in the vote-power order,
  * rendered by the same ElectionList the ballot page uses.
  *
  * Renders nothing until the list is ready and nothing at all when any hop
@@ -109,7 +95,8 @@ export function NearbyElections() {
   const districtIds = resolution.data?.districts.map((district) => district.id) ?? [];
   const districtKey = districtIds.join(",");
 
-  // The anonymous vote-power order; the level grouping is applied below.
+  // Same key as BallotPage's default query, so a later search for the same
+  // districts reads this response from cache.
   const ballot = useQuery({
     queryKey: ["ballot", districtKey, "vote_power"],
     queryFn: () =>
@@ -136,17 +123,13 @@ export function NearbyElections() {
   // headings of its own.
   const allElections = ballot.data?.elections ?? [];
   const sampleDate = nearestDate(allElections, usLatestLocalDate());
-  // Biggest level first (Federal, State, County, City), each under its own
-  // label once, and inside a level the ballot's own vote-power order: a
-  // stable sort by level over the vote_power payload. The printed order was
-  // tried and dropped (California opens with state offices, so the labels
-  // repeated), and so was the district-size sort (it puts measures above
-  // the Governor inside a level).
-  const elections = allElections
-    .filter((election) => election.election_date === sampleDate)
-    .map((election, index) => ({ election, index, level: levelRank(election) }))
-    .sort((a, b) => a.level - b.level || a.index - b.index)
-    .map((entry) => entry.election);
+  // The ballot page's own default order and bands ("My vote power: High"),
+  // so the sample looks exactly like the page a search lands on. Other
+  // orders were tried and dropped: the printed order (California opens with
+  // state offices, so level labels repeated), biggest-district-first
+  // (measures above the Governor inside a level), and level groups with
+  // vote power inside.
+  const elections = allElections.filter((election) => election.election_date === sampleDate);
   if (!location || !sampleDate || elections.length === 0) {
     return null;
   }
@@ -167,13 +150,13 @@ export function NearbyElections() {
       <ElectionList
         elections={elections}
         hideDateHeadings
-        levelSections
         savedAreaWeights={savedAreaWeights}
         choicesByElectionId={me === null ? draftChoicesByElectionId(draft) : choiceByElectionId}
         // A detail page's back link returns to this page as it was opened.
         backTo={{ path: here.pathname + here.search, label: "Home" }}
         raceType={null}
         railSort={railSortForBallotSort("vote_power")}
+        sort="vote_power"
       />
     </section>
   );
