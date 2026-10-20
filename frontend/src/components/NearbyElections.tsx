@@ -1,3 +1,4 @@
+import { useLocation } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
   apiRequest,
@@ -95,6 +96,10 @@ export function NearbyElections() {
   const { choiceByElectionId } = useElectionChoices();
   const { me } = useMe();
   const draft = useBallotDraft();
+  // The home URL as loaded, query included: a verified user's one-off visit
+  // is /?new=1, and a back link to a bare "/" would redirect them to their
+  // saved ballot instead of this page.
+  const here = useLocation();
 
   // One date only — the nearest upcoming one (or the latest past one while
   // the list still holds just-finished races): a sample, not the whole
@@ -125,8 +130,8 @@ export function NearbyElections() {
         hideDateHeadings
         savedAreaWeights={savedAreaWeights}
         choicesByElectionId={me === null ? draftChoicesByElectionId(draft) : choiceByElectionId}
-        // A detail page's back link returns to the home page.
-        backTo={{ path: "/", label: "Home" }}
+        // A detail page's back link returns to this page as it was opened.
+        backTo={{ path: here.pathname + here.search, label: "Home" }}
         raceType={null}
         railSort={railSortForBallotSort("vote_power")}
         sort="vote_power"

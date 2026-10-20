@@ -162,6 +162,30 @@ describe("HomePage nearby elections", () => {
     expect(screen.queryByRole("heading", { level: 2 })).not.toBeInTheDocument();
   });
 
+  it("sends a sample card's back link to the home URL as opened, ?new=1 included", async () => {
+    stubNearbyFetch();
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const router = createMemoryRouter(
+      [
+        { path: "/", element: <HomePage /> },
+        { path: "/elections/:id", element: <p>election</p> },
+      ],
+      { initialEntries: ["/?new=1"] }
+    );
+    render(
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
+    );
+    await userEvent.setup().click(await screen.findByRole("link", { name: /Mayor of Fresno/ }));
+    await waitFor(() => expect(router.state.location.pathname).toBe("/elections/e1"));
+    // A bare "/" would bounce a verified one-off visitor to /me/ballot.
+    expect((router.state.location.state as { backTo: { path: string; label: string } }).backTo).toEqual({
+      path: "/?new=1",
+      label: "Home",
+    });
+  });
+
   it("skips the lookups for a verified user, who is leaving for the saved ballot", async () => {
     const fetchMock = stubNearbyFetch();
     fetchMock.mockImplementation(async (path: string) => ({
