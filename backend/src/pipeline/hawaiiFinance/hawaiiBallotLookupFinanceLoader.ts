@@ -7,6 +7,8 @@ import type {
   StateFinanceRequestElectionRow,
 } from "../address/ballotLookupFinanceShared.js";
 import { loadStandardStateFinanceSummariesByCandidateElection } from "../finance/standardStateFinanceBallotLookupLoader.js";
+import { buildStateFinanceSummaryRequests } from "../address/ballotLookupFinanceShared.js";
+import { attachHawaiiReportedFinance } from "./hawaiiReportedReader.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
@@ -17,7 +19,7 @@ export async function loadHawaiiCandidateFinanceSummariesByCandidateElection(
   candidateRows: readonly StateFinanceRequestCandidateRow[],
   electionRows: readonly StateFinanceRequestElectionRow[]
 ): Promise<Map<string, BallotLookupFinanceSummary>> {
-  return loadStandardStateFinanceSummariesByCandidateElection({
+  const summaries = await loadStandardStateFinanceSummariesByCandidateElection({
     db,
     candidateRows,
     electionRows,
@@ -34,4 +36,5 @@ export async function loadHawaiiCandidateFinanceSummariesByCandidateElection(
       outsideGroupBreakdowns: "hi_candidate_finance_outside_group_breakdowns",
     },
   });
+  return attachHawaiiReportedFinance({ db, requests: buildStateFinanceSummaryRequests("HI", candidateRows, electionRows), summaries });
 }

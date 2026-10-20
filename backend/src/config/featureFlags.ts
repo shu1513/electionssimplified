@@ -380,6 +380,12 @@ export const isSanJoseCampaignFinanceRawDataRefreshEnabled = sanJoseFinance.gate
 const hawaiiFinance = defineStateFinanceFlagPair("HAWAII_CAMPAIGN_FINANCE");
 export const isHawaiiCampaignFinanceEnabled = hawaiiFinance.isEnabled;
 export const isHawaiiCampaignFinanceSyncEnabled = hawaiiFinance.isSyncEnabled;
+export const isHawaiiReportedCommitteeEnabled = (): boolean =>
+  isCandidateFinanceEnabled() && hawaiiFinance.isEnabled() && readBooleanEnv("HAWAII_REPORTED_COMMITTEE_ENABLED", false);
+export const isHawaiiIndependentIeEnabled = (): boolean =>
+  isCandidateFinanceEnabled() && hawaiiFinance.isEnabled() && readBooleanEnv("HAWAII_INDEPENDENT_IE_ENABLED", false);
+export const isHawaiiReportedRawRefreshEnabled = (): boolean =>
+  isCandidateFinanceEnabled() && hawaiiFinance.isEnabled() && readBooleanEnv("HAWAII_REPORTED_RAW_REFRESH_ENABLED", false);
 
 const districtOfColumbiaFinance = defineStateFinanceFlagPair("DISTRICT_OF_COLUMBIA_CAMPAIGN_FINANCE");
 export const isDistrictOfColumbiaCampaignFinanceEnabled = districtOfColumbiaFinance.isEnabled;
