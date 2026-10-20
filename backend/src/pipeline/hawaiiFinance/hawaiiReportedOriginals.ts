@@ -1,6 +1,6 @@
-import { appendFile, lstat, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { appendFile, lstat, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
-import { resolve } from "node:path";
+import { basename, resolve } from "node:path";
 import { hiHash, hiHold } from "./hawaiiReportedCore.js";
 
 export type HawaiiOriginal = { role: string; file: string; method: "GET" | "POST"; status: number; contentType: string | null;
@@ -89,6 +89,12 @@ export async function readHawaiiOriginalGraph(directory: string): Promise<Hawaii
     return new TextDecoder("utf-8", { fatal: true }).decode(bytes);
   };
   return originalGraph(directory, records, read);
+}
+/** Release a capture that failed qualification or was superseded by a newer
+ * qualified one. Only this module's own directories are removed; never throws. */
+export async function discardHawaiiOriginalGraph(directory: string): Promise<void> {
+  if (!/^source-originals-[a-f0-9-]{36}$/.test(basename(directory))) return;
+  await rm(directory, { recursive: true, force: true }).catch(() => {});
 }
 export async function listHawaiiOriginalDirectories(cache: string): Promise<string[]> {
   const names = await readdir(cache).catch(() => [] as string[]), eligible: { path: string; clock: number }[] = [];

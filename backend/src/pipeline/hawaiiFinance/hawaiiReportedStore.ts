@@ -38,10 +38,13 @@ export async function writeHawaiiReportedComponent(input: {
     if (prior.length) {
       const old = prior[0]!, clock = new Date(old.source_observed_at).toISOString();
       if (clock > source.sourceAt) hiHold("older_source");
-      if (clock === source.sourceAt) {
+      // The same source for the same receiver must reproduce the same money. A
+      // corrected link or seat is a new receiver observation: it replaces the
+      // stored one even at an equal source clock, after the live-context lock.
+      if (clock === source.sourceAt && hawaiiReportedReceiverContext(old.receiver_context, source.packet.kind) === hawaiiReportedReceiverContext(receiver, source.packet.kind)) {
         const stored = (await c.query<HawaiiReportedGroup>(`SELECT group_key key,reported_name name,source_class "sourceClass",evidence,stance,amount_cents::float8 cents,occurrence_count occurrences FROM public.hi_reported_finance_groups WHERE ${HI_COMPONENT_WHERE} ORDER BY group_key`, key)).rows;
         const sorted = (rows: HawaiiReportedGroup[]) => [...rows].sort((a, b) => a.key.localeCompare(b.key));
-        if (hawaiiReportedReceiverContext(old.receiver_context, source.packet.kind) !== hawaiiReportedReceiverContext(receiver, source.packet.kind) || hiCanonical(old.source_facts) !== hiCanonical(facts)
+        if (hiCanonical(old.source_facts) !== hiCanonical(facts)
           || hiCanonical(old.aggregation_controls) !== hiCanonical(controls) || hiCanonical(sorted(stored)) !== hiCanonical(sorted(groups))) hiHold("equal_source_conflict");
         await c.query("COMMIT"); begun = false; return { groups: groups.length, idempotent: true };
       }

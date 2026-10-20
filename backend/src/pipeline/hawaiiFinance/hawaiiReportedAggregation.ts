@@ -3,7 +3,7 @@ import { aggregateHawaiiReportedCommittees } from "./hawaiiReportedCommitteeAggr
 import { aggregateHawaiiReportedIe } from "./hawaiiReportedIeAggregator.js";
 import { hiDirectLinkSeatMatches, hiPersonMatches, qualifyHawaiiOfficialReceiver } from "./hawaiiReportedIdentity.js";
 import { isHawaiiReportedPacket, hawaiiReportedCacheRoot, hiGraphFacts, type HawaiiReportedPacket } from "./hawaiiReportedSource.js";
-import { createHawaiiOriginalGraph, listHawaiiOriginalDirectories, readHawaiiOriginalGraph, type HawaiiOriginalGraph } from "./hawaiiReportedOriginals.js";
+import { createHawaiiOriginalGraph, discardHawaiiOriginalGraph, listHawaiiOriginalDirectories, readHawaiiOriginalGraph, type HawaiiOriginalGraph } from "./hawaiiReportedOriginals.js";
 import { readHawaiiNativeFiler } from "./hawaiiReportedProtocol.js";
 import { isHawaiiReportedRawRefreshEnabled } from "../../config/featureFlags.js";
 import { hawaiiReportedReceiverContext, type HawaiiReportedReceiver } from "./hawaiiReportedReceiver.js";
@@ -65,13 +65,21 @@ export async function loadHawaiiReceiverPacket(packet: HawaiiReportedPacket, rec
       profileHash: f.sourceHash, nativeLedgerCents: sum };
     hiFreeze(v); receivers.add(v); return v;
   }
-  let saved: HawaiiReceiverPacket | null = null;
+  let saved: HawaiiReceiverPacket | null = null, savedDirectory: string | null = null;
   for (const directory of await listHawaiiOriginalDirectories(cache)) {
-    try { const g = await readHawaiiOriginalGraph(directory); if (g.records[0]?.role !== "receiver_registry_root") continue; saved = await qualify(g); break; }
+    try { const g = await readHawaiiOriginalGraph(directory); if (g.records[0]?.role !== "receiver_registry_root") continue; saved = await qualify(g); savedDirectory = directory; break; }
     catch { /* another receiver or incomplete original graph */ }
   }
   if ((!saved || options.refresh || Date.now() - Date.parse(saved.profileAt) >= 86400000) && isHawaiiReportedRawRefreshEnabled()) {
-    try { return await qualify(await createHawaiiOriginalGraph(cache)); } catch (e) { if (!saved) throw e; }
+    // Same release rule as loadHawaiiReportedPacket: a failed or superseded
+    // receiver capture is removed instead of being replayed by every receiver.
+    let fresh: HawaiiOriginalGraph | null = null;
+    try {
+      fresh = await createHawaiiOriginalGraph(cache);
+      const packet = await qualify(fresh);
+      if (savedDirectory) await discardHawaiiOriginalGraph(savedDirectory);
+      return packet;
+    } catch (e) { if (fresh) await discardHawaiiOriginalGraph(fresh.directory); if (!saved) throw e; }
   }
   if (!saved) hiHold("native_receiving_control_unavailable"); return saved;
 }

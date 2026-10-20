@@ -6,6 +6,9 @@ import {
 } from "../../../src/pipeline/hawaiiFinance/hawaiiCandidateFinanceBatchSync.js";
 import type { HawaiiCandidateCommitteeResolution } from "../../../src/pipeline/hawaiiFinance/hawaiiCandidateCommitteeResolver.js";
 
+const reported = vi.hoisted(() => ({ sync: vi.fn() }));
+vi.mock("../../../src/pipeline/hawaiiFinance/hawaiiReportedBatchSync.js", () => ({ syncDueHawaiiReportedFinance: reported.sync }));
+
 const NOW = new Date("2026-06-01T00:00:00.000Z");
 const SOURCE_URL = "https://hicscdata.hawaii.gov/resource/jexd-xbcg.json";
 const CANDIDATE_ID = "11111111-1111-4111-8111-111111111111";
@@ -132,6 +135,17 @@ describe("hawaiiCandidateFinanceBatchSync", () => {
         "state_lower::State Lower Chamber Legislator",
       ]),
     ]);
+  });
+
+  it("isolates a reported-component failure from the legacy batch", async () => {
+    reported.sync.mockRejectedValueOnce(new Error('relation "hi_reported_finance_components" does not exist'));
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const db = { query: vi.fn(async () => ({ rows: [], rowCount: 0 })), connect: vi.fn() };
+    const result = await syncDueHawaiiCandidateFinance({ db, now: NOW, autoLinkMissingLinks: false, syncHawaiiCandidateFinanceFn: vi.fn() as never });
+    expect(result.reportedFinanceError).toContain("hi_reported_finance_components");
+    expect(result.reportedFinance).toBeUndefined();
+    expect(db.query).toHaveBeenCalledTimes(1);
+    error.mockRestore();
   });
 
   it("uses one post-election grace day by default", async () => {

@@ -2,7 +2,7 @@ import { mkdir } from "node:fs/promises";
 import { resolve } from "node:path";
 import { isHawaiiReportedRawRefreshEnabled } from "../../config/featureFlags.js";
 import { hiAdd, hiCents as hiSourceCents, hiFreeze, hiHash, hiHawaiiDay, hiHold, HawaiiReportedHold, type HawaiiReportedKind } from "./hawaiiReportedCore.js";
-import { createHawaiiOriginalGraph, isHawaiiOriginalGraph, listHawaiiOriginalDirectories, readHawaiiOriginalGraph, type HawaiiOriginalGraph } from "./hawaiiReportedOriginals.js";
+import { createHawaiiOriginalGraph, discardHawaiiOriginalGraph, isHawaiiOriginalGraph, listHawaiiOriginalDirectories, readHawaiiOriginalGraph, type HawaiiOriginalGraph } from "./hawaiiReportedOriginals.js";
 import { readHawaiiNativeFiler, readHawaiiRegistry, readHawaiiRoster, readHawaiiSoda } from "./hawaiiReportedProtocol.js";
 import type { HawaiiNativeRegistryRow } from "./hawaiiReportedNative.js";
 import type { HawaiiPublishedRow } from "./hawaiiReportedCommitteeAggregator.js";
@@ -62,17 +62,27 @@ export async function loadHawaiiReportedPacket(kind: HawaiiReportedKind, options
   cacheDir?: string; refresh?: boolean; onRefreshError?: (code: string) => void;
 } = {}): Promise<HawaiiReportedPacket | null> {
   const cache = hawaiiReportedCacheRoot(options.cacheDir); await mkdir(cache, { recursive: true, mode: 0o700 });
-  let saved: HawaiiReportedPacket | null = null;
+  let saved: HawaiiReportedPacket | null = null, savedDirectory: string | null = null;
   for (const directory of await listHawaiiOriginalDirectories(cache)) {
     try {
       const g = await readHawaiiOriginalGraph(directory);
       if (g.records[0]?.role !== kind + "_soda_metadata_opening") continue;
-      saved = await qualifyHawaiiReportedGraph(g, kind); break;
+      saved = await qualifyHawaiiReportedGraph(g, kind); savedDirectory = directory; break;
     } catch { /* incomplete/failed graphs never authorize money */ }
   }
   if ((!saved || options.refresh || Date.now() - Date.parse(saved.capturedAt) >= 86400000) && isHawaiiReportedRawRefreshEnabled()) {
-    try { return await qualifyHawaiiReportedGraph(await createHawaiiOriginalGraph(cache), kind); }
-    catch (e) { options.onRefreshError?.(e instanceof HawaiiReportedHold ? e.code : "source_unavailable"); }
+    // A failed capture never authorizes money and is not replayed again; the
+    // superseded qualified capture is released once its replacement qualifies.
+    let fresh: HawaiiOriginalGraph | null = null;
+    try {
+      fresh = await createHawaiiOriginalGraph(cache);
+      const packet = await qualifyHawaiiReportedGraph(fresh, kind);
+      if (savedDirectory) await discardHawaiiOriginalGraph(savedDirectory);
+      return packet;
+    } catch (e) {
+      if (fresh) await discardHawaiiOriginalGraph(fresh.directory);
+      options.onRefreshError?.(e instanceof HawaiiReportedHold ? e.code : "source_unavailable");
+    }
   }
   return saved;
 }
