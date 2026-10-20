@@ -194,7 +194,7 @@ export function NearbyElections() {
       <h2 id="nearby-elections-heading" className="text-center text-heading font-bold text-ink">
         Sample elections near {label} on {formatElectionDate(sampleDate)}
       </h2>
-      <p className="mt-1 text-center text-sm text-ink">Enter address above for your own elections</p>
+      <p className="mt-1 text-center text-sm text-ink">Enter address to see your own elections</p>
       <ElectionList
         elections={elections}
         hideDateHeadings

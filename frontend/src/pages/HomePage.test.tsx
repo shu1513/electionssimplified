@@ -177,7 +177,7 @@ describe("HomePage nearby elections", () => {
     expect(screen.queryByRole("heading", { name: "Elections on November 3, 2026" })).not.toBeInTheDocument();
     // The pitch stays the page's only h1; this block is a section under it.
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
-    expect(screen.getByText("Enter address above for your own elections")).toBeInTheDocument();
+    expect(screen.getByText("Enter address to see your own elections")).toBeInTheDocument();
 
     // The nearest date's races, in the ballot's order, as ElectionList cards,
     // each title linking to its election page; a later date is left out.
