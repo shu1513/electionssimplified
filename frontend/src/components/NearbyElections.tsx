@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { useLocation } from "react-router";
+import { useLocation, useSearchParams } from "react-router";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import {
   apiRequest,
@@ -13,6 +12,7 @@ import {
 import type { AddressResolution, BallotSort, BallotSummary, ElectionSummary, GeoHint } from "@voteapp/api-client";
 import { track } from "../lib/usage";
 import { ElectionList } from "./ElectionCard";
+import { ErrorNotice } from "./Status";
 import { draftChoicesByElectionId, useBallotDraft } from "../lib/ballotDraft";
 import { usLatestLocalDate } from "../lib/usLatestLocalDate";
 
@@ -25,6 +25,8 @@ const DEFAULT_LOCATION: NonNullable<GeoHint["location"]> = {
   city: "Los Angeles",
   coordinates: { lat: 34.0537, lng: -118.2427 },
 };
+
+const PUBLIC_SORT_VALUES: readonly string[] = PUBLIC_BALLOT_SORTS.map((option) => option.value);
 
 /** The nearest election date on or after today, else the latest one. */
 function nearestDate(elections: Pick<ElectionSummary, "election_date">[], today: string): string | null {
@@ -116,9 +118,25 @@ export function NearbyElections() {
   const districtIds = (resolution.data?.districts ?? []).map((district) => district.id);
   const districtKey = districtIds.join(",");
 
-  // The ballot page's public sorts, as local state: the home URL is
-  // edge-cached and personal to nobody, so the choice stays on the page.
-  const [sort, setSort] = useState<BallotSort>("vote_power");
+  // The ballot page's public sorts, kept in the home URL (?sort=) as the
+  // ballot page keeps its own: the cards' back link carries this URL, so
+  // "Back to Home" from a race returns to the same order, and a refresh
+  // keeps it. The home HTML is the same for every query, so the edge cache
+  // just holds one copy per sort. An unknown value reads as the default.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const rawSort = searchParams.get("sort") ?? "";
+  const sort: BallotSort = PUBLIC_SORT_VALUES.includes(rawSort) ? (rawSort as BallotSort) : "vote_power";
+  function onSortChange(next: BallotSort) {
+    track("list_control", { control: "sort", value: next });
+    setSearchParams(
+      (previous) => {
+        const nextParams = new URLSearchParams(previous);
+        nextParams.set("sort", next);
+        return nextParams;
+      },
+      { replace: true }
+    );
+  }
   // Same key as BallotPage's query, so a later search for the same
   // districts reads this response from cache.
   const ballot = useQuery({
@@ -154,7 +172,7 @@ export function NearbyElections() {
   // level sections of the district-size sorts), so the sample looks exactly
   // like the page a search lands on.
   const elections = allElections.filter((election) => election.election_date === sampleDate);
-  if (!location || !sampleDate || elections.length === 0) {
+  if (!location || !resolution.data) {
     return null;
   }
   const label = `${location.city}, ${location.state}`;
@@ -167,11 +185,7 @@ export function NearbyElections() {
       Sort by
       <select
         value={sort}
-        onChange={(event) => {
-          const next = event.target.value as BallotSort;
-          track("list_control", { control: "sort", value: next });
-          setSort(next);
-        }}
+        onChange={(event) => onSortChange(event.target.value as BallotSort)}
         className="rounded-md border border-line bg-white px-2 py-1.5 text-sm text-ink focus:border-ink focus:outline-none"
       >
         {PUBLIC_BALLOT_SORTS.map((option) => (
@@ -183,18 +197,43 @@ export function NearbyElections() {
     </label>
   );
 
+  // Notice-to-heading gap: 41px on phones (the hero's 12px plus one 29px
+  // ladder step, so the sample reads as a second block, not the search's
+  // footnote); from `sm` up the hero's own 59px already does that.
+  const sectionClass = "mx-auto max-w-3xl px-4 pt-[29px] pb-8 sm:pt-0";
+  const caveat = <p className="mt-1 text-center text-sm text-ink">Enter address above to see your own elections</p>;
+
+  // A failed ballot fetch (a sort change during a Render cold start, say)
+  // must not take the block and its only control with it: the heading,
+  // the caveat and the select stay, with the error under them, so picking
+  // another sort refetches and recovers.
+  if (ballot.isError) {
+    return (
+      <section aria-labelledby="nearby-elections-heading" className={sectionClass}>
+        <h2 id="nearby-elections-heading" className="text-center text-heading font-bold text-ink">
+          Sample elections near {label}
+        </h2>
+        {caveat}
+        <div className="mt-[18px] flex justify-end">{sortControl}</div>
+        <div className="mt-4">
+          <ErrorNotice error={ballot.error} />
+        </div>
+      </section>
+    );
+  }
+  if (!sampleDate || elections.length === 0) {
+    return null;
+  }
+
   // Same frame as BallotPage's list: its container width, and the heading at
   // the date-group step ("Elections on {date}") it stands in for. The one
   // caveat sits under it as plain text.
   return (
-    // Notice-to-heading gap: 41px on phones (the hero's 12px plus one 29px
-    // ladder step, so the sample reads as a second block, not the search's
-    // footnote); from `sm` up the hero's own 59px already does that.
-    <section aria-labelledby="nearby-elections-heading" className="mx-auto max-w-3xl px-4 pt-[29px] pb-8 sm:pt-0">
+    <section aria-labelledby="nearby-elections-heading" className={sectionClass}>
       <h2 id="nearby-elections-heading" className="text-center text-heading font-bold text-ink">
         Sample elections near {label} on {formatElectionDate(sampleDate)}
       </h2>
-      <p className="mt-1 text-center text-sm text-ink">Enter address above to see your own elections</p>
+      {caveat}
       <ElectionList
         elections={elections}
         hideDateHeadings

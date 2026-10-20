@@ -102,6 +102,7 @@ function stubNearbyFetch({
   geoHint = { ok: true, status: 200, body: { location: { state: "CA", city: "Fresno", coordinates: FRESNO_POINT } } },
   pointResolve = "ok",
   hangBallotSorts = [],
+  failBallotSorts = [],
   elections = NEARBY_ELECTIONS,
 }: {
   geoHint?: { ok: boolean; status: number; body: unknown };
@@ -110,6 +111,8 @@ function stubNearbyFetch({
   pointResolve?: "ok" | "fail" | "empty";
   /** Ballot sorts whose fetch never settles, to observe the in-flight state. */
   hangBallotSorts?: string[];
+  /** Ballot sorts whose fetch answers 503. */
+  failBallotSorts?: string[];
   /** The ballot's races; defaults to the Fresno sample. */
   elections?: ReturnType<typeof electionSummary>[];
 } = {}) {
@@ -153,6 +156,9 @@ function stubNearbyFetch({
       if (hangBallotSorts.includes(sort)) {
         return new Promise(() => {});
       }
+      if (failBallotSorts.includes(sort)) {
+        return respond({ error: { code: "service_unavailable", message: "Service unavailable" } }, false, 503);
+      }
       return respond({ district_ids: ["d-ca", "d-fresno"], districts: [], elections });
     }
     if (path === "/api/address/autocomplete") {
@@ -187,9 +193,9 @@ describe("HomePage nearby elections", () => {
     expect(screen.queryByRole("link", { name: /Spring runoff/ })).not.toBeInTheDocument();
   });
 
-  it("offers the ballot page's sorts and refetches the sample in the chosen one", async () => {
+  it("offers the ballot page's sorts and refetches the sample in the chosen one, kept in the URL", async () => {
     const fetchMock = stubNearbyFetch();
-    renderHome();
+    const { router } = renderHome();
     const select = await screen.findByRole("combobox", { name: "Sort by" });
     expect(select).toHaveValue("vote_power");
     expect(screen.getByRole("option", { name: "Biggest districts" })).toBeInTheDocument();
@@ -200,6 +206,44 @@ describe("HomePage nearby elections", () => {
     );
     // The district-size sort heads the cards with level sections.
     expect(await screen.findByRole("button", { name: /City: Fresno/ })).toBeInTheDocument();
+    // The choice lives in the URL (replace, not push) so a race's back link
+    // and a refresh both return to this order.
+    expect(router.state.location.search).toBe("?sort=district_size");
+    expect(router.state.historyAction).toBe("REPLACE");
+  });
+
+  it("reads an initial ?sort= from the URL and ignores an unknown value", async () => {
+    const fetchMock = stubNearbyFetch();
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const router = createMemoryRouter([{ path: "/", element: <HomePage /> }], {
+      initialEntries: ["/?sort=district_size_smallest"],
+    });
+    render(
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
+    );
+    expect(await screen.findByRole("combobox", { name: "Sort by" })).toHaveValue("district_size_smallest");
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/ballot?district_ids=d-ca%2Cd-fresno&sort=district_size_smallest",
+      expect.anything()
+    );
+    await router.navigate("/?sort=bogus");
+    await waitFor(() => expect(screen.getByRole("combobox", { name: "Sort by" })).toHaveValue("vote_power"));
+  });
+
+  it("keeps the heading and the sort select when a sort's ballot fetch fails", async () => {
+    stubNearbyFetch({ failBallotSorts: ["district_size"] });
+    renderHome();
+    const select = await screen.findByRole("combobox", { name: "Sort by" });
+    await userEvent.setup().selectOptions(select, "district_size");
+    // The list is gone, but the block, its control and the error remain, so
+    // another sort can be picked to recover.
+    await waitFor(() => expect(screen.queryByRole("link", { name: /Mayor of Fresno/ })).not.toBeInTheDocument());
+    expect(screen.getByRole("heading", { level: 2, name: "Sample elections near Fresno, CA" })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Sort by" })).toHaveValue("district_size");
+    await userEvent.setup().selectOptions(screen.getByRole("combobox", { name: "Sort by" }), "vote_power");
+    expect(await screen.findByRole("link", { name: /Mayor of Fresno/ })).toBeInTheDocument();
   });
 
   it("falls back to the city path when the point resolves nothing", async () => {
