@@ -303,7 +303,8 @@ async function receiptWindow(
     parsed = receiptPage(form, scope);
     neCheck(parsed.summary === summary, "receipt_summary_changed");
   }
-  const first = rowSignature(parsed.nativeRows),
+  const opening = [rowSignature(parsed.nativeRows)],
+    explicitEmpty = parsed.explicitEmpty,
     receipts = [...parsed.receipts];
   let page = 1;
   while (true) {
@@ -323,6 +324,7 @@ async function receiptWindow(
       "receipt_page_changed",
     );
     receipts.push(...parsed.receipts);
+    opening.push(rowSignature(parsed.nativeRows));
   }
   const total = receipts.reduce((n, row) => neAdd(n, row.amountCents), 0);
   if (receipts.length >= 500 || total !== summaryCents) {
@@ -351,7 +353,7 @@ async function receiptWindow(
   neCheck(closing.summary === summary, "receipt_closing_summary_changed");
   if (receipts.length) {
     // Search resets the grid to ten rows. Restore the original page size
-    // before checking every first-page value and identity link.
+    // before re-reading every page's values and identity links.
     target = nePageSize(form);
     form = await html(
       sequence,
@@ -360,12 +362,31 @@ async function receiptWindow(
     );
     closing = receiptPage(form, scope);
   }
-  neCheck(
-    closing.summary === summary &&
-      rowSignature(closing.nativeRows) === first &&
-      closing.explicitEmpty === parsed.explicitEmpty,
-    "receipt_closing_changed",
-  );
+  // Summary totals cannot see a row that moved across a page boundary between
+  // postbacks and displaced another of the same amount. Every opening page
+  // must read back identically, in order, with the same pager.
+  let more: [string, string] | null = null;
+  for (let index = 0; index < opening.length; index++) {
+    if (more) {
+      form = await html(
+        sequence,
+        `${prefix}:closing-${index + 1}`,
+        nePostback(form, ...more),
+      );
+      closing = receiptPage(form, scope);
+    }
+    neCheck(
+      closing.summary === summary &&
+        rowSignature(closing.nativeRows) === opening[index] &&
+        closing.explicitEmpty === explicitEmpty,
+      "receipt_closing_changed",
+    );
+    more = neNextPage(closing.table, index + 1);
+    neCheck(
+      !more === (index + 1 === opening.length),
+      "receipt_closing_pages_changed",
+    );
+  }
   return receipts;
 }
 async function committees(
