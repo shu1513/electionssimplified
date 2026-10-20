@@ -197,10 +197,11 @@ export function NearbyElections() {
     </label>
   );
 
-  // Notice-to-heading gap: 41px on phones (the hero's 12px plus one 29px
-  // ladder step, so the sample reads as a second block, not the search's
-  // footnote); from `sm` up the hero's own 59px already does that.
-  const sectionClass = "mx-auto max-w-3xl px-4 pt-[29px] pb-8 sm:pt-0";
+  // Notice-to-heading gap = the header logo-to-headline gap above it, so
+  // the sample opens with the same air the hero does (owner, 2026-10-20):
+  // measured 42px on phones and 73px from `sm` up. The hero's own bottom
+  // padding gives 12px / 59px; these top paddings make up the rest.
+  const sectionClass = "mx-auto max-w-3xl px-4 pt-[29px] pb-8 sm:pt-[14px]";
   const caveat = <p className="mt-1 text-center text-sm text-ink">Enter address above to see your own elections</p>;
 
   // A failed ballot fetch (a sort change during a Render cold start, say)
