@@ -11,10 +11,9 @@ import {
 } from "../components/SavedAddressForm";
 import { ElectionList } from "../components/ElectionCard";
 import { FullAddressExplanation } from "../components/FullAddressExplanation";
-import { RaceTypeTabs } from "../components/RaceTypeTabs";
+import { CandidateSearchBox } from "../components/CandidateSearchBox";
 import { HowToVoteControl } from "../components/HowToVoteControl";
 import { deriveBallotFilters, railSortForBallotSort, useElectionChoices, useMyResearchAreas } from "@voteapp/api-client";
-import { useRaceTypeParam } from "../lib/useRaceTypeParam";
 import { EmptyNotice, ErrorNotice, LoadingNotice } from "../components/Status";
 import { useMe } from "@voteapp/api-client";
 import { retryDistrictHandoff, useDistrictHandoffStatus } from "../lib/districtHandoff";
@@ -119,7 +118,7 @@ function BallotSortPreference({
               sortOverride ? onClearOverride : undefined
             );
           }}
-          className="rounded-md border border-line bg-white px-2 py-1.5 text-sm text-ink focus:border-ink focus:outline-none disabled:opacity-60"
+          className="select-chevron w-[9.5rem] rounded-md border border-line bg-white py-1.5 pl-2 pr-6 text-sm text-ink focus:border-ink focus:outline-none disabled:opacity-60"
         >
           {BALLOT_SORTS.map((option) => (
             <option key={option.value} value={option.value}>
@@ -155,8 +154,7 @@ export function SavedBallotPage() {
     }
   }, [location.pathname, location.state, navigate]);
   const { weights: savedAreaWeights, savedAreaIds, hasSaved } = useMyResearchAreas();
-  const { raceTypeRequested, onRaceTypeChange } = useRaceTypeParam();
-  // ?sort= — the rail's sort carry-over. Session-scoped like the tab:
+  // ?sort= — the rail's sort carry-over. Session-scoped:
   // the explicit param wins over the saved preference server-side
   // ([ballot-personalized-ordering] in apiServer.ts) without touching it.
   // Unknown values read as "no override", like the other params.
@@ -301,7 +299,7 @@ export function SavedBallotPage() {
     hasSaved,
     issuesRequested: false,
     impactRequested: null,
-    raceTypeRequested,
+    raceTypeRequested: null,
   });
 
   if (data.districts.length === 0) {
@@ -341,18 +339,20 @@ export function SavedBallotPage() {
           so the list reads the same before and after sign-in. No count
           subtitle. */}
       <h1 className="mb-4 text-title font-bold text-ink">My elections:</h1>
-      {/* Race-type tabs and ordering on the left, official how-to-vote links
+      {/* Ordering and candidate search on the left, official how-to-vote links
           on the right — the same split as the public ballot page, so the
           resources reach signed-in voters too (their home page redirects
           here). */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-3">
-          {/* Offered only when the ballot mixes candidate races and ballot
-              measures — a single-type ballot has nothing to switch between. */}
-          {filtersView.showRaceTypeTabs ? (
-            <RaceTypeTabs raceType={filtersView.raceType} onChange={onRaceTypeChange} />
-          ) : null}
           <BallotSortPreference sortOverride={sortOverride} onClearOverride={clearSortOverride} />
+          <CandidateSearchBox
+            backTo={{ path: location.pathname + location.search, label: "All elections" }}
+            label="Candidate:"
+            ballotDistrictIds={data.districts.map((district) => district.id)}
+            labelClassName="text-ink-soft"
+            narrow
+          />
         </div>
         <HowToVoteControl states={data.districts.map((district) => district.state)} />
       </div>

@@ -40,6 +40,26 @@ describe("searchCandidatesByName", () => {
     expect(result).toEqual({ candidates: rows });
     expect(query).toHaveBeenCalledTimes(1);
     const [, params] = query.mock.calls[0]!;
-    expect(params).toEqual(["50\\%\\_hilar", CANDIDATE_SEARCH_LIMIT]);
+    expect(params).toEqual(["50\\%\\_hilar", CANDIDATE_SEARCH_LIMIT, [], ["50\\%\\_hilar"]]);
+  });
+
+  it("splits the query into words so a middle initial does not block a match", async () => {
+    const query = vi.fn().mockResolvedValue({ rows: [] });
+
+    await searchCandidatesByName({ query } as never, " John   Smith ");
+
+    const [, params] = query.mock.calls[0]!;
+    expect(params).toEqual(["John   Smith", CANDIDATE_SEARCH_LIMIT, [], ["John", "Smith"]]);
+  });
+
+  it("passes the ballot district ids that rank on-ballot candidates first", async () => {
+    const query = vi.fn().mockResolvedValue({ rows: [] });
+    const districtId = "11111111-1111-4111-8111-111111111111";
+
+    await searchCandidatesByName({ query } as never, "hilar", [districtId]);
+
+    const [sql, params] = query.mock.calls[0]!;
+    expect(sql).toContain("election.district_id = ANY($3::uuid[])");
+    expect(params).toEqual(["hilar", CANDIDATE_SEARCH_LIMIT, [districtId], ["hilar"]]);
   });
 });

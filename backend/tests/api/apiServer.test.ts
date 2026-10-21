@@ -1235,13 +1235,27 @@ describe("createApiApp", () => {
     expect(response.body).toMatchObject({
       candidates: [{ candidate_id: "22222222-2222-4222-8222-222222222222", display_name: "Hilary Brown" }],
     });
-    expect(searchCandidates).toHaveBeenCalledWith("hilar");
+    expect(searchCandidates).toHaveBeenCalledWith("hilar", []);
     expect(resolveAddress).not.toHaveBeenCalled();
+  });
+
+  it("forwards ballot district ids to candidate search", async () => {
+    const searchCandidates = vi.fn().mockResolvedValue({ candidates: [] });
+    const districtId = "11111111-1111-4111-8111-111111111111";
+
+    const response = await invokeExpressApp(createApiApp({ resolveAddress: vi.fn(), searchCandidates }), {
+      method: "GET",
+      path: `/api/candidates/search?q=hilar&district_ids=${districtId}`,
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(searchCandidates).toHaveBeenCalledWith("hilar", [districtId]);
   });
 
   it.each([
     ["blank", "/api/candidates/search?q=%20"],
     ["single-character", "/api/candidates/search?q=h"],
+    ["bad district id", "/api/candidates/search?q=hilar&district_ids=not-a-uuid"],
   ])("rejects a %s candidate search query", async (_label, path) => {
     const searchCandidates = vi.fn();
 

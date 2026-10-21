@@ -10,7 +10,7 @@ import {
   type BallotSummary,
 } from "@voteapp/api-client";
 import { ElectionList } from "../components/ElectionCard";
-import { RaceTypeTabs } from "../components/RaceTypeTabs";
+import { CandidateSearchBox } from "../components/CandidateSearchBox";
 import { HowToVoteControl } from "../components/HowToVoteControl";
 import {
   deriveBallotFilters,
@@ -25,7 +25,6 @@ import {
   setDraftBallotContext,
   useBallotDraft,
 } from "../lib/ballotDraft";
-import { useRaceTypeParam } from "../lib/useRaceTypeParam";
 import { EmptyNotice, ErrorNotice, LoadingNotice } from "../components/Status";
 import { useDocumentTitle } from "../lib/useDocumentTitle";
 import { pageMeta } from "../lib/pageMeta";
@@ -118,7 +117,6 @@ export function BallotPage() {
   // What the anonymous endpoint is asked for: my_areas is client-side here,
   // so its fetch requests (and caches under) the plain vote_power payload.
   const fetchSort: BallotSort = sort === "my_areas" ? "vote_power" : sort;
-  const { raceTypeRequested, onRaceTypeChange } = useRaceTypeParam();
 
   const ballot = useQuery({
     queryKey: ["ballot", districtIds.join(","), fetchSort],
@@ -174,7 +172,7 @@ export function BallotPage() {
     hasSaved,
     issuesRequested: false,
     impactRequested: null,
-    raceTypeRequested,
+    raceTypeRequested: null,
   });
   // A ?sort=my_areas load must not flash the unsorted ballot while the saved
   // areas are still unknown (the ballot is one request; the saved areas are
@@ -184,7 +182,7 @@ export function BallotPage() {
   // admits the fallback rather than claiming an issue ordering.
   const awaitingSavedAreas = myAreasRequested && savedAreasLoading;
 
-  // The my_areas re-sort. Runs over the tab-visible list only; the
+  // The my_areas re-sort. Runs over the full list; the
   // awaiting-candidates tail needs no special handling because ElectionList
   // splits it into its own closing section regardless of input order (the
   // backend's sink + compare produces the same outcome). The wrapper objects
@@ -234,23 +232,18 @@ export function BallotPage() {
           their results stay discoverable, and those are not upcoming. */}
       {embedHome ? <DetailPager ariaLabel="Ballot navigation" prev={null} next={null} backTo={embedHome} /> : null}
       <h1 className="mb-[18px] text-title font-bold text-ink box:mb-[11px]">My elections:</h1>
-      {/* Race-type tabs and sorting on the left, the "How to vote" resources
+      {/* Sorting and candidate search on the left, the "How to vote" resources
           on the right — its disclosure panel opens inline under its own
           column. The how-to-vote control waits for the ballot response
           because that's where its state abbreviation(s) come from. */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-3">
-          {/* Offered only when the ballot mixes candidate races and ballot
-              measures — a single-type ballot has nothing to switch between. */}
-          {filtersView.showRaceTypeTabs ? (
-            <RaceTypeTabs raceType={filtersView.raceType} onChange={onRaceTypeChange} />
-          ) : null}
           <label className="flex items-center gap-2 text-sm text-ink-soft">
             Sort by
             <select
               value={sort}
               onChange={(event) => onSortChange(event.target.value)}
-              className="rounded-md border border-line bg-white px-2 py-1.5 text-sm text-ink focus:border-ink focus:outline-none"
+              className="select-chevron w-[9.5rem] rounded-md border border-line bg-white py-1.5 pl-2 pr-6 text-sm text-ink focus:border-ink focus:outline-none"
             >
               {sortOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -259,6 +252,13 @@ export function BallotPage() {
               ))}
             </select>
           </label>
+          <CandidateSearchBox
+            backTo={{ path: location.pathname + location.search, label: "All elections" }}
+            label="Candidate:"
+            ballotDistrictIds={districtIds}
+            labelClassName="text-ink-soft"
+            narrow
+          />
         </div>
         {/* Not inside the newsroom box: its links all leave the box, and the
             row is too narrow there to spare the room. */}

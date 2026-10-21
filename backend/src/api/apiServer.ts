@@ -98,6 +98,7 @@ import {
   parseBallotSummaryOptions,
   parseCandidateElectionFinancePath,
   parseCandidateId,
+  parseCandidateSearchDistrictIds,
   parseCandidateSearchQuery,
   parseDistrictIds,
   parseElectionId,
@@ -2496,7 +2497,8 @@ async function dispatchApiRequest(
     }
 
     const searchQuery = parseCandidateSearchQuery(url);
-    const result = await options.searchCandidates(searchQuery);
+    const districtIds = parseCandidateSearchDistrictIds(url);
+    const result = await options.searchCandidates(searchQuery, districtIds);
     sendApiResponse(response, toJsonResponse(200, result, corsHeaders));
     return;
   }

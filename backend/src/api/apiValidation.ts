@@ -1389,6 +1389,12 @@ export function parseCandidateSearchQuery(url: URL): string {
   return query;
 }
 
+/** Optional ?district_ids= on the candidate search: the caller's ballot, whose
+ * candidates rank first. Absent = plain nationwide ranking. */
+export function parseCandidateSearchDistrictIds(url: URL): string[] {
+  return url.searchParams.has("district_ids") ? parseDistrictIds(url) : [];
+}
+
 export function isCandidateDetailPath(pathname: string): boolean {
   return pathname.startsWith(CANDIDATE_DETAIL_PATH_PREFIX);
 }

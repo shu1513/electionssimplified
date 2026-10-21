@@ -808,7 +808,7 @@ async function main(): Promise<void> {
     lookupAuthenticatedUserEmailVerified,
     listAuthenticatedDistrictIds: (userId) => listUserDistrictIds(pool, userId),
     lookupCandidateDetail: (candidateId, userId) => lookupCandidateDetailById(pool, { candidateId, userId }),
-    searchCandidates: (searchQuery) => searchCandidatesByName(pool, searchQuery),
+    searchCandidates: (searchQuery, districtIds) => searchCandidatesByName(pool, searchQuery, districtIds),
     lookupElectionDetail: (electionId) => lookupElectionDetailById(pool, electionId),
     lookupCandidateElectionFinance: (electionId, candidateId) =>
       lookupCandidateElectionFinanceSummaryById(pool, electionId, candidateId),

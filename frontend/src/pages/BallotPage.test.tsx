@@ -264,74 +264,51 @@ describe("BallotPage", () => {
     expect(await screen.findByText(/No upcoming elections found for these districts yet/)).toBeInTheDocument();
   });
 
-  describe("race-type tabs", () => {
-    // A ballot mixing both race types — the only shape that offers the tabs.
-    const MIXED_BALLOT = {
-      body: ballotSummary([
-        electionSummary(),
-        electionSummary({ id: "q-1", race_type: "ballot_measure", official_ballot_title: "Measure A" }),
-      ]),
-    };
-
-    it("switches between All, Candidates, and Ballot Measures via the URL", async () => {
-      stubApiRoutes({ ...ANONYMOUS, "/api/ballot": MIXED_BALLOT });
-      const user = userEvent.setup();
-      const { router } = renderBallot("/ballot?d=d-1");
-
-      // Default: the All tab, nothing sliced.
-      expect(await screen.findByText("Governor")).toBeInTheDocument();
-      expect(screen.getByText("Measure A")).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: "All" })).toHaveAttribute("aria-pressed", "true");
-
-      await user.click(screen.getByRole("button", { name: "Ballot Measures" }));
-      expect(screen.getByText("Measure A")).toBeInTheDocument();
-      expect(screen.queryByText("Governor")).not.toBeInTheDocument();
-      // A view switch, not a filter: nothing reads as "hidden".
-      expect(screen.queryByText(/hidden/)).not.toBeInTheDocument();
-      // URL state like sort, so the tab survives navigating into a race.
-      expect(router.state.location.search).toContain("type=ballot_measure");
-
-      await user.click(screen.getByRole("button", { name: "Offices" }));
-      expect(screen.getByText("Governor")).toBeInTheDocument();
-      expect(screen.queryByText("Measure A")).not.toBeInTheDocument();
-      expect(router.state.location.search).toContain("type=office");
-
-      await user.click(screen.getByRole("button", { name: "All" }));
-      expect(screen.getByText("Governor")).toBeInTheDocument();
-      expect(screen.getByText("Measure A")).toBeInTheDocument();
-      expect(router.state.location.search).not.toContain("type=");
-    });
-
-    it("offers no tabs on a single-type ballot and ignores a ?type= link there", async () => {
-      stubApiRoutes({
-        ...ANONYMOUS,
-        "/api/ballot": {
-          body: ballotSummary([
-            electionSummary(),
-            electionSummary({ id: "e-2", official_ballot_title: "State Senate" }),
-          ]),
+  it("offers the nationwide candidate search and links back to the ballot", async () => {
+    stubApiRoutes({
+      ...ANONYMOUS,
+      "/api/ballot": { body: ballotSummary([electionSummary()]) },
+      "/api/candidates/search": {
+        body: {
+          candidates: [
+            {
+              candidate_id: "33333333-3333-4333-8333-333333333333",
+              display_name: "Hilary Brown",
+              party: "Independent",
+              state: "CA",
+              current_office: null,
+            },
+          ],
         },
-      });
-      renderBallot("/ballot?d=d-1&type=ballot_measure");
-
-      // All-office ballot: nothing to switch between, and the shared link
-      // must not empty the list with no tab bar on screen to explain it.
-      expect(await screen.findByText("Governor")).toBeInTheDocument();
-      expect(screen.getByText("State Senate")).toBeInTheDocument();
-      expect(screen.queryByRole("button", { name: "Ballot Measures" })).not.toBeInTheDocument();
+      },
     });
+    const user = userEvent.setup();
+    const { router } = renderBallot("/ballot?d=d-1");
 
-    it("arrives on the Ballot Measures tab from a shared ?type= link", async () => {
-      stubApiRoutes({ ...ANONYMOUS, "/api/ballot": MIXED_BALLOT });
-      renderBallot("/ballot?d=d-1&type=ballot_measure");
+    await user.type(await screen.findByRole("combobox", { name: "Candidate:" }), "hilar");
+    await user.click(await screen.findByRole("option", { name: /Hilary Brown/ }));
 
-      expect(await screen.findByText("Measure A")).toBeInTheDocument();
-      expect(screen.queryByText("Governor")).not.toBeInTheDocument();
-      expect(screen.getByRole("button", { name: "Ballot Measures" })).toHaveAttribute(
-        "aria-pressed",
-        "true"
-      );
+    expect(router.state.location.pathname).toBe("/candidates/33333333-3333-4333-8333-333333333333");
+    expect(router.state.location.state).toEqual({
+      backTo: { path: "/ballot?d=d-1", label: "All elections" },
     });
+  });
+
+  it("lists both race types with no race-type switch and ignores a stale ?type= link", async () => {
+    stubApiRoutes({
+      ...ANONYMOUS,
+      "/api/ballot": {
+        body: ballotSummary([
+          electionSummary(),
+          electionSummary({ id: "q-1", race_type: "ballot_measure", official_ballot_title: "Measure A" }),
+        ]),
+      },
+    });
+    renderBallot("/ballot?d=d-1&type=ballot_measure");
+
+    expect(await screen.findByText("Governor")).toBeInTheDocument();
+    expect(screen.getByText("Measure A")).toBeInTheDocument();
+    expect(screen.queryByRole("group", { name: "Race type" })).not.toBeInTheDocument();
   });
 
   describe("how to vote resources", () => {
@@ -490,7 +467,7 @@ describe("BallotPage my_areas sort", () => {
     // backend comparator, run client-side (the anonymous endpoint cannot
     // score a user).
     expect(cardOrder()).toEqual(["Housing Board", "Governor"]);
-    expect(screen.getByRole("combobox")).toHaveValue("my_areas");
+    expect(screen.getByRole("combobox", { name: /Sort/ })).toHaveValue("my_areas");
     const options = screen.getAllByRole("option").map((option) => option.textContent);
     expect(options).toContain("My issues");
   });
@@ -517,7 +494,7 @@ describe("BallotPage my_areas sort", () => {
     // option, and the select admits the fallback rather than claiming an
     // issue ordering.
     expect(cardOrder()).toEqual(["Governor", "Housing Board"]);
-    expect(screen.getByRole("combobox")).toHaveValue("vote_power");
+    expect(screen.getByRole("combobox", { name: /Sort/ })).toHaveValue("vote_power");
     const options = screen.getAllByRole("option").map((option) => option.textContent);
     expect(options).not.toContain("My issues");
   });
@@ -577,7 +554,7 @@ describe("BallotPage my_areas sort", () => {
     // payload order shows and the select admits the fallback.
     await screen.findByText("Housing Board");
     expect(cardOrder()).toEqual(["Governor", "Housing Board"]);
-    expect(screen.getByRole("combobox")).toHaveValue("vote_power");
+    expect(screen.getByRole("combobox", { name: /Sort/ })).toHaveValue("vote_power");
   });
 
   it("carries a chosen My issues sort into the URL and seeds the detail rail", async () => {
@@ -589,7 +566,7 @@ describe("BallotPage my_areas sort", () => {
     // The option appears once the saved-areas chain confirms the viewer can
     // be scored — after the ballot itself typically.
     await screen.findByRole("option", { name: "My issues" });
-    await user.selectOptions(screen.getByRole("combobox"), "my_areas");
+    await user.selectOptions(screen.getByRole("combobox", { name: /Sort/ }), "my_areas");
     expect(router.state.location.search).toContain("sort=my_areas");
     expect(cardOrder()).toEqual(["Housing Board", "Governor"]);
 
@@ -656,58 +633,9 @@ describe("BallotPage nav context", () => {
       listSort: "district_biggest",
     });
   });
-
-  it("snapshots the full pool plus the engaged tab when a race-type tab is active", async () => {
-    const user = userEvent.setup();
-    stubApiRoutes({
-      ...ANONYMOUS,
-      "/api/ballot": {
-        body: ballotSummary([
-          electionSummary(),
-          electionSummary({ id: "q-1", race_type: "ballot_measure", official_ballot_title: "Measure A" }),
-        ]),
-      },
-    });
-    const { router } = renderBallot("/ballot?d=d-1&type=ballot_measure");
-
-    await user.click(await screen.findByRole("link", { name: /Measure A/ }));
-
-    // The pool is NOT sliced by the tab — the rail's own tabs must be able
-    // to reach the office races — and raceType records where to start.
-    expect(router.state.location.state).toEqual({
-      backTo: { path: "/ballot?d=d-1&type=ballot_measure", label: "All elections" },
-      contests: [
-        {
-          id: "e-1",
-          title: "Governor",
-          race_type: "office",
-          vote_power_score: 42,
-          election_date: "2026-11-03",
-          research_area_ids: [],
-          vote_power_band: "high",
-          level: "other",
-          group: "Other",
-        },
-        {
-          id: "q-1",
-          title: "Measure A",
-          race_type: "ballot_measure",
-          vote_power_score: 42,
-          election_date: "2026-11-03",
-          research_area_ids: [],
-          vote_power_band: "high",
-          level: "other",
-          group: "Other",
-        },
-      ],
-      raceType: "ballot_measure",
-      railSort: "vote_power",
-      listSort: "vote_power",
-    });
-  });
 });
 
-it("excludes grouped retention from the guest header and target while keeping office tabs", async () => {
+it("excludes grouped retention from the guest header and target", async () => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
   vi.setSystemTime(new Date("2026-08-01T12:00:00Z"));
   window.localStorage.clear();
@@ -726,13 +654,6 @@ it("excludes grouped retention from the guest header and target while keeping of
       election_date: "2026-11-03", election_ids: ["e-1", "m-1"], retention_ids: ["r-1", "r-2"],
     }));
     expect(screen.getByRole("button", { name: "Retention Races (2)" })).toBeInTheDocument();
-    const offices = screen.getByRole("button", { name: /Offices/ });
-    await userEvent.click(offices);
-    expect(screen.getByRole("button", { name: "Retention Races (2)" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "My Draft 1/2" })).toBeInTheDocument();
-    await userEvent.click(screen.getByRole("button", { name: /Measures/ }));
-    expect(screen.queryByRole("button", { name: /Retention Races/ })).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "My Draft 1/2" })).toBeInTheDocument();
   } finally {
     clearBallotDraft();
     vi.useRealTimers();
