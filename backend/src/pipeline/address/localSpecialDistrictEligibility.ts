@@ -196,50 +196,107 @@ export function pointInVerifiedLocalBoundary(
 }
 
 // Boundaries change only through a reviewed import, so each process keeps a
-// state's parsed boundaries for a few minutes instead of re-reading and
-// re-parsing megabytes of jsonb on every address lookup.
-export const LOCAL_BOUNDARY_CACHE_TTL_MS = 5 * 60 * 1000;
+// small per-state index (one bounding box per boundary) for a few minutes.
+// Full shapes are never cached: one state's verified shapes reached ~100 MB
+// of jsonb (California, 2026-10-21) and holding them parsed ran the API out
+// of memory. A lookup fetches only the shapes whose box holds the point.
+// Building California's index takes Postgres a few seconds, so it is kept
+// for 30 minutes; a newly reviewed boundary appears within that window.
+export const LOCAL_BOUNDARY_CACHE_TTL_MS = 30 * 60 * 1000;
 
-type CacheEntry = { expiresAt: number; boundaries: Promise<ParsedBoundary[]> };
+type BoundaryIndexEntry = { boundary_id: string; geoid_compact: string; bbox: BoundingBox };
+type BoundaryIndexRow = {
+  boundary_id: string;
+  geoid_compact: string;
+  min_lon: number | string | null;
+  min_lat: number | string | null;
+  max_lon: number | string | null;
+  max_lat: number | string | null;
+};
+
+type CacheEntry = { expiresAt: number; index: Promise<BoundaryIndexEntry[]> };
 const boundaryCache = new Map<string, CacheEntry>();
 
 export function clearLocalSpecialBoundaryCache(): void {
   boundaryCache.clear();
 }
 
-async function loadStateBoundaries(db: Queryable, stateFips: string): Promise<ParsedBoundary[]> {
+// The box spans every polygon's outer ring, the same rings boundingBox()
+// reads, so a point outside it is outside the shape. Postgres does the walk,
+// so the API never holds the full shapes just to build the index.
+const BOUNDARY_INDEX_SQL = `
+  SELECT boundary.district_id::text AS boundary_id, district.geoid_compact,
+         min((pt->>0)::float8) AS min_lon, min((pt->>1)::float8) AS min_lat,
+         max((pt->>0)::float8) AS max_lon, max((pt->>1)::float8) AS max_lat
+  FROM public.local_special_boundaries AS boundary
+  JOIN public.districts AS district ON district.id = boundary.district_id
+  CROSS JOIN LATERAL jsonb_array_elements(
+    CASE
+      WHEN boundary.geometry->>'type' = 'Polygon' AND jsonb_typeof(boundary.geometry->'coordinates') = 'array'
+        THEN jsonb_build_array(boundary.geometry->'coordinates')
+      WHEN boundary.geometry->>'type' = 'MultiPolygon' AND jsonb_typeof(boundary.geometry->'coordinates') = 'array'
+        THEN boundary.geometry->'coordinates'
+      ELSE '[]'::jsonb
+    END
+  ) AS polygon
+  CROSS JOIN LATERAL jsonb_array_elements(
+    CASE WHEN jsonb_typeof(polygon->0) = 'array' THEN polygon->0 ELSE '[]'::jsonb END
+  ) AS pt
+  WHERE district.state_fips = $1 AND district.district_type = 'local_special'
+    AND boundary.review_status = 'verified'
+    AND jsonb_typeof(pt) = 'array' AND jsonb_typeof(pt->0) = 'number' AND jsonb_typeof(pt->1) = 'number'
+  GROUP BY boundary.district_id, district.geoid_compact
+  ORDER BY district.geoid_compact`;
+
+function toFiniteNumber(value: number | string | null): number | null {
+  const number = typeof value === "string" ? Number(value) : value;
+  return typeof number === "number" && Number.isFinite(number) ? number : null;
+}
+
+async function loadStateBoundaryIndex(db: Queryable, stateFips: string): Promise<BoundaryIndexEntry[]> {
+  const result = await db.query<BoundaryIndexRow>(BOUNDARY_INDEX_SQL, [stateFips]);
+  const index: BoundaryIndexEntry[] = [];
+  for (const row of result.rows) {
+    const minLon = toFiniteNumber(row.min_lon);
+    const minLat = toFiniteNumber(row.min_lat);
+    const maxLon = toFiniteNumber(row.max_lon);
+    const maxLat = toFiniteNumber(row.max_lat);
+    if (minLon === null || minLat === null || maxLon === null || maxLat === null) continue;
+    index.push({ boundary_id: row.boundary_id, geoid_compact: row.geoid_compact, bbox: { minLon, minLat, maxLon, maxLat } });
+  }
+  return index;
+}
+
+function cachedStateBoundaryIndex(db: Queryable, stateFips: string): Promise<BoundaryIndexEntry[]> {
+  const now = Date.now();
+  const cached = boundaryCache.get(stateFips);
+  if (cached && cached.expiresAt > now) return cached.index;
+  const index = loadStateBoundaryIndex(db, stateFips);
+  const entry = { expiresAt: now + LOCAL_BOUNDARY_CACHE_TTL_MS, index };
+  boundaryCache.set(stateFips, entry);
+  // Never cache a failed read; the next lookup retries.
+  index.catch(() => {
+    if (boundaryCache.get(stateFips) === entry) boundaryCache.delete(stateFips);
+  });
+  return index;
+}
+
+// Fetched one at a time so at most one parsed shape is alive per lookup.
+async function loadBoundaryShape(db: Queryable, boundaryId: string): Promise<ParsedBoundary | null> {
   const result = await db.query<BoundaryRow>(
     `SELECT district.geoid_compact, boundary.geometry, boundary.exclusion_geometry
      FROM public.local_special_boundaries AS boundary
      JOIN public.districts AS district ON district.id = boundary.district_id
-     WHERE district.state_fips = $1 AND district.district_type = 'local_special'
-       AND boundary.review_status = 'verified'
-     ORDER BY district.geoid_compact`,
-    [stateFips]
+     WHERE boundary.district_id = $1 AND boundary.review_status = 'verified'`,
+    [boundaryId]
   );
-  const boundaries: ParsedBoundary[] = [];
-  for (const row of result.rows) {
-    // Invalid geometry is dropped here, so it can never be eligible.
-    const geometry = parseGeometry(row.geometry);
-    const exclusions = row.exclusion_geometry === null ? null : parseGeometry(row.exclusion_geometry);
-    if (!geometry || (row.exclusion_geometry !== null && !exclusions)) continue;
-    boundaries.push({ geoid_compact: row.geoid_compact, geometry, exclusions, bbox: boundingBox(geometry) });
-  }
-  return boundaries;
-}
-
-function cachedStateBoundaries(db: Queryable, stateFips: string): Promise<ParsedBoundary[]> {
-  const now = Date.now();
-  const cached = boundaryCache.get(stateFips);
-  if (cached && cached.expiresAt > now) return cached.boundaries;
-  const boundaries = loadStateBoundaries(db, stateFips);
-  const entry = { expiresAt: now + LOCAL_BOUNDARY_CACHE_TTL_MS, boundaries };
-  boundaryCache.set(stateFips, entry);
-  // Never cache a failed read; the next lookup retries.
-  boundaries.catch(() => {
-    if (boundaryCache.get(stateFips) === entry) boundaryCache.delete(stateFips);
-  });
-  return boundaries;
+  const row = result.rows[0];
+  if (!row) return null;
+  // Invalid geometry is dropped here, so it can never be eligible.
+  const geometry = parseGeometry(row.geometry);
+  const exclusions = row.exclusion_geometry === null ? null : parseGeometry(row.exclusion_geometry);
+  if (!geometry || (row.exclusion_geometry !== null && !exclusions)) return null;
+  return { geoid_compact: row.geoid_compact, geometry, exclusions, bbox: boundingBox(geometry) };
 }
 
 export async function lookupLocalSpecialDistrictKeys(
@@ -251,14 +308,18 @@ export async function lookupLocalSpecialDistrictKeys(
     return [];
   }
   const point: Point = [coordinates.lng, coordinates.lat];
-  const boundaries = await cachedStateBoundaries(db, stateFips);
-  return boundaries
-    .filter((boundary) => inBoundingBox(point, boundary.bbox) &&
-      pointInParsedBoundary(point, boundary.geometry, boundary.exclusions))
-    .map((boundary) => ({
+  const index = await cachedStateBoundaryIndex(db, stateFips);
+  const keys: AddressDistrictKey[] = [];
+  for (const entry of index) {
+    if (!inBoundingBox(point, entry.bbox)) continue;
+    const shape = await loadBoundaryShape(db, entry.boundary_id);
+    if (!shape || !pointInParsedBoundary(point, shape.geometry, shape.exclusions)) continue;
+    keys.push({
       district_type: "local_special",
-      geoid_compact: boundary.geoid_compact,
+      geoid_compact: shape.geoid_compact,
       source: "verified_polygon",
       layer_name: "reviewed_local_boundary",
-    }));
+    });
+  }
+  return keys;
 }

@@ -17,6 +17,11 @@ describe("resolveAddressToDistricts", () => {
       [-81.32, 40.62], [-81.28, 40.62], [-81.28, 40.66], [-81.32, 40.66], [-81.32, 40.62],
     ]] };
     const query = vi.fn()
+      // Boundary index (one box per reviewed boundary), then the one shape whose box holds the point.
+      .mockResolvedValueOnce({ rows: [{
+        boundary_id: "fox-boundary", geoid_compact: "OH:CARROLL:FOX",
+        min_lon: -81.32, min_lat: 40.62, max_lon: -81.28, max_lat: 40.66,
+      }] })
       .mockResolvedValueOnce({ rows: [{ geoid_compact: "OH:CARROLL:FOX", geometry, exclusion_geometry: null }] })
       .mockResolvedValueOnce({ rows: [{
         id: "fox-id", district_type: "local_special", geoid_compact: "OH:CARROLL:FOX",
@@ -26,8 +31,8 @@ describe("resolveAddressToDistricts", () => {
       }] });
 
     const result = await resolveAddressToDistricts({ query }, "100 Main St Carrollton OH", { geocodeAddress });
-    expect(query).toHaveBeenCalledTimes(2);
-    expect(query.mock.calls[1]?.[1]).toEqual([
+    expect(query).toHaveBeenCalledTimes(3);
+    expect(query.mock.calls[2]?.[1]).toEqual([
       ["statewide", "county", "local_special"], ["39", "39019", "OH:CARROLL:FOX"],
     ]);
     expect(result.districts.map((district) => district.id)).toEqual(["fox-id"]);

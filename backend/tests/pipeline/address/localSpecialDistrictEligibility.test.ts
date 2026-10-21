@@ -89,13 +89,40 @@ describe("local-special district eligibility", () => {
     expect(pointInVerifiedLocalBoundary({ lng: -81.31, lat: 40.63 }, township, { type: "Polygon" })).toBe(false);
   });
 
+  // The fake database answers the index query with one box per row (built the
+  // way Postgres builds it, from outer rings) and the shape query by id.
+  type Row = { geoid_compact: string; geometry: unknown; exclusion_geometry: unknown };
+  const box = (geometry: unknown) => {
+    const g = geometry as { type?: string; coordinates?: unknown };
+    const polys = g?.type === "Polygon" ? [g.coordinates] : g?.type === "MultiPolygon" ? (g.coordinates as unknown[]) : [];
+    const pts = (polys as unknown[][]).flatMap((poly) => (Array.isArray(poly?.[0]) ? (poly[0] as number[][]) : []));
+    if (pts.length === 0) return null;
+    return {
+      min_lon: Math.min(...pts.map((p) => p[0])), min_lat: Math.min(...pts.map((p) => p[1])),
+      max_lon: Math.max(...pts.map((p) => p[0])), max_lat: Math.max(...pts.map((p) => p[1])),
+    };
+  };
+  const fakeDb = (rows: Row[]) => vi.fn(async (sql: string, params: unknown[]) => {
+    if (sql.includes("GROUP BY boundary.district_id")) {
+      return {
+        rows: rows.flatMap((row, i) => {
+          const b = box(row.geometry);
+          return b ? [{ boundary_id: `b${i}`, geoid_compact: row.geoid_compact, ...b }] : [];
+        }),
+      };
+    }
+    const i = Number(String(params[0]).slice(1));
+    return { rows: rows[i] ? [rows[i]] : [] };
+  });
+  const indexCalls = (query: ReturnType<typeof fakeDb>) =>
+    query.mock.calls.filter((call) => String(call[0]).includes("GROUP BY boundary.district_id")).length;
+
   it("reads only reviewed local boundaries in the address state", async () => {
-    const query = vi.fn().mockResolvedValue({
-      rows: [{ geoid_compact: "OH:CARROLL:FOX", geometry: township, exclusion_geometry: null }],
-    });
+    const query = fakeDb([{ geoid_compact: "OH:CARROLL:FOX", geometry: township, exclusion_geometry: null }]);
     const keys = await lookupLocalSpecialDistrictKeys({ query }, "39", { lng: -81.31, lat: 40.63 });
     expect(query.mock.calls[0]?.[0]).toContain("boundary.review_status = 'verified'");
     expect(query.mock.calls[0]?.[1]).toEqual(["39"]);
+    expect(query.mock.calls[1]?.[0]).toContain("boundary.review_status = 'verified'");
     expect(keys).toEqual([{
       district_type: "local_special",
       geoid_compact: "OH:CARROLL:FOX",
@@ -103,61 +130,70 @@ describe("local-special district eligibility", () => {
       layer_name: "reviewed_local_boundary",
     }]);
     await expect(lookupLocalSpecialDistrictKeys({ query }, "not-a-state", { lng: -81.31, lat: 40.63 })).resolves.toEqual([]);
-    expect(query).toHaveBeenCalledOnce();
+    expect(indexCalls(query)).toBe(1);
   });
 
-  it("reuses a state's parsed boundaries until the cache expires", async () => {
+  it("reuses a state's boundary index until the cache expires", async () => {
     vi.useFakeTimers();
-    const query = vi.fn().mockResolvedValue({
-      rows: [{ geoid_compact: "OH:CARROLL:FOX", geometry: township, exclusion_geometry: null }],
-    });
+    const query = fakeDb([{ geoid_compact: "OH:CARROLL:FOX", geometry: township, exclusion_geometry: null }]);
     await lookupLocalSpecialDistrictKeys({ query }, "39", { lng: -81.31, lat: 40.63 });
     const second = await lookupLocalSpecialDistrictKeys({ query }, "39", { lng: -81.31, lat: 40.63 });
     expect(second.map((key) => key.geoid_compact)).toEqual(["OH:CARROLL:FOX"]);
-    expect(query).toHaveBeenCalledOnce();
+    expect(indexCalls(query)).toBe(1);
 
     // Another state has its own entry.
     await lookupLocalSpecialDistrictKeys({ query }, "08", { lng: -81.31, lat: 40.63 });
-    expect(query).toHaveBeenCalledTimes(2);
+    expect(indexCalls(query)).toBe(2);
 
     vi.advanceTimersByTime(LOCAL_BOUNDARY_CACHE_TTL_MS + 1);
     await lookupLocalSpecialDistrictKeys({ query }, "39", { lng: -81.31, lat: 40.63 });
-    expect(query).toHaveBeenCalledTimes(3);
+    expect(indexCalls(query)).toBe(3);
   });
 
-  it("returns no keys for points outside every boundary's bounding box", async () => {
-    const query = vi.fn().mockResolvedValue({
-      rows: [
-        { geoid_compact: "OH:CARROLL:FOX", geometry: township, exclusion_geometry: null },
-        { geoid_compact: "OH:CARROLL:VILLAGE", geometry: village, exclusion_geometry: null },
-      ],
-    });
+  it("fetches no shape for points outside every boundary's bounding box", async () => {
+    const query = fakeDb([
+      { geoid_compact: "OH:CARROLL:FOX", geometry: township, exclusion_geometry: null },
+      { geoid_compact: "OH:CARROLL:VILLAGE", geometry: village, exclusion_geometry: null },
+    ]);
     for (const point of [{ lng: -84.5, lat: 39.1 }, { lng: -81.31, lat: 41.5 }, { lng: -80.0, lat: 40.63 }]) {
       await expect(lookupLocalSpecialDistrictKeys({ query }, "39", point)).resolves.toEqual([]);
     }
+    // Only the index query ran: no full shape was loaded.
     expect(query).toHaveBeenCalledOnce();
   });
 
-  it("never matches a cached row with invalid geometry or exclusions", async () => {
-    const query = vi.fn().mockResolvedValue({
-      rows: [
-        { geoid_compact: "OH:BAD:GEOMETRY", geometry: { type: "Polygon", coordinates: [] }, exclusion_geometry: null },
-        { geoid_compact: "OH:BAD:EXCLUSION", geometry: township, exclusion_geometry: { type: "Polygon" } },
-        { geoid_compact: "OH:CARROLL:FOX", geometry: township, exclusion_geometry: village },
-      ],
-    });
+  it("fetches only the shapes whose box holds the point", async () => {
+    const far = square(-84.6, 39.0, -84.4, 39.2);
+    const query = fakeDb([
+      { geoid_compact: "OH:FAR:AWAY", geometry: far, exclusion_geometry: null },
+      { geoid_compact: "OH:CARROLL:FOX", geometry: township, exclusion_geometry: null },
+    ]);
+    const keys = await lookupLocalSpecialDistrictKeys({ query }, "39", { lng: -81.31, lat: 40.63 });
+    expect(keys.map((key) => key.geoid_compact)).toEqual(["OH:CARROLL:FOX"]);
+    expect(query).toHaveBeenCalledTimes(2);
+    expect(query.mock.calls[1]?.[1]).toEqual(["b1"]);
+  });
+
+  it("never matches a row with invalid geometry or exclusions", async () => {
+    const query = fakeDb([
+      { geoid_compact: "OH:BAD:GEOMETRY", geometry: { type: "Polygon", coordinates: [] }, exclusion_geometry: null },
+      { geoid_compact: "OH:BAD:EXCLUSION", geometry: township, exclusion_geometry: { type: "Polygon" } },
+      { geoid_compact: "OH:CARROLL:FOX", geometry: township, exclusion_geometry: village },
+    ]);
     const keys = await lookupLocalSpecialDistrictKeys({ query }, "39", { lng: -81.31, lat: 40.63 });
     expect(keys.map((key) => key.geoid_compact)).toEqual(["OH:CARROLL:FOX"]);
     await expect(lookupLocalSpecialDistrictKeys({ query }, "39", { lng: -81.298, lat: 40.642 })).resolves.toEqual([]);
   });
 
   it("does not cache a failed read", async () => {
-    const query = vi.fn()
-      .mockRejectedValueOnce(new Error("connection reset"))
-      .mockResolvedValue({ rows: [{ geoid_compact: "OH:CARROLL:FOX", geometry: township, exclusion_geometry: null }] });
+    const good = fakeDb([{ geoid_compact: "OH:CARROLL:FOX", geometry: township, exclusion_geometry: null }]);
+    let failed = false;
+    const query = vi.fn(async (sql: string, params: unknown[]) => {
+      if (!failed) { failed = true; throw new Error("connection reset"); }
+      return good(sql, params);
+    });
     await expect(lookupLocalSpecialDistrictKeys({ query }, "39", { lng: -81.31, lat: 40.63 })).rejects.toThrow("connection reset");
     const keys = await lookupLocalSpecialDistrictKeys({ query }, "39", { lng: -81.31, lat: 40.63 });
     expect(keys).toHaveLength(1);
-    expect(query).toHaveBeenCalledTimes(2);
   });
 });
