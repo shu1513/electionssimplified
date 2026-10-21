@@ -9,6 +9,7 @@
 // "raised" stays unknown for those rows instead of borrowing receipts.
 
 import type { Pool, PoolClient } from "pg";
+import { attachKansasCommitteeReceipts } from "./kansasCommitteeReceipts.js";
 
 import { isKansasCampaignFinanceEnabled } from "../../config/featureFlags.js";
 import {
@@ -216,7 +217,7 @@ export async function loadKansasCandidateFinanceSummariesByCandidateElection(
       },
     });
   }
-  return summaries;
+  return attachKansasCommitteeReceipts({db, requests, summaries});
 }
 
 const KANSAS_ITEMIZED_IE_COVERAGE_NOTE =

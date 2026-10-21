@@ -8,6 +8,11 @@
 // injectable for tests.
 
 import type { Pool, PoolClient } from "pg";
+import { isKansasCommitteeReceiptsEnabled } from "../../config/featureFlags.js";
+import {
+  syncDueKansasCommitteeReceipts,
+  type KansasCommitteeSyncResult,
+} from "./kansasCommitteeReceipts.js";
 
 import {
   listDueKansasCandidateFinanceSyncRows,
@@ -56,6 +61,8 @@ export type KansasCandidateFinanceBatchSyncInput = {
   refresh?: boolean;
   candidateId?: string;
   electionYear?: number;
+  committeeObservationDir?: string;
+  committeeOnly?: boolean;
   ieObservationFile?: string;
   ieCacheDir?: string;
   sessionOptions?: KansasCfrSessionOptions;
@@ -77,6 +84,7 @@ export type KansasCandidateFinanceBatchSyncResult = {
     result?: KansasCandidateFinanceSyncResult;
     error?: string;
   }[];
+  committeeReceipts?: KansasCommitteeSyncResult;
   independentExpenditures: KansasIESyncResult;
 };
 
@@ -93,6 +101,58 @@ export async function syncDueKansasCandidateFinance(
   const electionLookaheadDays =
     input.electionLookaheadDays ?? DEFAULT_ELECTION_LOOKAHEAD_DAYS;
   const dryRun = input.dryRun === true;
+
+  // This component has its own source clock and due query. A fresh/failed
+  // direct snapshot cannot suppress donor acquisition; force cannot publish it.
+  let committeeReceipts: KansasCommitteeSyncResult | undefined;
+  if (isKansasCommitteeReceiptsEnabled()) {
+    try {
+      committeeReceipts = await syncDueKansasCommitteeReceipts({
+        db: input.db,
+        now,
+        directory: input.committeeObservationDir,
+        candidateId: input.candidateId,
+        electionYear: input.electionYear,
+        maxCandidates,
+        staleAfterDays,
+        electionLookbackDays,
+        electionLookaheadDays,
+        refresh: input.refresh,
+        dryRun,
+      });
+    } catch {
+      committeeReceipts = {
+        attempted: 0,
+        succeeded: 0,
+        held: 1,
+        groups: 0,
+        receipts: 0,
+      };
+    }
+  }
+  if (input.committeeOnly) {
+    if (!isKansasCommitteeReceiptsEnabled())
+      throw new Error("Kansas committee receipts disabled");
+    return {
+      dryRun,
+      totalDueRows: 0,
+      attempted: 0,
+      succeeded: 0,
+      failed: 0,
+      candidates: [],
+      committeeReceipts,
+      independentExpenditures: {
+        status: "unavailable",
+        recordCount: null,
+        acquiredDocuments: 0,
+        acceptedDocuments: 0,
+        writtenRows: 0,
+        mappedRows: 0,
+        pendingDocuments: 0,
+        diagnostics: [],
+      },
+    };
+  }
 
   const calendarYear = now.getUTCFullYear();
   const previousYear = calendarYear - 1;
@@ -221,5 +281,6 @@ export async function syncDueKansasCandidateFinance(
     failed: due.rows.length - succeeded,
     candidates,
     independentExpenditures,
+    ...(committeeReceipts ? { committeeReceipts } : {}),
   };
 }

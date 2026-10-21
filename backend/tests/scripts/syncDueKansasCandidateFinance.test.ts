@@ -114,3 +114,18 @@ describe("parseSyncDueKansasCandidateFinanceScriptArgs", () => {
     });
   });
 });
+
+it("accepts a private committee-only source path without changing force semantics", () => {
+  expect(
+    parseSyncDueKansasCandidateFinanceScriptArgs([
+      "--committee-only",
+      "--committee-observation-dir",
+      "/private/synthetic",
+      "--force",
+    ]),
+  ).toMatchObject({
+    committeeOnly: true,
+    committeeObservationDir: "/private/synthetic",
+    force: true,
+  });
+});

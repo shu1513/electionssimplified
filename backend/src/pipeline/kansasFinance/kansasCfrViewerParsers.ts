@@ -241,7 +241,9 @@ export function parseKansasReportCover(html: string): KansasReportCover {
     periodEnd: spanValue(html, "lblFileEndDate"),
     amended: checkboxChecked(html, "chkAmended"),
     termination: checkboxChecked(html, "chkTermination"),
-    electronicallyFiledOn: filedMatch ? filedMatch[1]!.trim() : filedText.trim() || null,
+    // Current native covers put the filed-date value beside the signature
+    // label. Keep that value in the full-cover reopen identity.
+    electronicallyFiledOn: spanValue(html, "lblDate") || (filedMatch ? filedMatch[1]!.trim() : filedText.trim() || null),
     cashBeginningCents: parseKansasMoneyCents(spanValue(html, "lblCashBeginning")),
     totalContributionsCents: parseKansasMoneyCents(spanValue(html, "lblTotalContributions")),
     cashAvailableCents: parseKansasMoneyCents(spanValue(html, "lblCashThisPeriod")),
@@ -598,25 +600,27 @@ export function parseKansasCfrGridRows(html: string, gridId: string): KansasCfrG
     fields.get(index)!.set(match[1]!, decodeKansasHtmlText(match[3]!).trim());
   }
 
+  // HTTP originals entity-escape the JavaScript quotes; a browser-saved
+  // DOM serializes those same quotes literally. Decode the href before
+  // validating the complete native row action, without executing it.
   const anchorPattern = new RegExp(
-    `<a id="${gridId}_\\w+?_(\\d+)"[^>]*href="javascript:__doPostBack\\(&#39;([^&]+)&#39;`,
+    `<a id="${gridId}_\\w+?_(\\d+)"[^>]*href="([^"]*)"[^>]*>([\\s\\S]*?)</a>`,
     "g"
   );
   const anchors = new Map<number, string[]>();
   const anchorText = new Map<number, string[]>();
-  const anchorFullPattern = new RegExp(
-    `<a id="${gridId}_\\w+?_(\\d+)"[^>]*href="javascript:__doPostBack\\(&#39;([^&]+)&#39;[^>]*>([^<]*)</a>`,
-    "g"
-  );
   for (const match of html.matchAll(anchorPattern)) {
+    const action = /^javascript:\s*__doPostBack\(\s*'([A-Za-z0-9_$:]+)'\s*,\s*''\s*\)\s*;?\s*$/.exec(
+      decodeKansasHtmlText(match[2]!)
+    );
+    if (action === null) continue;
     const index = Number.parseInt(match[1]!, 10);
     if (!anchors.has(index)) anchors.set(index, []);
-    anchors.get(index)!.push(match[2]!);
-  }
-  for (const match of html.matchAll(anchorFullPattern)) {
-    const index = Number.parseInt(match[1]!, 10);
+    anchors.get(index)!.push(action[1]!);
     if (!anchorText.has(index)) anchorText.set(index, []);
-    const text = decodeKansasHtmlText(match[3]!).trim();
+    // Preserve the existing plain-text name rule; nested markup is not
+    // evidence for a different filed spelling.
+    const text = match[3]!.includes("<") ? "" : decodeKansasHtmlText(match[3]!).trim();
     if (text) anchorText.get(index)!.push(text);
   }
 
