@@ -1,4 +1,5 @@
 import type { Pool, PoolClient } from "pg";
+import { syncDueVirginiaReportedFinance } from "./virginiaReportedBatchSync.js";
 
 import { createStandardStateFinanceDueListQuery } from "../finance/standardStateFinanceDueListQuery.js";
 import {
@@ -71,6 +72,7 @@ export type VirginiaCandidateFinanceBatchSyncItemResult = {
 };
 
 export type VirginiaCandidateFinanceBatchSyncResult = {
+  reported?: Awaited<ReturnType<typeof syncDueVirginiaReportedFinance>>;
   dryRun: boolean;
   now: string;
   staleAfterDays: number;
@@ -174,6 +176,17 @@ export async function syncDueVirginiaCandidateFinance(
     "electionLookaheadDays"
   );
   const dryRun = input.dryRun === true;
+  // Native components run before legacy acquisition and have independent due,
+  // retry and success clocks. A legacy failure cannot hide their progress.
+  const reported = await syncDueVirginiaReportedFinance({
+    db: input.db as Pick<Pool, "query" | "connect">,
+    now,
+    dryRun,
+    maxCandidates: input.maxCandidates,
+    staleAfterDays: input.staleAfterDays,
+    electionLookbackDays: input.electionLookbackDays,
+    electionLookaheadDays: input.electionLookaheadDays,
+  });
   // Daily syncs intentionally auto-link eligible Virginia candidates unless explicitly disabled.
   const shouldAutoLinkMissingLinks = !dryRun && input.autoLinkMissingLinks !== false;
   const syncFn = input.syncVirginiaCandidateFinanceFn ?? syncVirginiaCandidateFinance;
@@ -279,6 +292,7 @@ export async function syncDueVirginiaCandidateFinance(
 
   const syncedCandidateCount = results.filter((result) => result.ok).length;
   return {
+    reported,
     dryRun,
     now: now.toISOString(),
     staleAfterDays,

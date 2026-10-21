@@ -15,6 +15,7 @@ import {
   type StateFinanceRequestElectionRow,
 } from "../address/ballotLookupFinanceShared.js";
 import { isVirginiaFinanceEligibleOffice } from "./virginiaFinanceEligibleOffices.js";
+import { overlayVirginiaReportedFinance } from "./virginiaReportedReader.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
@@ -38,6 +39,19 @@ type VirginiaFinanceSummaryRow = {
 };
 
 export async function loadVirginiaCandidateFinanceSummariesByCandidateElection(
+  db: Queryable,
+  candidateRows: readonly CandidateRow[],
+  electionRows: readonly ElectionRow[]
+): Promise<Map<string, BallotLookupFinanceSummary>> {
+  if (!isVirginiaCampaignFinanceEnabled()) return new Map();
+  let summaries = new Map<string, BallotLookupFinanceSummary>();
+  try { summaries = await loadLegacyVirginiaCandidateFinanceSummaries(db,candidateRows,electionRows); }
+  catch { /* A legacy query failure does not suppress qualified native data. */ }
+  try { return await overlayVirginiaReportedFinance(db,summaries,candidateRows,electionRows); }
+  catch { return summaries; }
+}
+
+async function loadLegacyVirginiaCandidateFinanceSummaries(
   db: Queryable,
   candidateRows: readonly CandidateRow[],
   electionRows: readonly ElectionRow[]
