@@ -3786,6 +3786,10 @@ describe("OfficeMatcher", () => {
       ["Community College Trustee", ["Community College Trustee", "College Trustee"]],
       ["Transit District Director", ["Transit District Director"]],
       ["Water District Director", ["Water District Director", "Water District Board Member"]],
+      ["Municipal Utility District Director", ["Municipal Utility District Director"]],
+      ["Park District Director", ["Park District Director"]],
+      ["Open Space District Director", ["Open Space District Director"]],
+      ["State Board of Equalization Member", ["State Board of Equalization Member", "Member, State Board of Equalization"]],
     ];
     const client = createMatcherDataClient({
       aliasesByScope: {
@@ -3807,6 +3811,15 @@ describe("OfficeMatcher", () => {
       // Santa Clara County CA live, on the CA:SCVWD:7 row.
       ["Santa Clara Valley Water District Director District 7", "Santa Clara Valley Water District Director, District 7", "Water District Director"],
       ["Santa Clara Valley Water District Director District 7", "Santa Clara Valley Water District Board Member, District 7", "Water District Director"],
+      ["East Bay Municipal Utility District Ward 7", "East Bay Municipal Utility District Director, Ward 7", "Municipal Utility District Director"],
+      ["East Bay Regional Park District Ward 3", "East Bay Regional Park District Director, Ward 3", "Park District Director"],
+      ["Midpeninsula Regional Open Space District Ward 1", "Midpeninsula Regional Open Space District Director, Ward 1", "Open Space District Director"],
+      ["Bay Area Rapid Transit District 4", "Bay Area Rapid Transit District Director, District 4", "Transit District Director"],
+      ["Alameda-Contra Costa Transit District Ward 3", "Alameda-Contra Costa Transit District Director, Ward 3", "Transit District Director"],
+      ["State Board of Equalization District 2", "Member, State Board of Equalization, District 2", "State Board of Equalization Member"],
+      ["Palomar Community College District Trustee Area 1", "Palomar Community College District Governing Board Member, Trustee Area 1", "Community College Trustee"],
+      ["Palomar Community College District Trustee Area 5", "Palomar Community College District Governing Board Member, Trustee Area 5", "Community College Trustee"],
+      ["Allan Hancock Joint Community College District Trustee Area 2", "Allan Hancock Joint Community College District Governing Board Member, Trustee Area 2", "Community College Trustee"],
       // A non-board role on the same body never folds onto the board seat,
       // and the scorer refuses it too: on a county-named row the body's name
       // survives the strip and the three-token key scored 0.667 into the

@@ -491,11 +491,28 @@ function mapWaterSewerBodyForms(value: string): string {
 const LOCAL_BODY_SEAT_KEY_FOLDS: ReadonlyArray<readonly [RegExp, string]> = [
   [/^(?:[a-z0-9]+ ){0,4}highway district (?:commissioner|commission member)$/, "highway district commissioner"],
   [/^(?:[a-z0-9]+ ){0,4}college (?:of (?:[a-z0-9]+ ){1,3})?trustee$/, "community college trustee"],
+  // California prints the board seat as "Palomar Community College District
+  // Governing Board Member, Trustee Area 1" on a row named for the trustee
+  // area, so the strip cannot remove the district name. The seat strip has no
+  // "trustee area" form, so the fold accepts it here.
+  [/^(?:[a-z0-9]+ ){0,4}community college district governing board member(?: trustee area (?:no )?\d+)?$/, "community college trustee"],
   // "Santa Clara Valley Water District Director, District 7" on the
   // CA:SCVWD:7 row (Santa Clara County CA live). Water-and-sewer boards have
   // their own fold above; this one is for a water district whose seat is a
   // director.
   [/^(?:[a-z0-9]+ ){0,5}water district (?:director|board member)$/, "water district director"],
+  // East Bay bodies on their own ward rows (Alameda County CA live): "East Bay
+  // Municipal Utility District Director, Ward 7", "East Bay Regional Park
+  // District Director, Ward 3", "Midpeninsula Regional Open Space District
+  // Director, Ward 1", "Bay Area Rapid Transit District Director, District 4",
+  // "Alameda-Contra Costa Transit District Director, Ward 3".
+  [/^(?:[a-z0-9]+ ){0,5}municipal utility district (?:director|board member)$/, "municipal utility district director"],
+  [/^(?:[a-z0-9]+ ){0,5}park district (?:director|board member)$/, "park district director"],
+  [/^(?:[a-z0-9]+ ){0,5}open space district (?:director|board member)$/, "open space district director"],
+  [/^(?:[a-z0-9]+ ){0,5}transit district (?:director|board member)$/, "transit district director"],
+  // "Member, State Board of Equalization, District 2" on the CA:BOE:2 row:
+  // the jurisdiction strip would leave a bare "member".
+  [/^(?:member )?(?:of the )?(?:state )?board of equalization(?: member)?$/, "state board of equalization member"],
 ];
 // Every office a body fold can land on. The token scorer vetoes a non-board
 // role title against these, because the fold's own refusal only helps when the

@@ -980,6 +980,33 @@ const SEED_OFFICES: SeedOffice[] = [
   },
   {
     scope: "local_special",
+    canonicalName: "Park District Director",
+    summary: [
+      "Setting the park district's budget and property tax rate",
+      "Deciding which parks and trails get bought, built, or repaired",
+      "Hiring and overseeing the general manager who runs the parks",
+    ].join("\n"),
+  },
+  {
+    scope: "local_special",
+    canonicalName: "Open Space District Director",
+    summary: [
+      "Setting the open space district's budget and tax rate",
+      "Deciding which land gets bought and which trails get opened",
+      "Hiring and overseeing the general manager who runs the district",
+    ].join("\n"),
+  },
+  {
+    scope: "local_special",
+    canonicalName: "State Board of Equalization Member",
+    summary: [
+      "Hearing appeals on property tax assessments and some state taxes",
+      "Overseeing county assessors so property taxes are applied evenly",
+      "Setting values for railroads and utilities that span counties",
+    ].join("\n"),
+  },
+  {
+    scope: "local_special",
     canonicalName: "Public Service Commissioner",
     summary: [
       "Setting rates and service rules for phone, pipeline, and other regulated companies",
@@ -2225,6 +2252,37 @@ const SEED_OFFICE_ALIASES: SeedOfficeAlias[] = [
   ].map((aliasText): SeedOfficeAlias => ({
     scope: "local_special",
     officeCanonicalName: "Water District Director",
+    aliasText,
+  })),
+  ...[
+    "Park District Director",
+    "Regional Park District Director",
+    "Park District Board Member",
+    "Director, Park District",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "Park District Director",
+    aliasText,
+  })),
+  ...[
+    "Open Space District Director",
+    "Regional Open Space District Director",
+    "Open Space District Board Member",
+    "Director, Open Space District",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "Open Space District Director",
+    aliasText,
+  })),
+  ...[
+    "State Board of Equalization Member",
+    "Member, State Board of Equalization",
+    "Board of Equalization Member",
+    "Member, Board of Equalization",
+    "Member of the State Board of Equalization",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "State Board of Equalization Member",
     aliasText,
   })),
   ...[
