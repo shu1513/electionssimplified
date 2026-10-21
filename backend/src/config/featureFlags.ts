@@ -399,6 +399,7 @@ export const isHawaiiReportedRawRefreshEnabled = (): boolean =>
 const districtOfColumbiaFinance = defineStateFinanceFlagPair("DISTRICT_OF_COLUMBIA_CAMPAIGN_FINANCE");
 export const isDistrictOfColumbiaCampaignFinanceEnabled = districtOfColumbiaFinance.isEnabled;
 export const isDistrictOfColumbiaCampaignFinanceSyncEnabled = districtOfColumbiaFinance.isSyncEnabled;
+export const isDcReportedCommitteeEnabled = (): boolean => districtOfColumbiaFinance.gate("DISTRICT_OF_COLUMBIA_REPORTED_COMMITTEE_ENABLED")();
 
 const illinoisFinance = defineStateFinanceFlagPair("ILLINOIS_CAMPAIGN_FINANCE");
 export const isIllinoisCampaignFinanceEnabled = illinoisFinance.isEnabled;

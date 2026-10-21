@@ -1,6 +1,7 @@
 import type { Pool, PoolClient } from "pg";
+import { overlayDcCommitteeFinance } from "./dcCommitteeReader.js";
 
-import { isDistrictOfColumbiaCampaignFinanceEnabled } from "../../config/featureFlags.js";
+import { isDcReportedCommitteeEnabled, isDistrictOfColumbiaCampaignFinanceEnabled } from "../../config/featureFlags.js";
 import type {
   BallotLookupFinanceSummary,
   StateFinanceRequestCandidateRow,
@@ -17,7 +18,7 @@ export async function loadDistrictOfColumbiaCandidateFinanceSummariesByCandidate
   candidateRows: readonly StateFinanceRequestCandidateRow[],
   electionRows: readonly StateFinanceRequestElectionRow[]
 ): Promise<Map<string, BallotLookupFinanceSummary>> {
-  return loadStandardStateFinanceSummariesByCandidateElection({
+  const summaries = await loadStandardStateFinanceSummariesByCandidateElection({
     db,
     candidateRows,
     electionRows,
@@ -57,4 +58,16 @@ export async function loadDistrictOfColumbiaCandidateFinanceSummariesByCandidate
       outsideGroupBreakdowns: "dc_candidate_finance_outside_group_breakdowns",
     },
   });
+  if (!isDcReportedCommitteeEnabled()) return summaries;
+  try {
+    return await overlayDcCommitteeFinance(db, summaries, candidateRows, electionRows);
+  } catch (error) {
+    // The committee card is additive. A failed component query must not
+    // discard the legacy fundraising and outside-spending totals.
+    console.warn(
+      "DC reported committee overlay unavailable; returning legacy finance summaries:",
+      error instanceof Error ? error.message : String(error)
+    );
+    return summaries;
+  }
 }

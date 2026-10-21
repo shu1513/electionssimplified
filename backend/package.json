@@ -401,6 +401,7 @@
     "illinois-candidates:finance:live-smoke": "tsx src/scripts/smokeIllinoisCandidateFinance.ts",
     "illinois-candidates:finance:artifact:produce": "tsx src/scripts/produceIllinoisSbeNormalizedArtifact.ts",
     "district-of-columbia-candidates:finance:sync-due": "tsx src/scripts/syncDueDistrictOfColumbiaCandidateFinance.ts",
+    "district-of-columbia-candidates:finance:committee:sync-due": "tsx src/scripts/syncDueDcCommitteeFinance.ts",
     "district-of-columbia-candidates:finance:scheduler:upsert": "tsx src/scripts/upsertDistrictOfColumbiaCandidateFinanceSyncScheduler.ts",
     "district-of-columbia-candidates:finance:scheduler:worker": "tsx src/scripts/runDistrictOfColumbiaCandidateFinanceSyncSchedulerWorker.ts",
     "district-of-columbia-candidates:finance:scheduler:trigger": "tsx src/scripts/triggerDistrictOfColumbiaCandidateFinanceSync.ts",
