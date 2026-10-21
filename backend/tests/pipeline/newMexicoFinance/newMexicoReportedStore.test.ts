@@ -160,7 +160,7 @@ async function packets() {
     cacheDir,
     transport,
   });
-  return { registry, identity, financial };
+  return { registry, identity, financial, cacheDir, transport };
 }
 function database(failGroup = false) {
   let stored: Record<string, unknown> | null = null;
@@ -259,6 +259,41 @@ describe("New Mexico atomic verified store and complete reader", () => {
     });
     expect(db.stored().last_synced_at).toBe(clock);
     expect(db.release).toHaveBeenCalledTimes(2);
+  });
+  it("writes a refreshed registry packet beside a reused financial packet", async () => {
+    const { cacheDir, transport, ...sources } = await packets(),
+      db = database();
+    await writeNewMexicoReportedComponent({
+      db: db as never,
+      receiver,
+      component: "ie",
+      ...sources,
+    });
+    vi.setSystemTime(new Date("2026-10-21T18:00:00.000Z"));
+    const registry = await getNewMexicoReportedSource({
+      scope: { kind: "registry", year: 2026, selector: null },
+      cacheDir,
+      transport,
+      refresh: true,
+    });
+    expect(registry.source.manifestSha256).not.toBe(
+      sources.registry.source.manifestSha256,
+    );
+    expect(
+      await writeNewMexicoReportedComponent({
+        db: db as never,
+        receiver,
+        component: "ie",
+        ...sources,
+        registry,
+      }),
+    ).toEqual({ groups: 1, idempotent: false });
+    expect(db.stored().source_observed_at).toBe(
+      sources.financial.source.observedAt,
+    );
+    expect(db.stored().source_facts).toMatchObject({
+      registry: { source: { manifestSha256: registry.source.manifestSha256 } },
+    });
   });
   it("rolls back an insert failure and always releases its connection", async () => {
     const sources = await packets(),
