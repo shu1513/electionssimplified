@@ -153,9 +153,17 @@ export async function syncDueAlaskaReportedFinance(
     heldComponents: 0,
     groups: 0,
     holds: {} as Record<string, number>,
+    failure: null as string | null,
   };
   if (!output.enabled) return output;
-  const due = await listDueAlaskaReportedFinance(input);
+  let due: Awaited<ReturnType<typeof listDueAlaskaReportedFinance>>;
+  try {
+    due = await listDueAlaskaReportedFinance(input);
+  } catch (error) {
+    // A failed native due query must not stop the legacy acquisition that follows.
+    output.failure = error instanceof Error ? error.message : String(error);
+    return output;
+  }
   output.totalDueRows = due.totalDueRows;
   output.selectedCandidates = due.rows.length;
   if (output.dryRun) return output;

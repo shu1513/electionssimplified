@@ -327,7 +327,7 @@ export async function runAlaskaCandidateFinanceSyncJob(
       electionLookaheadDays: data.electionLookaheadDays,
       autoLinkMissingLinks: !dryRun && Boolean(data.autoLinkMissingLinks),
       loadApocData: async () => {
-        const loaded = await loadAlaskaApocFinanceData(dataSourceConfig, { logger: { warn() {} } });
+        const loaded = await loadAlaskaApocFinanceData(dataSourceConfig, { logger: console });
         metadata = loaded.metadata;
         return loaded.apocData;
       },

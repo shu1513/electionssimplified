@@ -310,9 +310,11 @@ export async function writeAlaskaReportedComponent(input: {
       // Same originals under a changed canonical receiver (alias, legacy name,
       // owner count) are rewritten below; the stored row would otherwise fail
       // its receiver binding on every read until the cached packets expire.
+      // The manifest identifies the originals: a refresh that reuses a fresh
+      // roster keeps the oldest observation clock while the money changes.
       if (
         oldFacts.revision === AK_REPORTED_REVISION &&
-        oldFacts.source.observedAt === v.facts.source.observedAt &&
+        oldFacts.source.manifestSha256 === v.facts.source.manifestSha256 &&
         isDeepStrictEqual(old.receiver_context, v.receiver)
       ) {
         const rows = (

@@ -191,7 +191,7 @@ export async function runAlaskaCandidateFinanceCli(
   db?: Pool,
 ): Promise<AlaskaCandidateFinanceBatchSyncResult | undefined> {
   const startedAt = new Date();
-  if (!db && !process.env.DATABASE_URL) loadProjectEnv();
+  if (!db) loadProjectEnv();
   const options = parseSyncDueAlaskaCandidateFinanceScriptArgs(args);
 
   if (!isAlaskaCampaignFinanceSyncEnabled(options.force)) {
@@ -220,7 +220,7 @@ export async function runAlaskaCandidateFinanceCli(
         requestSpacingMs: options.requestSpacingMs,
         reportYear: options.reportYear,
       },
-      { logger: { warn() {} } },
+      { logger: console },
     );
     metadata = loaded.metadata;
     return loaded.apocData;

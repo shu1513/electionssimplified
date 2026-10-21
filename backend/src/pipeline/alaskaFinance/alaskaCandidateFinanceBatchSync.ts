@@ -177,7 +177,8 @@ export async function syncDueAlaskaCandidateFinance(
   try {
     apocData ??= await input.loadApocData?.();
   } catch (error) {
-    if (!reported.enabled) throw error;
+    // Swallow the legacy failure only when native work actually ran.
+    if (!reported.enabled || reported.failure) throw error;
   }
   if (!apocData) {
     if (!reported.enabled)

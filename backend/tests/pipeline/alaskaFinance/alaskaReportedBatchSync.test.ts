@@ -138,6 +138,17 @@ describe("Alaska independent native due sync", () => {
       holds: { storage_unavailable: 1 },
     });
   });
+  it("reports a failed due query instead of throwing", async () => {
+    const db = database();
+    db.query.mockRejectedValueOnce(new Error("synthetic due query timeout"));
+    const result = await syncDueAlaskaReportedFinance({ db: db as never });
+    expect(result).toMatchObject({
+      enabled: true,
+      failure: "synthetic due query timeout",
+      attemptedComponents: 0,
+    });
+    expect(mocks.source).not.toHaveBeenCalled();
+  });
   it("records no attempt and acquires no source in a dry run", async () => {
     const db = database(),
       result = await syncDueAlaskaReportedFinance({
