@@ -9,6 +9,8 @@
 // have no office): the two vocabularies share their words. School boards
 // fold into "City" — "school district" is a level no voter thinks in, and
 // the section label says "City" rather than "place" for the same reason.
+// Special districts (water, hospital, park, trustee areas) are their own,
+// smallest level; "Other" is only a fallback for an unclassified scope.
 // US Senate is one level the scope cannot tell — its offices are scope
 // "statewide" — so the election's contest family lifts it to Federal.
 // Colorado's regent and State Board of Education seats are the other: their
@@ -21,6 +23,7 @@ export const BALLOT_LEVELS = [
   { key: "state", label: "State" },
   { key: "county", label: "County" },
   { key: "city", label: "City" },
+  { key: "special", label: "Local" },
   { key: "other", label: "Other" },
 ] as const;
 
@@ -61,6 +64,8 @@ export function ballotLevel(
     case "school_elementary":
     case "school_secondary":
       return "city";
+    case "local_special":
+      return "special";
     default:
       return "other";
   }

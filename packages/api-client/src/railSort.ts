@@ -223,9 +223,9 @@ export function sortRailEntries<Entry extends RailSortEntry>(
     }
     const index = levelIndex(entry.level);
     if (index === Infinity) return Infinity;
-    // BALLOT_LEVELS runs biggest (presidential) to smallest (city), then
-    // "other" — unlevelled special districts, which the list keeps last
-    // in BOTH directions; only the known levels flip.
+    // BALLOT_LEVELS runs biggest (presidential) to smallest (special
+    // districts), then "other" — an unclassified scope, which the list keeps
+    // last in BOTH directions; only the known levels flip.
     const otherIndex = BALLOT_LEVELS.length - 1;
     if (index === otherIndex) return otherIndex;
     return sort === "district_smallest" ? otherIndex - 1 - index : index;

@@ -8,6 +8,9 @@ describe("ballotLevel", () => {
     expect(ballotLevel("statewide", "statewide", "us_senate")).toBe("federal");
     expect(ballotLevel(undefined, "county", "ballot_measure")).toBe("county");
     expect(ballotLevel("school_unified", "school_unified")).toBe("city");
+    expect(ballotLevel("local_special", "local_special")).toBe("special");
+    expect(ballotLevel(undefined, "local_special", "ballot_measure")).toBe("special");
+    expect(ballotLevel("some_new_scope", "some_new_scope")).toBe("other");
   });
 
   it("puts Colorado's congressional-district board seats under State", () => {
