@@ -225,7 +225,7 @@ describe("SavedBallotPage", () => {
       });
       renderSavedBallot();
       expect(await screen.findByText("Governor")).toBeInTheDocument();
-      expect(await screen.findByRole("combobox")).toBeInTheDocument();
+      expect(await screen.findByRole("combobox", { name: /Sort/ })).toBeInTheDocument();
       expect(screen.queryByRole("checkbox", { name: "Followed candidates first" })).not.toBeInTheDocument();
       expect(screen.queryByRole("button", { name: /Filters/ })).not.toBeInTheDocument();
       expect(screen.queryByText(/hidden/)).not.toBeInTheDocument();
@@ -259,7 +259,7 @@ describe("SavedBallotPage sort override", () => {
     // The override reaches the API and the select shows the order the list
     // is actually in — the override, not the saved preference.
     expect(ballotUrls[0]).toContain("sort=district_size_smallest");
-    const select = await screen.findByRole("combobox");
+    const select = await screen.findByRole("combobox", { name: /Sort/ });
     expect(select).toHaveValue("district_size_smallest");
 
     // Choosing a sort saves the preference FIRST; the override clears only
@@ -286,7 +286,7 @@ describe("SavedBallotPage sort override", () => {
     const { router } = renderSavedBallot(undefined, "?sort=district_size_smallest");
 
     await screen.findByText("Governor");
-    await user.selectOptions(await screen.findByRole("combobox"), "district_size");
+    await user.selectOptions(await screen.findByRole("combobox", { name: /Sort/ }), "district_size");
 
     // Failed PUT: the override still describes the list on screen, and the
     // select falls back to it beside the error notice.
@@ -294,7 +294,7 @@ describe("SavedBallotPage sort override", () => {
       await screen.findByText("The service is having trouble right now. Please try again shortly.")
     ).toBeInTheDocument();
     expect(router.state.location.search).toContain("sort=district_size_smallest");
-    expect(screen.getByRole("combobox")).toHaveValue("district_size_smallest");
+    expect(screen.getByRole("combobox", { name: /Sort/ })).toHaveValue("district_size_smallest");
   });
 });
 

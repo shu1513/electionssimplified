@@ -16,8 +16,14 @@ export type UseCandidateSearchResult = {
   clearMatches: () => void;
 };
 
-export function useCandidateSearch(): UseCandidateSearchResult {
+/** `districtIds`: the caller's ballot — candidates running there rank first. */
+export function useCandidateSearch(districtIds: readonly string[] = []): UseCandidateSearchResult {
   const [matches, setMatches] = useState<CandidateSearchMatch[]>([]);
+  // A ref, not a dependency: the ids only steer ranking, so a changed list
+  // applies from the next keystroke without rebuilding the callbacks.
+  const districtParamRef = useRef("");
+  districtParamRef.current =
+    districtIds.length > 0 ? `&district_ids=${encodeURIComponent(districtIds.join(","))}` : "";
   const abortRef = useRef<AbortController | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const requestSeqRef = useRef(0);
@@ -38,7 +44,7 @@ export function useCandidateSearch(): UseCandidateSearchResult {
     const seq = ++requestSeqRef.current;
     try {
       const response = await apiRequest<CandidateSearchResponse>(
-        `/api/candidates/search?q=${encodeURIComponent(input)}`,
+        `/api/candidates/search?q=${encodeURIComponent(input)}${districtParamRef.current}`,
         { signal: controller.signal }
       );
       if (seq === requestSeqRef.current) {

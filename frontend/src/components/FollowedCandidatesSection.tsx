@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router";
-import { Combobox, ComboboxInput, ComboboxOption, ComboboxOptions } from "@headlessui/react";
-import { useCandidateSearch, useFollows, useFollowSaving, useSetFollow } from "@voteapp/api-client";
-import type { CandidateFollow, CandidateSearchMatch } from "@voteapp/api-client";
+import { Link } from "react-router";
+import { useFollows, useFollowSaving, useSetFollow } from "@voteapp/api-client";
+import type { CandidateFollow } from "@voteapp/api-client";
+import { CandidateSearchBox } from "./CandidateSearchBox";
 import { EmptyNotice, ErrorNotice, LoadingNotice } from "./Status";
 import { formatElectionDate } from "@voteapp/api-client";
 import type { BackTo } from "../lib/detailNavContext";
@@ -168,79 +168,17 @@ function FollowRow({ follow }: { follow: CandidateFollow }) {
 
 export function FollowedCandidatesSection() {
   const { follows, isLoading: followsLoading, isError } = useFollows();
-  const [query, setQuery] = useState("");
   const [sort, setSort] = useState<FollowSort>("election");
-  const { matches, onInputChanged } = useCandidateSearch();
-  const navigate = useNavigate();
   const sortedFollows = follows ? [...follows].sort((a, b) => compareFollows(a, b, sort)) : undefined;
 
   return (
     <section>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-heading font-bold text-ink">My Candidates</h2>
-        {/* Typeahead over the whole candidate database (ARIA combobox via
-            Headless UI — do not hand-roll keyboard handling; no `static` on
-            the options so Escape/blur close the dropdown natively). Picking a
-            suggestion opens that candidate's page. Deliberately does NOT
-            filter the follows list below — the list stays put while typing.
-            Rendered outside the follows-list branch: discovery must work with
-            zero follows and when the follows fetch fails. */}
-        <div className="flex w-full items-center gap-2 sm:w-auto">
-          <label
-            htmlFor="candidate-search-input"
-            className="shrink-0 text-sm font-medium text-ink"
-          >
-            Search candidates:
-          </label>
-          <div className="relative w-full sm:w-56">
-          <Combobox<CandidateSearchMatch | null>
-            value={null}
-            onChange={(match) => {
-              if (match) {
-                void navigate(`/candidates/${match.candidate_id}`, { state: FOLLOWS_NAV_STATE });
-              }
-            }}
-            immediate={false}
-          >
-            <ComboboxInput
-              type="search"
-              value={query}
-              onChange={(event) => {
-                setQuery(event.target.value);
-                onInputChanged(event.target.value);
-              }}
-              id="candidate-search-input"
-              placeholder="e.g. John Smith"
-              className="w-full rounded-lg border border-line bg-white px-3 py-1.5 text-sm text-ink placeholder:text-ink-soft focus:border-rausch focus:outline-none"
-            />
-            {matches.length > 0 ? (
-              <ComboboxOptions className="absolute right-0 z-10 mt-1 w-full min-w-64 overflow-hidden rounded-xl border border-line bg-surface shadow-md">
-                {matches.map((match) => (
-                  <ComboboxOption
-                    key={match.candidate_id}
-                    value={match}
-                    className="cursor-pointer px-3 py-2 text-sm data-focus:bg-surface"
-                  >
-                    <span className="font-semibold text-ink">{match.display_name}</span>{" "}
-                    <span className="text-ink-soft">
-                      {profilePartyLabel(match.party) ? (
-                        <>
-                          <span className={partyColorClass(match.party) || undefined}>
-                            {profilePartyLabel(match.party)}
-                          </span>{" "}
-                          ·{" "}
-                        </>
-                      ) : null}
-                      {match.state}
-                      {match.current_office ? <> · {match.current_office}</> : null}
-                    </span>
-                  </ComboboxOption>
-                ))}
-              </ComboboxOptions>
-            ) : null}
-          </Combobox>
-          </div>
-        </div>
+        {/* Rendered outside the follows-list branch: discovery must work
+            with zero follows and when the follows fetch fails. Deliberately
+            does NOT filter the follows list below. */}
+        <CandidateSearchBox backTo={FOLLOWS_NAV_STATE.backTo} />
       </div>
       {followsLoading ? <LoadingNotice text="Loading follows…" /> : null}
       {isError ? (

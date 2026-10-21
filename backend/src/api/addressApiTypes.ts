@@ -125,8 +125,9 @@ export type AddressApiServerOptions = {
   ) => Promise<OrderedBallotSummaryResult>;
   lookupAuthenticatedUserEmailVerified?: (userId: string) => Promise<boolean>;
   lookupCandidateDetail?: (candidateId: string, userId?: string | null) => Promise<CandidateDetailResult | null>;
-  /** GET /api/candidates/search?q= — public name typeahead. */
-  searchCandidates?: (query: string) => Promise<CandidateSearchResult>;
+  /** GET /api/candidates/search?q=&district_ids= — public name typeahead;
+   * candidates on those districts' upcoming ballots rank first. */
+  searchCandidates?: (query: string, districtIds: string[]) => Promise<CandidateSearchResult>;
   lookupElectionDetail?: (electionId: string) => Promise<BallotLookupElection | null>;
   /** GET /api/elections/:election_id/candidates/:candidate_id/finance —
    * one candidate's finance summary without the full election payload.

@@ -57,6 +57,19 @@ describe("useCandidateSearch", () => {
     expect(result.current.matches).toEqual([MATCH]);
   });
 
+  it("sends the ballot's district ids so its candidates rank first", async () => {
+    apiRequestMock.mockResolvedValue({ candidates: [MATCH] });
+    const { result } = renderHook(() => useCandidateSearch(["d-1", "d-2"]));
+
+    act(() => {
+      result.current.onInputChanged("hilar");
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(CANDIDATE_SEARCH_DEBOUNCE_MS + 10);
+    });
+    expect(apiRequestMock.mock.calls[0][0]).toBe("/api/candidates/search?q=hilar&district_ids=d-1%2Cd-2");
+  });
+
   it("clears matches and drops in-flight results on clearMatches", async () => {
     apiRequestMock.mockResolvedValue({ candidates: [MATCH] });
     const { result } = renderHook(() => useCandidateSearch());

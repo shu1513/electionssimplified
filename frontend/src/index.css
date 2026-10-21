@@ -199,3 +199,15 @@ body:has([data-sticky-pick-cta]) .chat-launcher {
     display: none;
   }
 }
+
+/* A select drawn with its own chevron so its width is ours, not the
+   browser's: Safari's native select pads far wider than its longest option.
+   Pair with a fixed width that fits the longest option and right padding
+   that clears the chevron (pr-6). */
+@utility select-chevron {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='%23717171' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 4.5 6 7.5 9 4.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.4rem center;
+  background-size: 0.75rem;
+}
