@@ -21,7 +21,7 @@ are markers, not numeric version ordinals. Ambiguous versions hold the component
 
 The parser has been checked against genuine complete annual/current originals:
 282 receiving occurrences and 88 literal-PAC cash gifts totaling $166,500. This
-binds eight complete fresh-search/postback walks and 130 genuine observations. Eighteen synthetic boundary tests and the backend typecheck pass. This is source/parser proof for one linked context, not an ordinary-sync, storage, API
+binds eight complete fresh-search/postback walks and 130 genuine observations. Twenty-one synthetic boundary tests and the backend typecheck pass. The application receiving-context loader also qualifies the real linked context in a read-only local transaction. This is source/parser proof for one linked context, not an ordinary-sync, storage, API
 or candidate-card proof. No new money has been written by this work yet.
 
 All three published current supplemental families for that context precede and
