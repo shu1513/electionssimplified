@@ -53,6 +53,9 @@ describe("extractSubDistrictSeat", () => {
 
   it("never reads a school district's own number as the seat", () => {
     expect(extractSubDistrictSeat("Independent School District No. 11 Board Member", "School Board Member")).toBeNull();
+    expect(extractSubDistrictSeat("Independent School  District No. 11 Board Member", "School Board Member")).toBeNull();
+    expect(extractSubDistrictSeat("School Administrative District No. 6 Director", "School Board Member")).toBeNull();
+    expect(extractSubDistrictSeat("Member of School Board District 3", "School Board Member")).toBe("District 3");
     expect(extractSubDistrictSeat("Anderson School District 2 Trustee, District 1", "School Board Member")).toBe("District 1");
     expect(extractSubDistrictSeat("Florence School District 1 Board of Trustees, District 4", "School Board Member")).toBe(
       "District 4"

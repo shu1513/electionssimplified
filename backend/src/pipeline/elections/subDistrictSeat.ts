@@ -68,8 +68,10 @@ const GEOGRAPHIC_SEAT_PATTERNS: readonly RegExp[] = [
   // The lookbehind keeps a school district's OWN number out of the seat:
   // "Independent School District No. 11 Board Member" (MN), "Anderson School
   // District 2 Trustee, District 1" (SC) name the body first and the seat
-  // second.
-  /(?<!school\s)\b(?:district|dist)\.?\s+(?:no\.?\s*)?(?:\d+[a-z]?|[ivxl]+|[a-z])\b/gi,
+  // second. It tolerates runs of whitespace and Maine's "School Administrative
+  // District No. 6"; "School Board District 3" (LA, KY, UT) IS the seat and
+  // must stay matched.
+  /(?<!school\s+(?:administrative\s+)?)\b(?:district|dist)\.?\s+(?:no\.?\s*)?(?:\d+[a-z]?|[ivxl]+|[a-z])\b/gi,
   // California and South Carolina school boards: "Trustee Area 3",
   // "Board of Trustees Area 2" (Bakersfield City SD).
   /\btrustees?\s+area\s+(?:no\.?\s*)?(?:\d+[a-z]?|[ivxl]+|[a-z])\b/gi,
