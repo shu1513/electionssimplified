@@ -31,6 +31,52 @@ describe("extractSubDistrictSeat", () => {
     expect(extractSubDistrictSeat("Constable, Precinct 1", "Constable")).toBe("Precinct 1");
   });
 
+  it("flags school board trustee areas and districts on a whole-district school row", () => {
+    expect(
+      extractSubDistrictSeat(
+        "Mountain View-Los Altos Union High School District Governing Board Member, Trustee Area 3",
+        "School Board Member",
+        { state: "CA", districtName: "Mountain View-Los Altos Union School District, California" }
+      )
+    ).toBe("Trustee Area 3");
+    expect(extractSubDistrictSeat("Bakersfield City School District Board of Trustees Area 2", "School Board Member")).toBe(
+      "Trustees Area 2"
+    );
+    expect(extractSubDistrictSeat("Torrance Unified School District Governing Board Member, Trustee Area E", "School Board Member")).toBe(
+      "Trustee Area E"
+    );
+    expect(extractSubDistrictSeat("Oakland Unified School District School Director, District 2", "School Board Member")).toBe(
+      "District 2"
+    );
+    expect(extractSubDistrictSeat("Norfolk Public Schools, Ward 1", "School Board Member")).toBe("Ward 1");
+  });
+
+  it("never reads a school district's own number as the seat", () => {
+    expect(extractSubDistrictSeat("Independent School District No. 11 Board Member", "School Board Member")).toBeNull();
+    expect(extractSubDistrictSeat("Anderson School District 2 Trustee, District 1", "School Board Member")).toBe("District 1");
+    expect(extractSubDistrictSeat("Florence School District 1 Board of Trustees, District 4", "School Board Member")).toBe(
+      "District 4"
+    );
+    // Numbered at-large seats stay silent.
+    expect(extractSubDistrictSeat("Carroll ISD Trustee, Place 4", "School Board Member")).toBeNull();
+    expect(extractSubDistrictSeat("Marion Community Schools Board Member, District II At-Large", "School Board Member")).toBeNull();
+  });
+
+  it("treats Florida school board districts as countywide seats", () => {
+    expect(
+      extractSubDistrictSeat("Broward County School Board Member, District 6", "School Board Member", {
+        state: "FL",
+        districtName: "Broward County School District, Florida",
+      })
+    ).toBeNull();
+    expect(
+      extractSubDistrictSeat("Madison County School Board District 3", "School Board Member", {
+        state: "GA",
+        districtName: "Madison County School District, Georgia",
+      })
+    ).toBe("District 3");
+  });
+
   it("extracts lettered districts", () => {
     expect(extractSubDistrictSeat("County Commissioner District E", "County Commissioner")).toBe("District E");
     expect(extractSubDistrictSeat("County Council District A", "County Supervisor")).toBe("District A");

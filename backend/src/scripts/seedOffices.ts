@@ -971,6 +971,15 @@ const SEED_OFFICES: SeedOffice[] = [
   },
   {
     scope: "local_special",
+    canonicalName: "Water District Director",
+    summary: [
+      "Setting water rates and the district's budget",
+      "Deciding on dams, pipelines, recycling, and flood-control projects",
+      "Hiring and overseeing the general manager who runs the water district",
+    ].join("\n"),
+  },
+  {
+    scope: "local_special",
     canonicalName: "Public Service Commissioner",
     summary: [
       "Setting rates and service rules for phone, pipeline, and other regulated companies",
@@ -2205,6 +2214,17 @@ const SEED_OFFICE_ALIASES: SeedOfficeAlias[] = [
   ].map((aliasText): SeedOfficeAlias => ({
     scope: "local_special",
     officeCanonicalName: "Highway District Commissioner",
+    aliasText,
+  })),
+  ...[
+    "Water District Director",
+    "Water District Board Member",
+    "Water District Board of Directors",
+    "Director, Water District",
+    "Valley Water Director",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "Water District Director",
     aliasText,
   })),
   ...[

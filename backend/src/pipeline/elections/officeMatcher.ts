@@ -491,6 +491,11 @@ function mapWaterSewerBodyForms(value: string): string {
 const LOCAL_BODY_SEAT_KEY_FOLDS: ReadonlyArray<readonly [RegExp, string]> = [
   [/^(?:[a-z0-9]+ ){0,4}highway district (?:commissioner|commission member)$/, "highway district commissioner"],
   [/^(?:[a-z0-9]+ ){0,4}college (?:of (?:[a-z0-9]+ ){1,3})?trustee$/, "community college trustee"],
+  // "Santa Clara Valley Water District Director, District 7" on the
+  // CA:SCVWD:7 row (Santa Clara County CA live). Water-and-sewer boards have
+  // their own fold above; this one is for a water district whose seat is a
+  // director.
+  [/^(?:[a-z0-9]+ ){0,5}water district (?:director|board member)$/, "water district director"],
 ];
 // Every office a body fold can land on. The token scorer vetoes a non-board
 // role title against these, because the fold's own refusal only helps when the

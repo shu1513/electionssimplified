@@ -3785,6 +3785,7 @@ describe("OfficeMatcher", () => {
       ["Highway District Commissioner", ["Highway District Commissioner", "Highway Commissioner"]],
       ["Community College Trustee", ["Community College Trustee", "College Trustee"]],
       ["Transit District Director", ["Transit District Director"]],
+      ["Water District Director", ["Water District Director", "Water District Board Member"]],
     ];
     const client = createMatcherDataClient({
       aliasesByScope: {
@@ -3803,6 +3804,9 @@ describe("OfficeMatcher", () => {
       ["Ada County Highway District", "Ada County Highway District Commission Member, District 3", "Highway District Commissioner"],
       ["College of Western Idaho", "College of Western Idaho Trustee, Zone 2", "Community College Trustee"],
       ["College of Western Idaho", "College of Western Idaho Trustee, Zone 4", "Community College Trustee"],
+      // Santa Clara County CA live, on the CA:SCVWD:7 row.
+      ["Santa Clara Valley Water District Director District 7", "Santa Clara Valley Water District Director, District 7", "Water District Director"],
+      ["Santa Clara Valley Water District Director District 7", "Santa Clara Valley Water District Board Member, District 7", "Water District Director"],
       // A non-board role on the same body never folds onto the board seat,
       // and the scorer refuses it too: on a county-named row the body's name
       // survives the strip and the three-token key scored 0.667 into the
