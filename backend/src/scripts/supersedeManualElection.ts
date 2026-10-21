@@ -104,6 +104,7 @@ type ElectionRow = {
   district_id: string;
   election_date: string;
   official_ballot_title: string;
+  office_canonical_name: string | null;
   official_ballot_title_key: string;
   race_type: string | null;
   election_stage: string | null;
@@ -203,7 +204,8 @@ export async function runSupersedeElection(
     const lockedResult = await client.query<ElectionRow>(
       `
         SELECT id, district_id, election_date::text, official_ballot_title, official_ballot_title_key,
-               race_type, election_stage, sources
+               race_type, election_stage, sources,
+               (SELECT canonical_name FROM public.offices WHERE id = public.elections.office_id) AS office_canonical_name
         FROM public.elections
         WHERE id = $1::uuid
         FOR UPDATE
@@ -216,7 +218,8 @@ export async function runSupersedeElection(
     const survivorsResult = await client.query<ElectionRow>(
       `
         SELECT id, district_id, election_date::text, official_ballot_title, official_ballot_title_key,
-               race_type, election_stage, sources
+               race_type, election_stage, sources,
+               (SELECT canonical_name FROM public.offices WHERE id = public.elections.office_id) AS office_canonical_name
         FROM public.elections
         WHERE id = ANY($1::uuid[])
         FOR UPDATE
@@ -243,7 +246,11 @@ export async function runSupersedeElection(
         const { fromDistrict, toDistrict } = await assertSiblingDistricts(
           client,
           retired.district_id,
-          survivor.district_id
+          survivor.district_id,
+          {
+            from: retired.official_ballot_title, to: survivor.official_ballot_title,
+            fromOffice: retired.office_canonical_name, toOffice: survivor.office_canonical_name,
+          }
         );
         crossDistrictSurvivors.push({
           electionId: id,

@@ -19,11 +19,23 @@ type FetchLike = (url: URL) => Promise<{
  * filtered by it. A `kml_zip` source is a zipped KML file, the format some
  * state offices publish instead of a map service (the Texas Legislative
  * Council's redistricting plans, for example); each Placemark becomes a
- * feature whose `name` and ExtendedData fields can be matched. */
+ * feature whose `name` and ExtendedData fields can be matched. An
+ * `html_geojson` source is a web map page (Folium/Leaflet exports such as the
+ * Redistricting Partners plan maps California college boards publish) whose
+ * HTML embeds the plan's GeoJSON FeatureCollection; the first embedded
+ * collection is read. */
 export type BoundarySourceSpec = {
-  kind: "arcgis" | "geojson" | "kml_zip";
+  kind: "arcgis" | "geojson" | "kml_zip" | "html_geojson";
   url: string;
   match: { field: string; values: string[] };
+  /** A registrar's PRECINCT layer names each precinct's district in a field
+   * ("DIV_USD" = 'TORRANCE UNIFIED TA 4', Los Angeles County), so one seat is
+   * MANY features. With `dissolve` every feature carrying a matched value is
+   * kept and the pieces are combined; the eligibility check treats the
+   * MultiPolygon as their union. Without it the source must return exactly
+   * one feature per value. ArcGIS answers are paged with resultOffset until
+   * the server stops reporting exceededTransferLimit. */
+  dissolve?: boolean;
 };
 
 export type LocalBoundaryImport = {
@@ -67,8 +79,9 @@ function httpsUrl(value: unknown): URL | null {
 }
 
 function parseSource(value: unknown, label: string): BoundarySourceSpec {
-  if (!isRecord(value) || (value.kind !== "arcgis" && value.kind !== "geojson" && value.kind !== "kml_zip")) {
-    throw new Error(`${label}.kind must be "arcgis", "geojson", or "kml_zip"`);
+  if (!isRecord(value) ||
+    (value.kind !== "arcgis" && value.kind !== "geojson" && value.kind !== "kml_zip" && value.kind !== "html_geojson")) {
+    throw new Error(`${label}.kind must be "arcgis", "geojson", "kml_zip", or "html_geojson"`);
   }
   const url = httpsUrl(value.url);
   if (!url) throw new Error(`${label}.url must be an HTTPS URL`);
@@ -83,7 +96,15 @@ function parseSource(value: unknown, label: string): BoundarySourceSpec {
   }
   const values = match.values as string[];
   if (new Set(values).size !== values.length) throw new Error(`${label}.match.values has duplicates`);
-  return { kind: value.kind, url: value.url as string, match: { field: match.field, values } };
+  if (value.dissolve !== undefined && typeof value.dissolve !== "boolean") {
+    throw new Error(`${label}.dissolve must be true or false`);
+  }
+  return {
+    kind: value.kind,
+    url: value.url as string,
+    match: { field: match.field, values },
+    ...(value.dissolve === true ? { dissolve: true } : {}),
+  };
 }
 
 /** Dry runs print the hash. The reviewer compares the official geometry with
@@ -141,7 +162,7 @@ function stableJson(value: unknown): string {
 }
 
 function sourceRequestUrl(spec: BoundarySourceSpec): URL {
-  if (spec.kind === "geojson" || spec.kind === "kml_zip") return new URL(spec.url);
+  if (spec.kind === "geojson" || spec.kind === "kml_zip" || spec.kind === "html_geojson") return new URL(spec.url);
   const url = new URL(`${spec.url}/query`);
   url.searchParams.set("where", `${spec.match.field} IN (${spec.match.values.map((entry) => `'${entry}'`).join(",")})`);
   url.searchParams.set("outFields", "*");
@@ -223,6 +244,58 @@ export function kmlZipToFeatureCollection(zipBytes: Uint8Array): { type: "Featur
   return { type: "FeatureCollection", features };
 }
 
+/** The first GeoJSON FeatureCollection object embedded in a web map page. A
+ * Folium/Leaflet export writes it as a JavaScript literal
+ * (`var geo_json_… = {"type": "FeatureCollection", …};`), so the object is
+ * found by locating the `"type": "FeatureCollection"` member, walking back to
+ * the `{` that opens its object, and scanning forward with a JSON-aware
+ * bracket count (strings and escapes respected) to the matching `}`. */
+export function extractEmbeddedFeatureCollection(html: string): unknown {
+  const marker = /"type"\s*:\s*"FeatureCollection"/g;
+  let hit = marker.exec(html);
+  while (hit !== null) {
+    let start = hit.index;
+    let depth = 0;
+    let inString = false;
+    for (let i = hit.index - 1; i >= 0; i -= 1) {
+      const ch = html[i];
+      if (ch === "}" ) depth += 1;
+      else if (ch === "{") {
+        if (depth === 0) { start = i; break; }
+        depth -= 1;
+      }
+    }
+    if (html[start] === "{") {
+      depth = 0;
+      for (let i = start; i < html.length; i += 1) {
+        const ch = html[i];
+        if (inString) {
+          if (ch === "\\") i += 1;
+          else if (ch === "\"") inString = false;
+          continue;
+        }
+        if (ch === "\"") inString = true;
+        else if (ch === "{") depth += 1;
+        else if (ch === "}") {
+          depth -= 1;
+          if (depth === 0) {
+            try {
+              const parsed: unknown = JSON.parse(html.slice(start, i + 1));
+              if (isRecord(parsed) && parsed.type === "FeatureCollection" && Array.isArray(parsed.features)) return parsed;
+            } catch {
+              // Not a standalone JSON literal (a template or a string-wrapped
+              // copy); keep looking at the next marker.
+            }
+            break;
+          }
+        }
+      }
+    }
+    hit = marker.exec(html);
+  }
+  throw new Error("Official boundary page embeds no GeoJSON FeatureCollection");
+}
+
 /** True when every point of the ring lies on one line (or all coincide), so
  * the ring provably encloses nothing. The line runs from the first point to
  * the point farthest from it: anchoring on the first *different* point would
@@ -239,8 +312,31 @@ function isDegenerateRing(ring: unknown): boolean {
   return offsets.every(([px, py]) => Math.abs(px * dy - py * dx) <= 1e-12);
 }
 
+/** A hole smaller than this (square degrees; about ten square metres at
+ * mid latitudes) is a digitizing sliver, never a real exclusion. Riverside
+ * County's Nov 2026 layer carries 94 such holes on one Hemet trustee area,
+ * each a few points and under a square metre; the boundary check rejects
+ * the smallest of them as zero-area. */
+const SLIVER_HOLE_AREA_SQ_DEG = 1e-9;
+
+function isSliverHole(ring: unknown): boolean {
+  if (!Array.isArray(ring) || ring.length === 0) return false;
+  // Bounding-box area bounds the enclosed area from above and, unlike the
+  // shoelace sum, cannot read zero for a self-crossing ring of real extent.
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const point of ring as number[][]) {
+    const [x = 0, y = 0] = point;
+    if (x < minX) minX = x;
+    if (x > maxX) maxX = x;
+    if (y < minY) minY = y;
+    if (y > maxY) maxY = y;
+  }
+  return (maxX - minX) * (maxY - minY) < SLIVER_HOLE_AREA_SQ_DEG;
+}
+
 /** Official layers sometimes carry a hole with no area (a digitizing slip:
- * three copies of one point). It removes nothing from the district, but the
+ * three copies of one point) or with a sliver of area (see
+ * SLIVER_HOLE_AREA_SQ_DEG). It removes nothing from the district, but the
  * boundary check rejects zero-area rings, so drop such holes. A multi-part
  * layer can carry the same slip as a whole piece (Douglas County's MUD
  * Subdivision 4 has a three-point sliver); a piece with no area adds no
@@ -250,7 +346,7 @@ function isDegenerateRing(ring: unknown): boolean {
 export function dropDegenerateHoles(geometry: unknown): unknown {
   if (!isRecord(geometry) || !Array.isArray(geometry.coordinates)) return geometry;
   const clean = (polygon: unknown) => Array.isArray(polygon)
-    ? polygon.filter((ring, index) => index === 0 || !isDegenerateRing(ring))
+    ? polygon.filter((ring, index) => index === 0 || (!isDegenerateRing(ring) && !isSliverHole(ring)))
     : polygon;
   if (geometry.type === "Polygon") return { ...geometry, coordinates: clean(geometry.coordinates) };
   if (geometry.type === "MultiPolygon") {
@@ -261,29 +357,57 @@ export function dropDegenerateHoles(geometry: unknown): unknown {
   return geometry;
 }
 
+async function readFeatureCollection(
+  spec: BoundarySourceSpec,
+  url: URL,
+  fetchImpl: FetchLike
+): Promise<{ features: unknown[]; truncated: boolean }> {
+  const response = await fetchImpl(url);
+  if (!response.ok) throw new Error(`Official boundary source returned HTTP ${response.status}: ${url}`);
+  const body: unknown = spec.kind === "kml_zip"
+    ? kmlZipToFeatureCollection(await readArrayBuffer(response, url))
+    : spec.kind === "html_geojson"
+      ? extractEmbeddedFeatureCollection(new TextDecoder("utf-8").decode(await readArrayBuffer(response, url)))
+      : await response.json();
+  if (!isRecord(body) || body.type !== "FeatureCollection" || !Array.isArray(body.features)) {
+    throw new Error(`Official boundary source did not return a GeoJSON FeatureCollection: ${url}`);
+  }
+  const truncated = body.exceededTransferLimit === true ||
+    (isRecord(body.properties) && body.properties.exceededTransferLimit === true);
+  return { features: body.features, truncated };
+}
+
+// A precinct layer answers a seat's query in pages (ArcGIS maxRecordCount,
+// commonly 1000-2000). Follow resultOffset until the server stops flagging a
+// truncated page; any other source kind must come back whole.
+const MAX_ARCGIS_PAGES = 50;
+
 async function fetchSourceFeatures(
   spec: BoundarySourceSpec,
   fetchImpl: FetchLike
 ): Promise<{ url: string; features: Record<string, unknown>[] }> {
   const url = sourceRequestUrl(spec);
-  const response = await fetchImpl(url);
-  if (!response.ok) throw new Error(`Official boundary source returned HTTP ${response.status}: ${url}`);
-  const body: unknown = spec.kind === "kml_zip"
-    ? kmlZipToFeatureCollection(await readArrayBuffer(response, url))
-    : await response.json();
-  if (!isRecord(body) || body.type !== "FeatureCollection" || !Array.isArray(body.features)) {
-    throw new Error(`Official boundary source did not return a GeoJSON FeatureCollection: ${url}`);
-  }
-  if (body.exceededTransferLimit === true || (isRecord(body.properties) && body.properties.exceededTransferLimit === true)) {
-    throw new Error(`Official boundary source truncated its answer: ${url}`);
+  const collected: unknown[] = [];
+  let page = 0;
+  let truncated = true;
+  while (truncated) {
+    const pageUrl = new URL(url);
+    if (page > 0) pageUrl.searchParams.set("resultOffset", String(collected.length));
+    const result = await readFeatureCollection(spec, pageUrl, fetchImpl);
+    collected.push(...result.features);
+    truncated = result.truncated;
+    page += 1;
+    if (truncated && (spec.kind !== "arcgis" || result.features.length === 0 || page >= MAX_ARCGIS_PAGES)) {
+      throw new Error(`Official boundary source truncated its answer: ${url}`);
+    }
   }
   const wanted = new Set(spec.match.values);
-  const features = body.features.filter((feature): feature is Record<string, unknown> =>
+  const features = collected.filter((feature): feature is Record<string, unknown> =>
     isRecord(feature) && isRecord(feature.properties) &&
     wanted.has(String(feature.properties[spec.match.field] ?? "").trim()));
   const seen = features.map((feature) => String((feature.properties as Record<string, unknown>)[spec.match.field]).trim());
   const missing = spec.match.values.filter((entry) => !seen.includes(entry));
-  if (missing.length > 0 || seen.length !== spec.match.values.length) {
+  if (missing.length > 0 || (!spec.dissolve && seen.length !== spec.match.values.length)) {
     throw new Error(`Official boundary source feature set is incomplete or duplicated (${spec.match.field}; missing: ${missing.join(", ") || "none"}): ${url}`);
   }
   for (const feature of features) {

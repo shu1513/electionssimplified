@@ -149,6 +149,7 @@ type ElectionRow = {
   district_id: string;
   election_date: string;
   official_ballot_title: string;
+  office_canonical_name: string | null;
   race_type: string | null;
   election_stage: string | null;
 };
@@ -167,6 +168,58 @@ type DistrictRow = {
  */
 function districtBodyName(name: string): string {
   return name.replace(/,[^,]*$/, "").trim().toLowerCase();
+}
+
+const SEAT_DESIGNATOR_PATTERN =
+  /\b(?:trustee\s+area|subdistrict|district|area|seat|ward|zone|place|position|division)\s+(?:no\.?\s*)?([0-9]+[a-z]?|[a-z])\s*$/i;
+
+function trailingSeatDesignator(title: string): string | null {
+  const match = title
+    .trim()
+    .replace(/,?\s+(?:short|full|unexpired|partial)\s+term$/i, "")
+    .match(SEAT_DESIGNATOR_PATTERN);
+  return match ? match[1].toLowerCase() : null;
+}
+
+type AreaSplitTitles = {
+  from: string;
+  to: string;
+  fromOffice: string | null;
+  toOffice: string | null;
+};
+
+function areaBodyName(name: string, fromDistrict: DistrictRow): string {
+  let body = districtBodyName(name)
+    .replace(SEAT_DESIGNATOR_PATTERN, "")
+    .replace(/\btrustee\s*$/, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+  if ((fromDistrict.district_type ?? "").startsWith("school_")) {
+    body = body.replace(/\bschool board\b/g, "school district");
+    // Only known Census/board naming differences; do not shorten other bodies.
+    if (fromDistrict.state === "CA" && fromDistrict.district_type === "school_secondary" &&
+        body === "mountain view los altos union high school district") {
+      body = "mountain view los altos union school district";
+    }
+    if (fromDistrict.state === "FL" && body === "miami dade county school district") {
+      body = "dade county school district";
+    }
+  }
+  return body.replace(/\s+/g, " ").trim();
+}
+
+/** Area repairs need the complete body and the same catalog office. Generic
+ * titles and a shared county prefix do not establish either relationship. */
+function isAreaSplitTitlePair(titles: AreaSplitTitles, fromDistrict: DistrictRow, toDistrict: DistrictRow): boolean {
+  if (!titles.fromOffice || titles.fromOffice !== titles.toOffice) return false;
+  const fromBody = areaBodyName(fromDistrict.name, fromDistrict);
+  if (!fromBody || fromBody !== areaBodyName(toDistrict.name, fromDistrict)) return false;
+  const fromSeat = trailingSeatDesignator(titles.from);
+  const toSeat = trailingSeatDesignator(titles.to);
+  const areaSeat = trailingSeatDesignator(districtBodyName(toDistrict.name));
+  if (areaSeat && ((fromSeat && fromSeat !== areaSeat) || (toSeat && toSeat !== areaSeat))) return false;
+  return titles.from.trim().toLowerCase() === titles.to.trim().toLowerCase() ||
+    (fromSeat !== null && fromSeat === toSeat);
 }
 
 /**
@@ -188,7 +241,10 @@ function districtBodyName(name: string): string {
 export async function assertSiblingDistricts(
   client: MoveCandidateElectionLinkClient,
   fromDistrictId: string,
-  toDistrictId: string
+  toDistrictId: string,
+  // The printed titles and catalog offices accompany the full district-body
+  // check for a whole-district shell repaired onto a reviewed area polygon.
+  titles?: AreaSplitTitles
 ): Promise<{ fromDistrict: DistrictRow; toDistrict: DistrictRow }> {
   const districtsResult = await client.query<DistrictRow>(
     `SELECT id, name, state, district_type FROM public.districts WHERE id = ANY($1::uuid[])`,
@@ -207,6 +263,14 @@ export async function assertSiblingDistricts(
   }
   const fromBody = districtBodyName(fromDistrict.name);
   const toBody = districtBodyName(toDistrict.name);
+  if (
+    toDistrict.district_type === "local_special" &&
+    fromDistrict.district_type !== "local_special" &&
+    titles !== undefined &&
+    isAreaSplitTitlePair(titles, fromDistrict, toDistrict)
+  ) {
+    return { fromDistrict, toDistrict };
+  }
   const namesRelated =
     fromBody === toBody ||
     fromBody.startsWith(`${toBody} in `) ||
@@ -418,7 +482,8 @@ export async function runMoveCandidateElectionLink(
     // between two concurrent movers.
     const electionsResult = await client.query<ElectionRow>(
       `
-        SELECT id, district_id, election_date::text, official_ballot_title, race_type, election_stage
+        SELECT id, district_id, election_date::text, official_ballot_title, race_type, election_stage,
+               (SELECT canonical_name FROM public.offices WHERE id = public.elections.office_id) AS office_canonical_name
         FROM public.elections
         WHERE id = ANY($1::uuid[])
         ORDER BY id
@@ -442,7 +507,11 @@ export async function runMoveCandidateElectionLink(
       const { fromDistrict, toDistrict } = await assertSiblingDistricts(
         client,
         fromElection.district_id,
-        toElection.district_id
+        toElection.district_id,
+        {
+          from: fromElection.official_ballot_title, to: toElection.official_ballot_title,
+          fromOffice: fromElection.office_canonical_name, toOffice: toElection.office_canonical_name,
+        }
       );
       crossDistrict = { fromDistrict: fromDistrict.name, toDistrict: toDistrict.name };
     }

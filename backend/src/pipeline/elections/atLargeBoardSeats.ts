@@ -38,6 +38,16 @@ const COUNTY_BOARD_OFFICES: ReadonlySet<string> = new Set(["County Commissioner"
 // newly-seeded at-large city is flagged until someone checks it.
 const MUNICIPAL_BOARD_OFFICES: ReadonlySet<string> = new Set(["City Council Member", "Town Council Member"]);
 
+// School boards. Florida elects school board members "by the qualified
+// electors of the entire district" (s. 1001.36 Fla. Stat.) unless a county
+// adopts single-member districts by referendum (s. 1001.361). Several large
+// counties have (Broward, Miami-Dade, Palm Beach, Orange, Duval), so the
+// statewide rule under-warns there; it never over-warns, which is the safe
+// direction. List the single-member counties as exemptions once each
+// county's method has been read off its own referendum record.
+const SCHOOL_BOARD_OFFICES: ReadonlySet<string> = new Set(["School Board Member"]);
+const AT_LARGE_SCHOOL_BOARD_STATES: ReadonlySet<string> = new Set(["FL"]);
+
 // Whole states where a county commissioner's district is residency-only.
 const AT_LARGE_BOARD_STATES: ReadonlySet<string> = new Set(["ID", "IN"]);
 
@@ -202,13 +212,18 @@ export function isAtLargeBoardSeat(input: {
   }
   const isCountyBoard = COUNTY_BOARD_OFFICES.has(officeCanonicalName);
   const isMunicipalBoard = MUNICIPAL_BOARD_OFFICES.has(officeCanonicalName);
-  if (!isCountyBoard && !isMunicipalBoard) {
+  const isSchoolBoard = SCHOOL_BOARD_OFFICES.has(officeCanonicalName);
+  if (!isCountyBoard && !isMunicipalBoard && !isSchoolBoard) {
     return false;
   }
   if (typeof state !== "string" || state.length === 0) {
     return false;
   }
   const stateKey = state.toUpperCase();
+
+  if (isSchoolBoard) {
+    return AT_LARGE_SCHOOL_BOARD_STATES.has(stateKey);
+  }
 
   if (
     isCountyBoard &&

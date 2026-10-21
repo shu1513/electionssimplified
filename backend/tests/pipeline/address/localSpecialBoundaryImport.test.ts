@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { isValidLocalBoundaryGeometry } from "../../../src/pipeline/address/localSpecialDistrictEligibility.js";
 import {
+  extractEmbeddedFeatureCollection,
   fetchLocalBoundarySource,
   insertReviewedLocalBoundary,
   dropDegenerateHoles,
@@ -180,6 +181,91 @@ describe("zipped KML boundary sources", () => {
     expect((source.geometry as { type: string }).type).toBe("MultiPolygon");
   });
 
+  it("dissolves a precinct layer's pieces and follows paged ArcGIS answers", async () => {
+    // Los Angeles County's Registrar names each precinct's trustee area; one
+    // seat is many precincts, and the server pages at its record limit.
+    const payload = parseLocalBoundaryImport({
+      ...rtdO,
+      district_key: "CA:TUSD:4",
+      district_name: "Torrance Unified School District Trustee Area 4",
+      state: "CA",
+      sources: [{
+        kind: "arcgis",
+        url: "https://services.arcgis.com/RmCCgQtiZLDCtblq/ArcGIS/rest/services/Registrar_Recorder_Precincts_with_District_Names/FeatureServer/2",
+        match: { field: "DIV_USD", values: ["TORRANCE UNIFIED TA 4"] },
+        dissolve: true,
+      }],
+    });
+    const piece = (index: number) => ({
+      type: "Feature",
+      properties: { DIV_USD: "TORRANCE UNIFIED TA 4", PRECINCT: `P${index}` },
+      geometry: square(index, 0, index + 1, 1),
+    });
+    const other = { type: "Feature", properties: { DIV_USD: "TORRANCE UNIFIED TA 5" }, geometry: square(9, 9, 10, 10) };
+    const fetchImpl = vi.fn(async (url: URL) => {
+      const offset = Number(url.searchParams.get("resultOffset") ?? "0");
+      const features = offset === 0 ? [piece(0), piece(1), other] : [piece(2)];
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({ type: "FeatureCollection", features, exceededTransferLimit: offset === 0 }),
+      };
+    });
+    const source = await fetchLocalBoundarySource(payload, fetchImpl);
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+    expect((fetchImpl.mock.calls[1]?.[0] as URL).searchParams.get("resultOffset")).toBe("3");
+    expect((source.geometry as { type: string; coordinates: unknown[] }).type).toBe("MultiPolygon");
+    expect((source.geometry as { coordinates: unknown[] }).coordinates).toHaveLength(3);
+
+    // Without dissolve, two pieces for one value are still an error.
+    const strict = parseLocalBoundaryImport({ ...rtdO, sources: [{ kind: "arcgis", url: LAYER, match: { field: "BND", values: ["O"] } }] });
+    const twice = vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({ type: "FeatureCollection", features: [
+        { type: "Feature", properties: { BND: "O" }, geometry: square(0, 0, 1, 1) },
+        { type: "Feature", properties: { BND: "O" }, geometry: square(1, 0, 2, 1) },
+      ] }),
+    }));
+    await expect(fetchLocalBoundarySource(strict, twice)).rejects.toThrow(/incomplete or duplicated/);
+  });
+
+  it("fetches an html_geojson source and reads the FeatureCollection a web map page embeds", async () => {
+    // Redistricting Partners publishes California college-board plans as
+    // Folium pages: the GeoJSON sits in a JavaScript literal.
+    const page = `<html><head><script>var map_opts = {"zoom": 11};</script></head><body>
+      <script>var geo_json_abc_data = {"type": "FeatureCollection", "features": [
+        {"type": "Feature", "properties": {"DISTRICT": "2", "name": "Area {2}"}, "geometry": ${JSON.stringify(square(0, 0, 1, 1))}},
+        {"type": "Feature", "properties": {"DISTRICT": "3"}, "geometry": ${JSON.stringify(square(1, 0, 2, 1))}}
+      ]};
+      geo_json_abc.addData(geo_json_abc_data);</script></body></html>`;
+    const parsed = extractEmbeddedFeatureCollection(page) as { features: unknown[] };
+    expect(parsed.features).toHaveLength(2);
+    expect(() => extractEmbeddedFeatureCollection("<html>no map here</html>")).toThrow(/embeds no GeoJSON/);
+
+    const payload = parseLocalBoundaryImport({
+      ...rtdO,
+      district_key: "CA:SJECCD:2",
+      district_name: "San José-Evergreen Community College District Trustee Area 2",
+      state: "CA",
+      sources: [{
+        kind: "html_geojson",
+        url: "https://redistrictingpartners.com/wp-content/uploads/2026/10/San-Jose-Evergreen-CCD-Final-Plan.html",
+        match: { field: "DISTRICT", values: ["2"] },
+      }],
+    });
+    const bytes = new TextEncoder().encode(page);
+    const fetchImpl = vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      json: async () => { throw new Error("not JSON"); },
+      arrayBuffer: async () => bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer,
+    }));
+    const source = await fetchLocalBoundarySource(payload, fetchImpl);
+    expect(source.sourceUrl).toBe("https://redistrictingpartners.com/wp-content/uploads/2026/10/San-Jose-Evergreen-CCD-Final-Plan.html");
+    expect(source.geometry).toEqual(square(0, 0, 1, 1));
+  });
+
   it("reads coordinates tags that carry whitespace or attributes and refuses an unreadable hole", () => {
     const withAttributes = kml.replace("<innerBoundaryIs><LinearRing><coordinates>", "<innerBoundaryIs><LinearRing><coordinates >");
     const collection = kmlZipToFeatureCollection(zipSync({ "plan.kml": strToU8(withAttributes) }));
@@ -192,6 +278,26 @@ describe("zipped KML boundary sources", () => {
 
   it("refuses a zip with no KML file", () => {
     expect(() => kmlZipToFeatureCollection(zipSync({ "readme.txt": strToU8("hi") }))).toThrow(/no \.kml file/);
+  });
+});
+
+describe("sliver holes", () => {
+  const outer = [[-117, 33.7], [-116.9, 33.7], [-116.9, 33.8], [-117, 33.8], [-117, 33.7]];
+  const realHole = [[-116.96, 33.74], [-116.95, 33.74], [-116.95, 33.75], [-116.96, 33.75], [-116.96, 33.74]];
+  // Three distinct, non-collinear points a few centimetres apart: not
+  // provably degenerate, but far below any real exclusion (Hemet USD TA7).
+  const sliver = [[-116.93, 33.76], [-116.9299995, 33.76], [-116.93, 33.7600004], [-116.93, 33.76]];
+
+  it("drops holes whose area is below the sliver threshold and keeps real holes", () => {
+    expect(dropDegenerateHoles({ type: "Polygon", coordinates: [outer, realHole, sliver] }))
+      .toEqual({ type: "Polygon", coordinates: [outer, realHole] });
+    expect(dropDegenerateHoles({ type: "MultiPolygon", coordinates: [[outer, sliver, realHole]] }))
+      .toEqual({ type: "MultiPolygon", coordinates: [[outer, realHole]] });
+  });
+
+  it("never drops an outer ring for being small", () => {
+    const tiny = { type: "Polygon", coordinates: [sliver] };
+    expect(dropDegenerateHoles(tiny)).toEqual(tiny);
   });
 });
 

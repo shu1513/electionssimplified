@@ -491,6 +491,67 @@ function mapWaterSewerBodyForms(value: string): string {
 const LOCAL_BODY_SEAT_KEY_FOLDS: ReadonlyArray<readonly [RegExp, string]> = [
   [/^(?:[a-z0-9]+ ){0,4}highway district (?:commissioner|commission member)$/, "highway district commissioner"],
   [/^(?:[a-z0-9]+ ){0,4}college (?:of (?:[a-z0-9]+ ){1,3})?trustee$/, "community college trustee"],
+  // California prints the board seat as "Palomar Community College District
+  // Governing Board Member, Trustee Area 1" on a row named for the trustee
+  // area, so the strip cannot remove the district name. The seat strip has no
+  // "trustee area" form, so the fold accepts it here.
+  [/^(?:[a-z0-9]+ ){0,4}community college district governing board member(?: trustee area (?:no )?\d+)?$/, "community college trustee"],
+  // "Santa Clara Valley Water District Director, District 7" on the
+  // CA:SCVWD:7 row (Santa Clara County CA live). Water-and-sewer boards have
+  // their own fold above; this one is for a water district whose seat is a
+  // director.
+  [/^(?:[a-z0-9]+ ){0,5}water district (?:director|board member)$/, "water district director"],
+  // Regional water bodies that are water districts in all but name: "Mojave
+  // Water Agency Director, Division 6", "San Bernardino Valley Water
+  // Conservation District Director, Division 4", "Municipal Water District of
+  // Orange County Director, Division 2", "Inland Empire Utilities Agency
+  // Director, Division 4" (San Bernardino and Orange counties CA live).
+  [/^(?!.*\bsoil\b)(?:[a-z0-9]+ ){0,5}water (?:agency|authority|conservation district) (?:director|board member)$/, "water district director"],
+  [/^(?:[a-z0-9]+ ){0,3}municipal water district of (?:[a-z0-9]+ ){1,3}(?:director|board member)$/, "water district director"],
+  [/^(?:[a-z0-9]+ ){0,5}(?:utilities|utility) agency (?:director|board member)$/, "utility district director"],
+  // East Bay bodies on their own ward rows (Alameda County CA live): "East Bay
+  // Municipal Utility District Director, Ward 7", "East Bay Regional Park
+  // District Director, Ward 3", "Midpeninsula Regional Open Space District
+  // Director, Ward 1", "Bay Area Rapid Transit District Director, District 4",
+  // "Alameda-Contra Costa Transit District Director, Ward 3".
+  [/^(?:[a-z0-9]+ ){0,5}municipal utility district (?:director|board member)$/, "municipal utility district director"],
+  [/^(?:[a-z0-9]+ ){0,5}(?:park|recreation|park and recreation|recreation and park|regional park) district (?:director|board member)$/, "park district director"],
+  [/^(?:[a-z0-9]+ ){0,5}open space district (?:director|board member)$/, "open space district director"],
+  [/^(?:[a-z0-9]+ ){0,5}transit district (?:director|board member)$/, "transit district director"],
+  // "Member, State Board of Equalization, District 2" on the CA:BOE:2 row:
+  // the jurisdiction strip would leave a bare "member".
+  [/^(?:member )?(?:of the )?(?:state )?board of equalization(?: member)?$/, "state board of equalization member"],
+  // A school board seat written on its own trustee-area row ("Torrance
+  // Unified School District Governing Board Member, Trustee Area E" on the
+  // CA:TUSD:E row). The seat strip has no "trustee area" form, so the fold
+  // accepts it, as the community-college fold does.
+  [/^(?:[a-z0-9]+ ){0,6}school district (?:governing board member|board member|board of education member|board of trustees member|trustee|school director)(?: trustee area (?:no )?[a-z0-9]+)?$/, "school board member"],
+  // "Public Hospital District No. 1 Commissioner, Position 3" (WA): the seat
+  // strip reads "District No. 1" as a seat and leaves "public hospital
+  // commissioner", so the district word is optional here.
+  [/^(?:[a-z0-9]+ ){0,5}(?:public )?(?:hospital|health ?care)(?: district(?: no \d+)?)? (?:director|commissioner|board member)$/, "hospital district director"],
+  // Florida districts on their own polygons: "Orange Soil and Water
+  // Conservation District Supervisor, District 3", "South Broward Drainage
+  // District Supervisor, Zone 4", "Coral Springs Improvement District
+  // Supervisor, Seat 4", "Vista Lakes Community Development District
+  // Supervisor, Seat 3" (the CDD rule above already reduces the last one).
+  [/^(?:[a-z0-9]+ ){0,6}(?:community development district|cdd) supervisor$/, "community development district supervisor"],
+  [/^(?:[a-z0-9]+ ){0,4}soil (?:and |& )?water conservation (?:district )?(?:supervisor|director|board member)$/, "soil and water conservation district supervisor"],
+  [/^(?:[a-z0-9]+ ){0,5}(?:water control|drainage|improvement) district (?:supervisor|board member|commissioner)$/, "water control district supervisor"],
+  // Boards found by the 2026-10 county inventories, each on its own polygon:
+  // "Rossmoor Community Services District Director", "Chino Valley Independent
+  // Fire District Director", "Oro Loma Sanitary District Director, Division 3",
+  // "San Diego County Board of Education Member, Trustee Area 3", "Harris
+  // County Emergency Services District No. 9 Commissioner, Position 2",
+  // "Metropolitan Water Reclamation District Commissioner", "Cook County Board
+  // of Review Commissioner, District 1".
+  [/^(?:[a-z0-9]+ ){0,5}community services district (?:director|board member)$/, "community services district director"],
+  [/^(?:[a-z0-9]+ ){0,5}(?:independent )?fire (?:protection |rescue )?district (?:director|board member)$/, "fire protection district director"],
+  [/^(?:[a-z0-9]+ ){0,5}(?:sanitary|sanitation|wastewater) district (?:director|trustee|board member)$/, "sanitary district director"],
+  [/^(?:[a-z0-9]+ ){0,4}county board of education (?:member|trustee)(?: trustee area (?:no )?[a-z0-9]+)?$/, "county board of education member"],
+  [/^(?:[a-z0-9]+ ){0,5}emergency services(?: district(?: no \d+)?)? (?:commissioner|board member)$/, "emergency services district commissioner"],
+  [/^(?:[a-z0-9]+ ){0,4}water reclamation district commissioner$/, "water reclamation district commissioner"],
+  [/^(?:[a-z0-9]+ ){0,3}board of review (?:commissioner|member)$/, "board of review commissioner"],
 ];
 // Every office a body fold can land on. The token scorer vetoes a non-board
 // role title against these, because the fold's own refusal only helps when the
@@ -503,8 +564,21 @@ const BODY_FOLD_OFFICE_KEYS: ReadonlySet<string> = new Set([
   ...LOCAL_BODY_SEAT_KEY_FOLDS.map(([, officeKey]) => officeKey),
 ]);
 
+// Seat words the generic seat strip does not know: California special
+// districts number their seats as "Area 3" (Eden Township Healthcare
+// District, Hayward Area Recreation and Park District) and "Division 5" (Oro
+// Loma Sanitary District, water districts). Only the trailing designator goes,
+// so a body named "Hayward Area ..." keeps its name.
+const LOCAL_BODY_TRAILING_AREA_PATTERN = /\s+(?:trustee area|area|division|subdistrict|subdivision)\s+(?:no\s+)?[a-z0-9]+$/;
+// A term-length tag after the seat ("Trustee Area 2, Short Term", "Area 1 -
+// Short Term", "Unexpired Term") describes the term, not the office.
+const LOCAL_BODY_TRAILING_TERM_PATTERN = /\s+(?:short|full|unexpired|partial)\s+term$/;
+
 function mapLocalBodySeatForms(normalizedTitle: string): string | null {
-  const withoutSeat = stripSeatSuffixes(normalizedTitle);
+  const withoutSeat = stripSeatSuffixes(normalizedTitle)
+    .replace(LOCAL_BODY_TRAILING_TERM_PATTERN, "")
+    .replace(LOCAL_BODY_TRAILING_AREA_PATTERN, "")
+    .replace(LOCAL_BODY_TRAILING_TERM_PATTERN, "");
   if (FIRE_DISTRICT_NON_BOARD_ROLE_PATTERN.test(withoutSeat)) {
     return null;
   }

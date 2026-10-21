@@ -26,6 +26,30 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 
+describe("school trustee-area warnings", () => {
+  it.each([
+    ["local_special", null],
+    ["school_secondary", "Trustee Area 3"],
+  ])("uses %s scope consistently in ballot summaries and election detail", async (scope, expected) => {
+    const row = {
+      election_id: officeElectionId, district_id: districtId, district_type: scope,
+      district_name: "Mountain View-Los Altos Union High School District", state: "CA",
+      race_type: "office", official_ballot_title: "Governing Board Member, Trustee Area 3",
+      election_date: "2026-11-03", election_stage: "general", is_partisan: false,
+      sources: [], office_id: officeId, office_scope: scope,
+      office_canonical_name: "School Board Member", office_summary: "School board duties",
+      candidate_count: 0,
+    };
+    const query = vi.fn(async (sql: string) => ({ rows:
+      sql.includes("office.scope AS office_scope") ? [row] : []
+    }));
+    const summary = await lookupBallotSummariesByDistrictIds({ query } as never, [districtId]);
+    expect(summary.elections[0]?.sub_district_seat).toBe(expected);
+    const detail = await lookupElectionDetailById({ query } as never, officeElectionId);
+    expect(detail?.sub_district_seat).toBe(expected);
+  });
+});
+
 describe("lookupBallotSummariesByDistrictIds", () => {
   it("returns an empty summary result without querying for empty district IDs", async () => {
     const db = { query: vi.fn() };

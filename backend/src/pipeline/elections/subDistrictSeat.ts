@@ -44,6 +44,13 @@ const SUB_JURISDICTION_SEAT_OFFICES: ReadonlySet<string> = new Set([
   "Community College Trustee",
   "County Hospital Trustee",
   "Career and Technical Education District Board Member",
+  // School boards elected by trustee area / district on a whole-district
+  // school row ("Mountain View-Los Altos Union High School District Governing
+  // Board Member, Trustee Area 3", Santa Clara County CA live: shown to a
+  // Trustee Area 4 voter with no note, 2026-10-21). 1,703 November 2026 seats
+  // carry a geographic designator on 610 school rows. Florida's statutory
+  // default elects school board districts countywide — see atLargeBoardSeats.
+  "School Board Member",
 ]);
 
 // Only GEOGRAPHIC designators. "Seat"/"Position"/"Office"/"Division"/"Part" are
@@ -58,7 +65,16 @@ const GEOGRAPHIC_SEAT_PATTERNS: readonly RegExp[] = [
   // "County Council District A", MD; "FORSYTH COUNTY ... DISTRICT B", NC). The
   // single-letter alternative sits last so Roman numerals stay Roman, and its
   // \b...\b bounds keep it off "District Attorney" and "District At-Large".
-  /\b(?:district|dist)\.?\s+(?:no\.?\s*)?(?:\d+[a-z]?|[ivxl]+|[a-z])\b/gi,
+  // The lookbehind keeps a school district's OWN number out of the seat:
+  // "Independent School District No. 11 Board Member" (MN), "Anderson School
+  // District 2 Trustee, District 1" (SC) name the body first and the seat
+  // second. It tolerates runs of whitespace and Maine's "School Administrative
+  // District No. 6"; "School Board District 3" (LA, KY, UT) IS the seat and
+  // must stay matched.
+  /(?<!school\s+(?:administrative\s+)?)\b(?:district|dist)\.?\s+(?:no\.?\s*)?(?:\d+[a-z]?|[ivxl]+|[a-z])\b/gi,
+  // California and South Carolina school boards: "Trustee Area 3",
+  // "Board of Trustees Area 2" (Bakersfield City SD).
+  /\btrustees?\s+area\s+(?:no\.?\s*)?(?:\d+[a-z]?|[ivxl]+|[a-z])\b/gi,
   // "1st District", "22nd District".
   /\b\d+(?:st|nd|rd|th)\s+district\b/gi,
   // Louisiana justice-of-the-peace and constable wards; Carson City NV wards.
@@ -125,9 +141,14 @@ function toDisplaySeat(rawMatch: string): string {
 export function extractSubDistrictSeat(
   officialBallotTitle: string,
   officeCanonicalName: string | null | undefined,
-  jurisdiction?: { state?: string | null; districtName?: string | null; electionStage?: string | null }
+  jurisdiction?: { state?: string | null; districtName?: string | null; electionStage?: string | null; officeScope?: string | null }
 ): string | null {
   if (typeof officeCanonicalName !== "string" || !SUB_JURISDICTION_SEAT_OFFICES.has(officeCanonicalName)) {
+    return null;
+  }
+  // This catalog variant is attached to the reviewed trustee-area polygon,
+  // so address matching has already selected the seat's electorate.
+  if (officeCanonicalName === "School Board Member" && jurisdiction?.officeScope === "local_special") {
     return null;
   }
   if (typeof officialBallotTitle !== "string" || officialBallotTitle.trim().length === 0) {
