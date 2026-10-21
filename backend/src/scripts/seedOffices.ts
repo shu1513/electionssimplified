@@ -998,6 +998,24 @@ const SEED_OFFICES: SeedOffice[] = [
   },
   {
     scope: "local_special",
+    canonicalName: "School Board Member",
+    summary: [
+      "Setting the school district's budget and hiring the superintendent",
+      "Deciding which schools open, close, or get rebuilt",
+      "Approving curriculum, calendars, and teacher contracts",
+    ].join("\n"),
+  },
+  {
+    scope: "local_special",
+    canonicalName: "Hospital District Director",
+    summary: [
+      "Overseeing the public hospital or health district's budget and property tax",
+      "Deciding which clinics and services the district funds",
+      "Hiring and overseeing the administrator who runs the district",
+    ].join("\n"),
+  },
+  {
+    scope: "local_special",
     canonicalName: "State Board of Equalization Member",
     summary: [
       "Hearing appeals on property tax assessments and some state taxes",
@@ -2272,6 +2290,34 @@ const SEED_OFFICE_ALIASES: SeedOfficeAlias[] = [
   ].map((aliasText): SeedOfficeAlias => ({
     scope: "local_special",
     officeCanonicalName: "Open Space District Director",
+    aliasText,
+  })),
+  ...[
+    "School Board Member",
+    "Governing Board Member",
+    "School District Governing Board Member",
+    "Board of Education Member",
+    "Member, Board of Education",
+    "School Board Trustee",
+    "School District Trustee",
+    "School Director",
+    "Board of Trustees Member",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "School Board Member",
+    aliasText,
+  })),
+  ...[
+    "Hospital District Director",
+    "Healthcare District Director",
+    "Health Care District Director",
+    "Hospital District Board Member",
+    "Public Hospital District Commissioner",
+    "Hospital District Commissioner",
+    "Director, Hospital District",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "Hospital District Director",
     aliasText,
   })),
   ...[

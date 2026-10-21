@@ -3469,6 +3469,11 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     -- local_special twin of the statewide BOE office: each BOE seat sits on its
     -- own reviewed district polygon (migration 368).
     ('local_special', 'State Board of Equalization Member', ARRAY['government_efficiency', 'personal_income_tax_reduction', 'anti_corruption']::text[]),
+    -- A school board seat elected from its own trustee area / district sits on
+    -- a reviewed local_special row (migration 369); same areas as the
+    -- school-scope School Board Member.
+    ('local_special', 'School Board Member', ARRAY['public_education_quality', 'government_efficiency', 'government_spending_reduction', 'public_safety_and_crime_control']::text[]),
+    ('local_special', 'Hospital District Director', ARRAY['healthcare_affordability', 'government_efficiency', 'government_spending_reduction']::text[]),
     -- Austin-area special districts and multi-county courts (migration 307).
     -- Each copies its closest county/statewide counterpart; the appraisal
     -- board values property and runs its office but sets no tax rate.

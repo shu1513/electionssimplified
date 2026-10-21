@@ -513,6 +513,12 @@ const LOCAL_BODY_SEAT_KEY_FOLDS: ReadonlyArray<readonly [RegExp, string]> = [
   // "Member, State Board of Equalization, District 2" on the CA:BOE:2 row:
   // the jurisdiction strip would leave a bare "member".
   [/^(?:member )?(?:of the )?(?:state )?board of equalization(?: member)?$/, "state board of equalization member"],
+  // A school board seat written on its own trustee-area row ("Torrance
+  // Unified School District Governing Board Member, Trustee Area E" on the
+  // CA:TUSD:E row). The seat strip has no "trustee area" form, so the fold
+  // accepts it, as the community-college fold does.
+  [/^(?:[a-z0-9]+ ){0,6}school district (?:governing board member|board member|board of education member|board of trustees member|trustee|school director)(?: trustee area (?:no )?[a-z0-9]+)?$/, "school board member"],
+  [/^(?:[a-z0-9]+ ){0,5}(?:public )?(?:hospital|health ?care) district(?: no \d+)? (?:director|commissioner|board member)$/, "hospital district director"],
 ];
 // Every office a body fold can land on. The token scorer vetoes a non-board
 // role title against these, because the fold's own refusal only helps when the
