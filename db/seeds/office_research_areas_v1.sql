@@ -3474,11 +3474,11 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     -- school-scope School Board Member.
     ('local_special', 'School Board Member', ARRAY['public_education_quality', 'government_efficiency', 'government_spending_reduction', 'public_safety_and_crime_control']::text[]),
     ('local_special', 'Hospital District Director', ARRAY['healthcare_affordability', 'government_efficiency', 'government_spending_reduction']::text[]),
-    -- Florida zone-elected and development districts on reviewed polygons (migration 370).
+    -- Florida zone-elected and development districts on reviewed polygons (migration 373).
     ('local_special', 'Community Development District Supervisor', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'housing_affordability', 'public_infrastructure']::text[]),
     ('local_special', 'Soil and Water Conservation District Supervisor', ARRAY['environment_and_public_health', 'government_efficiency', 'public_infrastructure']::text[]),
     ('local_special', 'Water Control District Supervisor', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'public_infrastructure']::text[]),
-    -- Special-district boards found by the 2026-10 county inventories (migration 371).
+    -- Special-district boards found by the 2026-10 county inventories (migration 374).
     ('local_special', 'Community Services District Director', ARRAY['government_efficiency', 'government_spending_reduction', 'public_infrastructure']::text[]),
     ('local_special', 'Fire Protection District Director', ARRAY['public_safety_and_crime_control', 'government_efficiency', 'government_spending_reduction']::text[]),
     ('local_special', 'Sanitary District Director', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'public_infrastructure']::text[]),
