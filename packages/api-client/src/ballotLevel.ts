@@ -23,7 +23,7 @@ export const BALLOT_LEVELS = [
   { key: "state", label: "State" },
   { key: "county", label: "County" },
   { key: "city", label: "City" },
-  { key: "special", label: "Districts" },
+  { key: "special", label: "Local" },
   { key: "other", label: "Other" },
 ] as const;
 

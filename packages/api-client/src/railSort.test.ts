@@ -162,7 +162,7 @@ describe("sortRailEntries", () => {
       entry("mayor", { group: "City: Berkeley", level: "city" }),
       entry("sheriff", { group: "County: Alameda", level: "county" }),
       entry("rep", { group: "Federal", level: "federal" }),
-      entry("mud", { group: "Districts", level: "special" }),
+      entry("mud", { group: "Local", level: "special" }),
       entry("odd", { group: "Other", level: "other" }),
       entry("council", { group: "City: Berkeley", level: "city" }),
     ];
