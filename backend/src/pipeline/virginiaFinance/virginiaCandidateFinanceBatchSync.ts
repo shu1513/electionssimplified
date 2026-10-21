@@ -73,6 +73,7 @@ export type VirginiaCandidateFinanceBatchSyncItemResult = {
 
 export type VirginiaCandidateFinanceBatchSyncResult = {
   reported?: Awaited<ReturnType<typeof syncDueVirginiaReportedFinance>>;
+  reportedError?: string;
   dryRun: boolean;
   now: string;
   staleAfterDays: number;
@@ -177,16 +178,24 @@ export async function syncDueVirginiaCandidateFinance(
   );
   const dryRun = input.dryRun === true;
   // Native components run before legacy acquisition and have independent due,
-  // retry and success clocks. A legacy failure cannot hide their progress.
-  const reported = await syncDueVirginiaReportedFinance({
-    db: input.db as Pick<Pool, "query" | "connect">,
-    now,
-    dryRun,
-    maxCandidates: input.maxCandidates,
-    staleAfterDays: input.staleAfterDays,
-    electionLookbackDays: input.electionLookbackDays,
-    electionLookaheadDays: input.electionLookaheadDays,
-  });
+  // retry and success clocks. Neither job's failure (unapplied migration, cache
+  // permissions, option bounds) may stop the other.
+  let reported: Awaited<ReturnType<typeof syncDueVirginiaReportedFinance>> | undefined;
+  let reportedError: string | undefined;
+  try {
+    reported = await syncDueVirginiaReportedFinance({
+      db: input.db as Pick<Pool, "query" | "connect">,
+      now,
+      dryRun,
+      maxCandidates: input.maxCandidates,
+      staleAfterDays: input.staleAfterDays,
+      electionLookbackDays: input.electionLookbackDays,
+      electionLookaheadDays: input.electionLookaheadDays,
+    });
+  } catch (error) {
+    reportedError = error instanceof Error ? error.message : String(error);
+    console.error("Virginia reported components failed; continuing with legacy sync:", reportedError);
+  }
   // Daily syncs intentionally auto-link eligible Virginia candidates unless explicitly disabled.
   const shouldAutoLinkMissingLinks = !dryRun && input.autoLinkMissingLinks !== false;
   const syncFn = input.syncVirginiaCandidateFinanceFn ?? syncVirginiaCandidateFinance;
@@ -293,6 +302,7 @@ export async function syncDueVirginiaCandidateFinance(
   const syncedCandidateCount = results.filter((result) => result.ok).length;
   return {
     reported,
+    ...(reportedError ? { reportedError } : {}),
     dryRun,
     now: now.toISOString(),
     staleAfterDays,

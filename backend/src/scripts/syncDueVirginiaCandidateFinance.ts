@@ -61,7 +61,7 @@ export function toSyncDueVirginiaCandidateFinanceScriptOutput(input: {
 
 async function main(): Promise<void> {
   const startedAt = new Date();
-  if (!process.env.DATABASE_URL?.trim()) loadProjectEnv();
+  loadProjectEnv();
   const options = parseSyncDueVirginiaCandidateFinanceScriptArgs(process.argv.slice(2));
 
   if (!isVirginiaCampaignFinanceSyncEnabled(options.force)) {

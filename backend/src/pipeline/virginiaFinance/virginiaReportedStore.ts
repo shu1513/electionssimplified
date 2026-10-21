@@ -317,15 +317,18 @@ export async function writeVirginiaReportedComponent(input: {
         oldFacts = old.source_facts as VirginiaStoredFacts;
       vaCheck(
         oldClock <= v.observedAt &&
-          oldFacts.source.observedAt <= v.facts.source.observedAt,
+          oldFacts.source.observedAt <= v.facts.source.observedAt &&
+          oldFacts.source.completedAt <= v.facts.source.completedAt,
         "older_source",
       );
-      // Same originals under a changed canonical receiver (alias, legacy name,
-      // owner count) are rewritten below; the stored row would otherwise fail
-      // its receiver binding on every read until the cached packets expire.
+      // The oldest observation is often a reused saved original (roster,
+      // registry), so equal observedAt does not mean the same snapshot; only
+      // an equal manifest does. A changed canonical receiver (alias, legacy
+      // name, owner count) over the same originals is rewritten below; the
+      // stored row would otherwise fail its receiver binding on every read.
       if (
         oldFacts.revision === VA_REPORTED_REVISION &&
-        oldFacts.source.observedAt === v.facts.source.observedAt &&
+        oldFacts.source.manifestSha256 === v.facts.source.manifestSha256 &&
         isDeepStrictEqual(old.receiver_context, v.receiver)
       ) {
         const rows = (

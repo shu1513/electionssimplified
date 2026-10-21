@@ -14,9 +14,19 @@ import {
 import {
   vaCents,
   vaDate,
+  vaObservedDay,
   vaPersonMatches,
   vaPublicUrl,
 } from "../../../src/pipeline/virginiaFinance/virginiaReportedNative.js";
+describe("Virginia observation day", () => {
+  it("uses the Virginia calendar day, not the UTC day, when bounding reported dates", () => {
+    expect(vaObservedDay("2026-10-22T03:30:00.000Z")).toBe("2026-10-21");
+    expect(vaObservedDay("2026-10-22T12:00:00.000Z")).toBe("2026-10-22");
+    expect(() => vaObservedDay("not a clock")).toThrow(
+      /original_observation_clock/,
+    );
+  });
+});
 const bytes = (s: string) => new TextEncoder().encode(s);
 const source = "https://cfreports.elections.virginia.gov";
 const address =

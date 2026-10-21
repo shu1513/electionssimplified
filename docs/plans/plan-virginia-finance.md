@@ -120,6 +120,18 @@ identity-bearing derived audit was saved. Source originals remain private and
 ignored. The preview used explicit loopback API configuration and no environment
 files or provider calls.
 
+## Review fixes, October 21, 2026
+
+A stored component is replayed as idempotent only when the new packet's
+original manifest hash matches; equal oldest observation times are not enough,
+because the oldest original is usually a reused saved roster or registry page
+while newer report or inventory originals carry new money. Receipts and counted
+IE allocations dated after the Virginia calendar day of their original's
+observation hold the component (`future_at_original_observation`), as in New
+Mexico. A native batch failure (unapplied migration, cache permissions, option
+bounds) is recorded as `reportedError` and no longer stops the legacy sync. The
+CLI loads the project environment unconditionally, like the other state scripts.
+
 Initial PR CI found unrelated Mobile dependency drift: Expo's compatibility
 check now expects `@expo/ui ~57.0.26`, `expo ~57.0.31` and
 `expo-router ~57.0.29`. This PR changes no Mobile dependency or lock files.

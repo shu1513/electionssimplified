@@ -94,6 +94,21 @@ export function vaDate(value: string): string {
   );
   return date.toISOString().slice(0, 10);
 }
+/** Calendar day in Virginia at the moment an original was observed. A gift or
+ * expenditure dated after it has not happened yet and cannot be reported. */
+export function vaObservedDay(observedAt: string): string {
+  const time = Date.parse(observedAt);
+  vaCheck(Number.isFinite(time), "original_observation_clock");
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date(time));
+  return ["year", "month", "day"]
+    .map((type) => parts.find((part) => part.type === type)!.value)
+    .join("-");
+}
 export function vaSubmittedDay(value: string): string {
   const match =
     /^(\d{1,2}\/\d{1,2}\/\d{4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?)?$/.exec(

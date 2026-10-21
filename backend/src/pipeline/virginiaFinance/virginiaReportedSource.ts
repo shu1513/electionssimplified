@@ -18,6 +18,7 @@ import {
   vaHouseSeat,
   vaKey,
   vaNodeText,
+  vaObservedDay,
   vaPersonMatches,
   vaPublicUrl,
   VIRGINIA_REPORTED_ORIGIN,
@@ -107,7 +108,7 @@ export class VirginiaReportedSource {
   private ready: Promise<void> | null = null;
   private ie: Promise<{
     parents: ReturnType<typeof vaIeIndex>;
-    details: ReturnType<typeof vaIeDetail>[];
+    details: (ReturnType<typeof vaIeDetail> & { observedDay: string })[];
     used: VirginiaOriginal[];
   }> | null = null;
   constructor(
@@ -201,6 +202,11 @@ export class VirginiaReportedSource {
               report.code === inventory.committeeCode &&
               vaKey(report.name) === vaKey(inventory.committeeName!),
             "report_inventory_binding",
+          );
+          const observedDay = vaObservedDay(o.meta.completedAt);
+          vaCheck(
+            report.rows.every((row) => row.day <= observedDay),
+            "future_at_original_observation",
           );
           reports.push(report);
         } else {
@@ -335,10 +341,14 @@ export class VirginiaReportedSource {
         : (saved.at(-2) ?? (await this.original(url, "html", used)));
       used.push(opening);
       const parents = vaIeIndex(opening.raw, url),
-        details: ReturnType<typeof vaIeDetail>[] = [];
+        details: (ReturnType<typeof vaIeDetail> & { observedDay: string })[] =
+          [];
       for (const parent of parents) {
         const o = await this.original(parent.url, "html", used);
-        details.push(vaIeDetail(o.raw, parent));
+        details.push({
+          ...vaIeDetail(o.raw, parent),
+          observedDay: vaObservedDay(o.meta.completedAt),
+        });
         await new Promise<void>((done) => setImmediate(done));
       }
       const indexes = this.saved(url, "html"),
@@ -470,6 +480,12 @@ export class VirginiaReportedSource {
               "MEMBER HOUSE OF DELEGATES",
             ].includes(vaKey(target.office)),
             "ie_target_office_scope",
+          );
+          // Only this candidate's rows hold the component; a stray future date
+          // elsewhere in the statewide index does not block everyone.
+          vaCheck(
+            detail.day <= detail.observedDay,
+            "future_at_original_observation",
           );
           controls.sourceRows++;
           events.push({
