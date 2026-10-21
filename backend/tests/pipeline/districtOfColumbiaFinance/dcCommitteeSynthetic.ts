@@ -106,7 +106,9 @@ export function syntheticCsv(receipts: Record<string, unknown>[]): Buffer {
       "Employer Name": r.Employer,
       "Employer Address": r.EmployerAddress,
       Occupation: r.Occupation,
-      "Receipt Date": "10/01/2026",
+      "Receipt Date": String(r.TransactionDate)
+        .slice(0, 10)
+        .replace(/^(\d{4})-(\d{2})-(\d{2})$/, "$2/$3/$1"),
       Amount: r.Amount,
     };
     return DC_RECEIPT_HEADERS.map((k) => quote(v[k])).join(",");

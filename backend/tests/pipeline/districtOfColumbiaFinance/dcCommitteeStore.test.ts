@@ -30,6 +30,7 @@ async function source() {
 }
 afterEach(async () => {
   vi.unstubAllEnvs();
+  vi.useRealTimers();
   for (const r of roots.splice(0))
     await fs.rm(r, { recursive: true, force: true });
 });
@@ -61,6 +62,23 @@ describe("DC independent committee storage and uncapped reader", () => {
       transport: syntheticTransport(data).transport,
     });
     expect(() => buildDcCommitteeComponent(receiver, s)).toThrow(/negative/);
+  });
+  it("holds a committee gift dated after the source capture completed", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-10-20T12:00:00.000Z"));
+    const data = syntheticNative();
+    data.receipts[0]!.TransactionDate = "2026-12-31T00:00:00";
+    const cacheDir = await fs.mkdtemp(join(tmpdir(), "dc-synthetic-"));
+    await fs.chmod(cacheDir, 0o700);
+    roots.push(cacheDir);
+    const s = await getDcCommitteeSource({
+      year: 2026,
+      cacheDir,
+      transport: syntheticTransport(data).transport,
+    });
+    expect(() => buildDcCommitteeComponent(receiver, s)).toThrow(
+      /committee_gift_after_observation/,
+    );
   });
   it("reconciles every group below the displayed cap before reading", () => {
     const groups: DcCommitteeGroup[] = Array.from({ length: 8 }, (_, i) => ({
@@ -163,36 +181,14 @@ describe("DC independent committee storage and uncapped reader", () => {
         .every((s) => s.includes("dc_committee_finance_")),
     ).toBe(true);
   });
-  it("loads independently when the legacy summary query fails", async () => {
+  it("returns the legacy summaries when the committee overlay query fails", async () => {
     vi.stubEnv("DISTRICT_OF_COLUMBIA_CAMPAIGN_FINANCE_ENABLED", "true");
     vi.stubEnv("DISTRICT_OF_COLUMBIA_REPORTED_COMMITTEE_ENABLED", "true");
-    const v = buildDcCommitteeComponent(receiver, await source()),
-      stored = {
-        link_id: receiver.linkId,
-        candidate_id: receiver.candidateId,
-        election_id: receiver.electionId,
-        election_year: 2026,
-        receiver_context: receiver,
-        receiving_context: v.receiving,
-        source_revision: v.revision,
-        source_facts: v.source,
-        aggregation_controls: v.controls,
-        source_observed_at: v.observedAt,
-        source_completed_at: v.completedAt,
-        last_synced_at: v.syncedAt,
-      },
-      groups = v.groups.map((g) => ({
-        link_id: receiver.linkId,
-        election_year: 2026,
-        group_key: g.key,
-        reported_name: g.reportedName,
-        amount_cents: g.amountCents,
-        occurrence_count: g.occurrenceCount,
-      }));
-    const query = vi
-      .fn()
-      .mockRejectedValueOnce(Error("synthetic legacy query unavailable"))
-      .mockResolvedValueOnce({ rows: [{ ...receiver, stored, groups }] });
+    const query = vi.fn(async (text: string) => {
+      if (text.includes("dc_committee_finance_components"))
+        throw Error("synthetic committee query timeout");
+      return { rows: [] };
+    });
     const result =
       await loadDistrictOfColumbiaCandidateFinanceSummariesByCandidateElection(
         { query },
@@ -211,12 +207,30 @@ describe("DC independent committee storage and uncapped reader", () => {
           },
         ],
       );
-    expect(result.size).toBe(1);
-    const actual = [...result.values()][0]!;
-    expect(actual.direct_campaign.total_raised).toBeNull();
-    expect(actual.outside_spending.support_total).toBeNull();
-    expect(actual.direct_campaign.pac_money_by_interest![0]!.amount).toBe(
-      24.34,
-    );
+    expect(result).toBeInstanceOf(Map);
+    expect(
+      query.mock.calls.some(([text]) =>
+        text.includes("dc_committee_finance_components"),
+      ),
+    ).toBe(true);
+  });
+  it("still reports a legacy summary failure when the committee card is enabled", async () => {
+    vi.stubEnv("DISTRICT_OF_COLUMBIA_CAMPAIGN_FINANCE_ENABLED", "true");
+    vi.stubEnv("DISTRICT_OF_COLUMBIA_REPORTED_COMMITTEE_ENABLED", "true");
+    const query = vi
+      .fn()
+      .mockRejectedValueOnce(Error("synthetic legacy query unavailable"));
+    await expect(
+      loadDistrictOfColumbiaCandidateFinanceSummariesByCandidateElection(
+        { query },
+        [
+          {
+            candidate_id: receiver.candidateId,
+            election_id: receiver.electionId,
+          },
+        ],
+        [{ election_id: receiver.electionId, state: "DC" }],
+      ),
+    ).rejects.toThrow(/legacy query unavailable/);
   });
 });

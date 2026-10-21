@@ -213,6 +213,10 @@ export function buildDcCommitteeComponent(
       "unknown_committee_gift_method",
     );
     dcCheck(
+      row.date <= source.source.completedAt.slice(0, 10),
+      "committee_gift_after_observation",
+    );
+    dcCheck(
       row.amountCents > 0 &&
         row.reportedName &&
         row.reportedName.length <= 4000 &&

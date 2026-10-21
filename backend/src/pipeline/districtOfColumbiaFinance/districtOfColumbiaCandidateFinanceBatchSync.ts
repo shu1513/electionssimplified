@@ -354,8 +354,11 @@ export async function syncDueDistrictOfColumbiaCandidateFinance(
         db: input.db, now, dryRun, maxCandidates, staleAfterDays,
         electionLookaheadDays, electionLookbackDays: input.electionLookbackDays,
       });
-    } catch {
-      console.warn("DC reported committee batch unavailable; continuing legacy finance sync");
+    } catch (error) {
+      console.warn(
+        "DC reported committee batch unavailable; continuing legacy finance sync:",
+        error instanceof Error ? error.message : String(error)
+      );
     }
   }
   const syncFn = input.syncDistrictOfColumbiaCandidateFinanceFn ?? syncDistrictOfColumbiaCandidateFinance;
