@@ -3802,6 +3802,7 @@ describe("OfficeMatcher", () => {
       ["Emergency Services District Commissioner", ["Emergency Services District Commissioner"]],
       ["Water Reclamation District Commissioner", ["Water Reclamation District Commissioner"]],
       ["Board of Review Commissioner", ["Board of Review Commissioner"]],
+      ["Utility District Director", ["Utility District Director"]],
     ];
     const client = createMatcherDataClient({
       aliasesByScope: {
@@ -3849,6 +3850,15 @@ describe("OfficeMatcher", () => {
       ["Eden Township Healthcare District Area 3", "Eden Township Healthcare District Director, Area 3", "Hospital District Director"],
       ["Hayward Area Recreation and Park District Area 2", "Hayward Area Recreation and Park District Director, Area 2", "Park District Director"],
       ["Oro Loma Sanitary District Division 5", "Oro Loma Sanitary District Director, Division 5", "Sanitary District Director"],
+      ["Castro Valley Unified School District Trustee Area 2", "Castro Valley Unified School District Governing Board Member, Trustee Area 2, Short Term", "School Board Member"],
+      ["Morongo Unified School District Area 1", "Morongo Unified School District Governing Board Member, Area 1 - Short Term", "School Board Member"],
+      ["Apple Valley Unified School District Area 2", "Apple Valley Unified School District Governing Board Member, Area 2", "School Board Member"],
+      ["Mojave Water Agency Division 6", "Mojave Water Agency Director, Division 6", "Water District Director"],
+      ["San Bernardino Valley Water Conservation District Division 4", "San Bernardino Valley Water Conservation District Director, Division 4", "Water District Director"],
+      ["Municipal Water District of Orange County Division 2", "Municipal Water District of Orange County Director, Division 2", "Water District Director"],
+      ["Inland Empire Utilities Agency Division 4", "Inland Empire Utilities Agency Director, Division 4", "Utility District Director"],
+      ["Chino Valley Independent Fire District Division 3", "Chino Valley Independent Fire District Director, Division 3", "Fire Protection District Director"],
+      ["Moulton Niguel Water District", "Moulton Niguel Water District Director, Full Term", "Water District Director"],
       ["Palomar Community College District Trustee Area 1", "Palomar Community College District Governing Board Member, Trustee Area 1", "Community College Trustee"],
       ["Palomar Community College District Trustee Area 5", "Palomar Community College District Governing Board Member, Trustee Area 5", "Community College Trustee"],
       ["Allan Hancock Joint Community College District Trustee Area 2", "Allan Hancock Joint Community College District Governing Board Member, Trustee Area 2", "Community College Trustee"],

@@ -501,6 +501,14 @@ const LOCAL_BODY_SEAT_KEY_FOLDS: ReadonlyArray<readonly [RegExp, string]> = [
   // their own fold above; this one is for a water district whose seat is a
   // director.
   [/^(?:[a-z0-9]+ ){0,5}water district (?:director|board member)$/, "water district director"],
+  // Regional water bodies that are water districts in all but name: "Mojave
+  // Water Agency Director, Division 6", "San Bernardino Valley Water
+  // Conservation District Director, Division 4", "Municipal Water District of
+  // Orange County Director, Division 2", "Inland Empire Utilities Agency
+  // Director, Division 4" (San Bernardino and Orange counties CA live).
+  [/^(?:[a-z0-9]+ ){0,5}water (?:agency|authority|conservation district) (?:director|board member)$/, "water district director"],
+  [/^(?:[a-z0-9]+ ){0,3}municipal water district of (?:[a-z0-9]+ ){1,3}(?:director|board member)$/, "water district director"],
+  [/^(?:[a-z0-9]+ ){0,5}(?:utilities|utility) agency (?:director|board member)$/, "utility district director"],
   // East Bay bodies on their own ward rows (Alameda County CA live): "East Bay
   // Municipal Utility District Director, Ward 7", "East Bay Regional Park
   // District Director, Ward 3", "Midpeninsula Regional Open Space District
@@ -562,9 +570,15 @@ const BODY_FOLD_OFFICE_KEYS: ReadonlySet<string> = new Set([
 // Loma Sanitary District, water districts). Only the trailing designator goes,
 // so a body named "Hayward Area ..." keeps its name.
 const LOCAL_BODY_TRAILING_AREA_PATTERN = /\s+(?:trustee area|area|division|subdistrict|subdivision)\s+(?:no\s+)?[a-z0-9]+$/;
+// A term-length tag after the seat ("Trustee Area 2, Short Term", "Area 1 -
+// Short Term", "Unexpired Term") describes the term, not the office.
+const LOCAL_BODY_TRAILING_TERM_PATTERN = /\s+(?:short|full|unexpired|partial)\s+term$/;
 
 function mapLocalBodySeatForms(normalizedTitle: string): string | null {
-  const withoutSeat = stripSeatSuffixes(normalizedTitle).replace(LOCAL_BODY_TRAILING_AREA_PATTERN, "");
+  const withoutSeat = stripSeatSuffixes(normalizedTitle)
+    .replace(LOCAL_BODY_TRAILING_TERM_PATTERN, "")
+    .replace(LOCAL_BODY_TRAILING_AREA_PATTERN, "")
+    .replace(LOCAL_BODY_TRAILING_TERM_PATTERN, "");
   if (FIRE_DISTRICT_NON_BOARD_ROLE_PATTERN.test(withoutSeat)) {
     return null;
   }
