@@ -515,7 +515,7 @@ const LOCAL_BODY_SEAT_KEY_FOLDS: ReadonlyArray<readonly [RegExp, string]> = [
   // Director, Ward 1", "Bay Area Rapid Transit District Director, District 4",
   // "Alameda-Contra Costa Transit District Director, Ward 3".
   [/^(?:[a-z0-9]+ ){0,5}municipal utility district (?:director|board member)$/, "municipal utility district director"],
-  [/^(?:[a-z0-9]+ ){0,5}park district (?:director|board member)$/, "park district director"],
+  [/^(?:[a-z0-9]+ ){0,5}(?:park|recreation|park and recreation|recreation and park|regional park) district (?:director|board member)$/, "park district director"],
   [/^(?:[a-z0-9]+ ){0,5}open space district (?:director|board member)$/, "open space district director"],
   [/^(?:[a-z0-9]+ ){0,5}transit district (?:director|board member)$/, "transit district director"],
   // "Member, State Board of Equalization, District 2" on the CA:BOE:2 row:

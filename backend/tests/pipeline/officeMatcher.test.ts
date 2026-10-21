@@ -3859,6 +3859,7 @@ describe("OfficeMatcher", () => {
       ["Inland Empire Utilities Agency Division 4", "Inland Empire Utilities Agency Director, Division 4", "Utility District Director"],
       ["Chino Valley Independent Fire District Division 3", "Chino Valley Independent Fire District Director, Division 3", "Fire Protection District Director"],
       ["Moulton Niguel Water District", "Moulton Niguel Water District Director, Full Term", "Water District Director"],
+      ["Desert Recreation District Division 4", "Desert Recreation District Director, Division 4", "Park District Director"],
       ["Palomar Community College District Trustee Area 1", "Palomar Community College District Governing Board Member, Trustee Area 1", "Community College Trustee"],
       ["Palomar Community College District Trustee Area 5", "Palomar Community College District Governing Board Member, Trustee Area 5", "Community College Trustee"],
       ["Allan Hancock Joint Community College District Trustee Area 2", "Allan Hancock Joint Community College District Governing Board Member, Trustee Area 2", "Community College Trustee"],
