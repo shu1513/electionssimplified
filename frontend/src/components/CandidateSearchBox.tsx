@@ -25,8 +25,8 @@ export function CandidateSearchBox({
   label?: string;
   /** Lets a page match the label to its neighboring controls. */
   labelClassName?: string;
-  /** Sized like the ballot pages' sort select (9.5rem); the suggestions
-   * open left-aligned so they stay on screen when the row wraps. */
+  /** Sized like the ballot pages' sort select (9.5rem); suggestions prefer
+   * left alignment and shift as needed to stay inside the viewport. */
   narrow?: boolean;
   /** The page's ballot: its candidates rank first in the suggestions. */
   ballotDistrictIds?: readonly string[];
@@ -63,7 +63,10 @@ export function CandidateSearchBox({
             className="w-full rounded-lg border border-line bg-white px-3 py-1.5 text-sm text-ink placeholder:text-ink-soft focus:border-rausch focus:outline-none"
           />
           {matches.length > 0 ? (
-            <ComboboxOptions className={`absolute ${narrow ? "left-0" : "right-0"} z-10 mt-1 w-full min-w-64 overflow-hidden rounded-xl border border-line bg-surface shadow-md`}>
+            <ComboboxOptions
+              anchor={{ to: narrow ? "bottom start" : "bottom end", gap: 4, padding: 8 }}
+              className="z-10 w-[max(var(--input-width),16rem)] overflow-auto rounded-xl border border-line bg-surface shadow-md"
+            >
               {matches.map((match) => (
                 <ComboboxOption
                   key={match.candidate_id}
