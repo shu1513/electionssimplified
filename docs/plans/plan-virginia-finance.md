@@ -96,7 +96,8 @@ No production, merge or deploy. Kansas donor names and all new Missouri
 publication remain held. Applied migrations through 368 are immutable; Virginia
 uses migration 369. Another local workflow advanced the ledger during research;
 Virginia's file was renamed before application, with all prior entries preserved.
-Finish this state and PR, then pause as requested.
+Finish this state and PR before taking another state. The latest continuation
+resumes the broader goal; the previous state's pause boundary was already met.
 
 ## Local proof
 
@@ -118,3 +119,8 @@ The existing UI hides an outside section with zero spending. No screenshot or
 identity-bearing derived audit was saved. Source originals remain private and
 ignored. The preview used explicit loopback API configuration and no environment
 files or provider calls.
+
+Initial PR CI found unrelated Mobile dependency drift: Expo's compatibility
+check now expects `@expo/ui ~57.0.26`, `expo ~57.0.31` and
+`expo-router ~57.0.29`. This PR changes no Mobile dependency or lock files.
+Keep that dependency update separate from Virginia source acquisition.
