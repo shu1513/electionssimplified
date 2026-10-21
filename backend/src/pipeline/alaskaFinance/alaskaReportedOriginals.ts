@@ -187,7 +187,7 @@ export function akSuccessfulOriginal(
   );
 }
 export function akFreshOriginal(
-  record: AlaskaOriginal,
+  record: Pick<AlaskaOriginal, "meta">,
   now = new Date(),
   maxAgeDays = 7,
 ): boolean {
@@ -242,8 +242,11 @@ export class AlaskaOriginalArchive {
           akCheck(false, "source_manifest_json");
         }
         validateMeta(parsed);
-        const meta = parsed,
-          raw = await privateFile(resolve(directory, meta.file));
+        const meta = parsed;
+        // Stale originals can never qualify; skip their bytes so old runs do
+        // not grow memory or exhaust the resource limit for usable records.
+        if (!akFreshOriginal({ meta })) continue;
+        const raw = await privateFile(resolve(directory, meta.file));
         akCheck(
           raw.byteLength === meta.bytes && akHash(raw) === meta.sha256,
           "source_original_integrity",

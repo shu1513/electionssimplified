@@ -19,7 +19,11 @@ export const AK_REPORTED_WHERE = `l.link_status='active' AND c.deleted_at IS NUL
  AND l.election_year=extract(year from e.election_date)::int AND (o.scope||'::'||o.canonical_name)=ANY($1::text[])
  AND NOT EXISTS (SELECT 1 FROM public.ak_candidate_finance_links sibling WHERE sibling.link_status='active'
  AND sibling.id<>l.id AND sibling.candidate_id=l.candidate_id AND sibling.election_id=l.election_id)`;
-export const AK_REPORTED_OFFICES = [...ALASKA_FINANCE_ELIGIBLE_OFFICE_KEYS];
+// Native acquisition qualifies State House seats only (akCanonicalHouseDistrict);
+// other legacy offices would take attempt slots and hold on every run.
+export const AK_REPORTED_OFFICES = ALASKA_FINANCE_ELIGIBLE_OFFICE_KEYS.filter(
+  (key) => key === "state_lower::State Lower Chamber Legislator",
+);
 export async function loadAlaskaReportedReceiver(
   db: Pick<Pool | PoolClient, "query">,
   linkId: string,

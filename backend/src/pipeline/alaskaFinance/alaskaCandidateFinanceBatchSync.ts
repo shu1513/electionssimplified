@@ -78,6 +78,7 @@ export type AlaskaCandidateFinanceBatchSyncItemResult = {
 export type AlaskaCandidateFinanceBatchSyncResult = {
   reported?: Awaited<ReturnType<typeof syncDueAlaskaReportedFinance>>;
   legacySourceUnavailable?: boolean;
+  legacySourceError?: string;
   dryRun: boolean;
   now: string;
   staleAfterDays: number;
@@ -174,11 +175,13 @@ export async function syncDueAlaskaCandidateFinance(
     forceRawDataRefresh: isAlaskaReportedRawRefreshEnabled(),
   });
   let apocData = input.apocData;
+  let legacySourceError: string | undefined;
   try {
     apocData ??= await input.loadApocData?.();
   } catch (error) {
     // Swallow the legacy failure only when native work actually ran.
     if (!reported.enabled || reported.failure) throw error;
+    legacySourceError = error instanceof Error ? error.message : String(error);
   }
   if (!apocData) {
     if (!reported.enabled)
@@ -199,6 +202,7 @@ export async function syncDueAlaskaCandidateFinance(
       results: [],
       reported,
       legacySourceUnavailable: true,
+      legacySourceError,
     };
   }
   if (!dryRun && input.autoLinkMissingLinks === true) {

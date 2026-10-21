@@ -188,6 +188,12 @@ export async function syncDueAlaskaReportedFinance(
         if (result.idempotent) output.idempotentComponents++;
       } catch (e) {
         output.heldComponents++;
+        if (!(e instanceof AlaskaReportedSourceError))
+          console.warn("Alaska reported finance component held:", {
+            linkId: receiver.linkId,
+            component,
+            error: e instanceof Error ? e.message : String(e),
+          });
         const code =
           e instanceof AlaskaReportedSourceError
             ? e.code

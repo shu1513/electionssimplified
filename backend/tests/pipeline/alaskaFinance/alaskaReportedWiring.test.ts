@@ -25,6 +25,7 @@ describe("Alaska native acquisition before direct finance", () => {
     expect(result).toMatchObject({
       reported,
       legacySourceUnavailable: true,
+      legacySourceError: "synthetic unavailable direct source",
       syncedCandidateCount: 0,
     });
   });

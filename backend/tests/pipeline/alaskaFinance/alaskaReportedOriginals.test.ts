@@ -92,6 +92,33 @@ describe("Alaska genuine-observation archive", () => {
     await fs.appendFile(path, "changed synthetic bytes");
     await expect(archive.read()).rejects.toThrow("source_original_integrity");
   });
+  it("skips stale originals without loading their bytes", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        async () =>
+          new Response("synthetic complete original", {
+            headers: { "content-type": "text/html" },
+          }),
+      ),
+    );
+    const archive = new AlaskaOriginalArchive(await temporary()),
+      record = await archive.observe(ALASKA_REPORTED_URLS.ie),
+      manifest = join(record.directory, "manifest.ndjson"),
+      shift = (value: string) =>
+        new Date(Date.parse(value) - 8 * 86400000).toISOString();
+    await fs.writeFile(
+      manifest,
+      JSON.stringify({
+        ...record.meta,
+        startedAt: shift(record.meta.startedAt),
+        completedAt: shift(record.meta.completedAt),
+      }) + "\n",
+    );
+    // The stale body is corrupt, yet never read: integrity is not checked.
+    await fs.appendFile(join(record.directory, record.meta.file), "x");
+    expect(await archive.read()).toEqual([]);
+  });
   it("rejects unapproved destinations before fetching or creating an archive", async () => {
     const fetch = vi.fn();
     vi.stubGlobal("fetch", fetch);

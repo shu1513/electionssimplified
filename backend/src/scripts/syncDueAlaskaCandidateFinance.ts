@@ -245,6 +245,7 @@ export async function runAlaskaCandidateFinanceCli(
         JSON.stringify({
           type: "alaska_candidate_finance_due_sync",
           legacy_source_unavailable: true,
+          legacy_source_error: result.legacySourceError,
           reported: result.reported,
         }),
       );

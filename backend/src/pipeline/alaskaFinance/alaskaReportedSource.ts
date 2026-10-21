@@ -161,20 +161,44 @@ export function matchesAlaskaReportedPac(input: {
   return true;
 }
 
+const rosterRoot = (year: number) =>
+  `${ALASKA_REPORTED_URLS.roster}?election=${String(year).slice(-2)}genr`;
+const rosterIndexUrl = (value: string) => {
+  const url = new URL(value);
+  url.searchParams.sort();
+  url.hash = "";
+  for (const key of [...url.searchParams.keys()])
+    if (/^frm-page-\d+$/.test(key) && url.searchParams.get(key) === "1")
+      url.searchParams.delete(key);
+  return url.href;
+};
+/** Pagination links this roster page publishes for the cycle. */
+function rosterPageLinks(
+  document: Document,
+  base: string,
+  year: number,
+): string[] {
+  const links: string[] = [];
+  for (const link of document.querySelectorAll("a[href]")) {
+    const next = new URL(link.getAttribute("href")!, base);
+    if (
+      next.origin !== new URL(ALASKA_REPORTED_URLS.roster).origin ||
+      next.pathname !== "/candidates/" ||
+      next.searchParams.get("election") !== `${String(year).slice(-2)}genr` ||
+      ![...next.searchParams.keys()].some((key) => /^frm-page-\d+$/.test(key))
+    )
+      continue;
+    next.hash = "";
+    links.push(next.href);
+  }
+  return links;
+}
+
 /** Verify the actual published roster and its navigation, not a DB name echo. */
 export function parseAlaskaHouseRoster(
   originals: readonly AlaskaOriginal[],
   year: number,
 ): AlaskaHouseNominee[] {
-  const indexUrl = (value: string) => {
-    const url = new URL(value);
-    url.searchParams.sort();
-    url.hash = "";
-    for (const key of [...url.searchParams.keys()])
-      if (/^frm-page-\d+$/.test(key) && url.searchParams.get(key) === "1")
-        url.searchParams.delete(key);
-    return url.href;
-  };
   const pages = new Map<string, AlaskaOriginal>();
   for (const original of originals)
     if (
@@ -185,14 +209,14 @@ export function parseAlaskaHouseRoster(
       akSuccessfulOriginal(original, "html") &&
       akFreshOriginal(original)
     )
-      pages.set(indexUrl(original.meta.url), original);
-  const root = `${ALASKA_REPORTED_URLS.roster}?election=${String(year).slice(-2)}genr`,
+      pages.set(rosterIndexUrl(original.meta.url), original);
+  const root = rosterRoot(year),
     pending = [root],
     seen = new Set<string>(),
     nominees: AlaskaHouseNominee[] = [],
     seats = new Set<string>();
   while (pending.length) {
-    const url = indexUrl(pending.shift()!);
+    const url = rosterIndexUrl(pending.shift()!);
     if (seen.has(url)) continue;
     seen.add(url);
     akCheck(seen.size <= 20, "roster_page_limit");
@@ -206,21 +230,7 @@ export function parseAlaskaHouseRoster(
         ),
         "official_roster_cycle",
       );
-      for (const link of document.querySelectorAll("a[href]")) {
-        const next = new URL(link.getAttribute("href")!, url);
-        if (
-          next.origin !== new URL(root).origin ||
-          next.pathname !== "/candidates/" ||
-          next.searchParams.get("election") !==
-            `${String(year).slice(-2)}genr` ||
-          ![...next.searchParams.keys()].some((key) =>
-            /^frm-page-\d+$/.test(key),
-          )
-        )
-          continue;
-        next.hash = "";
-        pending.push(next.href);
-      }
+      pending.push(...rosterPageLinks(document, url, year));
       let district: string | null = null;
       for (const node of document.querySelectorAll("h2,h3,h4,table")) {
         if (node.tagName !== "TABLE") {
@@ -376,38 +386,28 @@ export class AlaskaReportedSource {
       parseAlaskaHouseRoster(this.originals, year);
     } catch (error) {
       if (!this.refresh) throw error;
-      const root = `${ALASKA_REPORTED_URLS.roster}?election=${String(year).slice(-2)}genr`,
-        first = await this.archive.observe(root);
-      akCheck(
-        akSuccessfulOriginal(first, "html"),
-        "official_roster_unavailable",
-      );
-      this.originals.push(first);
-      const document = akDocument(first.raw, root);
-      try {
-        const urls = new Set(
-          [...document.querySelectorAll("a[href]")]
-            .map((n) => new URL(n.getAttribute("href")!, root))
-            .filter(
-              (u) =>
-                u.origin === new URL(root).origin &&
-                u.pathname === "/candidates/" &&
-                u.searchParams.get("election") ===
-                  `${String(year).slice(-2)}genr` &&
-                [...u.searchParams.keys()].some((k) =>
-                  /^frm-page-\d+$/.test(k),
-                ),
-            )
-            .map((u) => {
-              u.hash = "";
-              return u.href;
-            }),
+      // Follow the same link closure the parser walks, so a page link that
+      // only a later roster page publishes is observed too.
+      const pending = [rosterRoot(year)],
+        seen = new Set<string>();
+      while (pending.length) {
+        const url = pending.shift()!,
+          key = rosterIndexUrl(url);
+        if (seen.has(key)) continue;
+        seen.add(key);
+        akCheck(seen.size <= 20, "roster_page_limit");
+        const page = await this.archive.observe(url);
+        akCheck(
+          akSuccessfulOriginal(page, "html"),
+          "official_roster_unavailable",
         );
-        akCheck(urls.size <= 20, "roster_page_limit");
-        for (const url of urls)
-          this.originals.push(await this.archive.observe(url));
-      } finally {
-        document.defaultView?.close();
+        this.originals.push(page);
+        const document = akDocument(page.raw, url);
+        try {
+          pending.push(...rosterPageLinks(document, url, year));
+        } finally {
+          document.defaultView?.close();
+        }
       }
     }
     const nominees = parseAlaskaHouseRoster(this.originals, year);
