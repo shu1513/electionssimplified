@@ -281,6 +281,26 @@ describe("zipped KML boundary sources", () => {
   });
 });
 
+describe("sliver holes", () => {
+  const outer = [[-117, 33.7], [-116.9, 33.7], [-116.9, 33.8], [-117, 33.8], [-117, 33.7]];
+  const realHole = [[-116.96, 33.74], [-116.95, 33.74], [-116.95, 33.75], [-116.96, 33.75], [-116.96, 33.74]];
+  // Three distinct, non-collinear points a few centimetres apart: not
+  // provably degenerate, but far below any real exclusion (Hemet USD TA7).
+  const sliver = [[-116.93, 33.76], [-116.9299995, 33.76], [-116.93, 33.7600004], [-116.93, 33.76]];
+
+  it("drops holes whose area is below the sliver threshold and keeps real holes", () => {
+    expect(dropDegenerateHoles({ type: "Polygon", coordinates: [outer, realHole, sliver] }))
+      .toEqual({ type: "Polygon", coordinates: [outer, realHole] });
+    expect(dropDegenerateHoles({ type: "MultiPolygon", coordinates: [[outer, sliver, realHole]] }))
+      .toEqual({ type: "MultiPolygon", coordinates: [[outer, realHole]] });
+  });
+
+  it("never drops an outer ring for being small", () => {
+    const tiny = { type: "Polygon", coordinates: [sliver] };
+    expect(dropDegenerateHoles(tiny)).toEqual(tiny);
+  });
+});
+
 describe("degenerate holes", () => {
   const outer = [[0, 0], [4, 0], [4, 4], [0, 4], [0, 0]];
   const realHole = [[1, 1], [2, 1], [2, 2], [1, 1]];

@@ -243,7 +243,8 @@ export async function runSupersedeElection(
         const { fromDistrict, toDistrict } = await assertSiblingDistricts(
           client,
           retired.district_id,
-          survivor.district_id
+          survivor.district_id,
+          { from: retired.official_ballot_title, to: survivor.official_ballot_title }
         );
         crossDistrictSurvivors.push({
           electionId: id,

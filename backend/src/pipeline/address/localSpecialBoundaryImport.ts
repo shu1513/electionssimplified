@@ -312,8 +312,31 @@ function isDegenerateRing(ring: unknown): boolean {
   return offsets.every(([px, py]) => Math.abs(px * dy - py * dx) <= 1e-12);
 }
 
+/** A hole smaller than this (square degrees; about ten square metres at
+ * mid latitudes) is a digitizing sliver, never a real exclusion. Riverside
+ * County's Nov 2026 layer carries 94 such holes on one Hemet trustee area,
+ * each a few points and under a square metre; the boundary check rejects
+ * the smallest of them as zero-area. */
+const SLIVER_HOLE_AREA_SQ_DEG = 1e-9;
+
+function isSliverHole(ring: unknown): boolean {
+  if (!Array.isArray(ring) || ring.length === 0) return false;
+  // Bounding-box area bounds the enclosed area from above and, unlike the
+  // shoelace sum, cannot read zero for a self-crossing ring of real extent.
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const point of ring as number[][]) {
+    const [x = 0, y = 0] = point;
+    if (x < minX) minX = x;
+    if (x > maxX) maxX = x;
+    if (y < minY) minY = y;
+    if (y > maxY) maxY = y;
+  }
+  return (maxX - minX) * (maxY - minY) < SLIVER_HOLE_AREA_SQ_DEG;
+}
+
 /** Official layers sometimes carry a hole with no area (a digitizing slip:
- * three copies of one point). It removes nothing from the district, but the
+ * three copies of one point) or with a sliver of area (see
+ * SLIVER_HOLE_AREA_SQ_DEG). It removes nothing from the district, but the
  * boundary check rejects zero-area rings, so drop such holes. A multi-part
  * layer can carry the same slip as a whole piece (Douglas County's MUD
  * Subdivision 4 has a three-point sliver); a piece with no area adds no
@@ -323,7 +346,7 @@ function isDegenerateRing(ring: unknown): boolean {
 export function dropDegenerateHoles(geometry: unknown): unknown {
   if (!isRecord(geometry) || !Array.isArray(geometry.coordinates)) return geometry;
   const clean = (polygon: unknown) => Array.isArray(polygon)
-    ? polygon.filter((ring, index) => index === 0 || !isDegenerateRing(ring))
+    ? polygon.filter((ring, index) => index === 0 || (!isDegenerateRing(ring) && !isSliverHole(ring)))
     : polygon;
   if (geometry.type === "Polygon") return { ...geometry, coordinates: clean(geometry.coordinates) };
   if (geometry.type === "MultiPolygon") {

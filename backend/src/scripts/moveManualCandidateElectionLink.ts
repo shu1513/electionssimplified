@@ -169,6 +169,35 @@ function districtBodyName(name: string): string {
   return name.replace(/,[^,]*$/, "").trim().toLowerCase();
 }
 
+const SEAT_DESIGNATOR_PATTERN =
+  /\b(?:trustee\s+area|subdistrict|district|area|seat|ward|zone|place|position|division)\s+(?:no\.?\s*)?([0-9]+[a-z]?|[a-z])\s*$/i;
+
+function trailingSeatDesignator(title: string): string | null {
+  const match = title
+    .trim()
+    .replace(/,?\s+(?:short|full|unexpired|partial)\s+term$/i, "")
+    .match(SEAT_DESIGNATOR_PATTERN);
+  return match ? match[1].toLowerCase() : null;
+}
+
+/**
+ * The whole-district shell and the reviewed area row describe the same seat
+ * when either the printed titles are identical, or both titles end in the
+ * same seat designator ("Seat 2" / "District 2", "District D") and the area
+ * row's name contains the first two words of the whole-district body
+ * ("Clark County School District, Nevada" -> "Clark County School District
+ * Trustee District D"; "Dade County School District, Florida" ->
+ * "Miami-Dade County School Board District 1").
+ */
+function isAreaSplitTitlePair(fromTitle: string, toTitle: string, fromBody: string, toDistrictName: string): boolean {
+  if (fromTitle.trim().toLowerCase() === toTitle.trim().toLowerCase()) return true;
+  const fromSeat = trailingSeatDesignator(fromTitle);
+  const toSeat = trailingSeatDesignator(toTitle);
+  if (!fromSeat || fromSeat !== toSeat) return false;
+  const bodyPrefix = fromBody.split(/\s+/).slice(0, 2).join(" ").toLowerCase();
+  return bodyPrefix.length > 0 && toDistrictName.trim().toLowerCase().includes(bodyPrefix);
+}
+
 /**
  * Verifies two district rows are SIBLINGS — two rows for the same real-world
  * body — before a cross-district repair is allowed to touch them. Same-state
@@ -211,16 +240,16 @@ export async function assertSiblingDistricts(
         `(${fromDistrict.name} vs ${toDistrict.name}); not siblings`
     );
   }
-  const areaSplit =
+  const fromBody = districtBodyName(fromDistrict.name);
+  const toBody = districtBodyName(toDistrict.name);
+  if (
     toDistrict.district_type === "local_special" &&
     fromDistrict.district_type !== "local_special" &&
     titles !== undefined &&
-    titles.from.trim().toLowerCase() === titles.to.trim().toLowerCase();
-  if (areaSplit) {
+    isAreaSplitTitlePair(titles.from, titles.to, fromBody, toDistrict.name)
+  ) {
     return { fromDistrict, toDistrict };
   }
-  const fromBody = districtBodyName(fromDistrict.name);
-  const toBody = districtBodyName(toDistrict.name);
   const namesRelated =
     fromBody === toBody ||
     fromBody.startsWith(`${toBody} in `) ||

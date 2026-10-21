@@ -183,6 +183,29 @@ describe("runSupersedeElection", () => {
     ).rejects.toThrow(/different date/);
   });
 
+  it("supersedes a whole-district shell with its local_special area row under the flag", async () => {
+    // Clark County 2026: the school row's "School District Board of
+    // Trustees, District D" is replaced by the trustee-district polygon's
+    // election; the district names share no overlay relationship, so the
+    // seat designator carries the match.
+    const AREA_DISTRICT = "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee";
+    const areaSplit = buildClient(happyResponses({
+      "WHERE id = $1::uuid\n        FOR UPDATE": [[retiredRow({ official_ballot_title: "School District Board of Trustees, District D" })]],
+      "WHERE id = ANY($1::uuid[])": [
+        [survivorRow(SURVIVOR_A, { district_id: AREA_DISTRICT, official_ballot_title: "Clark County School District Trustee, District D" })],
+      ],
+      "FROM public.districts": [[
+        { id: DISTRICT, name: "Clark County School District, Nevada", state: "NV", district_type: "school_unified" },
+        { id: AREA_DISTRICT, name: "Clark County School District Trustee District D", state: "NV", district_type: "local_special" },
+      ]],
+    }));
+    const result = await runSupersedeElection(
+      { query: areaSplit.query },
+      { electionId: RETIRED, reason: REASON, supersededByIds: [SURVIVOR_A], dryRun: false, allowCrossDistrict: true }
+    );
+    expect(result.crossDistrict?.[0]?.toDistrict).toBe("Clark County School District Trustee District D");
+  });
+
   it("crosses districts only under the explicit flag, and only between verified siblings", async () => {
     const OVERLAY_DISTRICT = "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee";
     const siblingDistricts = [

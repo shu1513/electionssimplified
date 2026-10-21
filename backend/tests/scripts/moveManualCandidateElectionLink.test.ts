@@ -59,6 +59,7 @@ function electionRows(
     toRaceType?: string;
     toStage?: string | null;
     toTitle?: string;
+    fromTitle?: string;
   } = {}
 ) {
   return [
@@ -66,7 +67,7 @@ function electionRows(
       id: FROM_ELECTION,
       district_id: "dddddddd-dddd-dddd-dddd-dddddddddddd",
       election_date: overrides.fromDate ?? "2026-11-03",
-      official_ballot_title: "Governing Board",
+      official_ballot_title: overrides.fromTitle ?? "Governing Board",
       race_type: "office",
       election_stage: "general",
     },
@@ -337,6 +338,45 @@ describe("runMoveCandidateElectionLink", () => {
         { candidateId: CANDIDATE_ID, fromElectionId: FROM_ELECTION, toElectionId: TO_ELECTION, dryRun: false, allowCrossDistrict: true }
       )
     ).rejects.toThrow(/not siblings|same body/);
+  });
+
+  it("crosses onto the area row when the titles differ but end in the same seat designator", async () => {
+    // Hillsborough 2026: the county row's "Hillsborough School Board, Seat 2"
+    // is the same contest as "Hillsborough County School Board Member,
+    // District 2" on the reviewed area polygon.
+    const districtRows = [
+      { id: "dddddddd-dddd-dddd-dddd-dddddddddddd", name: "Hillsborough County School District, Florida", state: "FL", district_type: "school_unified" },
+      { id: "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee", name: "Hillsborough County School Board District 2", state: "FL", district_type: "local_special" },
+    ];
+    const allowed = buildClient(happyResponses({
+      "FROM public.elections": [electionRows({
+        toDistrict: "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
+        fromTitle: "Hillsborough School Board, Seat 2",
+        toTitle: "Hillsborough County School Board Member, District 2",
+      })],
+      "FROM public.districts": [districtRows],
+    }));
+    const result = await runMoveCandidateElectionLink(
+      { query: allowed.query },
+      { candidateId: CANDIDATE_ID, fromElectionId: FROM_ELECTION, toElectionId: TO_ELECTION, dryRun: false, allowCrossDistrict: true }
+    );
+    expect(result.action).toBe("moved");
+
+    // A different seat on the same body is a different contest.
+    const otherSeat = buildClient(happyResponses({
+      "FROM public.elections": [electionRows({
+        toDistrict: "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee",
+        fromTitle: "Hillsborough School Board, Seat 2",
+        toTitle: "Hillsborough County School Board Member, District 3",
+      })],
+      "FROM public.districts": [districtRows],
+    }));
+    await expect(
+      runMoveCandidateElectionLink(
+        { query: otherSeat.query },
+        { candidateId: CANDIDATE_ID, fromElectionId: FROM_ELECTION, toElectionId: TO_ELECTION, dryRun: false, allowCrossDistrict: true }
+      )
+    ).rejects.toThrow(/same body/);
   });
 
   it("refuses cross-district moves whose districts are not verifiable siblings", async () => {
