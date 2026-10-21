@@ -58,6 +58,7 @@ function electionRows(
     toDistrict?: string;
     toRaceType?: string;
     toStage?: string | null;
+    toTitle?: string;
   } = {}
 ) {
   return [
@@ -73,7 +74,7 @@ function electionRows(
       id: TO_ELECTION,
       district_id: overrides.toDistrict ?? "dddddddd-dddd-dddd-dddd-dddddddddddd",
       election_date: overrides.toDate ?? "2026-11-03",
-      official_ballot_title: "Governing Board Member, Seat 3",
+      official_ballot_title: overrides.toTitle ?? "Governing Board Member, Seat 3",
       race_type: overrides.toRaceType ?? "office",
       election_stage: overrides.toStage === undefined ? "general" : overrides.toStage,
     },
@@ -305,6 +306,37 @@ describe("runMoveCandidateElectionLink", () => {
         }
       )
     ).rejects.toThrow(/different dates/);
+  });
+
+  it("crosses from a whole-district row onto its local_special area row when the printed title matches", async () => {
+    // Santa Clara County 2026: a trustee-area seat written on the whole
+    // school row moves onto the reviewed area polygon that replaces it.
+    const districtRows = [
+      { id: "dddddddd-dddd-dddd-dddd-dddddddddddd", name: "Mountain View-Los Altos Union School District, California", state: "CA", district_type: "school_secondary" },
+      { id: "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee", name: "Mountain View-Los Altos Union High School District Trustee Area 3", state: "CA", district_type: "local_special" },
+    ];
+    const allowed = buildClient(happyResponses({
+      "FROM public.elections": [electionRows({ toDistrict: "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee", toTitle: "Governing Board" })],
+      "FROM public.districts": [districtRows],
+    }));
+    const result = await runMoveCandidateElectionLink(
+      { query: allowed.query },
+      { candidateId: CANDIDATE_ID, fromElectionId: FROM_ELECTION, toElectionId: TO_ELECTION, dryRun: false, allowCrossDistrict: true }
+    );
+    expect(result.action).toBe("moved");
+    expect(result.crossDistrict?.toDistrict).toBe("Mountain View-Los Altos Union High School District Trustee Area 3");
+
+    // The other direction (area row -> whole row) and a different title stay refused.
+    const reversed = buildClient(happyResponses({
+      "FROM public.elections": [electionRows({ toDistrict: "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee", toTitle: "Governing Board" })],
+      "FROM public.districts": [[{ ...districtRows[0], district_type: "local_special" }, { ...districtRows[1], district_type: "school_secondary" }]],
+    }));
+    await expect(
+      runMoveCandidateElectionLink(
+        { query: reversed.query },
+        { candidateId: CANDIDATE_ID, fromElectionId: FROM_ELECTION, toElectionId: TO_ELECTION, dryRun: false, allowCrossDistrict: true }
+      )
+    ).rejects.toThrow(/not siblings|same body/);
   });
 
   it("refuses cross-district moves whose districts are not verifiable siblings", async () => {

@@ -188,7 +188,13 @@ function districtBodyName(name: string): string {
 export async function assertSiblingDistricts(
   client: MoveCandidateElectionLinkClient,
   fromDistrictId: string,
-  toDistrictId: string
+  toDistrictId: string,
+  // The two shells' printed titles. A whole-district school/county/place row
+  // and the reviewed local_special AREA row that replaces it (a trustee area
+  // split out of its school district: Santa Clara, Orange, Los Angeles 2026)
+  // share no name relationship, but the seat IS the same contest: identical
+  // printed title on the same date, moving onto a local_special polygon.
+  titles?: { from: string; to: string }
 ): Promise<{ fromDistrict: DistrictRow; toDistrict: DistrictRow }> {
   const districtsResult = await client.query<DistrictRow>(
     `SELECT id, name, state, district_type FROM public.districts WHERE id = ANY($1::uuid[])`,
@@ -204,6 +210,14 @@ export async function assertSiblingDistricts(
       `--allow-cross-district refused: districts are in different states ` +
         `(${fromDistrict.name} vs ${toDistrict.name}); not siblings`
     );
+  }
+  const areaSplit =
+    toDistrict.district_type === "local_special" &&
+    fromDistrict.district_type !== "local_special" &&
+    titles !== undefined &&
+    titles.from.trim().toLowerCase() === titles.to.trim().toLowerCase();
+  if (areaSplit) {
+    return { fromDistrict, toDistrict };
   }
   const fromBody = districtBodyName(fromDistrict.name);
   const toBody = districtBodyName(toDistrict.name);
@@ -442,7 +456,8 @@ export async function runMoveCandidateElectionLink(
       const { fromDistrict, toDistrict } = await assertSiblingDistricts(
         client,
         fromElection.district_id,
-        toElection.district_id
+        toElection.district_id,
+        { from: fromElection.official_ballot_title, to: toElection.official_ballot_title }
       );
       crossDistrict = { fromDistrict: fromDistrict.name, toDistrict: toDistrict.name };
     }
