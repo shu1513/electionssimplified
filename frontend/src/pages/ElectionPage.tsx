@@ -1200,8 +1200,8 @@ export function ElectionPage() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 ref={candidatesRef} className="text-heading font-semibold">Who is running?</h2>
               {showChoiceControls && data.seats_to_fill != null && data.seats_to_fill > 1 ? (
-                <span className="text-xs text-ink-soft">
-                  This election fills {data.seats_to_fill} seats — pick up to {data.seats_to_fill} candidates.
+                <span className="text-xs text-ink">
+                  Pick up to {data.seats_to_fill}
                 </span>
               ) : null}
               {hasSaved && data.candidates.length > 1 ? (

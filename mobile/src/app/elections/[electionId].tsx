@@ -423,8 +423,8 @@ export default function ElectionScreen() {
           <Text className="text-lg font-semibold text-ink">Candidates</Text>
           {/* Multi-seat hint, same copy as the web page header. */}
           {showChoiceControls && data.seats_to_fill != null && data.seats_to_fill > 1 ? (
-            <Text className="mt-1 text-xs text-ink-soft">
-              This election fills {data.seats_to_fill} seats — pick up to {data.seats_to_fill} candidates.
+            <Text className="mt-1 text-xs text-ink">
+              Pick up to {data.seats_to_fill}
             </Text>
           ) : null}
           {/* Race-level "Pick by my issues": one engine run for this
