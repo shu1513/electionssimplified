@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { isValidLocalBoundaryGeometry } from "../../../src/pipeline/address/localSpecialDistrictEligibility.js";
 import {
+  extractEmbeddedFeatureCollection,
   fetchLocalBoundarySource,
   insertReviewedLocalBoundary,
   dropDegenerateHoles,
@@ -178,6 +179,42 @@ describe("zipped KML boundary sources", () => {
     const source = await fetchLocalBoundarySource(payload, fetchImpl);
     expect(source.sourceUrl).toBe("https://data.capitol.texas.gov/plane2106_kml.zip");
     expect((source.geometry as { type: string }).type).toBe("MultiPolygon");
+  });
+
+  it("fetches an html_geojson source and reads the FeatureCollection a web map page embeds", async () => {
+    // Redistricting Partners publishes California college-board plans as
+    // Folium pages: the GeoJSON sits in a JavaScript literal.
+    const page = `<html><head><script>var map_opts = {"zoom": 11};</script></head><body>
+      <script>var geo_json_abc_data = {"type": "FeatureCollection", "features": [
+        {"type": "Feature", "properties": {"DISTRICT": "2", "name": "Area {2}"}, "geometry": ${JSON.stringify(square(0, 0, 1, 1))}},
+        {"type": "Feature", "properties": {"DISTRICT": "3"}, "geometry": ${JSON.stringify(square(1, 0, 2, 1))}}
+      ]};
+      geo_json_abc.addData(geo_json_abc_data);</script></body></html>`;
+    const parsed = extractEmbeddedFeatureCollection(page) as { features: unknown[] };
+    expect(parsed.features).toHaveLength(2);
+    expect(() => extractEmbeddedFeatureCollection("<html>no map here</html>")).toThrow(/embeds no GeoJSON/);
+
+    const payload = parseLocalBoundaryImport({
+      ...rtdO,
+      district_key: "CA:SJECCD:2",
+      district_name: "San José-Evergreen Community College District Trustee Area 2",
+      state: "CA",
+      sources: [{
+        kind: "html_geojson",
+        url: "https://redistrictingpartners.com/wp-content/uploads/2026/10/San-Jose-Evergreen-CCD-Final-Plan.html",
+        match: { field: "DISTRICT", values: ["2"] },
+      }],
+    });
+    const bytes = new TextEncoder().encode(page);
+    const fetchImpl = vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      json: async () => { throw new Error("not JSON"); },
+      arrayBuffer: async () => bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer,
+    }));
+    const source = await fetchLocalBoundarySource(payload, fetchImpl);
+    expect(source.sourceUrl).toBe("https://redistrictingpartners.com/wp-content/uploads/2026/10/San-Jose-Evergreen-CCD-Final-Plan.html");
+    expect(source.geometry).toEqual(square(0, 0, 1, 1));
   });
 
   it("reads coordinates tags that carry whitespace or attributes and refuses an unreadable hole", () => {

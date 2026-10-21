@@ -19,9 +19,13 @@ type FetchLike = (url: URL) => Promise<{
  * filtered by it. A `kml_zip` source is a zipped KML file, the format some
  * state offices publish instead of a map service (the Texas Legislative
  * Council's redistricting plans, for example); each Placemark becomes a
- * feature whose `name` and ExtendedData fields can be matched. */
+ * feature whose `name` and ExtendedData fields can be matched. An
+ * `html_geojson` source is a web map page (Folium/Leaflet exports such as the
+ * Redistricting Partners plan maps California college boards publish) whose
+ * HTML embeds the plan's GeoJSON FeatureCollection; the first embedded
+ * collection is read. */
 export type BoundarySourceSpec = {
-  kind: "arcgis" | "geojson" | "kml_zip";
+  kind: "arcgis" | "geojson" | "kml_zip" | "html_geojson";
   url: string;
   match: { field: string; values: string[] };
 };
@@ -67,8 +71,9 @@ function httpsUrl(value: unknown): URL | null {
 }
 
 function parseSource(value: unknown, label: string): BoundarySourceSpec {
-  if (!isRecord(value) || (value.kind !== "arcgis" && value.kind !== "geojson" && value.kind !== "kml_zip")) {
-    throw new Error(`${label}.kind must be "arcgis", "geojson", or "kml_zip"`);
+  if (!isRecord(value) ||
+    (value.kind !== "arcgis" && value.kind !== "geojson" && value.kind !== "kml_zip" && value.kind !== "html_geojson")) {
+    throw new Error(`${label}.kind must be "arcgis", "geojson", "kml_zip", or "html_geojson"`);
   }
   const url = httpsUrl(value.url);
   if (!url) throw new Error(`${label}.url must be an HTTPS URL`);
@@ -141,7 +146,7 @@ function stableJson(value: unknown): string {
 }
 
 function sourceRequestUrl(spec: BoundarySourceSpec): URL {
-  if (spec.kind === "geojson" || spec.kind === "kml_zip") return new URL(spec.url);
+  if (spec.kind === "geojson" || spec.kind === "kml_zip" || spec.kind === "html_geojson") return new URL(spec.url);
   const url = new URL(`${spec.url}/query`);
   url.searchParams.set("where", `${spec.match.field} IN (${spec.match.values.map((entry) => `'${entry}'`).join(",")})`);
   url.searchParams.set("outFields", "*");
@@ -223,6 +228,58 @@ export function kmlZipToFeatureCollection(zipBytes: Uint8Array): { type: "Featur
   return { type: "FeatureCollection", features };
 }
 
+/** The first GeoJSON FeatureCollection object embedded in a web map page. A
+ * Folium/Leaflet export writes it as a JavaScript literal
+ * (`var geo_json_… = {"type": "FeatureCollection", …};`), so the object is
+ * found by locating the `"type": "FeatureCollection"` member, walking back to
+ * the `{` that opens its object, and scanning forward with a JSON-aware
+ * bracket count (strings and escapes respected) to the matching `}`. */
+export function extractEmbeddedFeatureCollection(html: string): unknown {
+  const marker = /"type"\s*:\s*"FeatureCollection"/g;
+  let hit = marker.exec(html);
+  while (hit !== null) {
+    let start = hit.index;
+    let depth = 0;
+    let inString = false;
+    for (let i = hit.index - 1; i >= 0; i -= 1) {
+      const ch = html[i];
+      if (ch === "}" ) depth += 1;
+      else if (ch === "{") {
+        if (depth === 0) { start = i; break; }
+        depth -= 1;
+      }
+    }
+    if (html[start] === "{") {
+      depth = 0;
+      for (let i = start; i < html.length; i += 1) {
+        const ch = html[i];
+        if (inString) {
+          if (ch === "\\") i += 1;
+          else if (ch === "\"") inString = false;
+          continue;
+        }
+        if (ch === "\"") inString = true;
+        else if (ch === "{") depth += 1;
+        else if (ch === "}") {
+          depth -= 1;
+          if (depth === 0) {
+            try {
+              const parsed: unknown = JSON.parse(html.slice(start, i + 1));
+              if (isRecord(parsed) && parsed.type === "FeatureCollection" && Array.isArray(parsed.features)) return parsed;
+            } catch {
+              // Not a standalone JSON literal (a template or a string-wrapped
+              // copy); keep looking at the next marker.
+            }
+            break;
+          }
+        }
+      }
+    }
+    hit = marker.exec(html);
+  }
+  throw new Error("Official boundary page embeds no GeoJSON FeatureCollection");
+}
+
 /** True when every point of the ring lies on one line (or all coincide), so
  * the ring provably encloses nothing. The line runs from the first point to
  * the point farthest from it: anchoring on the first *different* point would
@@ -270,7 +327,9 @@ async function fetchSourceFeatures(
   if (!response.ok) throw new Error(`Official boundary source returned HTTP ${response.status}: ${url}`);
   const body: unknown = spec.kind === "kml_zip"
     ? kmlZipToFeatureCollection(await readArrayBuffer(response, url))
-    : await response.json();
+    : spec.kind === "html_geojson"
+      ? extractEmbeddedFeatureCollection(new TextDecoder("utf-8").decode(await readArrayBuffer(response, url)))
+      : await response.json();
   if (!isRecord(body) || body.type !== "FeatureCollection" || !Array.isArray(body.features)) {
     throw new Error(`Official boundary source did not return a GeoJSON FeatureCollection: ${url}`);
   }
