@@ -14,6 +14,8 @@ import { assertKnownIndianaCampaignFinanceCliArgs } from "./indianaCampaignFinan
 export type SyncDueIndianaCandidateFinanceScriptOptions = {
   dryRun: boolean;
   force: boolean;
+  nativePacOnly?: boolean;
+  nativePacLinkId?: string;
   maxCandidates?: number;
   staleAfterDays?: number;
   electionLookbackDays?: number;
@@ -26,6 +28,8 @@ export function parseSyncDueIndianaCandidateFinanceScriptArgs(
   args: readonly string[]
 ): SyncDueIndianaCandidateFinanceScriptOptions {
   assertKnownIndianaCampaignFinanceCliArgs(args, [
+    { name: "--native-pac-only", takesValue: false },
+    { name: "--native-pac-link-id", takesValue: true },
     { name: "--dry-run", takesValue: false },
     { name: "--force", takesValue: false },
     { name: "--max-candidates", takesValue: true },
@@ -38,6 +42,8 @@ export function parseSyncDueIndianaCandidateFinanceScriptArgs(
   return {
     dryRun: args.includes("--dry-run"),
     force: args.includes("--force"),
+    nativePacOnly: args.includes("--native-pac-only"),
+    nativePacLinkId: readStrictFlagValue(args, "--native-pac-link-id") || undefined,
     maxCandidates: readStrictPositiveIntegerFlag(args, "--max-candidates"),
     staleAfterDays: readStrictPositiveIntegerFlag(args, "--stale-after-days"),
     electionLookbackDays: readStrictPositiveIntegerFlag(args, "--lookback-days"),
@@ -84,6 +90,8 @@ async function main(): Promise<void> {
   try {
     const result = await syncDueIndianaCandidateFinance({
       db: pool,
+      nativePacOnly: options.nativePacOnly,
+      nativePacLinkId: options.nativePacLinkId,
       now: startedAt,
       dryRun: options.dryRun,
       maxCandidates: options.maxCandidates,

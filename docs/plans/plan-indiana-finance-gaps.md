@@ -13,16 +13,38 @@ HTML publication provides actual contributor class, native event URLs, complete
 paging/count/money controls, filing inventories and amendment families. This is
 the receiving-side authority selected for the new component.
 
-The implemented foundation comprises the strict native parser, immutable original archive and saved receipt-walk evidence reader. It preserves signed
-credits, distinguishes gift kind from contributor class, requires an exact PAC
-subset of the complete receiving ledger, checks each PAC detail, and selects the
-unique latest amendment using the source's filed clock. Original/amended captions
-are markers, not numeric version ordinals. Ambiguous versions hold the component.
+The native PAC path now includes immutable request/response originals, saved-first
+qualification, gated live acquisition, a protected component writer, an independent
+due queue and an API reader overlay. It preserves signed credits, distinguishes
+gift kind from contributor class, requires an exact PAC subset of the full receiving
+ledger, and checks each PAC detail. Current filing inventories bind the actual
+family actions and unique latest filed clock; complete parent/schedule/return
+controls and receipt occurrence multisets must reconcile. Ambiguity holds the
+component without changing stored money or observation clocks.
 
-The parser has been checked against genuine complete annual/current originals:
-282 receiving occurrences and 88 literal-PAC cash gifts totaling $166,500. This
-binds eight complete fresh-search/postback walks and 130 genuine observations. Twenty-one synthetic boundary tests and the backend typecheck pass. The application receiving-context loader also qualifies the real linked context in a read-only local transaction. This is source/parser proof for one linked context, not an ordinary-sync, storage, API
-or candidate-card proof. No new money has been written by this work yet.
+Migration 376 was applied through the normal local runner after a fresh ledger
+check. The ordinary local CLI wrote one component: 282 receiving occurrences,
+88 literal-PAC cash gifts, 65 reported-name groups and $166,500 cash. Independent
+uncapped storage, actual production API and the hydrated candidate card agree.
+All five displayed name/amount pairs and source links were compared in memory.
+The full group set is validated before applying the display cap. Names are source
+reported buckets, not verified legal-entity counts. Legacy headline money and its
+clock remain unchanged; outside spending remains unknown.
+
+A separate empty-cache live run of the production source acquired and qualified
+fresh official forms, inventories, current versions, complete receipt walks and
+all 88 PAC details, agreeing with the saved-source total. A protected-writer replay
+preserved money and clocks exactly. An injected insertion failure after replacement
+and deletion rolled back the whole component; prior groups, source metadata and
+legacy direct rows were preserved. These are local proofs; no production release.
+
+New read/write gate: `INDIANA_NATIVE_PAC_ENABLED`, default off beneath the state
+master flag. Live acquisition additionally requires
+`INDIANA_NATIVE_PAC_RAW_REFRESH_ENABLED`, default off. Normal state sync gates still
+apply. The ordinary sync also accepts `--native-pac-only` and a scoped
+`--native-pac-link-id`; the native due queue runs before legacy direct acquisition,
+uses its own observation clock, a 24-hour attempt cooldown and a 112-day default
+post-election window. Canonical context is rechecked under lock and at read time.
 
 All three published current supplemental families for that context precede and
 fall inside the later regular report. The official manual requires their receipts
@@ -50,16 +72,9 @@ acquisition remain required before claiming that gap resolved.
 
 ## Remaining implementation and proof
 
-- Save genuine source requests/responses immutably; read fresh saved originals
-  first. Preserve actual observation clocks and failures.
-- Connect qualified native PAC receipts independently of legacy direct finance.
-  Revalidate canonical candidate/office/district/election and exclusive ownership
-  at acquisition, under the write lock and when reading.
-- Keep source components independent. Failed acquisition or unresolved versions
-  preserve prior values and freshness; they never write zeros.
 - Finish independent IE qualification, then the smallest supported integration.
-- Run the ordinary local sync and independently compare source, uncapped store,
-  production API and hydrated candidate card before opening the state PR.
+- Complete the independent IE source decision before claiming the state gap resolved.
+  The PAC path has ordinary local sync/store/API/card proof; no Indiana PR yet.
 
 ## Late filings and manual reruns
 

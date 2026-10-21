@@ -147,6 +147,10 @@ export const isNebraskaReportedCommitteeEnabled = (): boolean => nebraskaFinance
 const indianaFinance = defineStateFinanceFlagPair("INDIANA_CAMPAIGN_FINANCE");
 export const isIndianaCampaignFinanceEnabled = indianaFinance.isEnabled;
 export const isIndianaCampaignFinanceSyncEnabled = indianaFinance.isSyncEnabled;
+export const isIndianaNativePacEnabled = (): boolean =>
+  isIndianaCampaignFinanceEnabled() && readBooleanEnv("INDIANA_NATIVE_PAC_ENABLED", false);
+export const isIndianaNativePacRawRefreshEnabled = (): boolean =>
+  isIndianaNativePacEnabled() && readBooleanEnv("INDIANA_NATIVE_PAC_RAW_REFRESH_ENABLED", false);
 export const isIndianaCampaignFinanceRawDataRefreshEnabled = indianaFinance.gate(
   "INDIANA_CAMPAIGN_FINANCE_RAW_DATA_REFRESH_ENABLED"
 );

@@ -1,3 +1,5 @@
+import { isIndianaNativePacEnabled } from "../../config/featureFlags.js";
+import { syncDueIndianaNativePac } from "./indianaNativePacBatchSync.js";
 import { stat } from "node:fs/promises";
 import type { Pool, PoolClient } from "pg";
 
@@ -43,6 +45,8 @@ export type IndianaContributionDataForYear = {
 
 export type IndianaCandidateFinanceBatchSyncInput = {
   db: Queryable;
+  nativePacOnly?: boolean;
+  nativePacLinkId?: string;
   now?: Date;
   dryRun?: boolean;
   maxCandidates?: number;
@@ -67,6 +71,7 @@ export type IndianaCandidateFinanceBatchSyncItemResult = {
 };
 
 export type IndianaCandidateFinanceBatchSyncResult = {
+  nativePac?: Awaited<ReturnType<typeof syncDueIndianaNativePac>>;
   dryRun: boolean;
   now: string;
   staleAfterDays: number;
@@ -286,6 +291,24 @@ export async function syncDueIndianaCandidateFinance(
   const dryRun = input.dryRun === true;
   const syncFn = input.syncIndianaCandidateFinanceFn ?? syncIndianaCandidateFinance;
 
+  let nativePac: Awaited<ReturnType<typeof syncDueIndianaNativePac>> | undefined;
+  if (isIndianaNativePacEnabled()) {
+    if (!("connect" in input.db) || typeof input.db.connect !== "function") {
+      throw new Error("native_pac_pool_required");
+    }
+    nativePac = await syncDueIndianaNativePac({
+      db: input.db as Pick<Pool, "query" | "connect">,
+      now, dryRun, maxCandidates, staleAfterDays,
+      electionLookbackDays: input.electionLookbackDays,
+      electionLookaheadDays, linkId: input.nativePacLinkId,
+    });
+  }
+  if (input.nativePacOnly) return {
+    nativePac, dryRun, now: now.toISOString(), staleAfterDays, maxCandidates,
+    dueCandidateCount: 0, selectedCandidateCount: 0,
+    syncedCandidateCount: 0, failedCandidateCount: 0, results: [],
+  };
+
   if (!dryRun && input.autoLinkMissingLinks !== false) {
     try {
       const missingLinkCandidates = await listIndianaCandidateElectionsMissingFinanceLinks(input.db, {
@@ -420,6 +443,7 @@ export async function syncDueIndianaCandidateFinance(
     now: now.toISOString(),
     staleAfterDays,
     maxCandidates,
+    ...(nativePac ? { nativePac } : {}),
     dueCandidateCount: due.totalDueRows,
     selectedCandidateCount: due.rows.length,
     syncedCandidateCount,
