@@ -72,20 +72,26 @@ async function main(): Promise<void> {
   const pool = new Pool({ connectionString: getDatabaseUrl() });
 
   try {
-    const result = await syncDueVirginiaCandidateFinance({
-      db: pool,
-      now: startedAt,
-      dryRun: options.dryRun,
-      maxCandidates: options.maxCandidates,
-      staleAfterDays: options.staleAfterDays,
-      electionLookbackDays: options.electionLookbackDays,
-      electionLookaheadDays: options.electionLookaheadDays,
-    });
+    const result = await runVirginiaCandidateFinanceDueSync(pool, process.argv.slice(2), startedAt);
 
     console.log(JSON.stringify(toSyncDueVirginiaCandidateFinanceScriptOutput({ startedAt, options, result }), null, 2));
   } finally {
     await pool.end();
   }
+}
+
+/** Same ordinary CLI selection and write default; explicit DB callers need no
+ * project environment file and no candidate, cycle or financial overrides. */
+export async function runVirginiaCandidateFinanceDueSync(
+  db: Pool,
+  args: readonly string[] = [],
+  now = new Date(),
+): Promise<VirginiaCandidateFinanceBatchSyncResult> {
+  const options = parseSyncDueVirginiaCandidateFinanceScriptArgs(args);
+  if (!isVirginiaCampaignFinanceSyncEnabled(options.force)) throw new Error("Virginia finance sync disabled");
+  return syncDueVirginiaCandidateFinance({ db, now, dryRun: options.dryRun,
+    maxCandidates: options.maxCandidates, staleAfterDays: options.staleAfterDays,
+    electionLookbackDays: options.electionLookbackDays, electionLookaheadDays: options.electionLookaheadDays });
 }
 
 const entrypoint = process.argv[1] ? pathToFileURL(process.argv[1]).href : null;
