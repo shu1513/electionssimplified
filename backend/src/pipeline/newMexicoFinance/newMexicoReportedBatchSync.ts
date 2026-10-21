@@ -41,6 +41,8 @@ export type NewMexicoReportedBatchInput = {
 };
 type DueRow = NewMexicoReportedReceiver & {
   dueComponents: NewMexicoReportedComponent[];
+  /** A due component was attempted after its last success (a hold). */
+  retry: boolean;
 };
 function options(input: NewMexicoReportedBatchInput) {
   const now = input.now ?? new Date(),
@@ -66,7 +68,8 @@ export async function listDueNewMexicoReportedFinance(
   if (isNewMexicoReportedIeEnabled()) kinds.push("ie");
   if (!kinds.length) return { totalDueRows: 0, rows: [] as DueRow[] };
   const result = await input.db.query<DueRow>(
-    `SELECT ${NM_REPORTED_SELECT},array_agg(kind.component ORDER BY kind.component) "dueComponents"
+    `SELECT ${NM_REPORTED_SELECT},array_agg(kind.component ORDER BY kind.component) "dueComponents",
+    bool_or(a.link_id IS NOT NULL AND (s.link_id IS NULL OR a.last_attempted_at>s.last_synced_at)) "retry"
     ${NM_REPORTED_FROM} CROSS JOIN unnest($2::text[]) kind(component)
     LEFT JOIN public.nm_reported_finance_components s ON s.link_id=l.id AND s.election_year=l.election_year AND s.component=kind.component
     LEFT JOIN public.nm_reported_finance_attempts a ON a.link_id=l.id AND a.election_year=l.election_year AND a.component=kind.component
@@ -167,6 +170,10 @@ export async function syncDueNewMexicoReportedFinance(
   output.totalDueRows = due.totalDueRows;
   output.selectedCandidates = due.rows.length;
   if (output.dryRun) return output;
+  // Saved originals replay for seven days, so a held component retried after
+  // 24 hours would otherwise meet the same originals and the same hold.
+  const refresh =
+    input.forceRawDataRefresh === true || due.rows.some((row) => row.retry);
   const packets = new Map<
     string,
     ReturnType<typeof getNewMexicoReportedSource>
@@ -178,14 +185,14 @@ export async function syncDueNewMexicoReportedFinance(
       promise = getNewMexicoReportedSource({
         scope,
         cacheDir: input.cacheDir,
-        refresh: input.forceRawDataRefresh,
+        refresh,
       });
       packets.set(key, promise);
     }
     return promise;
   };
   for (const row of due.rows) {
-    const { dueComponents, ...receiver } = row;
+    const { dueComponents, retry: _retry, ...receiver } = row;
     for (const component of [...dueComponents].sort((a, b) =>
       a === b ? 0 : a === "ie" ? -1 : 1,
     )) {

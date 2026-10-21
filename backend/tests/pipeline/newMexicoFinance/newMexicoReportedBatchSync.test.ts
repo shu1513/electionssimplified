@@ -121,6 +121,28 @@ describe("NewMexico independent native due sync", () => {
       (db.query.mock.calls[1] as unknown as [string, unknown[]])[1][7],
     ).toBe(true);
   });
+  it("re-acquires originals for a held retry and replays saved originals otherwise", async () => {
+    const db = database();
+    await syncDueNewMexicoReportedFinance({ db: db as never });
+    expect(mocks.source).toHaveBeenCalled();
+    for (const call of mocks.source.mock.calls)
+      expect(call[0]).toMatchObject({ refresh: false });
+    mocks.source.mockClear();
+    db.query.mockResolvedValue({
+      rows: [{ ...receiver, dueComponents: ["committee", "ie"], retry: true }],
+    } as never);
+    await syncDueNewMexicoReportedFinance({ db: db as never });
+    expect(mocks.source).toHaveBeenCalled();
+    for (const call of mocks.source.mock.calls)
+      expect(call[0]).toMatchObject({ refresh: true });
+    expect(mocks.load).toHaveBeenCalledWith(
+      expect.anything(),
+      receiver.linkId,
+      true,
+    );
+    const [sql] = db.query.mock.calls[0] as unknown as [string];
+    expect(sql).toContain('a.last_attempted_at>s.last_synced_at)) "retry"');
+  });
   it("commits IE work when committee source acquisition fails", async () => {
     mocks.source.mockImplementation(async ({ scope: { kind } }) => {
       if (kind === "committee")
