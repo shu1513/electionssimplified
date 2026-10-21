@@ -188,8 +188,10 @@ async function main(): Promise<void> {
     return;
   }
 
-  const env = getPipelineEnv();
-  const pool = new Pool({ connectionString: env.DATABASE_URL });
+  // An explicitly supplied connection is sufficient for this infrastructure
+  // command; it need not load environment files or AI configuration.
+  const databaseUrl = process.env.DATABASE_URL?.trim() || getPipelineEnv().DATABASE_URL;
+  const pool = new Pool({ connectionString: databaseUrl });
   const client = await pool.connect();
 
   try {

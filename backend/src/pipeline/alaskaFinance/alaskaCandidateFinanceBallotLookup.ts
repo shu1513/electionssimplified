@@ -10,6 +10,8 @@ import {
 import { loadStandardStateFinanceSummariesByCandidateElection } from "../finance/standardStateFinanceBallotLookupLoader.js";
 import { isAlaskaFinanceEligibleOffice } from "./alaskaFinanceEligibleOffices.js";
 
+import { overlayAlaskaReportedFinance } from "./alaskaReportedReader.js";
+
 type Queryable = Pick<Pool | PoolClient, "query">;
 
 const GENERIC_ALASKA_APOC_SOURCE_URL = "https://aws.state.ak.us/ApocReports/Campaign/";
@@ -25,7 +27,7 @@ export async function loadAlaskaCandidateFinanceSummariesByCandidateElection(
   candidateRows: readonly StateFinanceRequestCandidateRow[],
   electionRows: readonly StateFinanceRequestElectionRow[]
 ): Promise<Map<string, BallotLookupFinanceSummary>> {
-  return loadStandardStateFinanceSummariesByCandidateElection({
+  const summaries = await loadStandardStateFinanceSummariesByCandidateElection({
     db,
     candidateRows,
     electionRows,
@@ -47,4 +49,5 @@ export async function loadAlaskaCandidateFinanceSummariesByCandidateElection(
       outsideGroupBreakdowns: "ak_candidate_finance_outside_group_breakdowns",
     },
   });
+  return overlayAlaskaReportedFinance(db, summaries, candidateRows, electionRows);
 }

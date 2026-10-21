@@ -186,35 +186,46 @@ export function toSyncDueAlaskaCandidateFinanceScriptOutput(input: {
   };
 }
 
-async function main(): Promise<void> {
+export async function runAlaskaCandidateFinanceCli(
+  args: readonly string[],
+  db?: Pool,
+): Promise<AlaskaCandidateFinanceBatchSyncResult | undefined> {
   const startedAt = new Date();
-  loadProjectEnv();
-  const options = parseSyncDueAlaskaCandidateFinanceScriptArgs(process.argv.slice(2));
+  if (!db && !process.env.DATABASE_URL) loadProjectEnv();
+  const options = parseSyncDueAlaskaCandidateFinanceScriptArgs(args);
 
   if (!isAlaskaCampaignFinanceSyncEnabled(options.force)) {
-    console.log("Alaska campaign finance due sync disabled; no Alaska data loaded");
+    console.log(
+      "Alaska campaign finance due sync disabled; no Alaska data loaded",
+    );
     return;
   }
 
-  const loadedData = await loadAlaskaApocFinanceData(
-    {
-      mode: options.dataSourceMode,
-      incomeCsvPath: options.incomeCsvPath,
-      independentExpendituresCsvPath: options.independentExpendituresCsvPath,
-      independentContributionsCsvPath: options.independentContributionsCsvPath,
-      incomeUrl: options.incomeUrl,
-      independentExpendituresUrl: options.independentExpendituresUrl,
-      independentContributionsUrl: options.independentContributionsUrl,
-      timeoutMs: options.timeoutMs,
-      exportTimeoutMs: options.exportTimeoutMs,
-      retryCount: options.retryCount,
-      retryDelayMs: options.retryDelayMs,
-      requestSpacingMs: options.requestSpacingMs,
-      reportYear: options.reportYear,
-    },
-    { logger: console }
-  );
-  const pool = new Pool({ connectionString: getDatabaseUrl() });
+  let metadata: AlaskaApocDataSourceMetadata | null = null;
+  const loadApocData = async () => {
+    const loaded = await loadAlaskaApocFinanceData(
+      {
+        mode: options.dataSourceMode,
+        incomeCsvPath: options.incomeCsvPath,
+        independentExpendituresCsvPath: options.independentExpendituresCsvPath,
+        independentContributionsCsvPath:
+          options.independentContributionsCsvPath,
+        incomeUrl: options.incomeUrl,
+        independentExpendituresUrl: options.independentExpendituresUrl,
+        independentContributionsUrl: options.independentContributionsUrl,
+        timeoutMs: options.timeoutMs,
+        exportTimeoutMs: options.exportTimeoutMs,
+        retryCount: options.retryCount,
+        retryDelayMs: options.retryDelayMs,
+        requestSpacingMs: options.requestSpacingMs,
+        reportYear: options.reportYear,
+      },
+      { logger: { warn() {} } },
+    );
+    metadata = loaded.metadata;
+    return loaded.apocData;
+  };
+  const pool = db ?? new Pool({ connectionString: getDatabaseUrl() });
 
   try {
     const result = await syncDueAlaskaCandidateFinance({
@@ -226,29 +237,40 @@ async function main(): Promise<void> {
       electionLookbackDays: options.electionLookbackDays,
       electionLookaheadDays: options.electionLookaheadDays,
       autoLinkMissingLinks: options.autoLinkMissingLinks,
-      apocData: loadedData.apocData,
+      loadApocData,
     });
 
+    if (!metadata) {
+      console.log(
+        JSON.stringify({
+          type: "alaska_candidate_finance_due_sync",
+          legacy_source_unavailable: true,
+          reported: result.reported,
+        }),
+      );
+      return result;
+    }
     console.log(
       JSON.stringify(
         toSyncDueAlaskaCandidateFinanceScriptOutput({
           startedAt,
           options,
-          dataSource: loadedData.metadata,
+          dataSource: metadata,
           result,
         }),
         null,
-        2
-      )
+        2,
+      ),
     );
+    return result;
   } finally {
-    await pool.end();
+    if (!db) await pool.end();
   }
 }
 
 const entrypoint = process.argv[1] ? pathToFileURL(process.argv[1]).href : null;
 if (entrypoint === import.meta.url) {
-  main().catch((error) => {
+  runAlaskaCandidateFinanceCli(process.argv.slice(2)).catch((error) => {
     const message = error instanceof Error ? error.message : String(error);
     console.error("Alaska candidate finance due sync failed:", message);
     process.exitCode = 1;

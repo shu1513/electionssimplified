@@ -101,7 +101,9 @@ describe("alaskaCandidateFinanceSyncScheduler", () => {
         request_spacing_ms: 0,
       },
     });
-    const syncDueAlaskaCandidateFinance = vi.fn().mockResolvedValue({
+    const syncDueAlaskaCandidateFinance = vi.fn().mockImplementation(async (input) => {
+      await input.loadApocData();
+      return {
       dryRun: false,
       now: "2026-06-01T00:00:00.000Z",
       staleAfterDays: 3,
@@ -114,7 +116,7 @@ describe("alaskaCandidateFinanceSyncScheduler", () => {
       autoLinkLinkedCount: 0,
       autoLinkResults: [],
       results: [],
-    });
+    }; });
 
     vi.doMock("pg", () => ({ Pool: vi.fn(() => pool) }));
     mockEnv();
@@ -159,7 +161,7 @@ describe("alaskaCandidateFinanceSyncScheduler", () => {
         timeoutMs: 1000,
         retryCount: 1,
       }),
-      expect.objectContaining({ logger: console })
+      expect.objectContaining({ logger: expect.objectContaining({ warn: expect.any(Function) }) })
     );
     expect(syncDueAlaskaCandidateFinance).toHaveBeenCalledWith(
       expect.objectContaining({

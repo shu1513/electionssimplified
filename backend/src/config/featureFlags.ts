@@ -107,6 +107,9 @@ export const isCaliforniaCampaignFinanceRawDataRefreshEnabled = californiaFinanc
 const alaskaFinance = defineStateFinanceFlagPair("ALASKA_CAMPAIGN_FINANCE");
 export const isAlaskaCampaignFinanceEnabled = alaskaFinance.isEnabled;
 export const isAlaskaCampaignFinanceSyncEnabled = alaskaFinance.isSyncEnabled;
+export const isAlaskaReportedIeEnabled = (): boolean => isCandidateFinanceEnabled() && alaskaFinance.gate("ALASKA_REPORTED_IE_ENABLED")();
+export const isAlaskaReportedCommitteeEnabled = (): boolean => isCandidateFinanceEnabled() && alaskaFinance.gate("ALASKA_REPORTED_COMMITTEE_ENABLED")();
+export const isAlaskaReportedRawRefreshEnabled = (): boolean => isCandidateFinanceEnabled() && alaskaFinance.gate("ALASKA_REPORTED_RAW_REFRESH_ENABLED")();
 
 const coloradoFinance = defineStateFinanceFlagPair("COLORADO_CAMPAIGN_FINANCE");
 export const isColoradoCampaignFinanceEnabled = coloradoFinance.isEnabled;

@@ -4,7 +4,7 @@ import { toConnectionOptions } from "../utils/redisConnection.js";
 import { Pool } from "pg";
 
 import { getPipelineEnv } from "../config/env.js";
-import { isAlaskaCampaignFinanceEnabled, isAlaskaCampaignFinanceSyncEnabled } from "../config/featureFlags.js";
+import { isAlaskaCampaignFinanceEnabled, isAlaskaCampaignFinanceSyncEnabled, isAlaskaReportedCommitteeEnabled, isAlaskaReportedIeEnabled } from "../config/featureFlags.js";
 import {
   loadAlaskaApocFinanceData,
   type AlaskaApocDataSourceMetadata,
@@ -193,7 +193,7 @@ function readDataSourceConfig(data: AlaskaCandidateFinanceSyncJobData) {
 }
 
 function assertUsableDataSourceConfig(config: ReturnType<typeof readDataSourceConfig>): void {
-  if (config.mode === "csv" && !config.incomeCsvPath) {
+  if (config.mode === "csv" && !config.incomeCsvPath && !isAlaskaReportedCommitteeEnabled() && !isAlaskaReportedIeEnabled()) {
     throw new Error(
       "Alaska finance sync scheduler CSV data source requires incomeCsvPath or ALASKA_APOC_INCOME_CSV_PATH"
     );
@@ -316,7 +316,7 @@ export async function runAlaskaCandidateFinanceSyncJob(
   assertUsableDataSourceConfig(dataSourceConfig);
   const pool = new Pool({ connectionString: env.DATABASE_URL });
   try {
-    const loadedData = await loadAlaskaApocFinanceData(dataSourceConfig, { logger: console });
+    let metadata: AlaskaApocDataSourceMetadata | null = null;
     const result = await syncDueAlaskaCandidateFinance({
       db: pool,
       now,
@@ -326,14 +326,18 @@ export async function runAlaskaCandidateFinanceSyncJob(
       electionLookbackDays: data.electionLookbackDays,
       electionLookaheadDays: data.electionLookaheadDays,
       autoLinkMissingLinks: !dryRun && Boolean(data.autoLinkMissingLinks),
-      apocData: loadedData.apocData,
+      loadApocData: async () => {
+        const loaded = await loadAlaskaApocFinanceData(dataSourceConfig, { logger: { warn() {} } });
+        metadata = loaded.metadata;
+        return loaded.apocData;
+      },
     });
 
     return {
       enabled: true,
       force,
       triggeredBy,
-      dataSource: loadedData.metadata,
+      dataSource: metadata,
       ...result,
     };
   } finally {

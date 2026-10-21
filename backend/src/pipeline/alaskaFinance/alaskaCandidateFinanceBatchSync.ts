@@ -1,3 +1,5 @@
+import { syncDueAlaskaReportedFinance } from "./alaskaReportedBatchSync.js";
+import { isAlaskaReportedRawRefreshEnabled } from "../../config/featureFlags.js";
 import type { Pool, PoolClient } from "pg";
 
 import { createStandardStateFinanceDueListQuery } from "../finance/standardStateFinanceDueListQuery.js";
@@ -57,7 +59,8 @@ export type AlaskaCandidateFinanceBatchSyncInput = {
   staleAfterDays?: number;
   electionLookbackDays?: number;
   electionLookaheadDays?: number;
-  apocData: AlaskaApocFinanceDataSet;
+  apocData?: AlaskaApocFinanceDataSet;
+  loadApocData?: () => Promise<AlaskaApocFinanceDataSet>;
   autoLinkMissingLinks?: boolean;
   syncAlaskaCandidateFinanceFn?: typeof syncAlaskaCandidateFinance;
 };
@@ -73,6 +76,8 @@ export type AlaskaCandidateFinanceBatchSyncItemResult = {
 };
 
 export type AlaskaCandidateFinanceBatchSyncResult = {
+  reported?: Awaited<ReturnType<typeof syncDueAlaskaReportedFinance>>;
+  legacySourceUnavailable?: boolean;
   dryRun: boolean;
   now: string;
   staleAfterDays: number;
@@ -158,6 +163,43 @@ export async function syncDueAlaskaCandidateFinance(
   const syncFn = input.syncAlaskaCandidateFinanceFn ?? syncAlaskaCandidateFinance;
   let autoLinkResults: AlaskaFinanceAutoLinkResult[] = [];
 
+  const reported = await syncDueAlaskaReportedFinance({
+    db: input.db,
+    now,
+    dryRun,
+    maxCandidates,
+    staleAfterDays,
+    electionLookbackDays: input.electionLookbackDays,
+    electionLookaheadDays,
+    forceRawDataRefresh: isAlaskaReportedRawRefreshEnabled(),
+  });
+  let apocData = input.apocData;
+  try {
+    apocData ??= await input.loadApocData?.();
+  } catch (error) {
+    if (!reported.enabled) throw error;
+  }
+  if (!apocData) {
+    if (!reported.enabled)
+      throw new Error("Alaska legacy finance source is required");
+    return {
+      dryRun,
+      now: now.toISOString(),
+      staleAfterDays,
+      maxCandidates,
+      dueCandidateCount: 0,
+      selectedCandidateCount: 0,
+      syncedCandidateCount: 0,
+      failedCandidateCount: 0,
+      identityConflictCandidateCount: 0,
+      autoLinkAttemptedCount: 0,
+      autoLinkLinkedCount: 0,
+      autoLinkResults: [],
+      results: [],
+      reported,
+      legacySourceUnavailable: true,
+    };
+  }
   if (!dryRun && input.autoLinkMissingLinks === true) {
     try {
       const missingLinkCandidates: AlaskaFinanceAutoLinkCandidateElection[] =
@@ -173,8 +215,8 @@ export async function syncDueAlaskaCandidateFinance(
         maxCandidates,
         electionLookbackDays,
         electionLookaheadDays,
-        incomeRows: input.apocData.incomeRows,
-        sourceUrl: input.apocData.incomeSourceUrl ?? ALASKA_APOC_CAMPAIGN_INCOME_URL,
+        incomeRows: apocData.incomeRows,
+        sourceUrl: apocData.incomeSourceUrl ?? ALASKA_APOC_CAMPAIGN_INCOME_URL,
         candidateElections: missingLinkCandidates,
       });
     } catch (error) {
@@ -204,15 +246,15 @@ export async function syncDueAlaskaCandidateFinance(
         electionYear: row.electionYear,
         officeName: row.officeName,
         district: row.district,
-        sourceUrl: row.sourceUrl ?? input.apocData.incomeSourceUrl ?? ALASKA_APOC_CAMPAIGN_INCOME_URL,
-        incomeRows: input.apocData.incomeRows,
-        independentExpenditureRows: input.apocData.independentExpenditureRows,
-        independentContributionRows: input.apocData.independentContributionRows,
+        sourceUrl: row.sourceUrl ?? apocData.incomeSourceUrl ?? ALASKA_APOC_CAMPAIGN_INCOME_URL,
+        incomeRows: apocData.incomeRows,
+        independentExpenditureRows: apocData.independentExpenditureRows,
+        independentContributionRows: apocData.independentContributionRows,
         trustedCommittee: {
           candidateFilerId: row.candidateFilerId,
           candidateFilerName: row.candidateFilerName,
           source: row.linkSource,
-          sourceUrl: row.sourceUrl ?? input.apocData.incomeSourceUrl ?? ALASKA_APOC_CAMPAIGN_INCOME_URL,
+          sourceUrl: row.sourceUrl ?? apocData.incomeSourceUrl ?? ALASKA_APOC_CAMPAIGN_INCOME_URL,
         },
         dryRun,
         now,
@@ -249,6 +291,7 @@ export async function syncDueAlaskaCandidateFinance(
   const syncedCandidateCount =
     results.filter((result) => result.ok).length - identityConflictCandidateCount;
   return {
+    ...(reported.enabled ? { reported } : {}),
     dryRun,
     now: now.toISOString(),
     staleAfterDays,
