@@ -49,5 +49,10 @@ export async function loadAlaskaCandidateFinanceSummariesByCandidateElection(
       outsideGroupBreakdowns: "ak_candidate_finance_outside_group_breakdowns",
     },
   });
-  return overlayAlaskaReportedFinance(db, summaries, candidateRows, electionRows);
+  try {
+    return await overlayAlaskaReportedFinance(db, summaries, candidateRows, electionRows);
+  } catch {
+    // Native storage availability must not hide a valid legacy snapshot.
+    return summaries;
+  }
 }
