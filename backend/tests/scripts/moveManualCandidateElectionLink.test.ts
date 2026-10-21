@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import {
+  assertSiblingDistricts,
   electionStagesConflict,
   runMoveCandidateElectionLink,
 } from "../../src/scripts/moveManualCandidateElectionLink.js";
@@ -68,6 +69,7 @@ function electionRows(
       district_id: "dddddddd-dddd-dddd-dddd-dddddddddddd",
       election_date: overrides.fromDate ?? "2026-11-03",
       official_ballot_title: overrides.fromTitle ?? "Governing Board",
+      office_canonical_name: "School Board Member",
       race_type: "office",
       election_stage: "general",
     },
@@ -76,6 +78,7 @@ function electionRows(
       district_id: overrides.toDistrict ?? "dddddddd-dddd-dddd-dddd-dddddddddddd",
       election_date: overrides.toDate ?? "2026-11-03",
       official_ballot_title: overrides.toTitle ?? "Governing Board Member, Seat 3",
+      office_canonical_name: "School Board Member",
       race_type: overrides.toRaceType ?? "office",
       election_stage: overrides.toStage === undefined ? "general" : overrides.toStage,
     },
@@ -377,6 +380,30 @@ describe("runMoveCandidateElectionLink", () => {
         { candidateId: CANDIDATE_ID, fromElectionId: FROM_ELECTION, toElectionId: TO_ELECTION, dryRun: false, allowCrossDistrict: true }
       )
     ).rejects.toThrow(/same body/);
+  });
+
+  it.each([
+    ["Unrelated County School District Trustee District 2", "Governing Board", "Governing Board", "School Board Member"],
+    ["Clark County East School District Trustee District 2", "Governing Board, District 2", "Governing Board Member, District 2", "School Board Member"],
+    ["Clark County School District Trustee District 3", "Governing Board, District 2", "Governing Board, District 2", "School Board Member"],
+    ["Clark County Water District District 2", "Clark County School Board, District 2", "Clark County Water District Director, District 2", "Water District Director"],
+    ["Clark County School District Trustee District 2", "Clark County School Board, District 2", "Clark County School District Superintendent, District 2", "Superintendent of Schools"],
+  ])("refuses unrelated area repairs to %s before changing links", async (name, fromTitle, toTitle, office) => {
+    const rows = electionRows({toDistrict: "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee", fromTitle, toTitle});
+    Object.assign(rows[0]!, {office_canonical_name: "School Board Member"});
+    Object.assign(rows[1]!, {office_canonical_name: office});
+    const client = buildClient(happyResponses({
+      "FROM public.elections": [rows],
+      "FROM public.districts": [[
+        {id: "dddddddd-dddd-dddd-dddd-dddddddddddd", name: "Clark County School District, Nevada", state: "NV", district_type: "school_unified"},
+        {id: "eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee", name, state: "NV", district_type: "local_special"},
+      ]],
+    }));
+    await expect(runMoveCandidateElectionLink({query: client.query}, {
+      candidateId: CANDIDATE_ID, fromElectionId: FROM_ELECTION, toElectionId: TO_ELECTION,
+      dryRun: false, allowCrossDistrict: true,
+    })).rejects.toThrow(/same body|not siblings/);
+    expect(client.calls.some(({text}) => /(?:UPDATE|DELETE FROM) public.candidate_elections/.test(text))).toBe(false);
   });
 
   it("refuses cross-district moves whose districts are not verifiable siblings", async () => {
@@ -778,5 +805,19 @@ describe("runMoveCandidateElectionLink", () => {
       )
     ).rejects.toThrow(/must differ/);
     expect(query).not.toHaveBeenCalled();
+  });
+});
+
+describe("verified area-body aliases", () => {
+  it("preserves the Dade/Miami-Dade school-board relationship", async () => {
+    const rows = [
+      {id: "from", name: "Dade County School District, Florida", state: "FL", district_type: "school_unified"},
+      {id: "to", name: "Miami-Dade County School Board District 1", state: "FL", district_type: "local_special"},
+    ];
+    const query = vi.fn(async () => ({rows}));
+    await expect(assertSiblingDistricts({query} as never, "from", "to", {
+      from: "School Board Member, District 1", to: "School Board Member, District 1",
+      fromOffice: "School Board Member", toOffice: "School Board Member",
+    })).resolves.toEqual({fromDistrict: rows[0], toDistrict: rows[1]});
   });
 });

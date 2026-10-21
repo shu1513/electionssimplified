@@ -506,7 +506,7 @@ const LOCAL_BODY_SEAT_KEY_FOLDS: ReadonlyArray<readonly [RegExp, string]> = [
   // Conservation District Director, Division 4", "Municipal Water District of
   // Orange County Director, Division 2", "Inland Empire Utilities Agency
   // Director, Division 4" (San Bernardino and Orange counties CA live).
-  [/^(?:[a-z0-9]+ ){0,5}water (?:agency|authority|conservation district) (?:director|board member)$/, "water district director"],
+  [/^(?!.*\bsoil\b)(?:[a-z0-9]+ ){0,5}water (?:agency|authority|conservation district) (?:director|board member)$/, "water district director"],
   [/^(?:[a-z0-9]+ ){0,3}municipal water district of (?:[a-z0-9]+ ){1,3}(?:director|board member)$/, "water district director"],
   [/^(?:[a-z0-9]+ ){0,5}(?:utilities|utility) agency (?:director|board member)$/, "utility district director"],
   // East Bay bodies on their own ward rows (Alameda County CA live): "East Bay
@@ -536,7 +536,7 @@ const LOCAL_BODY_SEAT_KEY_FOLDS: ReadonlyArray<readonly [RegExp, string]> = [
   // Supervisor, Seat 4", "Vista Lakes Community Development District
   // Supervisor, Seat 3" (the CDD rule above already reduces the last one).
   [/^(?:[a-z0-9]+ ){0,6}(?:community development district|cdd) supervisor$/, "community development district supervisor"],
-  [/^(?:[a-z0-9]+ ){0,4}soil (?:and |& )?water conservation (?:district )?supervisor$/, "soil and water conservation district supervisor"],
+  [/^(?:[a-z0-9]+ ){0,4}soil (?:and |& )?water conservation (?:district )?(?:supervisor|director|board member)$/, "soil and water conservation district supervisor"],
   [/^(?:[a-z0-9]+ ){0,5}(?:water control|drainage|improvement) district (?:supervisor|board member|commissioner)$/, "water control district supervisor"],
   // Boards found by the 2026-10 county inventories, each on its own polygon:
   // "Rossmoor Community Services District Director", "Chino Valley Independent

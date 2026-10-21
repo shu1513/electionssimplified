@@ -3821,6 +3821,8 @@ describe("OfficeMatcher", () => {
       ["Ada County Highway District", "Ada County Highway District Commission Member, District 3", "Highway District Commissioner"],
       ["College of Western Idaho", "College of Western Idaho Trustee, Zone 2", "Community College Trustee"],
       ["College of Western Idaho", "College of Western Idaho Trustee, Zone 4", "Community College Trustee"],
+      ["East Multnomah Soil and Water Conservation District", "East Multnomah Soil and Water Conservation District Director, Zone 1", "Soil and Water Conservation District Supervisor"],
+      ["East Multnomah Soil and Water Conservation District", "East Multnomah Soil and Water Conservation District Board Member", "Soil and Water Conservation District Supervisor"],
       // Santa Clara County CA live, on the CA:SCVWD:7 row.
       ["Santa Clara Valley Water District Director District 7", "Santa Clara Valley Water District Director, District 7", "Water District Director"],
       ["Santa Clara Valley Water District Director District 7", "Santa Clara Valley Water District Board Member, District 7", "Water District Director"],

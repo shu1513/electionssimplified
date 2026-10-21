@@ -141,9 +141,14 @@ function toDisplaySeat(rawMatch: string): string {
 export function extractSubDistrictSeat(
   officialBallotTitle: string,
   officeCanonicalName: string | null | undefined,
-  jurisdiction?: { state?: string | null; districtName?: string | null; electionStage?: string | null }
+  jurisdiction?: { state?: string | null; districtName?: string | null; electionStage?: string | null; officeScope?: string | null }
 ): string | null {
   if (typeof officeCanonicalName !== "string" || !SUB_JURISDICTION_SEAT_OFFICES.has(officeCanonicalName)) {
+    return null;
+  }
+  // This catalog variant is attached to the reviewed trustee-area polygon,
+  // so address matching has already selected the seat's electorate.
+  if (officeCanonicalName === "School Board Member" && jurisdiction?.officeScope === "local_special") {
     return null;
   }
   if (typeof officialBallotTitle !== "string" || officialBallotTitle.trim().length === 0) {

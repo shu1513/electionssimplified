@@ -3463,16 +3463,16 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     -- pipelines and flood works (public_infrastructure), and manages
     -- groundwater and creeks (environment_and_public_health) (migration 367).
     ('local_special', 'Water District Director', ARRAY['cost_of_living_reduction', 'environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'public_infrastructure']::text[]),
-    -- Park and open-space district boards buy and run parkland (migration 368).
+    -- Park and open-space district boards buy and run parkland (migration 371).
     ('local_special', 'Park District Director', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'public_infrastructure']::text[]),
     ('local_special', 'Open Space District Director', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction']::text[]),
     -- local_special twin of the statewide BOE office: each BOE seat sits on its
-    -- own reviewed district polygon (migration 368).
-    ('local_special', 'State Board of Equalization Member', ARRAY['government_efficiency', 'personal_income_tax_reduction', 'anti_corruption']::text[]),
+    -- own reviewed district polygon (migration 371).
+    ('local_special', 'State Board of Equalization Member', ARRAY['corporate_accountability', 'cost_of_living_reduction', 'government_efficiency', 'housing_affordability']::text[]),
     -- A school board seat elected from its own trustee area / district sits on
-    -- a reviewed local_special row (migration 369); same areas as the
+    -- a reviewed local_special row (migration 372); same areas as the
     -- school-scope School Board Member.
-    ('local_special', 'School Board Member', ARRAY['public_education_quality', 'government_efficiency', 'government_spending_reduction', 'public_safety_and_crime_control']::text[]),
+    ('local_special', 'School Board Member', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality', 'public_infrastructure', 'public_safety_and_crime_control']::text[]),
     ('local_special', 'Hospital District Director', ARRAY['healthcare_affordability', 'government_efficiency', 'government_spending_reduction']::text[]),
     -- Florida zone-elected and development districts on reviewed polygons (migration 373).
     ('local_special', 'Community Development District Supervisor', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'housing_affordability', 'public_infrastructure']::text[]),
@@ -3485,7 +3485,7 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     ('local_special', 'County Board of Education Member', ARRAY['public_education_quality', 'government_efficiency', 'government_spending_reduction']::text[]),
     ('local_special', 'Emergency Services District Commissioner', ARRAY['public_safety_and_crime_control', 'government_efficiency', 'government_spending_reduction']::text[]),
     ('local_special', 'Water Reclamation District Commissioner', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'public_infrastructure']::text[]),
-    ('local_special', 'Board of Review Commissioner', ARRAY['government_efficiency', 'personal_income_tax_reduction', 'anti_corruption']::text[]),
+    ('local_special', 'Board of Review Commissioner', ARRAY['anti_corruption', 'corporate_accountability', 'government_efficiency', 'housing_affordability']::text[]),
     -- Austin-area special districts and multi-county courts (migration 307).
     -- Each copies its closest county/statewide counterpart; the appraisal
     -- board values property and runs its office but sets no tax rate.

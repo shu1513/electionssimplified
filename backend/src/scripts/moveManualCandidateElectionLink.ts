@@ -149,6 +149,7 @@ type ElectionRow = {
   district_id: string;
   election_date: string;
   official_ballot_title: string;
+  office_canonical_name: string | null;
   race_type: string | null;
   election_stage: string | null;
 };
@@ -180,22 +181,45 @@ function trailingSeatDesignator(title: string): string | null {
   return match ? match[1].toLowerCase() : null;
 }
 
-/**
- * The whole-district shell and the reviewed area row describe the same seat
- * when either the printed titles are identical, or both titles end in the
- * same seat designator ("Seat 2" / "District 2", "District D") and the area
- * row's name contains the first two words of the whole-district body
- * ("Clark County School District, Nevada" -> "Clark County School District
- * Trustee District D"; "Dade County School District, Florida" ->
- * "Miami-Dade County School Board District 1").
- */
-function isAreaSplitTitlePair(fromTitle: string, toTitle: string, fromBody: string, toDistrictName: string): boolean {
-  if (fromTitle.trim().toLowerCase() === toTitle.trim().toLowerCase()) return true;
-  const fromSeat = trailingSeatDesignator(fromTitle);
-  const toSeat = trailingSeatDesignator(toTitle);
-  if (!fromSeat || fromSeat !== toSeat) return false;
-  const bodyPrefix = fromBody.split(/\s+/).slice(0, 2).join(" ").toLowerCase();
-  return bodyPrefix.length > 0 && toDistrictName.trim().toLowerCase().includes(bodyPrefix);
+type AreaSplitTitles = {
+  from: string;
+  to: string;
+  fromOffice: string | null;
+  toOffice: string | null;
+};
+
+function areaBodyName(name: string, fromDistrict: DistrictRow): string {
+  let body = districtBodyName(name)
+    .replace(SEAT_DESIGNATOR_PATTERN, "")
+    .replace(/\btrustee\s*$/, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+  if ((fromDistrict.district_type ?? "").startsWith("school_")) {
+    body = body.replace(/\bschool board\b/g, "school district");
+    // Only known Census/board naming differences; do not shorten other bodies.
+    if (fromDistrict.state === "CA" && fromDistrict.district_type === "school_secondary" &&
+        body === "mountain view los altos union high school district") {
+      body = "mountain view los altos union school district";
+    }
+    if (fromDistrict.state === "FL" && body === "miami dade county school district") {
+      body = "dade county school district";
+    }
+  }
+  return body.replace(/\s+/g, " ").trim();
+}
+
+/** Area repairs need the complete body and the same catalog office. Generic
+ * titles and a shared county prefix do not establish either relationship. */
+function isAreaSplitTitlePair(titles: AreaSplitTitles, fromDistrict: DistrictRow, toDistrict: DistrictRow): boolean {
+  if (!titles.fromOffice || titles.fromOffice !== titles.toOffice) return false;
+  const fromBody = areaBodyName(fromDistrict.name, fromDistrict);
+  if (!fromBody || fromBody !== areaBodyName(toDistrict.name, fromDistrict)) return false;
+  const fromSeat = trailingSeatDesignator(titles.from);
+  const toSeat = trailingSeatDesignator(titles.to);
+  const areaSeat = trailingSeatDesignator(districtBodyName(toDistrict.name));
+  if (areaSeat && ((fromSeat && fromSeat !== areaSeat) || (toSeat && toSeat !== areaSeat))) return false;
+  return titles.from.trim().toLowerCase() === titles.to.trim().toLowerCase() ||
+    (fromSeat !== null && fromSeat === toSeat);
 }
 
 /**
@@ -218,12 +242,9 @@ export async function assertSiblingDistricts(
   client: MoveCandidateElectionLinkClient,
   fromDistrictId: string,
   toDistrictId: string,
-  // The two shells' printed titles. A whole-district school/county/place row
-  // and the reviewed local_special AREA row that replaces it (a trustee area
-  // split out of its school district: Santa Clara, Orange, Los Angeles 2026)
-  // share no name relationship, but the seat IS the same contest: identical
-  // printed title on the same date, moving onto a local_special polygon.
-  titles?: { from: string; to: string }
+  // The printed titles and catalog offices accompany the full district-body
+  // check for a whole-district shell repaired onto a reviewed area polygon.
+  titles?: AreaSplitTitles
 ): Promise<{ fromDistrict: DistrictRow; toDistrict: DistrictRow }> {
   const districtsResult = await client.query<DistrictRow>(
     `SELECT id, name, state, district_type FROM public.districts WHERE id = ANY($1::uuid[])`,
@@ -246,7 +267,7 @@ export async function assertSiblingDistricts(
     toDistrict.district_type === "local_special" &&
     fromDistrict.district_type !== "local_special" &&
     titles !== undefined &&
-    isAreaSplitTitlePair(titles.from, titles.to, fromBody, toDistrict.name)
+    isAreaSplitTitlePair(titles, fromDistrict, toDistrict)
   ) {
     return { fromDistrict, toDistrict };
   }
@@ -461,7 +482,8 @@ export async function runMoveCandidateElectionLink(
     // between two concurrent movers.
     const electionsResult = await client.query<ElectionRow>(
       `
-        SELECT id, district_id, election_date::text, official_ballot_title, race_type, election_stage
+        SELECT id, district_id, election_date::text, official_ballot_title, race_type, election_stage,
+               (SELECT canonical_name FROM public.offices WHERE id = public.elections.office_id) AS office_canonical_name
         FROM public.elections
         WHERE id = ANY($1::uuid[])
         ORDER BY id
@@ -486,7 +508,10 @@ export async function runMoveCandidateElectionLink(
         client,
         fromElection.district_id,
         toElection.district_id,
-        { from: fromElection.official_ballot_title, to: toElection.official_ballot_title }
+        {
+          from: fromElection.official_ballot_title, to: toElection.official_ballot_title,
+          fromOffice: fromElection.office_canonical_name, toOffice: toElection.office_canonical_name,
+        }
       );
       crossDistrict = { fromDistrict: fromDistrict.name, toDistrict: toDistrict.name };
     }

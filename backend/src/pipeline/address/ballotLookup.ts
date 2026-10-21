@@ -1688,6 +1688,7 @@ async function loadFullElectionDetails(
     race_type: row.race_type,
     official_ballot_title: row.official_ballot_title,
     sub_district_seat: extractSubDistrictSeat(row.official_ballot_title, row.office_canonical_name, {
+      officeScope: row.office_scope,
       state: row.state,
       districtName: row.district_name,
       electionStage: row.election_stage,
@@ -2018,6 +2019,7 @@ export async function lookupBallotSummariesByDistrictIds(
       printed_ballot_label: row.printed_ballot_label?.trim() || null,
       voting_method: row.voting_method ?? null,
       sub_district_seat: extractSubDistrictSeat(row.official_ballot_title, row.office_canonical_name, {
+        officeScope: row.office_scope,
         state: row.state,
         districtName: row.district_name,
         electionStage: row.election_stage,
