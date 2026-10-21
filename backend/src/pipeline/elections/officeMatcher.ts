@@ -556,8 +556,15 @@ const BODY_FOLD_OFFICE_KEYS: ReadonlySet<string> = new Set([
   ...LOCAL_BODY_SEAT_KEY_FOLDS.map(([, officeKey]) => officeKey),
 ]);
 
+// Seat words the generic seat strip does not know: California special
+// districts number their seats as "Area 3" (Eden Township Healthcare
+// District, Hayward Area Recreation and Park District) and "Division 5" (Oro
+// Loma Sanitary District, water districts). Only the trailing designator goes,
+// so a body named "Hayward Area ..." keeps its name.
+const LOCAL_BODY_TRAILING_AREA_PATTERN = /\s+(?:trustee area|area|division|subdistrict|subdivision)\s+(?:no\s+)?[a-z0-9]+$/;
+
 function mapLocalBodySeatForms(normalizedTitle: string): string | null {
-  const withoutSeat = stripSeatSuffixes(normalizedTitle);
+  const withoutSeat = stripSeatSuffixes(normalizedTitle).replace(LOCAL_BODY_TRAILING_AREA_PATTERN, "");
   if (FIRE_DISTRICT_NON_BOARD_ROLE_PATTERN.test(withoutSeat)) {
     return null;
   }
