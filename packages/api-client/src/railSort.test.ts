@@ -162,18 +162,21 @@ describe("sortRailEntries", () => {
       entry("mayor", { group: "City: Berkeley", level: "city" }),
       entry("sheriff", { group: "County: Alameda", level: "county" }),
       entry("rep", { group: "Federal", level: "federal" }),
-      entry("mud", { group: "Other", level: "other" }),
+      entry("mud", { group: "Districts", level: "special" }),
+      entry("odd", { group: "Other", level: "other" }),
       entry("council", { group: "City: Berkeley", level: "city" }),
     ];
-    // "Other" (unlevelled special districts) stays last both ways, as on
-    // the list; only the known levels flip.
+    // Special districts are the smallest level: first when smallest leads,
+    // last when biggest leads. "Other" (an unclassified scope) stays last
+    // both ways, as on the list.
     expect(sortRailEntries(entries, "district_smallest").map((e) => e.id)).toEqual([
+      "mud",
       "mayor",
       "council",
       "sheriff",
       "prop-1",
       "rep",
-      "mud",
+      "odd",
     ]);
     expect(sortRailEntries(entries, "district_biggest").map((e) => e.id)).toEqual([
       "rep",
@@ -182,6 +185,7 @@ describe("sortRailEntries", () => {
       "mayor",
       "council",
       "mud",
+      "odd",
     ]);
   });
 

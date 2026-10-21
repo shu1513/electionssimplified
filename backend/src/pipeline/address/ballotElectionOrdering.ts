@@ -41,7 +41,8 @@ type Queryable = Pick<Pool | PoolClient, "query">;
 // the list pages render one "Elections on {date}" section per date); the
 // chosen sort orders the races WITHIN each date. `vote_power` (the default)
 // sorts by the computed vote-power score descending; `district_size` sorts
-// by government level (presidential → federal → state → county → city, see
+// by government level (presidential → federal → state → county → city →
+// special district, see
 // ballotLevelRank), then by vote-power score descending within the level,
 // then by district population descending (largest electorate first);
 // `district_size_smallest` reverses the level walk and the population key,
@@ -413,6 +414,8 @@ function compareBySort(
 // sections — keep the two in step. office.scope leads (a place office on a
 // coextensive county row is still a city race); district_type covers ballot
 // measures, which have no office. School boards fold into the city tier.
+// Special districts (water, hospital, park, trustee areas) are the smallest
+// tier, so the smallest-first sort shows them first.
 // US Senate is the one level the scope cannot tell: its offices are scope
 // "statewide" (there is no us_senate scope), so the contest family is what
 // lifts it to the federal tier.
@@ -428,10 +431,11 @@ const BALLOT_LEVEL_RANKS: Record<string, number> = {
   school_unified: 4,
   school_elementary: 4,
   school_secondary: 4,
+  local_special: 5,
 };
 const FEDERAL_LEVEL_RANK = 1;
 const STATE_LEVEL_RANK = 2;
-const UNKNOWN_LEVEL_RANK = 5;
+const UNKNOWN_LEVEL_RANK = 6;
 
 // Colorado's regent and State Board of Education seats are the other case
 // the scope cannot tell: their offices are scope "us_house" (elected per

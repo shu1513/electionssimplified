@@ -248,6 +248,9 @@ describe("applyBallotElectionOrdering", () => {
       { id: "eeeeeeee-5555-4555-8555-eeeeeeeeeeee", population: 39_000_000, office_scope: "presidential", official_ballot_title: "President" },
       { id: "ffffffff-6666-4666-8666-ffffffffffff", population: 20_000, office_scope: "school_unified", official_ballot_title: "School Board" },
       { id: "99999999-7777-4777-8777-999999999999", population: 39_000_000, office_scope: "statewide", contest_family: "us_senate", official_ballot_title: "US Senate" },
+      // A special district outranks nothing: it is the smallest tier, even
+      // when its electorate is larger than the school board's.
+      { id: "aaaaaaaa-8888-4888-8888-aaaaaaaaaaaa", population: 1_900_000, office_scope: "local_special", official_ballot_title: "Water District Director" },
     ];
     const biggest = await applyBallotElectionOrdering({ query: makeFollowsQuery([]) }, makeSummary(elections), {
       sort: "district_size",
@@ -261,6 +264,7 @@ describe("applyBallotElectionOrdering", () => {
       "Sheriff",
       "Mayor",
       "School Board",
+      "Water District Director",
     ]);
 
     const smallest = await applyBallotElectionOrdering({ query: makeFollowsQuery([]) }, makeSummary(elections), {
@@ -268,6 +272,7 @@ describe("applyBallotElectionOrdering", () => {
     });
     // Reverse walk, and within a tier the smaller district leads.
     expect(smallest.elections.map((e) => e.official_ballot_title)).toEqual([
+      "Water District Director",
       "School Board",
       "Mayor",
       "Sheriff",
