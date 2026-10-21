@@ -50,6 +50,17 @@ describe("Indiana native financial boundaries", () => {
     const rows=[cash,credit,inkind,loan], result=qualifyIndianaNativePacSubset({all:rows,pac:rows,details:new Map(rows.map(r=>[r.url,detail(r)])),file:"synthetic-file",committee:cash.committee});
     expect([result.cashCents,result.inKindCents,result.excludedNonGiftRows,result.gifts.length]).toEqual([8000,3000,1,3]);
   });
+  it("parses the numeric US filed clocks published by native registration families strictly", () => {
+    expect(inFiledClock("10/16/2026 12:00AM")).toBe("2026-10-16T00:00:00");
+    expect(inFiledClock("10/16/2026 12:00:59PM")).toBe("2026-10-16T12:00:59");
+    expect(inFiledClock("2/29/2024")).toBe("2024-02-29T00:00:00");
+    expect(() => inFiledClock("2/29/2026 1:00PM")).toThrow("invalid_calendar_date");
+    expect(() => inFiledClock("16/10/2026 1:00PM")).toThrow("invalid_calendar_date");
+    expect(() => inFiledClock("10/16/2026 13:00PM")).toThrow("invalid_filed_hour");
+    expect(() => inFiledClock("10/16/2026 24:00")).toThrow("invalid_filed_time");
+    expect(() => inFiledClock("10/16/2026 unknown")).toThrow("invalid_filed_clock");
+  });
+
   it("uses the unique latest filed clock for amended families, never source ids or row position", () => {
     const d=html(`<table id="_ctl0_Content_grdAmendments"><tr><th>Amendment</th><th>Report</th><th>Filed</th><th></th></tr>${[
       ["Amended","Oct 16 2026 3:00PM","latest"],["","Oct 15 2026 3:00PM","base"],["Amended","Oct 16 2026 2:00PM","earlier"],

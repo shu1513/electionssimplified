@@ -38,6 +38,11 @@ preserved money and clocks exactly. An injected insertion failure after replacem
 and deletion rolled back the whole component; prior groups, source metadata and
 legacy direct rows were preserved. These are local proofs; no production release.
 
+The filed-clock parser also supports the strict numeric US dates published by
+native registration families. Calendar/time validation and ambiguous-version holds
+remain intact. All 106 Indiana regression tests and backend typecheck pass; the
+real receiving packet still qualifies with identical groups and cents.
+
 New read/write gate: `INDIANA_NATIVE_PAC_ENABLED`, default off beneath the state
 master flag. Live acquisition additionally requires
 `INDIANA_NATIVE_PAC_RAW_REFRESH_ENABLED`, default off. Normal state sync gates still

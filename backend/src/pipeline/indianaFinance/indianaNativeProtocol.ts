@@ -56,9 +56,11 @@ export function inDay(value: string): string {
 }
 /** A sortable native wall clock; this does not assign a source timezone. */
 export function inFiledClock(value: string): string {
-  const m = /^([A-Za-z]{3})\s+(\d{1,2}),?\s+(\d{4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?)?$/i.exec(value);
+  const m = /^([A-Za-z]{3})\s+(\d{1,2}),?\s+(\d{4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?)?$/i.exec(value)
+    ?? /^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?)?$/i.exec(value);
   const months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
-  inCheck(m && months.includes(m[1]!.toLowerCase()), "invalid_filed_clock");
+  inCheck(m && (/^\d{1,2}$/.test(m[1]!) || months.includes(m[1]!.toLowerCase())), "invalid_filed_clock");
+  const month = /^\d{1,2}$/.test(m[1]!) ? Number(m[1]) : months.indexOf(m[1]!.toLowerCase()) + 1;
   let hour = Number(m[4] ?? 0);
   if (m[7]) {
     inCheck(hour >= 1 && hour <= 12, "invalid_filed_hour");
@@ -66,7 +68,7 @@ export function inFiledClock(value: string): string {
   }
   const minute = Number(m[5] ?? 0), second = Number(m[6] ?? 0);
   inCheck(hour < 24 && minute < 60 && second < 60, "invalid_filed_time");
-  const date = inDay(`${months.indexOf(m[1]!.toLowerCase()) + 1}/${m[2]}/${m[3]}`);
+  const date = inDay(`${month}/${m[2]}/${m[3]}`);
   return `${date}T${[hour, minute, second].map(n => String(n).padStart(2, "0")).join(":")}`;
 }
 export function inPublicUrl(value: string, base: string): string {
