@@ -203,57 +203,33 @@ async function readEntryDataOffset(zipPath: string, entry: InternalZipEntry): Pr
 }
 
 export function parseIndianaCampaignFinanceCsvRows(csv: string): string[][] {
-  const rows: string[][] = [];
-  let row: string[] = [];
-  let field = "";
-  let inQuotes = false;
-
-  for (let index = 0; index < csv.length; index += 1) {
-    const char = csv[index];
-    const next = csv[index + 1];
-
-    if (inQuotes) {
-      if (char === '"' && next === '"') {
-        field += '"';
-        index += 1;
-      } else if (char === '"') {
-        inQuotes = false;
-      } else {
-        field += char;
-      }
+  const text = csv.replace(/^\uFEFF/, ""), rows: string[][] = [];
+  let row: string[] = [], field = "", state: "start" | "plain" | "quoted" | "closed" = "start";
+  const finishField = () => { row.push(field); field = ""; state = "start"; };
+  const finishRow = () => { finishField(); rows.push(row); row = []; };
+  for (let index = 0; index < text.length; index++) {
+    const char = text[index], next = text[index + 1];
+    if (state === "quoted") {
+      if (char === '"' && next === '"') { field += '"'; index++; }
+      else if (char === '"') state = "closed";
+      else field += char;
       continue;
     }
-
+    if (char === ",") { finishField(); continue; }
+    if (char === "\n" || char === "\r") {
+      if (char === "\r" && next === "\n") index++;
+      finishRow(); continue;
+    }
+    if (state === "closed") throw new Error("Indiana campaign finance CSV has text after a closing quote");
     if (char === '"') {
-      inQuotes = true;
-      continue;
+      if (state !== "start") throw new Error("Indiana campaign finance CSV has a quote in an unquoted field");
+      state = "quoted"; continue;
     }
-    if (char === ",") {
-      row.push(field);
-      field = "";
-      continue;
-    }
-    if (char === "\n") {
-      row.push(field);
-      rows.push(row);
-      row = [];
-      field = "";
-      continue;
-    }
-    if (char === "\r") {
-      continue;
-    }
-    field += char;
+    field += char; state = "plain";
   }
-
-  if (inQuotes) {
-    throw new Error("Indiana campaign finance CSV has an unterminated quoted field");
-  }
-  if (field.length > 0 || row.length > 0) {
-    row.push(field);
-    rows.push(row);
-  }
-  return rows.filter((cells) => cells.some((cell) => cell.trim().length > 0));
+  if (state === "quoted") throw new Error("Indiana campaign finance CSV has an unterminated quoted field");
+  if (field.length > 0 || row.length > 0 || state === "closed") finishRow();
+  return rows.filter(cells => cells.some(cell => cell.trim().length > 0));
 }
 
 function normalizeCsvHeader(value: string): string {
@@ -300,6 +276,12 @@ function parseTypedRows<const Columns extends readonly string[]>(input: {
   if (!header) {
     return [];
   }
+  if (new Set(header.map(normalizeCsvHeader)).size !== header.length) {
+    throw new Error("Indiana campaign finance CSV has duplicate columns");
+  }
+  if (rows.slice(1).some(cells => cells.length !== header.length)) {
+    throw new Error("Indiana campaign finance CSV row width does not match its header");
+  }
   const headerIndex = buildHeaderIndex(header);
   const indexes = Object.fromEntries(
     input.columns.map((column) => [column, requireColumn(headerIndex, column)])
@@ -343,7 +325,8 @@ async function readCsvFromZip(input: {
   const dataOffset = await readEntryDataOffset(input.zipPath, entry);
   const compressed = await readFileRange(input.zipPath, dataOffset, entry.compressedSize);
   const csvBuffer = entry.compressionMethodCode === 0 ? compressed : inflateRawSync(compressed);
-  return csvBuffer.toString("utf8");
+  try { return new TextDecoder("utf-8", { fatal: true }).decode(csvBuffer); }
+  catch { throw new Error("Indiana campaign finance CSV is not valid UTF-8"); }
 }
 
 export async function readIndianaCampaignFinanceContributionRows(input: {

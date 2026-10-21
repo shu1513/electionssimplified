@@ -8,7 +8,7 @@ acquisition/storage path. The bulk schema carries contributor type, but the old
 PAC-backed-industry path depends on PAC-recipient rows and name heuristics.
 
 Fresh yearly ZIP originals fail strict whole-source qualification. They must not
-be repaired, parsed by prefix or interpreted as empty ledgers. The native public
+be repaired, parsed by prefix or interpreted as empty ledgers. The legacy reader now rejects invalid UTF-8, malformed CSV quoting and row-width mismatches before predicates or row limits; application-level checks reject all four genuine malformed ZIP originals. The native public
 HTML publication provides actual contributor class, native event URLs, complete
 paging/count/money controls, filing inventories and amendment families. This is
 the receiving-side authority selected for the new component.

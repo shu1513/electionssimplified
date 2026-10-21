@@ -16,7 +16,7 @@ import {
 
 type ZipFixtureEntry = {
   fileName: string;
-  content?: string;
+  content?: string | Buffer;
   compressionMethod?: 0 | 8;
 };
 
@@ -29,7 +29,7 @@ function makeZip(entries: readonly ZipFixtureEntry[]): Buffer {
 
   for (const entry of entries) {
     const fileName = Buffer.from(entry.fileName, "utf8");
-    const content = Buffer.from(entry.content ?? "", "utf8");
+    const content = Buffer.isBuffer(entry.content) ? entry.content : Buffer.from(entry.content ?? "", "utf8");
     const compressionMethod = entry.compressionMethod ?? 0;
     const compressed = compressionMethod === 8 ? deflateRawSync(content) : content;
 
@@ -217,6 +217,24 @@ describe("indianaCampaignFinanceReader", () => {
         maxRows: 1,
       })
     ).resolves.toEqual([expect.objectContaining({ Name: "One" })]);
+  });
+
+  it("rejects malformed quotes rather than returning a plausible prefix", () => {
+    expect(() => parseIndianaCampaignFinanceCsvRows('Name,Amount\nSynthetic"PAC,10\n')).toThrow("quote in an unquoted field");
+    expect(() => parseIndianaCampaignFinanceCsvRows('Name,Amount\n"Synthetic PAC"tail,10\n')).toThrow("text after a closing quote");
+    expect(parseIndianaCampaignFinanceCsvRows('\uFEFF"Name","Amount"\r\n"Synthetic ""PAC""","10"\r\n')).toEqual([["Name","Amount"],['Synthetic "PAC"','10']]);
+  });
+
+  it("rejects invalid UTF-8 before applying a row limit", async () => {
+    const prefix = csvFor(INDIANA_CAMPAIGN_FINANCE_CONTRIBUTION_COLUMNS,[{FileNumber:"synthetic-file",Name:"Synthetic PAC",Amount:"100"}]);
+    const zipPath = await writeFixtureZip("invalid-utf8.zip",[{fileName:"2026_ContributionData.csv",content:Buffer.concat([Buffer.from(prefix+"\n"),Buffer.from([0xc3,0x28])])}]);
+    await expect(readIndianaCampaignFinanceContributionRows({zipPath,year:2026,maxRows:1})).rejects.toThrow("not valid UTF-8");
+  });
+
+  it("checks every row width even after the requested filtered prefix", async () => {
+    const csv = csvFor(INDIANA_CAMPAIGN_FINANCE_CONTRIBUTION_COLUMNS,[{FileNumber:"synthetic-file",Name:"Synthetic PAC",Amount:"100"}])+"\nwrong,width";
+    const zipPath = await writeFixtureZip("invalid-tail.zip",[{fileName:"2026_ContributionData.csv",content:csv}]);
+    await expect(readIndianaCampaignFinanceContributionRows({zipPath,year:2026,maxRows:1,predicate:r=>r.FileNumber==="synthetic-file"})).rejects.toThrow("row width does not match");
   });
 
   it("throws when the expected yearly CSV entry is missing", async () => {
