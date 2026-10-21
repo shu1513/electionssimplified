@@ -522,6 +522,28 @@ const LOCAL_BODY_SEAT_KEY_FOLDS: ReadonlyArray<readonly [RegExp, string]> = [
   // strip reads "District No. 1" as a seat and leaves "public hospital
   // commissioner", so the district word is optional here.
   [/^(?:[a-z0-9]+ ){0,5}(?:public )?(?:hospital|health ?care)(?: district(?: no \d+)?)? (?:director|commissioner|board member)$/, "hospital district director"],
+  // Florida districts on their own polygons: "Orange Soil and Water
+  // Conservation District Supervisor, District 3", "South Broward Drainage
+  // District Supervisor, Zone 4", "Coral Springs Improvement District
+  // Supervisor, Seat 4", "Vista Lakes Community Development District
+  // Supervisor, Seat 3" (the CDD rule above already reduces the last one).
+  [/^(?:[a-z0-9]+ ){0,6}(?:community development district|cdd) supervisor$/, "community development district supervisor"],
+  [/^(?:[a-z0-9]+ ){0,4}soil (?:and |& )?water conservation (?:district )?supervisor$/, "soil and water conservation district supervisor"],
+  [/^(?:[a-z0-9]+ ){0,5}(?:water control|drainage|improvement) district (?:supervisor|board member|commissioner)$/, "water control district supervisor"],
+  // Boards found by the 2026-10 county inventories, each on its own polygon:
+  // "Rossmoor Community Services District Director", "Chino Valley Independent
+  // Fire District Director", "Oro Loma Sanitary District Director, Division 3",
+  // "San Diego County Board of Education Member, Trustee Area 3", "Harris
+  // County Emergency Services District No. 9 Commissioner, Position 2",
+  // "Metropolitan Water Reclamation District Commissioner", "Cook County Board
+  // of Review Commissioner, District 1".
+  [/^(?:[a-z0-9]+ ){0,5}community services district (?:director|board member)$/, "community services district director"],
+  [/^(?:[a-z0-9]+ ){0,5}(?:independent )?fire (?:protection |rescue )?district (?:director|board member)$/, "fire protection district director"],
+  [/^(?:[a-z0-9]+ ){0,5}(?:sanitary|sanitation|wastewater) district (?:director|trustee|board member)$/, "sanitary district director"],
+  [/^(?:[a-z0-9]+ ){0,4}county board of education (?:member|trustee)(?: trustee area (?:no )?[a-z0-9]+)?$/, "county board of education member"],
+  [/^(?:[a-z0-9]+ ){0,5}emergency services(?: district(?: no \d+)?)? (?:commissioner|board member)$/, "emergency services district commissioner"],
+  [/^(?:[a-z0-9]+ ){0,4}water reclamation district commissioner$/, "water reclamation district commissioner"],
+  [/^(?:[a-z0-9]+ ){0,3}board of review (?:commissioner|member)$/, "board of review commissioner"],
 ];
 // Every office a body fold can land on. The token scorer vetoes a non-board
 // role title against these, because the fold's own refusal only helps when the

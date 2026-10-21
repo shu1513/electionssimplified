@@ -1015,6 +1015,100 @@ const SEED_OFFICES: SeedOffice[] = [
     ].join("\n"),
   },
   {
+    // local_special twins for Florida districts whose seats are elected by
+    // zone or whose territory is one development: a reviewed polygon per
+    // district (Broward, Orange, Miami-Dade live). The county-scope rows stay
+    // for countywide seats.
+    scope: "local_special",
+    canonicalName: "Community Development District Supervisor",
+    summary: [
+      "Setting assessments on property in the district",
+      "Maintaining roads, drainage, and water and sewer lines",
+      "Running parks, ponds, pools, and clubhouses",
+    ].join("\n"),
+  },
+  {
+    scope: "local_special",
+    canonicalName: "Soil and Water Conservation District Supervisor",
+    summary: [
+      "Running drainage, erosion, and watershed projects",
+      "Helping landowners with conservation",
+      "Deciding how conservation money is spent in the district",
+    ].join("\n"),
+  },
+  {
+    scope: "local_special",
+    canonicalName: "Water Control District Supervisor",
+    summary: [
+      "Setting the district's drainage assessments and budget",
+      "Deciding which canals, pumps, and flood-control works get built or repaired",
+      "Hiring and overseeing the district's manager and engineer",
+    ].join("\n"),
+  },
+  {
+    scope: "local_special",
+    canonicalName: "Community Services District Director",
+    summary: [
+      "Setting the district's budget and the rates or assessments it charges",
+      "Deciding which services the district provides, such as water, sewer, parks, or fire",
+      "Hiring and overseeing the general manager",
+    ].join("\n"),
+  },
+  {
+    scope: "local_special",
+    canonicalName: "Fire Protection District Director",
+    summary: [
+      "Setting fire district taxes and assessments",
+      "Funding fire stations, trucks, and emergency medical service",
+      "Picking the fire chief",
+    ].join("\n"),
+  },
+  {
+    scope: "local_special",
+    canonicalName: "Sanitary District Director",
+    summary: [
+      "Setting sewer rates and the district's budget",
+      "Deciding which sewer lines and treatment plants get built or fixed",
+      "Hiring and overseeing the district's general manager",
+    ].join("\n"),
+  },
+  {
+    scope: "local_special",
+    canonicalName: "County Board of Education Member",
+    summary: [
+      "Overseeing the county office of education's budget and programs",
+      "Hearing student expulsion and transfer appeals from local districts",
+      "Approving charter schools the local districts turned down",
+    ].join("\n"),
+  },
+  {
+    scope: "local_special",
+    canonicalName: "Emergency Services District Commissioner",
+    summary: [
+      "Setting the district's sales or property tax for fire and ambulance service",
+      "Deciding which stations, trucks, and ambulances the district funds",
+      "Contracting with or overseeing the fire and EMS providers",
+    ].join("\n"),
+  },
+  {
+    scope: "local_special",
+    canonicalName: "Water Reclamation District Commissioner",
+    summary: [
+      "Setting the district's property tax and budget for sewage treatment and flood control",
+      "Deciding which treatment plants, tunnels, and reservoirs get built",
+      "Hiring and overseeing the district's executive director",
+    ].join("\n"),
+  },
+  {
+    scope: "local_special",
+    canonicalName: "Board of Review Commissioner",
+    summary: [
+      "Hearing property owners' appeals of their assessed values",
+      "Deciding whether to lower an assessment",
+      "Overseeing the board's staff and hearing process",
+    ].join("\n"),
+  },
+  {
     scope: "local_special",
     canonicalName: "State Board of Equalization Member",
     summary: [
@@ -2318,6 +2412,111 @@ const SEED_OFFICE_ALIASES: SeedOfficeAlias[] = [
   ].map((aliasText): SeedOfficeAlias => ({
     scope: "local_special",
     officeCanonicalName: "Hospital District Director",
+    aliasText,
+  })),
+  ...[
+    "Community Development District Supervisor",
+    "CDD Supervisor",
+    "Supervisor, Community Development District",
+    "Community Development District Board of Supervisors",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "Community Development District Supervisor",
+    aliasText,
+  })),
+  ...[
+    "Soil and Water Conservation District Supervisor",
+    "Soil and Water Conservation Supervisor",
+    "Soil & Water Conservation District Supervisor",
+    "Supervisor, Soil and Water Conservation District",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "Soil and Water Conservation District Supervisor",
+    aliasText,
+  })),
+  ...[
+    "Water Control District Supervisor",
+    "Water Control District Board Member",
+    "Drainage District Supervisor",
+    "Drainage District Commissioner",
+    "Improvement District Supervisor",
+    "Improvement District Board Member",
+    "Supervisor, Water Control District",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "Water Control District Supervisor",
+    aliasText,
+  })),
+  ...[
+    "Community Services District Director",
+    "Community Services District Board Member",
+    "Director, Community Services District",
+    "CSD Director",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "Community Services District Director",
+    aliasText,
+  })),
+  ...[
+    "Fire Protection District Director",
+    "Fire District Director",
+    "Fire District Commissioner",
+    "Fire Protection District Board Member",
+    "Independent Fire District Director",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "Fire Protection District Director",
+    aliasText,
+  })),
+  ...[
+    "Sanitary District Director",
+    "Sanitation District Director",
+    "Sanitary District Trustee",
+    "Sanitary District Board Member",
+    "Wastewater District Director",
+    "Director, Sanitary District",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "Sanitary District Director",
+    aliasText,
+  })),
+  ...[
+    "County Board of Education Member",
+    "County Board of Education Trustee",
+    "Member, County Board of Education",
+    "County Board of Education, Trustee Area",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "County Board of Education Member",
+    aliasText,
+  })),
+  ...[
+    "Emergency Services District Commissioner",
+    "Emergency Services District Board Member",
+    "ESD Commissioner",
+    "Commissioner, Emergency Services District",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "Emergency Services District Commissioner",
+    aliasText,
+  })),
+  ...[
+    "Water Reclamation District Commissioner",
+    "Metropolitan Water Reclamation District Commissioner",
+    "Commissioner, Water Reclamation District",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "Water Reclamation District Commissioner",
+    aliasText,
+  })),
+  ...[
+    "Board of Review Commissioner",
+    "Commissioner, Board of Review",
+    "Member, Board of Review",
+    "Board of Review Member",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "Board of Review Commissioner",
     aliasText,
   })),
   ...[

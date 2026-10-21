@@ -3474,6 +3474,18 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     -- school-scope School Board Member.
     ('local_special', 'School Board Member', ARRAY['public_education_quality', 'government_efficiency', 'government_spending_reduction', 'public_safety_and_crime_control']::text[]),
     ('local_special', 'Hospital District Director', ARRAY['healthcare_affordability', 'government_efficiency', 'government_spending_reduction']::text[]),
+    -- Florida zone-elected and development districts on reviewed polygons (migration 370).
+    ('local_special', 'Community Development District Supervisor', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'housing_affordability', 'public_infrastructure']::text[]),
+    ('local_special', 'Soil and Water Conservation District Supervisor', ARRAY['environment_and_public_health', 'government_efficiency', 'public_infrastructure']::text[]),
+    ('local_special', 'Water Control District Supervisor', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'public_infrastructure']::text[]),
+    -- Special-district boards found by the 2026-10 county inventories (migration 371).
+    ('local_special', 'Community Services District Director', ARRAY['government_efficiency', 'government_spending_reduction', 'public_infrastructure']::text[]),
+    ('local_special', 'Fire Protection District Director', ARRAY['public_safety_and_crime_control', 'government_efficiency', 'government_spending_reduction']::text[]),
+    ('local_special', 'Sanitary District Director', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'public_infrastructure']::text[]),
+    ('local_special', 'County Board of Education Member', ARRAY['public_education_quality', 'government_efficiency', 'government_spending_reduction']::text[]),
+    ('local_special', 'Emergency Services District Commissioner', ARRAY['public_safety_and_crime_control', 'government_efficiency', 'government_spending_reduction']::text[]),
+    ('local_special', 'Water Reclamation District Commissioner', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'public_infrastructure']::text[]),
+    ('local_special', 'Board of Review Commissioner', ARRAY['government_efficiency', 'personal_income_tax_reduction', 'anti_corruption']::text[]),
     -- Austin-area special districts and multi-county courts (migration 307).
     -- Each copies its closest county/statewide counterpart; the appraisal
     -- board values property and runs its office but sets no tax rate.

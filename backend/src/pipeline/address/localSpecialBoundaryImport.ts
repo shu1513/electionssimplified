@@ -28,6 +28,14 @@ export type BoundarySourceSpec = {
   kind: "arcgis" | "geojson" | "kml_zip" | "html_geojson";
   url: string;
   match: { field: string; values: string[] };
+  /** A registrar's PRECINCT layer names each precinct's district in a field
+   * ("DIV_USD" = 'TORRANCE UNIFIED TA 4', Los Angeles County), so one seat is
+   * MANY features. With `dissolve` every feature carrying a matched value is
+   * kept and the pieces are combined; the eligibility check treats the
+   * MultiPolygon as their union. Without it the source must return exactly
+   * one feature per value. ArcGIS answers are paged with resultOffset until
+   * the server stops reporting exceededTransferLimit. */
+  dissolve?: boolean;
 };
 
 export type LocalBoundaryImport = {
@@ -88,7 +96,15 @@ function parseSource(value: unknown, label: string): BoundarySourceSpec {
   }
   const values = match.values as string[];
   if (new Set(values).size !== values.length) throw new Error(`${label}.match.values has duplicates`);
-  return { kind: value.kind, url: value.url as string, match: { field: match.field, values } };
+  if (value.dissolve !== undefined && typeof value.dissolve !== "boolean") {
+    throw new Error(`${label}.dissolve must be true or false`);
+  }
+  return {
+    kind: value.kind,
+    url: value.url as string,
+    match: { field: match.field, values },
+    ...(value.dissolve === true ? { dissolve: true } : {}),
+  };
 }
 
 /** Dry runs print the hash. The reviewer compares the official geometry with
@@ -318,11 +334,11 @@ export function dropDegenerateHoles(geometry: unknown): unknown {
   return geometry;
 }
 
-async function fetchSourceFeatures(
+async function readFeatureCollection(
   spec: BoundarySourceSpec,
+  url: URL,
   fetchImpl: FetchLike
-): Promise<{ url: string; features: Record<string, unknown>[] }> {
-  const url = sourceRequestUrl(spec);
+): Promise<{ features: unknown[]; truncated: boolean }> {
   const response = await fetchImpl(url);
   if (!response.ok) throw new Error(`Official boundary source returned HTTP ${response.status}: ${url}`);
   const body: unknown = spec.kind === "kml_zip"
@@ -333,16 +349,42 @@ async function fetchSourceFeatures(
   if (!isRecord(body) || body.type !== "FeatureCollection" || !Array.isArray(body.features)) {
     throw new Error(`Official boundary source did not return a GeoJSON FeatureCollection: ${url}`);
   }
-  if (body.exceededTransferLimit === true || (isRecord(body.properties) && body.properties.exceededTransferLimit === true)) {
-    throw new Error(`Official boundary source truncated its answer: ${url}`);
+  const truncated = body.exceededTransferLimit === true ||
+    (isRecord(body.properties) && body.properties.exceededTransferLimit === true);
+  return { features: body.features, truncated };
+}
+
+// A precinct layer answers a seat's query in pages (ArcGIS maxRecordCount,
+// commonly 1000-2000). Follow resultOffset until the server stops flagging a
+// truncated page; any other source kind must come back whole.
+const MAX_ARCGIS_PAGES = 50;
+
+async function fetchSourceFeatures(
+  spec: BoundarySourceSpec,
+  fetchImpl: FetchLike
+): Promise<{ url: string; features: Record<string, unknown>[] }> {
+  const url = sourceRequestUrl(spec);
+  const collected: unknown[] = [];
+  let page = 0;
+  let truncated = true;
+  while (truncated) {
+    const pageUrl = new URL(url);
+    if (page > 0) pageUrl.searchParams.set("resultOffset", String(collected.length));
+    const result = await readFeatureCollection(spec, pageUrl, fetchImpl);
+    collected.push(...result.features);
+    truncated = result.truncated;
+    page += 1;
+    if (truncated && (spec.kind !== "arcgis" || result.features.length === 0 || page >= MAX_ARCGIS_PAGES)) {
+      throw new Error(`Official boundary source truncated its answer: ${url}`);
+    }
   }
   const wanted = new Set(spec.match.values);
-  const features = body.features.filter((feature): feature is Record<string, unknown> =>
+  const features = collected.filter((feature): feature is Record<string, unknown> =>
     isRecord(feature) && isRecord(feature.properties) &&
     wanted.has(String(feature.properties[spec.match.field] ?? "").trim()));
   const seen = features.map((feature) => String((feature.properties as Record<string, unknown>)[spec.match.field]).trim());
   const missing = spec.match.values.filter((entry) => !seen.includes(entry));
-  if (missing.length > 0 || seen.length !== spec.match.values.length) {
+  if (missing.length > 0 || (!spec.dissolve && seen.length !== spec.match.values.length)) {
     throw new Error(`Official boundary source feature set is incomplete or duplicated (${spec.match.field}; missing: ${missing.join(", ") || "none"}): ${url}`);
   }
   for (const feature of features) {

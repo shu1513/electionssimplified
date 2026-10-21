@@ -181,6 +181,55 @@ describe("zipped KML boundary sources", () => {
     expect((source.geometry as { type: string }).type).toBe("MultiPolygon");
   });
 
+  it("dissolves a precinct layer's pieces and follows paged ArcGIS answers", async () => {
+    // Los Angeles County's Registrar names each precinct's trustee area; one
+    // seat is many precincts, and the server pages at its record limit.
+    const payload = parseLocalBoundaryImport({
+      ...rtdO,
+      district_key: "CA:TUSD:4",
+      district_name: "Torrance Unified School District Trustee Area 4",
+      state: "CA",
+      sources: [{
+        kind: "arcgis",
+        url: "https://services.arcgis.com/RmCCgQtiZLDCtblq/ArcGIS/rest/services/Registrar_Recorder_Precincts_with_District_Names/FeatureServer/2",
+        match: { field: "DIV_USD", values: ["TORRANCE UNIFIED TA 4"] },
+        dissolve: true,
+      }],
+    });
+    const piece = (index: number) => ({
+      type: "Feature",
+      properties: { DIV_USD: "TORRANCE UNIFIED TA 4", PRECINCT: `P${index}` },
+      geometry: square(index, 0, index + 1, 1),
+    });
+    const other = { type: "Feature", properties: { DIV_USD: "TORRANCE UNIFIED TA 5" }, geometry: square(9, 9, 10, 10) };
+    const fetchImpl = vi.fn(async (url: URL) => {
+      const offset = Number(url.searchParams.get("resultOffset") ?? "0");
+      const features = offset === 0 ? [piece(0), piece(1), other] : [piece(2)];
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({ type: "FeatureCollection", features, exceededTransferLimit: offset === 0 }),
+      };
+    });
+    const source = await fetchLocalBoundarySource(payload, fetchImpl);
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+    expect((fetchImpl.mock.calls[1]?.[0] as URL).searchParams.get("resultOffset")).toBe("3");
+    expect((source.geometry as { type: string; coordinates: unknown[] }).type).toBe("MultiPolygon");
+    expect((source.geometry as { coordinates: unknown[] }).coordinates).toHaveLength(3);
+
+    // Without dissolve, two pieces for one value are still an error.
+    const strict = parseLocalBoundaryImport({ ...rtdO, sources: [{ kind: "arcgis", url: LAYER, match: { field: "BND", values: ["O"] } }] });
+    const twice = vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({ type: "FeatureCollection", features: [
+        { type: "Feature", properties: { BND: "O" }, geometry: square(0, 0, 1, 1) },
+        { type: "Feature", properties: { BND: "O" }, geometry: square(1, 0, 2, 1) },
+      ] }),
+    }));
+    await expect(fetchLocalBoundarySource(strict, twice)).rejects.toThrow(/incomplete or duplicated/);
+  });
+
   it("fetches an html_geojson source and reads the FeatureCollection a web map page embeds", async () => {
     // Redistricting Partners publishes California college-board plans as
     // Folium pages: the GeoJSON sits in a JavaScript literal.
