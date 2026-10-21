@@ -50,4 +50,38 @@ describe("newMexicoBallotLookupFinanceLoader", () => {
       ).toBe(true);
     }
   });
+
+  it("keeps annual summaries when the native component overlay fails", async () => {
+    vi.stubEnv("CANDIDATE_FINANCE_ENABLED", "true");
+    vi.stubEnv("NEW_MEXICO_CAMPAIGN_FINANCE_ENABLED", "true");
+    vi.stubEnv("NEW_MEXICO_REPORTED_IE_ENABLED", "true");
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const queries: string[] = [];
+    const query = vi.fn(async (sql: string) => {
+      queries.push(sql);
+      if (sql.includes("nm_reported_finance_components")) throw new Error("relation does not exist");
+      if (queries.length === 1) {
+        return {
+          rows: [{
+            candidate_id: CANDIDATE_ID, election_id: ELECTION_ID, committee_id: "C1", election_year: 2026,
+            total_receipts: "100", direct_contribution_total: "80", total_disbursements: "50",
+            outside_support_total: null, outside_oppose_total: null, source_url: null, last_synced_at: "2026-10-01T00:00:00Z",
+          }],
+        };
+      }
+      return { rows: [] };
+    });
+
+    const summaries = await loadNewMexicoCandidateFinanceSummariesByCandidateElection(
+      { query },
+      [{ candidate_id: CANDIDATE_ID, election_id: ELECTION_ID }],
+      [{ election_id: ELECTION_ID, state: "NM", office_scope: "statewide", office_canonical_name: "Governor" }]
+    );
+    expect(warn).toHaveBeenCalledOnce();
+    warn.mockRestore();
+
+    expect(queries.some((sql) => sql.includes("nm_reported_finance_components"))).toBe(true);
+    expect(summaries.size).toBe(1);
+    expect(summaries.values().next().value?.direct_campaign.total_raised).toBe(80);
+  });
 });

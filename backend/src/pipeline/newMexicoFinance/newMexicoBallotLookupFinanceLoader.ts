@@ -2,6 +2,7 @@ import { overlayNewMexicoReportedFinance } from "./newMexicoReportedReader.js";
 import type { Pool, PoolClient } from "pg";
 
 import { isNewMexicoCampaignFinanceEnabled } from "../../config/featureFlags.js";
+import { describeError } from "../../observability/scrubText.js";
 import {
   addFinanceBreakdown,
   buildOutsideIndustrySupportExplanation,
@@ -19,6 +20,22 @@ import {
 } from "../address/ballotLookupFinanceShared.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
+
+// The native component overlay reads separate, gated tables. Its failure keeps
+// the annual summaries instead of dropping every New Mexico summary.
+async function overlayReportedFinance(
+  db: Queryable,
+  summaries: Map<string, BallotLookupFinanceSummary>,
+  candidateRows: readonly CandidateRow[],
+  electionRows: readonly ElectionRow[]
+): Promise<Map<string, BallotLookupFinanceSummary>> {
+  try {
+    return await overlayNewMexicoReportedFinance(db, summaries, candidateRows, electionRows);
+  } catch (error) {
+    console.warn("New Mexico reported finance overlay failed; keeping annual summaries:", describeError(error));
+    return summaries;
+  }
+}
 
 // The loader body below moved verbatim from ballotLookup.ts
 // (docs/plans/plan-ballot-lookup.md Phase 2); these aliases keep its signature and row
@@ -129,7 +146,7 @@ export async function loadNewMexicoCandidateFinanceSummariesByCandidateElection(
   );
 
   if (summaryResult.rows.length === 0) {
-    return overlayNewMexicoReportedFinance(db, new Map(), candidateRows, electionRows);
+    return overlayReportedFinance(db, new Map(), candidateRows, electionRows);
   }
 
   const selectedRequests = summaryResult.rows.map((row) => ({
@@ -395,5 +412,5 @@ export async function loadNewMexicoCandidateFinanceSummariesByCandidateElection(
       ];
     })
   );
-  return overlayNewMexicoReportedFinance(db, summaries, candidateRows, electionRows);
+  return overlayReportedFinance(db, summaries, candidateRows, electionRows);
 }

@@ -158,7 +158,8 @@ export async function overlayNewMexicoReportedFinance(
     WHERE ${NM_REPORTED_WHERE}`,
     [NM_REPORTED_OFFICES, JSON.stringify(requests), kinds],
   );
-  const seen = new Set<string>(),
+  const output = new Map(summaries),
+    seen = new Set<string>(),
     duplicates = new Set<string>();
   for (const row of result.rows) {
     const key = `${candidateElectionKey(row.candidateId, row.electionId)}:${row.stored.component}`;
@@ -177,13 +178,13 @@ export async function overlayNewMexicoReportedFinance(
         receiver,
         kind,
       );
-      summaries.set(
+      output.set(
         key,
-        overlayNewMexicoReportedComponent(summaries.get(key), value),
+        overlayNewMexicoReportedComponent(output.get(key), value),
       );
     } catch {
       /* Invalid components retain the old money and clocks. */
     }
   }
-  return summaries;
+  return output;
 }

@@ -1,6 +1,7 @@
 import { syncDueNewMexicoReportedFinance } from "./newMexicoReportedBatchSync.js";
 import { isNewMexicoReportedCommitteeEnabled, isNewMexicoReportedIeEnabled } from "../../config/featureFlags.js";
 import { stat } from "node:fs/promises";
+import { describeError } from "../../observability/scrubText.js";
 import type { Pool, PoolClient } from "pg";
 
 import type { FinanceIndustryClassifier } from "../finance/financeIndustryClassificationService.js";
@@ -383,8 +384,8 @@ export async function syncDueNewMexicoCandidateFinance(
       if (typeof db.connect !== "function") throw new Error("New Mexico reported finance requires a connection pool");
       reportedFinance = await syncDueNewMexicoReportedFinance({ db, now, dryRun, maxCandidates, staleAfterDays,
         electionLookaheadDays, electionLookbackDays: input.electionLookbackDays, forceRawDataRefresh: input.forceRawDataRefresh });
-    } catch {
-      console.warn("New Mexico reported finance batch unavailable; continuing annual direct sync");
+    } catch (error) {
+      console.warn("New Mexico reported finance batch unavailable; continuing annual direct sync:", describeError(error));
     }
   }
 
