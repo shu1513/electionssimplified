@@ -410,7 +410,11 @@ export async function writeNewMexicoReportedComponent(input: {
       );
       const old = selected.rows[0],
         oldClock = timestamp(old.source_observed_at);
-      nmCheck(value.observedAt >= oldClock, "stale_source_observation");
+      nmCheck(
+        value.observedAt >= oldClock &&
+          value.completedAt >= timestamp(old.source_completed_at),
+        "stale_source_observation",
+      );
       for (const key of ["registry", "receiver", "financial"] as const) {
         const oldSourceClock = old.source_facts?.[key]?.source?.observedAt;
         if (iso(oldSourceClock))
@@ -430,7 +434,18 @@ export async function writeNewMexicoReportedComponent(input: {
       } catch {
         /* A fully qualified current graph can repair invalid stored data. */
       }
-      if (previous && value.observedAt === previous.observedAt) {
+      // Each packet replays its saved originals for seven days on its own
+      // clock, so a refreshed registry or receiver packet beside a reused
+      // financial packet keeps the old observedAt. Only equal manifests for
+      // all three packets mean the same snapshot.
+      if (
+        previous &&
+        (["registry", "receiver", "financial"] as const).every(
+          (key) =>
+            previous!.facts[key].source.manifestSha256 ===
+            value.facts[key].source.manifestSha256,
+        )
+      ) {
         const order = (groups: NewMexicoReportedGroup[]) =>
           [...groups].sort(
             (a, b) =>
