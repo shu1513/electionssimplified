@@ -75,6 +75,30 @@ occurrences/$27 relative to the complete native grid. Preserve these failures;
 never accept the convenient subset. Independent IE source qualification and
 acquisition remain required before claiming that gap resolved.
 
+A second, advertising-only October 1–7 control window closed 57 native expenses
+across two opening and two closing pages. Repeated source searches reordered
+records across pages; complete native identity/value sets, counts and signed
+money controls matched. All 57 details were read. Thirty-five purposes mentioned
+current candidates and stance, all from one payer, but no detail supplied explicit
+independence or allocation controls. These are research leads, not admitted IE.
+
+That payer's complete 72-row inventory contains five CFA-2 families and 13 versions.
+The globally latest filed date has two possible versions and no reported time.
+All five family lists were reread unchanged; both possible latest PDFs were read
+and matched to the filer. Neither contains an independence or non-coordination
+attestation. The tie remains unresolved. The current blank CFA-2 likewise has no
+independent-only category. The official linked [EDI schema](https://www.in.gov/dA/2ad2f5f006/IN_EDI_XMLSchema?language_id=1)
+and [specification](https://www.in.gov/dA/eb47c1e99c/Indiana_XMLEDI_Specification_2012_rev1.pdf?language_id=1)
+provide generic expenditure types/purpose and public-question stance, rather than
+a candidate-independence certification.
+
+Indiana IE admission remains held by source evidence. This is neither a
+whole-cycle absence claim nor a completed IE fix. Draft PR
+[#1626](https://github.com/shu1513/electionssimplified/pull/1626) contains the proved
+PAC path; outside spending remains unknown. Recheck fresh filings after the stated
+deadlines. Kansas donor-name and Missouri code/local proofs remain separately
+requested, with their public release held pending review.
+
 ## Remaining implementation and proof
 
 - Finish independent IE qualification, then the smallest supported integration.
