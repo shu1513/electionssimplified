@@ -61,6 +61,18 @@ export function toSyncDueNewMexicoCandidateFinanceScriptOutput(input: {
   };
 }
 
+/** Shared CLI boundary: injected local pools use the same parsed defaults. */
+export async function runNewMexicoCandidateFinanceCli(args: readonly string[], db: Pick<Pool, "query" | "connect">) {
+  const options = parseSyncDueNewMexicoCandidateFinanceScriptArgs(args);
+  if (!isNewMexicoCampaignFinanceSyncEnabled(options.force)) return null;
+  return syncDueNewMexicoCandidateFinance({
+    db, dryRun: options.dryRun, maxCandidates: options.maxCandidates,
+    staleAfterDays: options.staleAfterDays, electionLookbackDays: options.electionLookbackDays,
+    electionLookaheadDays: options.electionLookaheadDays, rawDataCacheDir: options.rawCacheDir,
+    forceRawDataRefresh: options.force,
+  });
+}
+
 async function main(): Promise<void> {
   const startedAt = new Date();
   loadProjectEnv();
@@ -74,18 +86,8 @@ async function main(): Promise<void> {
   const pool = new Pool({ connectionString: getDatabaseUrl() });
 
   try {
-    const result = await syncDueNewMexicoCandidateFinance({
-      db: pool,
-      now: startedAt,
-      dryRun: options.dryRun,
-      maxCandidates: options.maxCandidates,
-      staleAfterDays: options.staleAfterDays,
-      electionLookbackDays: options.electionLookbackDays,
-      electionLookaheadDays: options.electionLookaheadDays,
-      rawDataCacheDir: options.rawCacheDir,
-    });
-
-    console.log(JSON.stringify(toSyncDueNewMexicoCandidateFinanceScriptOutput({ startedAt, options, result }), null, 2));
+    const result = await runNewMexicoCandidateFinanceCli(process.argv.slice(2), pool);
+    if (result) console.log(JSON.stringify(toSyncDueNewMexicoCandidateFinanceScriptOutput({ startedAt, options, result }), null, 2));
   } finally {
     await pool.end();
   }

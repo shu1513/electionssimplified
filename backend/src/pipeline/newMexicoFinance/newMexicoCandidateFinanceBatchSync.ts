@@ -1,4 +1,7 @@
+import { syncDueNewMexicoReportedFinance } from "./newMexicoReportedBatchSync.js";
+import { isNewMexicoReportedCommitteeEnabled, isNewMexicoReportedIeEnabled } from "../../config/featureFlags.js";
 import { stat } from "node:fs/promises";
+import { describeError } from "../../observability/scrubText.js";
 import type { Pool, PoolClient } from "pg";
 
 import type { FinanceIndustryClassifier } from "../finance/financeIndustryClassificationService.js";
@@ -58,6 +61,7 @@ export type NewMexicoCandidateFinanceBatchSyncInput = {
   staleAfterDays?: number;
   electionLookbackDays?: number;
   electionLookaheadDays?: number;
+  forceRawDataRefresh?: boolean;
   rawDataCacheDir?: string;
   autoLinkMissingLinks?: boolean;
   contributionDataByYear?: ReadonlyMap<number, NewMexicoContributionDataForYear>;
@@ -78,6 +82,7 @@ export type NewMexicoCandidateFinanceBatchSyncItemResult = {
 };
 
 export type NewMexicoCandidateFinanceBatchSyncResult = {
+  reportedFinance?: Awaited<ReturnType<typeof syncDueNewMexicoReportedFinance>>;
   dryRun: boolean;
   now: string;
   staleAfterDays: number;
@@ -371,6 +376,19 @@ export async function syncDueNewMexicoCandidateFinance(
   const dryRun = input.dryRun === true;
   const syncFn = input.syncNewMexicoCandidateFinanceFn ?? syncNewMexicoCandidateFinance;
 
+  // Native IE and committee receipts progress independently of annual CSV data.
+  let reportedFinance: NewMexicoCandidateFinanceBatchSyncResult["reportedFinance"];
+  if (isNewMexicoReportedCommitteeEnabled() || isNewMexicoReportedIeEnabled()) {
+    try {
+      const db = input.db as Pick<Pool, "query" | "connect">;
+      if (typeof db.connect !== "function") throw new Error("New Mexico reported finance requires a connection pool");
+      reportedFinance = await syncDueNewMexicoReportedFinance({ db, now, dryRun, maxCandidates, staleAfterDays,
+        electionLookaheadDays, electionLookbackDays: input.electionLookbackDays, forceRawDataRefresh: input.forceRawDataRefresh });
+    } catch (error) {
+      console.warn("New Mexico reported finance batch unavailable; continuing annual direct sync:", describeError(error));
+    }
+  }
+
   if (!dryRun && input.autoLinkMissingLinks !== false) {
     try {
       const missingLinkCandidates = await listNewMexicoCandidateElectionsMissingFinanceLinks(input.db, {
@@ -554,5 +572,6 @@ export async function syncDueNewMexicoCandidateFinance(
     syncedCandidateCount,
     failedCandidateCount: results.length - syncedCandidateCount,
     results,
+    ...(reportedFinance ? { reportedFinance } : {}),
   };
 }

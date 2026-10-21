@@ -151,6 +151,8 @@ export const isIndianaCampaignFinanceRawDataRefreshEnabled = indianaFinance.gate
 const newMexicoFinance = defineStateFinanceFlagPair("NEW_MEXICO_CAMPAIGN_FINANCE");
 export const isNewMexicoCampaignFinanceEnabled = newMexicoFinance.isEnabled;
 export const isNewMexicoCampaignFinanceSyncEnabled = newMexicoFinance.isSyncEnabled;
+export const isNewMexicoReportedIeEnabled = (): boolean => isCandidateFinanceEnabled() && newMexicoFinance.gate("NEW_MEXICO_REPORTED_IE_ENABLED")();
+export const isNewMexicoReportedCommitteeEnabled = (): boolean => isCandidateFinanceEnabled() && newMexicoFinance.gate("NEW_MEXICO_REPORTED_COMMITTEE_ENABLED")();
 
 const newJerseyFinance = defineStateFinanceFlagPair("NEW_JERSEY_CAMPAIGN_FINANCE");
 export const isNewJerseyCampaignFinanceEnabled = newJerseyFinance.isEnabled;

@@ -1,0 +1,27 @@
+# New Mexico campaign finance
+
+## Native reported components (October 2026)
+
+Two independent, default-off gates, `NEW_MEXICO_REPORTED_IE_ENABLED` and `NEW_MEXICO_REPORTED_COMMITTEE_ENABLED`, require the existing state and candidate-finance masters. The ordinary due sync runs native IE before committee receipts and annual direct CSV work. Each component has its own attempts, success observation clock and transaction. Defaults: 25 candidates, 7-day source age, 24-hour held-attempt retry that acquires new originals instead of replaying the held ones, 98-day general-election lookback including losers. `--force` acquires new observations. No failure publishes zero or advances old successful clocks.
+
+The structured public source is the anonymous CFIS transaction search and its actual current detail endpoints. Existing 2025/2026 annual originals fail strict CSV parsing and remain unchanged; they are not repaired to publish money. Native registry and complete count-controlled financial populations are swept twice, with identical closing bytes. Every included detail binds current transaction ID/version, exact cents, date, filing date, type/class, native cycle and stance. Saved original packets replay first, validating actual status, EOF, MIME, bytes, SHA, request binding and original clocks; a health envelope or mtime grants no financial authority.
+
+Committee metric: gross explicitly Political Committee monetary/in-kind gifts in the receiver's actual native 2026 financial cycle, including earlier calendar years, before separately reported returns. Every row, including excluded classes and cycles, remains in full count/signed-money controls. Individual, candidate/officeholder, business, lobbying, anonymous and intra-candidate transfers are excluded. A mismatched detail name requires the actual financial donor's public political registration to witness the ledger name. Interests and legal PAC status are not inferred. This does not replace headline fundraising, which does not reconcile to the CON-only population.
+
+IE metric: all reporting types in the full native 2026 IE search, explicit single-target candidate allocations only. Actual target CandidateId must equal the unchanged canonical receiving ID; both target names, all canonical aliases and a unique current native registration must agree on person/office/election/seat. MemberCandidate.MemberId is the spender, not the target. Vendor and memo text are not target authority. Missing matched filing dates, conflicting middle/generation evidence, ambiguous registration, unsupported split structures or changed versions hold the entire affected candidate component. The current search is not proof of universal legal-filer coverage; separately reported or late spending may be absent. History DTO default IDs do not establish version authority; current search IDs/versions and exact current details do.
+
+Atomic storage rechecks canonical ownership/context under lock. The reader validates all uncapped names, cents, counts, source facts and clocks before its top-five display cap. A native component can produce a card without an annual summary. Held components preserve legacy money and clocks.
+
+### Filing closeout
+
+[Official schedule](https://www.sos.nm.gov/candidate-and-campaigns/how-to-become-a-candidate/campaign-finance-reporting-schedule/): third general report due **October 29, 2026**, covering **October 6–27**; fourth due **January 7, 2027**, covering **October 28–December 31**. Manually refresh the whole cycle and reselect eligible candidates on **October 30**, after applicable rapid/late reports through **November 4**, then **January 8/11, 2027**, and for later amendments. Include general-election losers. The [official IE page](https://www.sos.nm.gov/candidate-and-campaigns/how-to-become-a-political-action-committee/independent-expenditures/) distinguishes PAC/non-PAC reporting and rapid deadlines; internally inconsistent statewide thresholds need current-rule review before quoting a threshold. No automation.
+
+Kansas donor names and all new Missouri publication remain held. The validation below covers the ordinary local sync and actual candidate card.
+
+### Local validation
+
+Ordinary CLI defaults selected 10 candidates and attempted 20 independent components: 13 qualified (7 committee, 6 IE), 74 groups; 7 held (two IE filing-date gaps, four receiving-detail conflicts, one required native string missing). A second ordinary native batch selected 0. All 10 annual CSV syncs failed while every legacy table and successful clock stayed unchanged.
+
+Independent originals/reference/store reconciliation matched every uncapped name, cent, count, canonical/native context, source fact and observation clock across 13 components, 74 groups and 16 source packets. The complete 12,637 receiving rows yielded 82 committee gifts totaling **$171,475.02**. Three admitted IE allocations totaled **$235,642.28 opposition**, **$0 support**. These are qualified component totals, not statewide coverage claims.
+
+Actual production HTTP API and hydrated candidate-card checks passed for a native-only candidate without an annual summary: all five displayed committee rows, full group count, remaining-group footer, IE names/amounts and both coverage notes matched. 221 tests passed across 22 files; one existing DB test skipped. Full backend TypeScript passed. Migration 366 applied only locally, preserving older ledger checksums. No production, merge/deploy or provider calls; no environment-file access or screenshots.
