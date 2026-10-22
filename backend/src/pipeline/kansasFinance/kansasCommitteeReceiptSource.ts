@@ -195,7 +195,7 @@ function census(
   type: string,
   start: string,
   end: string,
-): p.KansasCfrGridRow[] {
+): { rows: p.KansasCfrGridRow[]; openingEnd: number; closingStart: number } {
   const pages = events.filter(
     (e) =>
       e.url.endsWith("/cfr_examiner_search_results.aspx") &&
@@ -235,7 +235,11 @@ function census(
     JSON.stringify(opening.map(semanticRow)) ===
       JSON.stringify(closing.map(semanticRow)),
   );
-  return closing;
+  return {
+    rows: closing,
+    openingEnd: events.indexOf(pages[n - 1]!),
+    closingStart: events.indexOf(pages[pages.length - n]!),
+  };
 }
 export async function acquireKansasCommitteeReceipts(input: {
   directory: string;
@@ -281,6 +285,9 @@ export async function acquireKansasCommitteeReceipts(input: {
         v.html.trimEnd().endsWith("</html>") &&
         Array.isArray(v.controls),
     );
+    // Manifest order carries the viewer's session state and must also
+    // reflect observation order for the opening/closing checks below.
+    assert(!events.length || Date.parse(events.at(-1)!.observedAt) <= observed);
     if (u.pathname.endsWith("/cfr_examiner.aspx"))
       query = Object.fromEntries(v.controls.map((c) => [c.id, c.value]));
     events.push({
@@ -317,6 +324,8 @@ export async function acquireKansasCommitteeReceipts(input: {
     a: Event;
     b: Event;
     parsed: p.KansasReportCover;
+    firstIndex: number;
+    lastIndex: number;
   }[] = [];
   for (let i = 0; i < events.length - 3; i++) {
     const [c, a, b, z] = events.slice(i, i + 4) as [Event, Event, Event, Event];
@@ -331,12 +340,12 @@ export async function acquireKansasCommitteeReceipts(input: {
         JSON.stringify(cover) ===
           JSON.stringify(p.parseKansasReportCover(z.html)),
       );
-      sequences.push({ cover: c, a, b, parsed: cover });
+      sequences.push({ cover: c, a, b, parsed: cover, firstIndex: i, lastIndex: i + 3 });
     }
   }
   const allCensuses = KANSAS_CFR_FILER_SEARCHES.map((search) => ({
     search,
-    rows: census(
+    ...census(
       events,
       search.gridId,
       office!.code,
@@ -368,15 +377,7 @@ export async function acquireKansasCommitteeReceipts(input: {
     identity.match.filedNames.map(normalizeKansasNameForStorage),
   );
   const filings: KansasPooledFiling[] = [];
-  for (const search of KANSAS_CFR_FILER_SEARCHES) {
-    const rows = census(
-      events,
-      search.gridId,
-      office!.code,
-      search.filingType,
-      start,
-      end,
-    );
+  for (const { search, rows, openingEnd, closingStart } of allCensuses) {
     const groups = new Map<string, p.KansasCfrGridRow[]>();
     for (const row of rows) {
       const key = JSON.stringify([row.name, row.fileDate, row.amendmentDate]);
@@ -446,6 +447,9 @@ export async function acquireKansasCommitteeReceipts(input: {
       }
       group.forEach((r, i) => {
         const source = matching[i];
+        // The closing inventory must follow the schedules AND cover reopen;
+        // two searches made before acquisition cannot detect a version shift.
+        if (source) assert(openingEnd < source.firstIndex && source.lastIndex < closingStart);
         const page = (event: Event) => ({
           url: event.url,
           html: event.html,

@@ -191,6 +191,21 @@ describe("Kansas complete native source", () => {
     });
     expect((await acquireKansasCommitteeReceipts({ directory, target, now })).totalCents).toBe(2000);
   });
+  it.each(["both_before", "both_after", "closing_before_reopen", "backdated_capture"])(
+    "holds report observations without a chronological census bracket: %s",
+    async (order) => {
+      const directory = await fixture((events) => {
+        if (order === "both_before") events.splice(2, 0, ...events.splice(10, 2));
+        if (order === "both_after") events.splice(8, 0, ...events.splice(0, 2));
+        if (order === "closing_before_reopen") events.splice(9, 0, ...events.splice(10, 2));
+        events.forEach((event, index) => {
+          event.observedAt = new Date(now.getTime() - 3600_000 + index * 1000).toISOString();
+        });
+        if (order === "backdated_capture") events[2].observedAt = events[0].observedAt;
+      });
+      await expect(acquireKansasCommitteeReceipts({ directory, target, now })).rejects.toThrow();
+    },
+  );
   it.each([
     "missing_schedule",
     "changed_cover",
