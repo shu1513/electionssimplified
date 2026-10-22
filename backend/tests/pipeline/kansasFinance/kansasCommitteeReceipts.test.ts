@@ -199,6 +199,37 @@ describe("Kansas complete native source", () => {
       acquireKansasCommitteeReceipts({ directory: root, target, now }),
     ).rejects.toThrow();
   });
+  it("accepts native two-digit receipt dates only inside the canonical period", async () => {
+    const root = await fixture((events) => {
+      for (const event of events)
+        if (event.url.endsWith("/schedule_a_report.aspx"))
+          event.html = event.html
+            .replace("6/1/2025", "6/1/25")
+            .replace("6/1/2026", "6/1/26");
+    });
+    expect(
+      (await acquireKansasCommitteeReceipts({ directory: root, target, now }))
+        .receiptCount,
+    ).toBe(2);
+  });
+  it("retains a fresh saved query's actual observation day after midnight", async () => {
+    const packet = await acquireKansasCommitteeReceipts({
+      directory: await fixture(),
+      target,
+      now: new Date("2026-10-22T01:00:00Z"),
+    });
+    expect(packet.observedAt.startsWith("2026-10-21")).toBe(true);
+  });
+  it("holds a shortened query on the actual observation day", async () => {
+    const root = await fixture((events) => {
+      for (const event of events)
+        for (const control of event.controls)
+          if (control.id === "txtEndDate") control.value = "10/20/2026";
+    });
+    await expect(
+      acquireKansasCommitteeReceipts({ directory: root, target, now }),
+    ).rejects.toThrow();
+  });
   it("does not discard a missing suite to force identity", () => {
     const identity = parseKansasReportedRegistryIdentity(
       cover("1/1/2026", "7/23/2026", "7/27/2026", true),
@@ -269,6 +300,7 @@ function context() {
     canonical_office: target.officeName,
     geoid_compact: "20123",
     district_type: "state_lower",
+    ownership_count: 1,
   };
 }
 async function stored() {
@@ -343,6 +375,7 @@ describe("Kansas protected component", () => {
     "office",
     "district",
     "missing_provenance",
+    "shared_ownership",
   ])("rejects stored %s drift", async (reason) => {
     const r = await stored();
     if (reason === "count") r.source.receipt_count++;
@@ -352,6 +385,7 @@ describe("Kansas protected component", () => {
     if (reason === "ownership") r.candidate_name = "Different Person";
     if (reason === "office") r.canonical_office = "Governor";
     if (reason === "district") r.geoid_compact = "20124";
+    if (reason === "shared_ownership") r.ownership_count = 2;
     if (reason === "missing_provenance") r.source.provenance = [];
     expect(() => validateKansasStoredCommitteeRows(r)).toThrow();
   });

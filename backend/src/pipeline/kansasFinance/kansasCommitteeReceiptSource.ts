@@ -295,8 +295,22 @@ export async function acquireKansasCommitteeReceipts(input: {
     officeCanonicalName: input.target.officeName,
   });
   assert(office);
-  const start = `${kansasCfrCycleStartYear(office!, input.target.electionYear)}-01-01`,
-    end = input.now.toISOString().slice(0, 10);
+  const start = `${kansasCfrCycleStartYear(office!, input.target.electionYear)}-01-01`;
+  const firstCensus = events.find(
+    (e) =>
+      e.url.endsWith("/cfr_examiner_search_results.aspx") &&
+      e.query?.drpdownOffice === office!.code &&
+      e.query.drpdownFilingType === KANSAS_CFR_FILER_SEARCHES[0]!.filingType &&
+      e.query.txtFirstName === "" &&
+      e.query.txtLastName === "" &&
+      e.query.txtDistrictNo === "",
+  );
+  assert(firstCensus);
+  // Saved observations retain their actual query day after midnight. Their
+  // source clock never advances to import time. An artificially shortened
+  // query on the observation day is not a complete current census.
+  const end = isoQueryDate(firstCensus!.query!.txtEndDate!);
+  assert(end === firstCensus!.observedAt.slice(0, 10));
   const sequences: {
     cover: Event;
     a: Event;

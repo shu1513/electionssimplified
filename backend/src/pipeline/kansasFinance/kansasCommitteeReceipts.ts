@@ -97,7 +97,9 @@ const CONTEXT = `SELECT link.id::text AS link_id,link.candidate_id::text AS cand
  link.election_year,link.committee_id,link.committee_name,link.link_source,link.source_url,link.district,
  COALESCE(NULLIF(trim(candidate.display_name),''),NULLIF(trim(candidate.first_name||' '||candidate.last_name),''),link.candidate_name_normalized) AS candidate_name,
  link.candidate_name_normalized,link.office_name,office.scope AS office_scope,office.canonical_name AS canonical_office,
- district.geoid_compact,district.district_type
+ district.geoid_compact,district.district_type,
+ (SELECT count(DISTINCT owner.candidate_id)::integer FROM public.ks_candidate_finance_links owner
+  WHERE owner.committee_id=link.committee_id AND owner.election_year=link.election_year AND owner.link_status='active') AS ownership_count
  FROM public.ks_candidate_finance_links link JOIN public.candidates candidate ON candidate.id=link.candidate_id
  JOIN public.candidate_elections roster ON roster.candidate_id=link.candidate_id AND roster.election_id=link.election_id
  JOIN public.elections election ON election.id=link.election_id JOIN public.offices office ON office.id=election.office_id
@@ -122,10 +124,12 @@ type Context = {
   canonical_office: string;
   geoid_compact: string;
   district_type: string;
+  ownership_count: number;
 };
 function targetFromContext(r: Context): KansasCandidateFinanceDueRow {
   check(
-    r.office_name === r.canonical_office &&
+    r.ownership_count === 1 &&
+      r.office_name === r.canonical_office &&
       normalizeKansasNameForStorage(r.candidate_name) ===
         r.candidate_name_normalized,
   );

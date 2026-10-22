@@ -22,9 +22,13 @@ The reader rechecks current intent and every active receiving component. Full un
 
 ## Local validation
 
-Fresh ordinary schema preflight, deferral-status check, Postgres and Redis passed. Kansas regression suite: 341 tests, 25 files. Genuine source qualification: 4 canonical reports, 4,228 cash occurrences, 1 qualifying committee receipt; 54 whole original observations. Earlier contexts with overlapping report families or incomplete postal identities were held without admitting their money.
+Fresh ordinary schema preflight, deferral-status check, Postgres and Redis passed. Kansas regression suite: 345 tests, 25 files; including shared feature-flag regressions: 429 tests, 26 files. Genuine source qualification: 4 canonical reports, 4,228 cash occurrences, 1 qualifying committee receipt; 54 whole original observations. Earlier contexts with overlapping report families or incomplete postal identities were held without admitting their money.
 
-Local migration, ordinary CLI dry/live sync, uncapped DB checks, idempotence/rollback checks, actual API and hydrated candidate card proof are required before this pass is complete. Source originals and financial identities remain private; committed fixtures are synthetic.
+Committed migration 377 applied through the ordinary migration runner. Ordinary CLI dry/live sync and repeat passed for one existing receiving context. Independent uncapped psql controls match every group, receipt count, cash-row partition and source observation. A missing source preserved money and clocks; an injected child-write failure in the real local writer rolled back source, donor and legacy state. Current shared ownership is also rejected.
+
+The actual production HTTP API matched all stored displayed names, IDs, cents, provenance links and coverage in RAM. Turning the dedicated flag off omitted the named component. Existing headlines and their clock were preserved. The actual hydrated candidate page was opened and its finance disclosure expanded. The matched subset falls below the existing $5,000 shared display threshold, so its named section is correctly hidden on this real card; no threshold or financial data was changed to force visibility. A reversible React menu toggle confirmed hydration. This is API-positive and card-threshold proof, not a claim that the real card displayed the donor name.
+
+Temporary API/frontend servers, collector and proof tabs are closed. Preview guards blocked four environment-file probes and three non-proof port probes; no environment file was read, no remote request was allowed, and no screenshot was taken. Source originals and financial identities remain private; committed fixtures are synthetic. A midnight regression test verifies that a fresh saved query retains its actual observation day rather than gaining an import-time source clock.
 
 ## Filing deadline and manual reruns
 

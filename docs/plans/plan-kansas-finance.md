@@ -354,3 +354,8 @@ No snapshot publish for a candidate when: ambiguous link; any due period unaccou
 4. **Export cap** unverified above 4,285 rows (Phase 0.3).
 5. **Election-week volume**: 25-4148c daily filings land Thu–Sun before the election; sync cadence must tighten that week.
 6. **Legal**: 25-4154(d) review outcome could constrain staging or force design changes — which is why it starts in Phase 0.
+
+
+## Held named committee component — October 21, 2026
+
+See [the independent committee-receipt plan](plan-kansas-committee-receipts.md) for the source-backed local sync/API/card proof, default-off publication gate, manual capture requirement and October 26 deadline/rerun schedule. Kansas contributor names and all new Missouri publication remain held. This pass pauses after its PR; no next state is authorized by this checkpoint.
