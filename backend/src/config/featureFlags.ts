@@ -263,6 +263,9 @@ export const isArkansasCampaignFinanceSyncEnabled = arkansasFinance.isSyncEnable
 const kansasFinance = defineStateFinanceFlagPair("KANSAS_CAMPAIGN_FINANCE");
 export const isKansasCampaignFinanceEnabled = kansasFinance.isEnabled;
 export const isKansasCampaignFinanceSyncEnabled = kansasFinance.isSyncEnabled;
+// Publication held pending Kansas contributor-name review. Force is unrelated.
+export const isKansasCommitteeReceiptsEnabled = (): boolean =>
+  isKansasCampaignFinanceEnabled() && readBooleanEnv("KANSAS_COMMITTEE_RECEIPTS_ENABLED", false);
 
 const idahoFinance = defineStateFinanceFlagPair("IDAHO_CAMPAIGN_FINANCE");
 export const isIdahoCampaignFinanceEnabled = idahoFinance.isEnabled;

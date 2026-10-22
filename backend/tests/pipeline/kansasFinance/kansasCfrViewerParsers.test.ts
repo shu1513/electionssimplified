@@ -698,3 +698,49 @@ describe("parseKansasCfrGridCurrentPage", () => {
     expect(parseKansasCfrGridCurrentPage(other, "grdviewCfrResults")).toBeNull();
   });
 });
+
+
+describe("saved-browser filing-grid postbacks", () => {
+  const grid = "grdviewCfrResults";
+  const target = "grdviewCfrResults$ctl02$lnkbtnName";
+  const fixture = (href: string) => `<table id="${grid}"><tr>
+    <td><span id="${grid}_lblDate_0">10/20/2026</span></td>
+    <td><span id="${grid}_lblAmendmentDate_0"></span></td>
+    <td><a id="${grid}_lnkbtnName_0" href="${href}">RECIPIENT EXAMPLE</a></td>
+    <td><span id="${grid}_labelOfficeSought_0">Attorney General</span></td>
+    <td><span id="${grid}_lblDistrictNumber_0"></span></td>
+  </tr></table>`;
+
+  it.each(["'", "&#39;"])("keeps the same filed identity and action with %s quotes", (quote) => {
+    expect(parseKansasCfrGridRows(fixture(`javascript:__doPostBack(${quote}${target}${quote},${quote}${quote})`), grid))
+      .toEqual([{ index: 0, fileDate: "10/20/2026", amendmentDate: "", amendmentNo: "",
+        name: "RECIPIENT EXAMPLE", officeSought: "Attorney General", district: "",
+        channel: "efile", postbackTarget: target }]);
+  });
+
+  it.each([
+    `javascript:__doPostBack('${target}','unexpected')`,
+    `javascript:__doPostBack('${target}','');alert(1)`,
+  ])("does not turn an unsupported action into a row-open target", (href) => {
+    expect(parseKansasCfrGridRows(fixture(href), grid)[0]).toMatchObject({ name: "", postbackTarget: null });
+  });
+});
+
+
+describe("native cover filed-date identity", () => {
+  it("distinguishes otherwise identical covers by the separate filed-date value", () => {
+    const cover = (date: string) => `<span id="lblCandOrgName">EXAMPLE RECIPIENT</span>
+      <span id="lblFileStartDate">01/01/2026</span><span id="lblFileEndDate">07/23/2026</span>
+      <span id="lblElectronicSignature">Electronically filed on:</span><span id="lblDate">${date}</span>`;
+    const first = parseKansasReportCover(cover("07/27/2026"));
+    const next = parseKansasReportCover(cover("07/28/2026"));
+    expect(first.electronicallyFiledOn).toBe("07/27/2026");
+    expect(next).toEqual({ ...first, electronicallyFiledOn: "07/28/2026" });
+    expect(next).not.toEqual(first);
+  });
+
+  it("retains the combined-label format from HTTP originals", () => {
+    expect(parseKansasReportCover(`<span id="lblElectronicSignature">Electronically filed on: 07/27/2026</span>`)
+      .electronicallyFiledOn).toBe("07/27/2026");
+  });
+});

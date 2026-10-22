@@ -9,6 +9,7 @@
 // "raised" stays unknown for those rows instead of borrowing receipts.
 
 import type { Pool, PoolClient } from "pg";
+import { attachKansasCommitteeReceipts } from "./kansasCommitteeReceipts.js";
 
 import { isKansasCampaignFinanceEnabled } from "../../config/featureFlags.js";
 import {
@@ -216,7 +217,13 @@ export async function loadKansasCandidateFinanceSummariesByCandidateElection(
       },
     });
   }
-  return summaries;
+  try {
+    return await attachKansasCommitteeReceipts({ db, requests, summaries });
+  } catch {
+    // Optional named receipts must not suppress healthy direct or IE data.
+    console.warn("Kansas committee receipts unavailable; preserving existing finance");
+    return summaries;
+  }
 }
 
 const KANSAS_ITEMIZED_IE_COVERAGE_NOTE =

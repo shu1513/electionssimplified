@@ -21,6 +21,8 @@ export type SyncDueKansasCandidateFinanceScriptOptions = {
   refresh?: boolean;
   candidateId?: string;
   electionYear?: number;
+  committeeObservationDir?: string;
+  committeeOnly?: boolean;
   ieObservationFile?: string;
   ieCacheDir?: string;
   maxCandidates?: number;
@@ -29,7 +31,12 @@ export type SyncDueKansasCandidateFinanceScriptOptions = {
   electionLookaheadDays?: number;
 };
 
-const BOOLEAN_FLAGS = new Set(["--dry-run", "--force", "--refresh"]);
+const BOOLEAN_FLAGS = new Set([
+  "--dry-run",
+  "--force",
+  "--refresh",
+  "--committee-only",
+]);
 const VALUE_FLAGS = new Set([
   "--max-candidates",
   "--stale-after-days",
@@ -37,6 +44,7 @@ const VALUE_FLAGS = new Set([
   "--lookahead-days",
   "--candidate-id",
   "--election-year",
+  "--committee-observation-dir",
   "--ie-observation-file",
   "--ie-cache-dir",
 ]);
@@ -112,6 +120,15 @@ export function parseSyncDueKansasCandidateFinanceScriptArgs(
     refresh: args.includes("--refresh"),
     candidateId,
     electionYear,
+    ...(args.includes("--committee-only") ? { committeeOnly: true } : {}),
+    ...(readValueFlag(args, "--committee-observation-dir")
+      ? {
+          committeeObservationDir: readValueFlag(
+            args,
+            "--committee-observation-dir",
+          ),
+        }
+      : {}),
     ieObservationFile: readValueFlag(args, "--ie-observation-file"),
     ieCacheDir: readValueFlag(args, "--ie-cache-dir"),
     maxCandidates: parsePositiveInteger(args, "--max-candidates"),
@@ -159,6 +176,8 @@ async function main(): Promise<void> {
         refresh: options.refresh,
         candidateId: options.candidateId,
         electionYear: options.electionYear,
+        committeeOnly: options.committeeOnly,
+        committeeObservationDir: options.committeeObservationDir,
         ieObservationFile: options.ieObservationFile,
         ieCacheDir: options.ieCacheDir,
         log: (message) => console.warn(message),
