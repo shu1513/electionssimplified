@@ -1,6 +1,7 @@
+import { overlayIndianaNativePacFinance } from "./indianaNativePacReader.js";
 import type { Pool, PoolClient } from "pg";
 
-import { isIndianaCampaignFinanceEnabled } from "../../config/featureFlags.js";
+import { isIndianaCampaignFinanceEnabled, isIndianaNativePacEnabled } from "../../config/featureFlags.js";
 import {
   addFinanceBreakdown,
   buildStateFinanceSummaryRequests,
@@ -46,6 +47,22 @@ type IndianaFinanceDirectBreakdownRow = {
 };
 
 export async function loadIndianaCandidateFinanceSummariesByCandidateElection(
+  db: Queryable,
+  candidateRows: readonly CandidateRow[],
+  electionRows: readonly ElectionRow[]
+): Promise<Map<string, BallotLookupFinanceSummary>> {
+  if (!isIndianaCampaignFinanceEnabled()) return new Map();
+  if (!isIndianaNativePacEnabled()) {
+    return loadIndianaLegacyFinanceSummaries(db, candidateRows, electionRows);
+  }
+  let summaries = new Map<string, BallotLookupFinanceSummary>();
+  try { summaries = await loadIndianaLegacyFinanceSummaries(db, candidateRows, electionRows); }
+  catch { /* Legacy query failures do not suppress independently qualified native evidence. */ }
+  try { return await overlayIndianaNativePacFinance(db, summaries, candidateRows, electionRows); }
+  catch { return summaries; }
+}
+
+async function loadIndianaLegacyFinanceSummaries(
   db: Queryable,
   candidateRows: readonly CandidateRow[],
   electionRows: readonly ElectionRow[]

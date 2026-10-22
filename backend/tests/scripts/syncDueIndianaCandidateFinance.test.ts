@@ -24,6 +24,8 @@ describe("syncDueIndianaCandidateFinance script", () => {
     ).toEqual({
       dryRun: true,
       force: true,
+      nativePacOnly: false,
+      nativePacLinkId: undefined,
       maxCandidates: 10,
       staleAfterDays: 3,
       electionLookbackDays: 2,
@@ -37,6 +39,8 @@ describe("syncDueIndianaCandidateFinance script", () => {
     expect(parseSyncDueIndianaCandidateFinanceScriptArgs([])).toEqual({
       dryRun: false,
       force: false,
+      nativePacOnly: false,
+      nativePacLinkId: undefined,
       maxCandidates: undefined,
       staleAfterDays: undefined,
       electionLookbackDays: undefined,
@@ -44,6 +48,12 @@ describe("syncDueIndianaCandidateFinance script", () => {
       rawCacheDir: undefined,
       rawZipPath: undefined,
     });
+  });
+
+  it("accepts a scoped native component run", () => {
+    expect(parseSyncDueIndianaCandidateFinanceScriptArgs([
+      "--native-pac-only", "--native-pac-link-id=11111111-1111-4111-8111-111111111111",
+    ])).toMatchObject({ nativePacOnly: true, nativePacLinkId: "11111111-1111-4111-8111-111111111111" });
   });
 
   it("rejects invalid repeated or missing flags", () => {
