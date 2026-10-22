@@ -22,6 +22,8 @@ const ELECTION_ID = "22222222-2222-4222-8222-222222222222";
 const tempDirs: string[] = [];
 
 afterEach(async () => {
+  vi.unstubAllEnvs();
+  vi.restoreAllMocks();
   await Promise.all(tempDirs.splice(0).map((dir) => rm(dir, { recursive: true, force: true })));
 });
 
@@ -89,6 +91,45 @@ function contributionDataForYear(input: {
 }
 
 describe("indianaCandidateFinanceBatchSync", () => {
+  it.each([false, true])("isolates native discovery failures unless native-only=%s", async (nativePacOnly) => {
+    vi.stubEnv("INDIANA_CAMPAIGN_FINANCE_ENABLED", "true");
+    vi.stubEnv("INDIANA_NATIVE_PAC_ENABLED", "true");
+    const error = new Error("native due query timeout");
+    const db = {
+      connect: vi.fn(),
+      query: vi.fn(async (sql: string) => {
+        if (sql.includes("in_native_pac_sources")) throw error;
+        return { rows: [{
+          candidate_id: CANDIDATE_ID, election_id: ELECTION_ID,
+          candidate_name: "Cesar Diego Morales", election_year: 2026,
+          office_scope: "state_upper", office_name: "State Senator", district: "30",
+          committee_id: "422", committee_name: "Diego for Indiana",
+          source_url: null, last_synced_at: null, total_due_rows: "1",
+        }] };
+      }),
+    };
+    const sync = vi.fn().mockResolvedValue({ summaryWritten: true });
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const pending = syncDueIndianaCandidateFinance({
+      db: db as never, nativePacOnly, autoLinkMissingLinks: false,
+      now: new Date("2026-10-21T12:00:00.000Z"),
+      syncIndianaCandidateFinanceFn: sync,
+      contributionDataByYear: new Map([[2026, contributionDataForYear({
+        year: 2026, rowsByCommitteeId: new Map([["422", [contribution()]]]),
+      })]]),
+    });
+    if (nativePacOnly) {
+      await expect(pending).rejects.toBe(error);
+      expect(sync).not.toHaveBeenCalled();
+      expect(db.query).toHaveBeenCalledTimes(1);
+    } else {
+      expect(await pending).toMatchObject({ syncedCandidateCount: 1, failedCandidateCount: 0 });
+      expect(sync).toHaveBeenCalledOnce();
+      expect(warn).toHaveBeenCalledWith(
+        "Indiana native PAC sync failed; continuing with legacy finance:", error.message,
+      );
+    }
+  });
   it("lists due Indiana finance sync rows from explicit active links", async () => {
     const db = createMockDb([
       {

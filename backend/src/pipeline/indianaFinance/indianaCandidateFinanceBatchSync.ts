@@ -293,15 +293,23 @@ export async function syncDueIndianaCandidateFinance(
 
   let nativePac: Awaited<ReturnType<typeof syncDueIndianaNativePac>> | undefined;
   if (isIndianaNativePacEnabled()) {
-    if (!("connect" in input.db) || typeof input.db.connect !== "function") {
-      throw new Error("native_pac_pool_required");
+    try {
+      if (!("connect" in input.db) || typeof input.db.connect !== "function") {
+        throw new Error("native_pac_pool_required");
+      }
+      nativePac = await syncDueIndianaNativePac({
+        db: input.db as Pick<Pool, "query" | "connect">,
+        now, dryRun, maxCandidates, staleAfterDays,
+        electionLookbackDays: input.electionLookbackDays,
+        electionLookaheadDays, linkId: input.nativePacLinkId,
+      });
+    } catch (error) {
+      if (input.nativePacOnly) throw error;
+      console.warn(
+        "Indiana native PAC sync failed; continuing with legacy finance:",
+        error instanceof Error ? error.message : String(error)
+      );
     }
-    nativePac = await syncDueIndianaNativePac({
-      db: input.db as Pick<Pool, "query" | "connect">,
-      now, dryRun, maxCandidates, staleAfterDays,
-      electionLookbackDays: input.electionLookbackDays,
-      electionLookaheadDays, linkId: input.nativePacLinkId,
-    });
   }
   if (input.nativePacOnly) return {
     nativePac, dryRun, now: now.toISOString(), staleAfterDays, maxCandidates,
