@@ -7,8 +7,10 @@
 //
 // Keyed on office.scope with district_type as the fallback (ballot measures
 // have no office): the two vocabularies share their words. School boards
-// fold into "City" — "school district" is a level no voter thinks in, and
-// the section label says "City" rather than "place" for the same reason.
+// are their own level, just below City: folded into "City" they
+// shared one section with the city's own races (a county-wide school board
+// beside a Mayor), so the heading could not name the city. The section
+// label says "City" rather than "place" for the voter's sake.
 // Special districts (water, hospital, park, trustee areas) are their own,
 // smallest level; "Other" is only a fallback for an unclassified scope.
 // US Senate is one level the scope cannot tell — its offices are scope
@@ -23,6 +25,7 @@ export const BALLOT_LEVELS = [
   { key: "state", label: "State" },
   { key: "county", label: "County" },
   { key: "city", label: "City" },
+  { key: "school", label: "School" },
   { key: "special", label: "Local" },
   { key: "other", label: "Other" },
 ] as const;
@@ -59,10 +62,11 @@ export function ballotLevel(
       return "state";
     case "county":
       return "county";
-    case "place":
     case "school_unified":
     case "school_elementary":
     case "school_secondary":
+      return "school";
+    case "place":
       return "city";
     case "local_special":
       return "special";

@@ -263,6 +263,7 @@ describe("applyBallotElectionOrdering", () => {
       "Regent",
       "Sheriff",
       "Mayor",
+      // School boards are their own tier just below the city.
       "School Board",
       "Water District Director",
     ]);

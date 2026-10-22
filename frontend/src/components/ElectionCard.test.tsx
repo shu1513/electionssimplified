@@ -865,7 +865,7 @@ describe("ElectionCard result chip", () => {
     renderRoutes([{ path: "/", element: <ElectionList elections={elections} sort="district_size" /> }], "/");
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     const sections = screen.getAllByRole("button", { expanded: true });
-    expect(sections.map((button) => button.textContent)).toEqual(["Federal: Alaska(1)", "State(2)", "County: Alaska(1)", "City(1)"]);
+    expect(sections.map((button) => button.textContent)).toEqual(["Federal: Alaska(1)", "State(2)", "County: Alaska(1)", "School: Alaska(1)"]);
     // No Presidential section: none on this ballot. School boards read as City.
     expect(screen.queryByText(/Presidential/)).not.toBeInTheDocument();
     expect(screen.getByText("School Board")).toBeInTheDocument();
@@ -918,16 +918,21 @@ describe("ElectionCard result chip", () => {
     expect(screen.getByText("Assembly District 17; California")).toBeInTheDocument();
   });
 
-  it("preserves different city and school district locations within one level", () => {
-    const districts = [
+  it("preserves different city locations within one level and heads the school level apart", () => {
+    const cities = [
       { id: "sf", name: "San Francisco city, California", state: "CA", district_type: "place" },
       { id: "oak", name: "Oakland city, California", state: "CA", district_type: "place" },
-      { id: "school", name: "San Francisco Unified School District, California", state: "CA", district_type: "school_unified" },
     ];
-    const elections = districts.map((district) => electionSummary({ id: district.id, district, office: null, race_type: "ballot_measure" }));
+    const school = { id: "school", name: "San Francisco Unified School District, California", state: "CA", district_type: "school_unified" };
+    const elections = [...cities, school].map((district) =>
+      electionSummary({ id: district.id, district, office: null, race_type: "ballot_measure" })
+    );
     renderRoutes([{ path: "/", element: <ElectionList elections={elections} sort="district_size" /> }], "/");
-    expect(screen.getByRole("button", { name: "City(3)" })).toBeInTheDocument();
-    for (const district of districts) expect(screen.getByText(district.name)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "City(2)" })).toBeInTheDocument();
+    for (const district of cities) expect(screen.getByText(district.name)).toBeInTheDocument();
+    // A school board never shares the city's section, so its heading names it.
+    expect(screen.getByRole("button", { name: "School: San Francisco Unified School District(1)" })).toBeInTheDocument();
+    expect(screen.queryByText(school.name)).not.toBeInTheDocument();
   });
 
   it("renders the date groups flat under every other sort", () => {
