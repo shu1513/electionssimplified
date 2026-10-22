@@ -1,3 +1,4 @@
+import * as financialEvidence from "../../../src/pipeline/indianaFinance/indianaNativeFinancialEvidence.js";
 import { IndianaNativePacCollector } from "../../../src/pipeline/indianaFinance/indianaNativePacCollector.js";
 import { describe, expect, it, vi, afterEach } from "vitest";
 import {
@@ -26,7 +27,10 @@ const gift = (kind: "Direct" | "In-Kind", cents: number) => ({
   cents,
   donorClass: "Political Action Committee" as const,
 });
-afterEach(() => vi.unstubAllEnvs());
+afterEach(() => {
+  vi.unstubAllEnvs();
+  vi.restoreAllMocks();
+});
 describe("Indiana native raw acquisition gates", () => {
   it("does not fetch after incomplete saved evidence when raw refresh is disabled", async () => {
     vi.stubEnv("INDIANA_CAMPAIGN_FINANCE_ENABLED", "true");
@@ -40,6 +44,27 @@ describe("Indiana native raw acquisition gates", () => {
       ),
     ).rejects.toThrow("independent_filing_inventory_missing");
     expect(archive.observe).not.toHaveBeenCalled();
+  });
+  it.each([
+    ["2026-10-21", "2026-10-21"],
+    ["2026-12-31", "2026-12-31"],
+    ["2027-01-21", "2026-12-31"],
+  ])("uses cycle-scoped receipts for cached and refreshed evidence on %s", async (requested, expected) => {
+    vi.stubEnv("INDIANA_CAMPAIGN_FINANCE_ENABLED", "true");
+    vi.stubEnv("INDIANA_NATIVE_PAC_ENABLED", "true");
+    vi.stubEnv("INDIANA_NATIVE_PAC_RAW_REFRESH_ENABLED", "true");
+    const archive = { read: vi.fn().mockResolvedValue([]) };
+    const receiver = { receivingId: "123", electionYear: 2026 } as never;
+    const read = vi.spyOn(financialEvidence, "readIndianaNativeFinancialEvidence");
+    const collect = vi.spyOn(IndianaNativePacCollector.prototype, "collect").mockResolvedValue();
+    // Empty evidence still fails admission; inspect both attempts without
+    // weakening the real evidence qualifier or changing observation clocks.
+    await expect(new IndianaNativePacSource(archive as never).get(receiver, requested))
+      .rejects.toThrow("independent_filing_inventory_missing");
+    expect(read).toHaveBeenCalledTimes(2);
+    expect(read).toHaveBeenNthCalledWith(1, [], receiver, expected);
+    expect(read).toHaveBeenNthCalledWith(2, [], receiver, expected);
+    expect(collect).toHaveBeenCalledWith(receiver, expected);
   });
   it("checks the raw gate before creating any source original", async () => {
     vi.stubEnv("INDIANA_CAMPAIGN_FINANCE_ENABLED", "true");

@@ -213,6 +213,10 @@ export class IndianaNativePacSource {
     receiver: IndianaNativeReceiver,
     through: string,
   ): Promise<IndianaNativePacPacket> {
+    // Post-election annual filings can be observed in January, but their
+    // receipt scope still ends with the election year.
+    const cycleEnd = `${receiver.electionYear}-12-31`;
+    if (through > cycleEnd) through = cycleEnd;
     const originals = await this.archive.read();
     try {
       return this.qualify(originals, receiver, through);
