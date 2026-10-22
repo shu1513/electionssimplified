@@ -217,7 +217,13 @@ export async function loadKansasCandidateFinanceSummariesByCandidateElection(
       },
     });
   }
-  return attachKansasCommitteeReceipts({db, requests, summaries});
+  try {
+    return await attachKansasCommitteeReceipts({ db, requests, summaries });
+  } catch {
+    // Optional named receipts must not suppress healthy direct or IE data.
+    console.warn("Kansas committee receipts unavailable; preserving existing finance");
+    return summaries;
+  }
 }
 
 const KANSAS_ITEMIZED_IE_COVERAGE_NOTE =

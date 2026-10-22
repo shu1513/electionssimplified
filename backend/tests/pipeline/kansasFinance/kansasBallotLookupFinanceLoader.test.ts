@@ -32,10 +32,33 @@ function summaryRow(overrides: Record<string, unknown>) {
 }
 
 afterEach(() => {
+  vi.restoreAllMocks();
   vi.unstubAllEnvs();
 });
 
 describe("kansasBallotLookupFinanceLoader", () => {
+  it.each(["context", "source"])("preserves existing finance when the committee %s query fails", async (failedQuery) => {
+    vi.stubEnv("KANSAS_CAMPAIGN_FINANCE_ENABLED", "true");
+    vi.stubEnv("KANSAS_COMMITTEE_RECEIPTS_ENABLED", "false");
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const query = vi.fn(async (sql: string) => {
+      if (sql.includes("AS ownership_count")) {
+        if (failedQuery === "context") throw new Error("committee context timeout");
+        return { rows: [{ link_id: "33333333-3333-4333-8333-333333333333" }] };
+      }
+      if (sql.includes("FROM public.ks_candidate_finance_committee_sources"))
+        throw new Error("committee source timeout");
+      if (sql.includes("ks_candidate_finance_summaries")) return { rows: [summaryRow({})] };
+      return { rows: [] };
+    });
+    const candidates = [{ candidate_id: CANDIDATE_ID, election_id: ELECTION_ID }];
+    const baseline = await loadKansasCandidateFinanceSummariesByCandidateElection({ query } as never, candidates, [ELECTION]);
+    expect([...baseline.values()][0]?.direct_campaign.total_raised).toBe(120000);
+    vi.stubEnv("KANSAS_COMMITTEE_RECEIPTS_ENABLED", "true");
+    const result = await loadKansasCandidateFinanceSummariesByCandidateElection({ query } as never, candidates, [ELECTION]);
+    expect(result).toEqual(baseline);
+    expect(warn).toHaveBeenCalledWith("Kansas committee receipts unavailable; preserving existing finance");
+  });
   it("stays inert when disabled or the election office is out of scope", async () => {
     vi.stubEnv("KANSAS_CAMPAIGN_FINANCE_ENABLED", "false");
     const query = vi.fn();
