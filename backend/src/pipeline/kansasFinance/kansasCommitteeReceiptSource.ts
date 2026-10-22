@@ -29,6 +29,7 @@ import {
 } from "./kansasReportInventory.js";
 import {
   KANSAS_CFR_FILER_SEARCHES,
+  kansasGridOfficeMatches,
   type KansasPooledFiling,
 } from "./kansasFilingSearch.js";
 import * as p from "./kansasCfrViewerParsers.js";
@@ -388,6 +389,13 @@ export async function acquireKansasCommitteeReceipts(input: {
         !ownNames.has(normalizeKansasNameForStorage(row.name))
           ? []
           : sequences.filter((s) => {
+              // The grid supplies the intended race; the opened cover must
+              // independently agree before its schedules can supply money.
+              if (
+                !kansasGridOfficeMatches(office!, s.parsed.officeSought) ||
+                (office!.districted &&
+                  kansasDistrictNumberFromGrid(s.parsed.district) !== recipe.districtNumber)
+              ) return false;
               if (
                 resolveKansasCandidateFiler({
                   candidateName: s.parsed.candidateName,

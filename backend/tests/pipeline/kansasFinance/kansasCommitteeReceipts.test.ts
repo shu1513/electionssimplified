@@ -169,6 +169,28 @@ describe("Kansas complete native source", () => {
       assertQualifiedKansasCommitteePacket(structuredClone(packet)),
     ).toThrow();
   });
+  it.each(["office", "district", "missing_district"])(
+    "holds a receiving cover with contradictory %s",
+    async (field) => {
+      const directory = await fixture((events) => {
+        for (const event of events) {
+          if (!event.url.endsWith("/exp_report_main.aspx") || event.html.includes("chkbxPAC")) continue;
+          event.html = field === "office"
+            ? event.html.replace('lblOfficeSoughtName">State Representative', 'lblOfficeSoughtName">State Senator')
+            : event.html.replace('lblDistrictNo">123', `lblDistrictNo">${field === "district" ? "124" : ""}`);
+        }
+      });
+      await expect(acquireKansasCommitteeReceipts({ directory, target, now })).rejects.toThrow();
+    },
+  );
+  it("accepts case and whitespace variants of the receiving office", async () => {
+    const directory = await fixture((events) => {
+      for (const event of events)
+        if (event.url.endsWith("/exp_report_main.aspx") && !event.html.includes("chkbxPAC"))
+          event.html = event.html.replace('lblOfficeSoughtName">State Representative', 'lblOfficeSoughtName"> STATE   REPRESENTATIVE ');
+    });
+    expect((await acquireKansasCommitteeReceipts({ directory, target, now })).totalCents).toBe(2000);
+  });
   it.each([
     "missing_schedule",
     "changed_cover",
