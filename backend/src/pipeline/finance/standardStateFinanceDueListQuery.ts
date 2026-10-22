@@ -193,8 +193,14 @@ function buildDueListSql(
   ].join("");
   const refreshPrefix =
     scope.refreshParam === undefined ? "" : `            $${scope.refreshParam}::boolean\n            OR`;
+  // Race-mates ride along: whenever one candidate of an election is due,
+  // every other eligible linked candidate of that same election is synced in
+  // the same batch, stale or not. Opponents then always show outside groups
+  // (one committee supporting A and opposing B) from the same source
+  // snapshot instead of from whichever run each happened to be due in.
+  // Race sizes are small (≤10 linked candidates), so the batch stays bounded.
   return `
-      WITH due AS (
+      WITH eligible AS (
         SELECT
           link.candidate_id::text AS candidate_id,
           link.election_id::text AS election_id,
@@ -210,7 +216,14 @@ ${innerBallotTitle}          link.district,
 ${innerLinkColumns}
           link.source_url,
           summary.last_synced_at::text AS last_synced_at,
-          COUNT(*) OVER () AS total_due_rows
+          link.id AS sort_link_id,
+          link.candidate_name_normalized AS sort_name,
+          election.election_date AS sort_election_date,
+          summary.last_synced_at AS sort_synced_at,
+          (
+${refreshPrefix}${scope.refreshParam === undefined ? "            " : " "}summary.last_synced_at IS NULL
+            OR summary.last_synced_at < ($1::timestamptz - make_interval(days => $2::int))
+          ) AS is_stale
         FROM public.${linksTable} AS link
         JOIN public.candidates AS candidate
           ON candidate.id = link.candidate_id
@@ -234,15 +247,25 @@ ${stageFilter}          AND election.election_date >= (($1::timestamptz AT TIME 
           AND election.election_date <= (($1::timestamptz AT TIME ZONE 'UTC')::date + make_interval(days => $5::int))
           AND candidate_election.status NOT IN ('withdrawn', 'lost')
           AND (office.scope || '::' || office.canonical_name) = ANY($6::text[])
-${scopeFilters}          AND (
-${refreshPrefix}${scope.refreshParam === undefined ? "            " : " "}summary.last_synced_at IS NULL
-            OR summary.last_synced_at < ($1::timestamptz - make_interval(days => $2::int))
-          )
-        ORDER BY summary.last_synced_at ASC NULLS FIRST,
-                 election.election_date ASC,
-                 link.candidate_name_normalized ASC,
-                 link.id ASC
+${scopeFilters}      ),
+      due AS (
+        SELECT eligible.*, COUNT(*) OVER () AS total_due_rows
+        FROM eligible
+        WHERE eligible.is_stale
+        ORDER BY eligible.sort_synced_at ASC NULLS FIRST,
+                 eligible.sort_election_date ASC,
+                 eligible.sort_name ASC,
+                 eligible.sort_link_id ASC
         LIMIT $3::int
+      ),
+      batch AS (
+        SELECT due.*, 0 AS race_mate
+        FROM due
+        UNION ALL
+        SELECT eligible.*, (SELECT MAX(due.total_due_rows) FROM due), 1 AS race_mate
+        FROM eligible
+        WHERE eligible.election_id IN (SELECT due.election_id FROM due)
+          AND eligible.sort_link_id NOT IN (SELECT due.sort_link_id FROM due)
       )
       SELECT
         candidate_id,
@@ -256,7 +279,12 @@ ${outerLinkColumns}
         source_url,
         last_synced_at,
         total_due_rows
-      FROM due
+      FROM batch
+      ORDER BY race_mate ASC,
+               sort_synced_at ASC NULLS FIRST,
+               sort_election_date ASC,
+               sort_name ASC,
+               sort_link_id ASC
     `;
 }
 
@@ -265,7 +293,9 @@ ${outerLinkColumns}
  * candidate_elections, elections, districts, offices, and the summary table,
  * filtered to eligible offices inside the election date window, kept when the
  * summary is missing or stale, ordered stalest-first, limited to
- * maxCandidates, with the pre-limit total exposed as totalDueRows.
+ * maxCandidates, with the pre-limit total exposed as totalDueRows. Every
+ * other eligible candidate of a selected row's election is appended (stale
+ * or not), so a batch can exceed maxCandidates by those race-mates.
  *
  * Canonical states omit mapRow and get StandardStateFinanceDueRow rows.
  * States with renamed or extra link columns pass linkColumns plus a mapRow

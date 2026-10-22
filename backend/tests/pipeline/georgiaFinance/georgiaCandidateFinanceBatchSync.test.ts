@@ -64,7 +64,7 @@ function dueQueryRow(overrides: Record<string, unknown> = {}): Record<string, un
 
 function createMockDb(dueRows: Record<string, unknown>[]) {
   const query = vi.fn(async (sql: string) => {
-    if (typeof sql === "string" && sql.includes("WITH due AS")) {
+    if (typeof sql === "string" && sql.includes("due AS (")) {
       return { rows: dueRows, rowCount: dueRows.length };
     }
     // Auto-link candidate-election listing: none missing.
@@ -300,6 +300,6 @@ describe("syncDueGeorgiaCandidateFinance", () => {
     expect(syncFn).toHaveBeenCalledWith(expect.objectContaining({ dryRun: true }));
     // The only db call was the due list — auto-link never queried.
     const sqls = db.query.mock.calls.map(([sql]) => sql as string);
-    expect(sqls.every((sql) => sql.includes("WITH due AS"))).toBe(true);
+    expect(sqls.every((sql) => sql.includes("due AS ("))).toBe(true);
   });
 });

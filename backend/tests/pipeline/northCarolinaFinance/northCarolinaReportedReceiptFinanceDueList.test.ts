@@ -201,7 +201,7 @@ describe("protected nonfinancial North Carolina reported receipt attempts", () =
         Object.assign(meta, { last_attempted_at: params[7], attempt_receiver: params[4], attempt_manifest: params[8] });
         return { rows: [{ link_id: id(1) }], rowCount: 1 };
       }
-      return { rows: sql.includes("WITH due AS") ? [eligible()] : [meta] };
+      return { rows: sql.includes("due AS (") ? [eligible()] : [meta] };
     }) };
     expect((await listDueNorthCarolinaReportedReceiptFinance(db, input())).rows).toHaveLength(1);
     await recordNorthCarolinaReportedReceiptFinanceAttempt({ db, receiver: receiver(), now: NOW });

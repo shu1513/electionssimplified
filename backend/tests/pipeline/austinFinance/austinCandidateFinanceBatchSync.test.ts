@@ -34,7 +34,7 @@ function makeDb(input: {
   const sqlLog: string[] = [];
   const query = vi.fn(async (sql: string) => {
     sqlLog.push(sql);
-    if (sql.includes("WITH due AS")) return { rows: input.dueRows };
+    if (sql.includes("due AS (")) return { rows: input.dueRows };
     if (sql.includes("official_ballot_title FROM public.elections"))
       return {
         rows: input.elections ?? [
