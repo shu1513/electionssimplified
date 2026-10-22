@@ -413,8 +413,8 @@ function compareBySort(
 // packages/api-client (ballotLevel.ts), which the list pages use to label the
 // sections — keep the two in step. office.scope leads (a place office on a
 // coextensive county row is still a city race); district_type covers ballot
-// measures, which have no office. School boards fold into the city tier.
-// Special districts (water, hospital, park, trustee areas) are the smallest
+// measures, which have no office. School boards are their own tier just
+// below the city. Special districts (water, hospital, park, trustee areas) are the smallest
 // tier, so the smallest-first sort shows them first.
 // US Senate is the one level the scope cannot tell: its offices are scope
 // "statewide" (there is no us_senate scope), so the contest family is what
@@ -428,14 +428,14 @@ const BALLOT_LEVEL_RANKS: Record<string, number> = {
   state_executive_council: 2,
   county: 3,
   place: 4,
-  school_unified: 4,
-  school_elementary: 4,
-  school_secondary: 4,
-  local_special: 5,
+  school_unified: 5,
+  school_elementary: 5,
+  school_secondary: 5,
+  local_special: 6,
 };
 const FEDERAL_LEVEL_RANK = 1;
 const STATE_LEVEL_RANK = 2;
-const UNKNOWN_LEVEL_RANK = 6;
+const UNKNOWN_LEVEL_RANK = 7;
 
 // Colorado's regent and State Board of Education seats are the other case
 // the scope cannot tell: their offices are scope "us_house" (elected per

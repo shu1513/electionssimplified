@@ -246,11 +246,11 @@ describe("applyBallotElectionOrdering", () => {
       },
       { id: "dddddddd-4444-4444-8444-dddddddddddd", population: 4_000_000, office_scope: "place", official_ballot_title: "Mayor" },
       { id: "eeeeeeee-5555-4555-8555-eeeeeeeeeeee", population: 39_000_000, office_scope: "presidential", official_ballot_title: "President" },
-      { id: "ffffffff-6666-4666-8666-ffffffffffff", population: 20_000, office_scope: "school_unified", official_ballot_title: "School Board" },
+      { id: "ffffffff-6666-4666-8666-ffffffffffff", population: 5_000_000, vote_power_score: 80, office_scope: "school_unified", official_ballot_title: "School Board" },
       { id: "99999999-7777-4777-8777-999999999999", population: 39_000_000, office_scope: "statewide", contest_family: "us_senate", official_ballot_title: "US Senate" },
       // A special district outranks nothing: it is the smallest tier, even
       // when its electorate is larger than the school board's.
-      { id: "aaaaaaaa-8888-4888-8888-aaaaaaaaaaaa", population: 1_900_000, office_scope: "local_special", official_ballot_title: "Water District Director" },
+      { id: "aaaaaaaa-8888-4888-8888-aaaaaaaaaaaa", population: 6_000_000, office_scope: "local_special", official_ballot_title: "Water District Director" },
     ];
     const biggest = await applyBallotElectionOrdering({ query: makeFollowsQuery([]) }, makeSummary(elections), {
       sort: "district_size",
@@ -263,6 +263,7 @@ describe("applyBallotElectionOrdering", () => {
       "Regent",
       "Sheriff",
       "Mayor",
+      // The school tier stays below City even with higher vote power and population.
       "School Board",
       "Water District Director",
     ]);

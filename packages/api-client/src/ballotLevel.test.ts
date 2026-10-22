@@ -7,7 +7,9 @@ describe("ballotLevel", () => {
     expect(ballotLevel("us_house", "us_house", "non_judicial_office")).toBe("federal");
     expect(ballotLevel("statewide", "statewide", "us_senate")).toBe("federal");
     expect(ballotLevel(undefined, "county", "ballot_measure")).toBe("county");
-    expect(ballotLevel("school_unified", "school_unified")).toBe("city");
+    expect(ballotLevel("school_unified", "school_unified")).toBe("school");
+    expect(ballotLevel(undefined, "school_elementary", "ballot_measure")).toBe("school");
+    expect(ballotLevel("place", "place")).toBe("city");
     expect(ballotLevel("local_special", "local_special")).toBe("special");
     expect(ballotLevel(undefined, "local_special", "ballot_measure")).toBe("special");
     expect(ballotLevel("some_new_scope", "some_new_scope")).toBe("other");

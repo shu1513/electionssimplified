@@ -151,19 +151,23 @@ function levelLocation(level: BallotLevel, elections: ElectionSummary[]) {
     }
   } else if (districts.length === 1 && (
     (level === "city" && districts[0].district_type === "place") ||
-    (level === "county" && districts[0].district_type === "county")
+    (level === "county" && districts[0].district_type === "county") ||
+    (level === "school" && districts[0].district_type.startsWith("school_"))
   )) {
     district = districts[0];
   }
   if (!district) return { label, districtId: undefined };
   let name = formatDistrictName(district.name);
-  if (level === "city" || level === "county") {
-    // Local names arrive as "San Francisco city, California" or
-    // "Travis County, Texas". The heading already supplies the place type.
+  if (level === "city" || level === "county" || level === "school") {
+    // Local names arrive as "San Francisco city, California",
+    // "Travis County, Texas" or "Berkeley County School District, South
+    // Carolina". The heading already supplies the place type.
     name = name.split(",")[0].trim();
-    name = level === "city"
-      ? name.replace(/ city$/, "").replace(/^City of /, "")
-      : name.replace(/ County$/, "").replace(/^County of /, "");
+    if (level === "city") {
+      name = name.replace(/ city$/, "").replace(/^City of /, "");
+    } else if (level === "county") {
+      name = name.replace(/ County$/, "").replace(/^County of /, "");
+    }
   }
   return { label: `${label}: ${name}`, districtId: district.id };
 }
