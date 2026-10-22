@@ -1,0 +1,56 @@
+# Colorado independent spending
+
+## Source and scope decision, October 22, 2026
+
+TRACER publishes Independent Expenditures - Detail as native CSV, XML and PDF.
+Its jurisdiction default, All Counties, excludes the separate STATEWIDE scope.
+Acquire all three published scopes, including FEDERAL, and validate whole source
+controls before filtering candidates. The existing Colorado batch calls only the
+direct contribution ZIP path; new IE acquisition and freshness must work separately.
+
+Fresh contribution ZIPs still fail strict whole-source decoding or CSV grammar.
+The bulk donor ContributorType is distinct from the receiving CommitteeType.
+Clean native receiving exports and a typed registry exist, but named committee
+receipts still need complete receiving/version/control and positive identity proof.
+This increment does not qualify those donors.
+
+Whole 2025–2026 IE source controls close across CSV/XML and repeated complete
+observations. Native expense parents can list multiple targets without allocations.
+Count each parent once; preserve signed credits and repeated occurrences. Never
+divide a shared amount or infer support/oppose from a payee or description.
+
+Source target fields give explicit person, party and office, but no district.
+Initially admit only independently verified current statewide Governor, Attorney
+General, Secretary of State and State Treasurer contexts. Legislative identity
+remains held. Reporting captions contain a registered name plus a literal trailing
+comma; exact complete typed registry and native profile evidence corroborate the
+reporter. Do not treat vendors as reporting committees or infer legal entities from
+name hints.
+
+## Implementation and acceptance sequence
+
+1. Strict native report/registry parsers with synthetic fixtures and genuine replay.
+2. Graph-bound saved-first acquisition; gated fresh source and complete closing
+   controls, plus candidate-specific native campaign identity qualification.
+3. Protected independent component writer, due query and ballot reader overlay.
+   Recheck canonical intent under lock and on read; keep direct money/clocks intact.
+4. Ordinary local sync, independent uncapped SQL/source amounts, actual API and
+   hydrated candidate card proof, then a Colorado pull request.
+
+New flags default off beneath Colorado gates. Source failures retain prior money
+and clocks. Publish positive, proved single-target allocations with explicit partial
+coverage; unsupported or absent evidence stays unknown. Tests or a dry run alone
+are insufficient acceptance. Kansas contributor names and all new Missouri
+publication remain held.
+
+## Late filings and manual reruns
+
+The [official frequent calendar](https://www.coloradosos.gov/pubs/elections/CampaignFinance/calendars/2026/2026StateFrequentMonthlyBiweekly.pdf),
+revised July 2026, sets October 19 through October 14, November 2 through
+October 28, and December 8 through December 3. Applicable 48-hour IE supplements
+run October 4–November 2 in addition to regular reports. Acquire fresh originals
+after November 2 (November 3/4), after December 8 (December 9/11), and again for
+late/amended filings. These are manual reruns; no automation.
+
+Sources: [native reports](https://tracer.sos.colorado.gov/PublicSite/Reports/Reports.aspx),
+[bulk downloads](https://tracer.sos.colorado.gov/PublicSite/DataDownload.aspx).
