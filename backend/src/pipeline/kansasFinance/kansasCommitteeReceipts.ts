@@ -186,7 +186,9 @@ function controls(packet: KansasCommitteePacket): Controls {
     zeroGiftRows,
   };
 }
-function latestObservationTime(provenance: KansasCommitteePacket["provenance"]): number {
+function latestObservationTime(
+  provenance: KansasCommitteePacket["provenance"],
+): number {
   check(Array.isArray(provenance) && provenance.length > 0);
   const latest = provenance.reduce(
     (value, observation) => Math.max(value, Date.parse(observation.observedAt)),
@@ -244,7 +246,8 @@ export async function writeKansasCommitteeReceipts(input: {
     // minimum clock. Reject regression of either end of the evidence window.
     check(
       prior.rows.every(
-        (r) => new Date(r.last_synced_at).getTime() <= Date.parse(p.observedAt) &&
+        (r) =>
+          new Date(r.last_synced_at).getTime() <= Date.parse(p.observedAt) &&
           latestObservationTime(r.provenance) <= completedAt,
       ),
     );

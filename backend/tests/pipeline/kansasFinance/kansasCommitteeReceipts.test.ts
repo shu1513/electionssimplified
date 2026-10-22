@@ -174,36 +174,102 @@ describe("Kansas complete native source", () => {
     async (field) => {
       const directory = await fixture((events) => {
         for (const event of events) {
-          if (!event.url.endsWith("/exp_report_main.aspx") || event.html.includes("chkbxPAC")) continue;
-          event.html = field === "office"
-            ? event.html.replace('lblOfficeSoughtName">State Representative', 'lblOfficeSoughtName">State Senator')
-            : event.html.replace('lblDistrictNo">123', `lblDistrictNo">${field === "district" ? "124" : ""}`);
+          if (
+            !event.url.endsWith("/exp_report_main.aspx") ||
+            event.html.includes("chkbxPAC")
+          )
+            continue;
+          event.html =
+            field === "office"
+              ? event.html.replace(
+                  'lblOfficeSoughtName">State Representative',
+                  'lblOfficeSoughtName">State Senator',
+                )
+              : event.html.replace(
+                  'lblDistrictNo">123',
+                  `lblDistrictNo">${field === "district" ? "124" : ""}`,
+                );
         }
       });
-      await expect(acquireKansasCommitteeReceipts({ directory, target, now })).rejects.toThrow();
+      await expect(
+        acquireKansasCommitteeReceipts({ directory, target, now }),
+      ).rejects.toThrow();
     },
   );
   it("accepts case and whitespace variants of the receiving office", async () => {
     const directory = await fixture((events) => {
       for (const event of events)
-        if (event.url.endsWith("/exp_report_main.aspx") && !event.html.includes("chkbxPAC"))
-          event.html = event.html.replace('lblOfficeSoughtName">State Representative', 'lblOfficeSoughtName"> STATE   REPRESENTATIVE ');
+        if (
+          event.url.endsWith("/exp_report_main.aspx") &&
+          !event.html.includes("chkbxPAC")
+        )
+          event.html = event.html.replace(
+            'lblOfficeSoughtName">State Representative',
+            'lblOfficeSoughtName"> STATE   REPRESENTATIVE ',
+          );
     });
-    expect((await acquireKansasCommitteeReceipts({ directory, target, now })).totalCents).toBe(2000);
+    expect(
+      (await acquireKansasCommitteeReceipts({ directory, target, now }))
+        .totalCents,
+    ).toBe(2000);
   });
-  it.each(["both_before", "both_after", "closing_before_reopen", "backdated_capture"])(
+  it("keeps statewide cover matching independent of stray district text", async () => {
+    const directory = await fixture((events) => {
+      for (const event of events) {
+        for (const control of event.controls) {
+          if (control.id === "drpdownOffice" && control.value === "7")
+            control.value = "1";
+          if (control.id === "txtStartDate") control.value = "01/01/2023";
+        }
+        if (!event.html.includes("chkbxPAC"))
+          event.html = event.html.replaceAll(
+            "State Representative",
+            "Governor",
+          );
+      }
+    });
+    const statewide = {
+      ...target,
+      officeScope: "statewide",
+      officeName: "Governor",
+      district: null,
+      committeeId: "1::PERSON:TEST",
+    };
+    expect(
+      (
+        await acquireKansasCommitteeReceipts({
+          directory,
+          target: statewide,
+          now,
+        })
+      ).totalCents,
+    ).toBe(2000);
+  });
+  it.each([
+    "both_before",
+    "both_after",
+    "closing_before_reopen",
+    "backdated_capture",
+  ])(
     "holds report observations without a chronological census bracket: %s",
     async (order) => {
       const directory = await fixture((events) => {
-        if (order === "both_before") events.splice(2, 0, ...events.splice(10, 2));
+        if (order === "both_before")
+          events.splice(2, 0, ...events.splice(10, 2));
         if (order === "both_after") events.splice(8, 0, ...events.splice(0, 2));
-        if (order === "closing_before_reopen") events.splice(9, 0, ...events.splice(10, 2));
+        if (order === "closing_before_reopen")
+          events.splice(9, 0, ...events.splice(10, 2));
         events.forEach((event, index) => {
-          event.observedAt = new Date(now.getTime() - 3600_000 + index * 1000).toISOString();
+          event.observedAt = new Date(
+            now.getTime() - 3600_000 + index * 1000,
+          ).toISOString();
         });
-        if (order === "backdated_capture") events[2].observedAt = events[0].observedAt;
+        if (order === "backdated_capture")
+          events[2].observedAt = events[0].observedAt;
       });
-      await expect(acquireKansasCommitteeReceipts({ directory, target, now })).rejects.toThrow();
+      await expect(
+        acquireKansasCommitteeReceipts({ directory, target, now }),
+      ).rejects.toThrow();
     },
   );
   it.each([
@@ -390,37 +456,70 @@ describe("Kansas protected component", () => {
   it.each(["stale", "forward", "replay"])(
     "orders complete source packets sharing their earliest observation: %s",
     async (order) => {
-      const older = await acquireKansasCommitteeReceipts({ directory: await fixture(), target, now });
+      const older = await acquireKansasCommitteeReceipts({
+        directory: await fixture(),
+        target,
+        now,
+      });
       const newer = await acquireKansasCommitteeReceipts({
         directory: await fixture((events) => {
           events.forEach((event, index) => {
             // The initial saved form is reused; all financial evidence is newer.
-            if (index) event.observedAt = new Date(Date.parse(event.observedAt) + 600_000).toISOString();
-            if (event.url.endsWith("/exp_report_main.aspx") || event.url.endsWith("/schedule_a_report.aspx"))
+            if (index)
+              event.observedAt = new Date(
+                Date.parse(event.observedAt) + 600_000,
+              ).toISOString();
+            if (
+              event.url.endsWith("/exp_report_main.aspx") ||
+              event.url.endsWith("/schedule_a_report.aspx")
+            )
               event.html = event.html.replaceAll("10.00", "20.00");
           });
-        }), target, now,
+        }),
+        target,
+        now,
       });
       expect(older.observedAt).toBe(newer.observedAt);
       let saved: unknown[] | undefined;
       const query = vi.fn(async (sql: string, values: unknown[] = []) => {
         if (sql.includes("FOR UPDATE OF link")) return { rows: [context()] };
         if (sql.includes("AS owners")) return { rows: [{ owners: "1" }] };
-        if (sql.startsWith("SELECT last_synced_at")) return { rows: saved ? [{
-          last_synced_at: saved[4], provenance: JSON.parse(String(saved[10])),
-        }] : [] };
-        if (sql.includes("INSERT INTO public.ks_candidate_finance_committee_sources")) saved = values;
+        if (sql.startsWith("SELECT last_synced_at"))
+          return {
+            rows: saved
+              ? [
+                  {
+                    last_synced_at: saved[4],
+                    provenance: JSON.parse(String(saved[10])),
+                  },
+                ]
+              : [],
+          };
+        if (
+          sql.includes(
+            "INSERT INTO public.ks_candidate_finance_committee_sources",
+          )
+        )
+          saved = values;
         return { rows: [] };
       });
       const db = { connect: async () => ({ query, release: vi.fn() }) } as any;
-      await writeKansasCommitteeReceipts({ db, packet: order === "forward" ? older : newer, now });
+      await writeKansasCommitteeReceipts({
+        db,
+        packet: order === "forward" ? older : newer,
+        now,
+      });
       query.mockClear();
       const next = writeKansasCommitteeReceipts({
-        db, packet: order === "stale" ? older : newer, now: new Date(now.getTime() + 1000),
+        db,
+        packet: order === "stale" ? older : newer,
+        now: new Date(now.getTime() + 1000),
       });
       if (order === "stale") {
         await expect(next).rejects.toThrow("kansas_committee_component_held");
-        expect(query.mock.calls.some(([sql]) => /^(INSERT|DELETE)/.test(sql))).toBe(false);
+        expect(
+          query.mock.calls.some(([sql]) => /^(INSERT|DELETE)/.test(sql)),
+        ).toBe(false);
         expect(query).toHaveBeenCalledWith("ROLLBACK");
       } else {
         await next;

@@ -340,7 +340,14 @@ export async function acquireKansasCommitteeReceipts(input: {
         JSON.stringify(cover) ===
           JSON.stringify(p.parseKansasReportCover(z.html)),
       );
-      sequences.push({ cover: c, a, b, parsed: cover, firstIndex: i, lastIndex: i + 3 });
+      sequences.push({
+        cover: c,
+        a,
+        b,
+        parsed: cover,
+        firstIndex: i,
+        lastIndex: i + 3,
+      });
     }
   }
   const allCensuses = KANSAS_CFR_FILER_SEARCHES.map((search) => ({
@@ -395,8 +402,10 @@ export async function acquireKansasCommitteeReceipts(input: {
               if (
                 !kansasGridOfficeMatches(office!, s.parsed.officeSought) ||
                 (office!.districted &&
-                  kansasDistrictNumberFromGrid(s.parsed.district) !== recipe.districtNumber)
-              ) return false;
+                  kansasDistrictNumberFromGrid(s.parsed.district) !==
+                    recipe.districtNumber)
+              )
+                return false;
               if (
                 resolveKansasCandidateFiler({
                   candidateName: s.parsed.candidateName,
@@ -449,7 +458,10 @@ export async function acquireKansasCommitteeReceipts(input: {
         const source = matching[i];
         // The closing inventory must follow the schedules AND cover reopen;
         // two searches made before acquisition cannot detect a version shift.
-        if (source) assert(openingEnd < source.firstIndex && source.lastIndex < closingStart);
+        if (source)
+          assert(
+            openingEnd < source.firstIndex && source.lastIndex < closingStart,
+          );
         const page = (event: Event) => ({
           url: event.url,
           html: event.html,
