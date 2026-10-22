@@ -124,13 +124,15 @@ export async function syncDueArkansasCandidateFinance(
     electionLookbackDays,
     electionLookaheadDays,
   });
-  if (scoped && due.totalDueRows > due.rows.length) {
+  if (scoped && due.totalDueRows > SCOPED_DUE_ROW_LIMIT) {
     throw new Error("Arkansas scoped due list exceeded its complete-row bound");
   }
   const scopedRows = scoped ? due.rows.filter(row =>
     (input.candidateId === undefined || row.candidateId.toLowerCase() === input.candidateId.toLowerCase())
     && (input.electionYear === undefined || row.electionYear === input.electionYear)) : due.rows;
-  const rows = scopedRows.slice(0, maxCandidates);
+  // Unscoped: the due list already capped stale rows at maxCandidates and
+  // appended their race-mates; slicing again would drop those race-mates.
+  const rows = scoped ? scopedRows.slice(0, maxCandidates) : scopedRows;
 
   const syncCandidate = input.syncCandidateFn ?? syncArkansasCandidateFinance;
   const toLink = (row: ArkansasCandidateFinanceDueRow): ArkansasFinanceLinkInput => ({

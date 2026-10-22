@@ -155,4 +155,14 @@ describe("syncDueArkansasCandidateFinance", () => {
     expect(result).toMatchObject({ attempted: 2, succeeded: 2, failed: 0 });
     expect(query.mock.calls).toHaveLength(1);
   });
+
+  it("keeps race-mates past maxCandidates in the unscoped batch", async () => {
+    const rows = [dueRow(), dueRow({ candidateId: "44444444-4444-4444-8444-444444444444", candidateName: "Rick Roe",
+      filingEntityId: 7526, filerName: "Roe, Rick", lastSyncedAt: NOW.toISOString() })];
+    const syncCandidateFn = vi.fn(async () => ({ summaryWritten: true } as never));
+    const result = await syncDueArkansasCandidateFinance({ db: { query: vi.fn(), connect: vi.fn() } as never, now: NOW,
+      autoLinkMissingLinks: false, maxCandidates: 1, listDueRowsFn: vi.fn(async () => ({ rows, totalDueRows: 1 })), syncCandidateFn });
+    expect(syncCandidateFn).toHaveBeenCalledTimes(2);
+    expect(result).toMatchObject({ attempted: 2, succeeded: 2, failed: 0 });
+  });
 });
