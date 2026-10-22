@@ -866,7 +866,7 @@ describe("ElectionCard result chip", () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     const sections = screen.getAllByRole("button", { expanded: true });
     expect(sections.map((button) => button.textContent)).toEqual(["Federal: Alaska(1)", "State(2)", "County: Alaska(1)", "School: Alaska(1)"]);
-    // No Presidential section: none on this ballot. School boards read as City.
+    // No Presidential section: none on this ballot. School boards have their own section.
     expect(screen.queryByText(/Presidential/)).not.toBeInTheDocument();
     expect(screen.getByText("School Board")).toBeInTheDocument();
 
@@ -934,6 +934,19 @@ describe("ElectionCard result chip", () => {
     expect(screen.getByRole("button", { name: "School: San Francisco Unified School District(1)" })).toBeInTheDocument();
     expect(screen.queryByText(school.name)).not.toBeInTheDocument();
   });
+
+  it.each(["school_unified", "school_elementary", "school_secondary"])(
+    "preserves the full %s district name in its heading",
+    (district_type) => {
+      const district = {
+        id: "school", name: "School District of Example County, Virginia", state: "VA", district_type,
+      };
+      const elections = [electionSummary({ id: "school-race", district, office: null, race_type: "ballot_measure" })];
+      renderRoutes([{ path: "/", element: <ElectionList elections={elections} sort="district_size" /> }], "/");
+      expect(screen.getByRole("button", { name: "School: School District of Example County(1)" })).toBeInTheDocument();
+      expect(screen.queryByText(district.name)).not.toBeInTheDocument();
+    }
+  );
 
   it("renders the date groups flat under every other sort", () => {
     renderRoutes(

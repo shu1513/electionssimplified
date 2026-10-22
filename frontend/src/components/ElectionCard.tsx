@@ -163,9 +163,11 @@ function levelLocation(level: BallotLevel, elections: ElectionSummary[]) {
     // "Travis County, Texas" or "Berkeley County School District, South
     // Carolina". The heading already supplies the place type.
     name = name.split(",")[0].trim();
-    name = level === "city"
-      ? name.replace(/ city$/, "").replace(/^City of /, "")
-      : name.replace(/ County$/, "").replace(/^County of /, "");
+    if (level === "city") {
+      name = name.replace(/ city$/, "").replace(/^City of /, "");
+    } else if (level === "county") {
+      name = name.replace(/ County$/, "").replace(/^County of /, "");
+    }
   }
   return { label: `${label}: ${name}`, districtId: district.id };
 }
