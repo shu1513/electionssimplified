@@ -80,9 +80,13 @@ export async function writeIndianaNativePac(input: {
     );
     if (existing.rows.length) {
       const old = existing.rows[0]!.stored as Record<string, unknown>;
+      // Cached packets can share their earliest observation. Neither edge
+      // of the evidence window may regress when a delayed writer commits.
       inCheck(
         Date.parse(String(old.source_observed_at)) <=
-          Date.parse(p.facts.observedAt),
+          Date.parse(p.facts.observedAt) &&
+          Date.parse(String(old.source_completed_at)) <=
+            Date.parse(p.facts.completedAt),
         "native_pac_source_regression",
       );
       const donors = await c.query<Record<string, unknown>>(
