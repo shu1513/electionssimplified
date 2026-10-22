@@ -46,7 +46,7 @@ describe("gated Missouri component scheduling",()=>{
     enable(false,false);const legacy=await capture();
     expect(legacy[0]).not.toMatch(/sync_attempts|committee_receipt_sources|registered_ie_sources/);
     expect(legacy[1]).toHaveLength(6);
-    expect(legacy[0]).toMatch(/ORDER BY summary.last_synced_at ASC NULLS FIRST/);
+    expect(legacy[0]).toMatch(/ORDER BY eligible.sort_synced_at ASC NULLS FIRST/);
     enable(true,true);vi.stubEnv("MISSOURI_CAMPAIGN_FINANCE_ENABLED","false");
     expect(await capture()).toEqual(legacy);
   });

@@ -451,7 +451,9 @@ export async function syncDueTennesseeCandidateFinance(
   if (scoped && due.totalDueRows > 10_000) throw Error("Scoped Tennessee due selection exceeds acquisition bound");
   const matching = due.rows.filter(row => (input.candidateId === undefined || row.candidateId === input.candidateId)
     && (input.electionYear === undefined || row.electionYear === input.electionYear));
-  const selected = matching.slice(0,maxCandidates);
+  // Unscoped: the due list already capped stale rows at maxCandidates and
+  // appended their race-mates; slicing again would drop those race-mates.
+  const selected = scoped ? matching.slice(0,maxCandidates) : matching;
   const toLink = (row: TennesseeCandidateFinanceDueRow): TennesseeFinanceLinkInput => ({
     candidateId:row.candidateId,electionId:row.electionId,electionYear:row.electionYear,
     candidateNameNormalized:row.candidateName.trim().replace(/\s+/g," ").toUpperCase(),officeName:row.officeName,district:row.district,

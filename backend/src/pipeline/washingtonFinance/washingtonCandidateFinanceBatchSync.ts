@@ -144,9 +144,12 @@ export async function listDueWashingtonCandidateFinanceSyncRows(
     electionLookaheadDays: number;
   }
 ): Promise<{ rows: WashingtonCandidateFinanceDueRow[]; totalDueRows: number }> {
+  // Race-mates ride along (same rule as the shared standard due list): every
+  // other eligible candidate of a due row's election joins the batch, so
+  // opponents' outside groups always come from the same source snapshot.
   const result = await db.query<WashingtonCandidateFinanceDueQueryRow>(
     `
-      WITH due AS (
+      WITH eligible AS (
         SELECT
           link.candidate_id::text AS candidate_id,
           link.election_id::text AS election_id,
@@ -165,7 +168,14 @@ export async function listDueWashingtonCandidateFinanceSyncRows(
           link.candidacy_id,
           link.source_url,
           summary.last_synced_at::text AS last_synced_at,
-          COUNT(*) OVER () AS total_due_rows
+          link.id AS sort_link_id,
+          link.candidate_name_normalized AS sort_name,
+          election.election_date AS sort_election_date,
+          summary.last_synced_at AS sort_synced_at,
+          (
+            summary.last_synced_at IS NULL
+            OR summary.last_synced_at < ($1::timestamptz - make_interval(days => $2::int))
+          ) AS is_stale
         FROM public.wa_candidate_finance_links AS link
         JOIN public.candidates AS candidate
           ON candidate.id = link.candidate_id
@@ -189,15 +199,25 @@ export async function listDueWashingtonCandidateFinanceSyncRows(
           AND election.election_date <= (($1::timestamptz AT TIME ZONE 'UTC')::date + make_interval(days => $5::int))
           AND candidate_election.status NOT IN ('withdrawn', 'lost')
           AND (office.scope || '::' || office.canonical_name) = ANY($6::text[])
-          AND (
-            summary.last_synced_at IS NULL
-            OR summary.last_synced_at < ($1::timestamptz - make_interval(days => $2::int))
-          )
-        ORDER BY summary.last_synced_at ASC NULLS FIRST,
-                 election.election_date ASC,
-                 link.candidate_name_normalized ASC,
-                 link.id ASC
+      ),
+      due AS (
+        SELECT eligible.*, COUNT(*) OVER () AS total_due_rows
+        FROM eligible
+        WHERE eligible.is_stale
+        ORDER BY eligible.sort_synced_at ASC NULLS FIRST,
+                 eligible.sort_election_date ASC,
+                 eligible.sort_name ASC,
+                 eligible.sort_link_id ASC
         LIMIT $3::int
+      ),
+      batch AS (
+        SELECT due.*, 0 AS race_mate
+        FROM due
+        UNION ALL
+        SELECT eligible.*, (SELECT MAX(due.total_due_rows) FROM due), 1 AS race_mate
+        FROM eligible
+        WHERE eligible.election_id IN (SELECT due.election_id FROM due)
+          AND eligible.sort_link_id NOT IN (SELECT due.sort_link_id FROM due)
       )
       SELECT
         candidate_id,
@@ -214,7 +234,12 @@ export async function listDueWashingtonCandidateFinanceSyncRows(
         source_url,
         last_synced_at,
         total_due_rows
-      FROM due
+      FROM batch
+      ORDER BY race_mate ASC,
+               sort_synced_at ASC NULLS FIRST,
+               sort_election_date ASC,
+               sort_name ASC,
+               sort_link_id ASC
     `,
     [
       input.now.toISOString(),

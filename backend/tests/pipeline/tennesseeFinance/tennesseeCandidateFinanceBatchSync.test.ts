@@ -78,6 +78,19 @@ describe("tennesseeCandidateFinanceBatchSync", () => {
     expect(result).toMatchObject({selectedCandidateCount:1,dueCandidateCount:1,autoLinkAttemptedCount:0});
   });
 
+  it("keeps race-mates past maxCandidates in the unscoped batch", async () => {
+    const rows=[dueRow({election_year:2026}),dueRow({candidate_id:"33333333-3333-4333-8333-333333333333",camp_candidate_id:"7000",
+      election_year:2026,last_synced_at:NOW.toISOString()})];
+    const db=createMockDb(rows);
+    const loadBatch=vi.fn(async requests=>requests.map(request=>({link:request.link,diagnostics:[],coverage:{}})));
+    const sync=vi.fn(async()=>({summaryWritten:false}));
+    const result=await syncDueTennesseeCandidateFinance({db,now:NOW,maxCandidates:1,autoLinkMissingLinks:false,
+      verifiedFinanceLoader:{loadBatch} as never,syncTennesseeCandidateFinanceFn:sync as never});
+    expect(db.query.mock.calls[0][1][2]).toBe(1);
+    expect(loadBatch.mock.calls[0][0]).toHaveLength(2);
+    expect(result).toMatchObject({selectedCandidateCount:2,dueCandidateCount:1});
+  });
+
   it("rejects mismatched prepared links before any sync", async () => {
     const db=createMockDb([dueRow()]);
     const sync=vi.fn();
