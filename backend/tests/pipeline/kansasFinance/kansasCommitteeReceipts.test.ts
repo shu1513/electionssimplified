@@ -387,6 +387,49 @@ async function stored() {
   };
 }
 describe("Kansas protected component", () => {
+  it.each(["stale", "forward", "replay"])(
+    "orders complete source packets sharing their earliest observation: %s",
+    async (order) => {
+      const older = await acquireKansasCommitteeReceipts({ directory: await fixture(), target, now });
+      const newer = await acquireKansasCommitteeReceipts({
+        directory: await fixture((events) => {
+          events.forEach((event, index) => {
+            // The initial saved form is reused; all financial evidence is newer.
+            if (index) event.observedAt = new Date(Date.parse(event.observedAt) + 600_000).toISOString();
+            if (event.url.endsWith("/exp_report_main.aspx") || event.url.endsWith("/schedule_a_report.aspx"))
+              event.html = event.html.replaceAll("10.00", "20.00");
+          });
+        }), target, now,
+      });
+      expect(older.observedAt).toBe(newer.observedAt);
+      let saved: unknown[] | undefined;
+      const query = vi.fn(async (sql: string, values: unknown[] = []) => {
+        if (sql.includes("FOR UPDATE OF link")) return { rows: [context()] };
+        if (sql.includes("AS owners")) return { rows: [{ owners: "1" }] };
+        if (sql.startsWith("SELECT last_synced_at")) return { rows: saved ? [{
+          last_synced_at: saved[4], provenance: JSON.parse(String(saved[10])),
+        }] : [] };
+        if (sql.includes("INSERT INTO public.ks_candidate_finance_committee_sources")) saved = values;
+        return { rows: [] };
+      });
+      const db = { connect: async () => ({ query, release: vi.fn() }) } as any;
+      await writeKansasCommitteeReceipts({ db, packet: order === "forward" ? older : newer, now });
+      query.mockClear();
+      const next = writeKansasCommitteeReceipts({
+        db, packet: order === "stale" ? older : newer, now: new Date(now.getTime() + 1000),
+      });
+      if (order === "stale") {
+        await expect(next).rejects.toThrow("kansas_committee_component_held");
+        expect(query.mock.calls.some(([sql]) => /^(INSERT|DELETE)/.test(sql))).toBe(false);
+        expect(query).toHaveBeenCalledWith("ROLLBACK");
+      } else {
+        await next;
+        expect(query).toHaveBeenCalledWith("COMMIT");
+      }
+      expect(saved![6]).toBe("4000");
+      expect(JSON.parse(String(saved![10]))).toEqual(newer.provenance);
+    },
+  );
   it("checks stored counts and money before display caps", async () => {
     const r = await stored();
     expect(validateKansasStoredCommitteeRows(r).groups).toHaveLength(1);

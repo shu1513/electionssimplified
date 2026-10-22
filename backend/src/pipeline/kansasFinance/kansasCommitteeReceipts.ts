@@ -186,6 +186,15 @@ function controls(packet: KansasCommitteePacket): Controls {
     zeroGiftRows,
   };
 }
+function latestObservationTime(provenance: KansasCommitteePacket["provenance"]): number {
+  check(Array.isArray(provenance) && provenance.length > 0);
+  const latest = provenance.reduce(
+    (value, observation) => Math.max(value, Date.parse(observation.observedAt)),
+    Number.NEGATIVE_INFINITY,
+  );
+  check(Number.isFinite(latest));
+  return latest;
+}
 export async function writeKansasCommitteeReceipts(input: {
   db: Pick<Pool, "connect">;
   packet: KansasCommitteePacket;
@@ -194,8 +203,10 @@ export async function writeKansasCommitteeReceipts(input: {
   check(isKansasCommitteeReceiptsEnabled());
   assertQualifiedKansasCommitteePacket(input.packet);
   const p = input.packet;
+  const completedAt = latestObservationTime(p.provenance);
   check(
     Number.isFinite(input.now.getTime()) &&
+      completedAt <= input.now.getTime() &&
       Date.parse(p.observedAt) <= input.now.getTime() &&
       input.now.getTime() - Date.parse(p.observedAt) <= 36 * 3600_000,
   );
@@ -222,13 +233,19 @@ export async function writeKansasCommitteeReceipts(input: {
       [p.target.committeeId, p.target.electionYear],
     );
     check(ownership.rows[0]?.owners === "1");
-    const prior = await db.query<{ last_synced_at: Date }>(
-      `SELECT last_synced_at FROM public.ks_candidate_finance_committee_sources WHERE link_id=$1::uuid AND election_year=$2 FOR UPDATE`,
+    const prior = await db.query<{
+      last_synced_at: Date;
+      provenance: KansasCommitteePacket["provenance"];
+    }>(
+      `SELECT last_synced_at,provenance FROM public.ks_candidate_finance_committee_sources WHERE link_id=$1::uuid AND election_year=$2 FOR UPDATE`,
       [row.link_id, p.target.electionYear],
     );
+    // Reused early observations can anchor different captures to the same
+    // minimum clock. Reject regression of either end of the evidence window.
     check(
       prior.rows.every(
-        (r) => new Date(r.last_synced_at).getTime() <= Date.parse(p.observedAt),
+        (r) => new Date(r.last_synced_at).getTime() <= Date.parse(p.observedAt) &&
+          latestObservationTime(r.provenance) <= completedAt,
       ),
     );
     await db.query(
