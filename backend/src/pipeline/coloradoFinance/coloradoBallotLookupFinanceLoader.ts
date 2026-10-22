@@ -1,3 +1,4 @@
+import { overlayColoradoReportedIe } from "./coloradoReportedIeReader.js";
 import type { Pool, PoolClient } from "pg";
 
 import { isColoradoCampaignFinanceEnabled } from "../../config/featureFlags.js";
@@ -13,7 +14,8 @@ import {
   type StateFinanceRequestElectionRow,
 } from "../address/ballotLookupFinanceShared.js";
 
-const GENERIC_COLORADO_TRACER_SOURCE_URL = "https://tracer.sos.colorado.gov/PublicSite/";
+const GENERIC_COLORADO_TRACER_SOURCE_URL =
+  "https://tracer.sos.colorado.gov/PublicSite/";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
@@ -46,13 +48,17 @@ type ColoradoFinanceDirectBreakdownRow = {
 export async function loadColoradoCandidateFinanceSummariesByCandidateElection(
   db: Queryable,
   candidateRows: readonly CandidateRow[],
-  electionRows: readonly ElectionRow[]
+  electionRows: readonly ElectionRow[],
 ): Promise<Map<string, BallotLookupFinanceSummary>> {
   if (!isColoradoCampaignFinanceEnabled()) {
     return new Map();
   }
 
-  const requests = buildStateFinanceSummaryRequests("CO", candidateRows, electionRows);
+  const requests = buildStateFinanceSummaryRequests(
+    "CO",
+    candidateRows,
+    electionRows,
+  );
   if (requests.length === 0) {
     return new Map();
   }
@@ -89,11 +95,16 @@ export async function loadColoradoCandidateFinanceSummariesByCandidateElection(
        AND summary.election_year = link.election_year
       GROUP BY requested.candidate_id, requested.election_id
     `,
-    [JSON.stringify(requests)]
+    [JSON.stringify(requests)],
   );
 
   if (summaryResult.rows.length === 0) {
-    return new Map();
+    return overlayColoradoReportedIe(
+      db,
+      new Map(),
+      candidateRows,
+      electionRows,
+    );
   }
 
   const selectedRequests = summaryResult.rows.map((row) => ({
@@ -101,8 +112,9 @@ export async function loadColoradoCandidateFinanceSummariesByCandidateElection(
     election_id: row.election_id,
   }));
 
-  const directBreakdownResult = await db.query<ColoradoFinanceDirectBreakdownRow>(
-    `
+  const directBreakdownResult =
+    await db.query<ColoradoFinanceDirectBreakdownRow>(
+      `
       WITH selected AS (
         SELECT
           candidate_id::uuid AS candidate_id,
@@ -149,59 +161,90 @@ export async function loadColoradoCandidateFinanceSummariesByCandidateElection(
       WHERE rn <= 5
       ORDER BY candidate_id, election_id, category_type, amount DESC, category_name ASC
     `,
-    [JSON.stringify(selectedRequests)]
-  );
+      [JSON.stringify(selectedRequests)],
+    );
 
-  const directOccupationsByCandidateElection = new Map<string, BallotLookupFinanceBreakdown[]>();
-  const directIndustriesByCandidateElection = new Map<string, BallotLookupFinanceBreakdown[]>();
+  const directOccupationsByCandidateElection = new Map<
+    string,
+    BallotLookupFinanceBreakdown[]
+  >();
+  const directIndustriesByCandidateElection = new Map<
+    string,
+    BallotLookupFinanceBreakdown[]
+  >();
   const summaryByCandidateElection = new Map(
-    summaryResult.rows.map((row) => [candidateElectionKey(row.candidate_id, row.election_id), row])
+    summaryResult.rows.map((row) => [
+      candidateElectionKey(row.candidate_id, row.election_id),
+      row,
+    ]),
   );
   for (const row of directBreakdownResult.rows) {
-    const summary = summaryByCandidateElection.get(candidateElectionKey(row.candidate_id, row.election_id));
-    const mapped = mapFinanceBreakdown(row, summary?.source_url ?? GENERIC_COLORADO_TRACER_SOURCE_URL);
+    const summary = summaryByCandidateElection.get(
+      candidateElectionKey(row.candidate_id, row.election_id),
+    );
+    const mapped = mapFinanceBreakdown(
+      row,
+      summary?.source_url ?? GENERIC_COLORADO_TRACER_SOURCE_URL,
+    );
     if (row.category_type === "occupation") {
-      addFinanceBreakdown(directOccupationsByCandidateElection, row.candidate_id, row.election_id, mapped);
+      addFinanceBreakdown(
+        directOccupationsByCandidateElection,
+        row.candidate_id,
+        row.election_id,
+        mapped,
+      );
     } else if (row.category_type === "industry") {
-      addFinanceBreakdown(directIndustriesByCandidateElection, row.candidate_id, row.election_id, mapped);
+      addFinanceBreakdown(
+        directIndustriesByCandidateElection,
+        row.candidate_id,
+        row.election_id,
+        mapped,
+      );
     }
   }
 
-  return new Map(
-    summaryResult.rows.map((row) => {
-      const key = candidateElectionKey(row.candidate_id, row.election_id);
-      const topDirectDonorOccupations = directOccupationsByCandidateElection.get(key) ?? [];
-      return [
-        key,
-        {
-          source: "COLORADO_TRACER",
-          cycle: row.election_year,
-          fec_candidate_id: null,
-          controlled_committee_id: row.committee_id,
-          last_synced_at: row.last_synced_at,
-          direct_campaign: {
-            total_raised: parseFinanceAmount(row.total_receipts),
-            total_spent: null,
-            cash_on_hand: null,
-            debts_owed: null,
-            top_occupations: topDirectDonorOccupations,
-            top_employers: [],
-            top_industries: directIndustriesByCandidateElection.get(key) ?? [],
-          },
-          outside_spending: {
-            support_total: null,
-            oppose_total: null,
-            top_supporting_groups: [],
-            top_opposing_groups: [],
-            top_supporting_industries: [],
-            top_opposing_industries: [],
-          },
-          backing_summary: {
-            top_direct_donor_occupations: topDirectDonorOccupations,
-            top_outside_supporting_industries: [],
-          },
-        } satisfies BallotLookupFinanceSummary,
-      ];
-    })
+  return overlayColoradoReportedIe(
+    db,
+    new Map(
+      summaryResult.rows.map((row) => {
+        const key = candidateElectionKey(row.candidate_id, row.election_id);
+        const topDirectDonorOccupations =
+          directOccupationsByCandidateElection.get(key) ?? [];
+        return [
+          key,
+          {
+            source: "COLORADO_TRACER",
+            cycle: row.election_year,
+            fec_candidate_id: null,
+            controlled_committee_id: row.committee_id,
+            last_synced_at: row.last_synced_at,
+            direct_campaign: {
+              total_raised: parseFinanceAmount(row.total_receipts),
+              total_spent: null,
+              cash_on_hand: null,
+              debts_owed: null,
+              top_occupations: topDirectDonorOccupations,
+              top_employers: [],
+              top_industries:
+                directIndustriesByCandidateElection.get(key) ?? [],
+            },
+            outside_spending: {
+              support_total: null,
+              oppose_total: null,
+              top_supporting_groups: [],
+              top_opposing_groups: [],
+              top_supporting_industries: [],
+              top_opposing_industries: [],
+            },
+            backing_summary: {
+              top_direct_donor_occupations: topDirectDonorOccupations,
+              top_outside_supporting_industries: [],
+            },
+          } satisfies BallotLookupFinanceSummary,
+        ];
+      }),
+    ),
+    candidateRows,
+    electionRows,
   );
 }

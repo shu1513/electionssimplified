@@ -20,7 +20,8 @@ export type ColoradoReportedExpense = {
   reportedName: string;
   reportingCaption: string;
   date: string;
-  amountCents: number;
+  amountCents: number | null;
+  amountMicros: string;
   targets: ColoradoReportedTarget[];
 };
 export type ColoradoReportedIeReport = {
@@ -30,9 +31,11 @@ export type ColoradoReportedIeReport = {
   expenses: ColoradoReportedExpense[];
   parentCount: number;
   targetCount: number;
-  signedParentCents: number;
+  signedParentMicros: string;
+  signedParentCents: number | null;
   negativeParents: number;
   multipleTargetParents: number;
+  fractionalCentParents: number;
 };
 export type ColoradoRegisteredReporter = {
   name: string;
@@ -97,21 +100,37 @@ function text(value: string | null, code = "missing_source_field"): string {
 }
 /** Decimal arithmetic, including source decimal places beyond cents only when
  * they are zero. Floating-point multiplication is not a money parser. */
-export function coloradoReportCents(value: string): number {
+export function coloradoReportMicros(value: string): bigint {
+  check(value.length <= 100, "invalid_source_decimal");
   let raw = value.trim().replace(/[$,]/gu, "");
   if (/^\(.*\)$/u.test(raw)) raw = `-${raw.slice(1, -1)}`;
-  const m = /^(-?)(\d+)(?:\.(\d{1,8}))?$/u.exec(raw);
-  check(m && (!m[3] || /^\d{0,2}0*$/u.test(m[3])), "invalid_source_cents");
-  const n =
-    BigInt(m[2]!) * 100n + BigInt((m[3] ?? "").padEnd(2, "0").slice(0, 2));
-  const signed = m[1] ? -n : n;
+  const match = /^(-?)(\d+)(?:\.(\d{1,12}))?$/u.exec(raw);
   check(
-    signed >= BigInt(Number.MIN_SAFE_INTEGER) &&
-      signed <= BigInt(Number.MAX_SAFE_INTEGER),
+    match && (!match[3]?.slice(6) || /^0*$/u.test(match[3].slice(6))),
+    "invalid_source_decimal",
+  );
+  const micros =
+    BigInt(match[2]!) * 1_000_000n +
+    BigInt((match[3] ?? "").padEnd(6, "0").slice(0, 6));
+  const signed = match[1] ? -micros : micros;
+  check(
+    signed >= BigInt(Number.MIN_SAFE_INTEGER) * 10_000n &&
+      signed <= BigInt(Number.MAX_SAFE_INTEGER) * 10_000n,
     "unsafe_source_cents",
   );
-  return Number(signed);
+  return signed;
 }
+function checkedSourceCents(micros: bigint): number {
+  const value = Number(micros / 10_000n);
+  check(Number.isSafeInteger(value), "unsafe_source_sum");
+  return value;
+}
+export function coloradoReportCents(value: string): number {
+  const micros = coloradoReportMicros(value);
+  check(micros % 10_000n === 0n, "invalid_source_cents");
+  return checkedSourceCents(micros);
+}
+
 export function coloradoReportDate(value: string): string {
   const raw = value.trim();
   const iso =
@@ -223,9 +242,7 @@ function xml(bytes: Uint8Array): Document {
   }
 }
 function elements(root: Document | Element, name: string): Element[] {
-  return [...root.getElementsByTagName("*")].filter(
-    (e) => e.localName === name,
-  );
+  return [...root.querySelectorAll("*")].filter((e) => e.localName === name);
 }
 function attributes(e: Element): Record<string, string> {
   return Object.fromEntries(
@@ -240,11 +257,11 @@ function ancestor(e: Element, name: string): Element | null {
 function caption(value: string): string {
   const m = /^(.*?)Expenditure Total:\s*(.*)$/su.exec(value);
   check(m && m[1]!.trim(), "missing_native_group_control");
-  return `${coloradoReportedNameKey(m[1]!)}:${coloradoReportCents(m[2]!)}`;
+  return `${coloradoReportedNameKey(m[1]!)}:${coloradoReportMicros(m[2]!)}`;
 }
 function canonical(column: string, value: string): string {
   if (column === "Textbox12") return caption(value);
-  if (column === "Textbox21") return String(coloradoReportCents(value));
+  if (column === "Textbox21") return String(coloradoReportMicros(value));
   if (
     column === "ExpenditureDate" ||
     column === "BeginDate" ||
@@ -273,6 +290,65 @@ function equalOccurrences(
       [...counts].every(([k, n]) => other.get(k) === n),
     "csv_xml_occurrences_changed",
   );
+}
+/** SSRS CSV currency cells are rendered to two decimal places; XML owns
+ * exact parent/control decimals. This projection verifies only that rendering,
+ * never changes the parsed source amounts. Unknown half-cent ties hold. */
+function renderedCurrencyMicros(raw: string): string {
+  const micros = BigInt(raw),
+    negative = micros < 0n,
+    absolute = negative ? -micros : micros;
+  const remainder = absolute % 10_000n;
+  check(remainder !== 5_000n, "ambiguous_native_currency_rendering");
+  const rounded =
+    (absolute / 10_000n + (remainder > 5_000n ? 1n : 0n)) * 10_000n;
+  return String(negative ? -rounded : rounded);
+}
+function equalIeOccurrences(
+  xmlRows: string[][],
+  csvRows: string[][],
+  csvBytes: Uint8Array,
+): void {
+  try {
+    equalOccurrences(xmlRows, csvRows);
+    return;
+  } catch (e) {
+    if (
+      !(e instanceof ColoradoReportError) ||
+      e.code !== "csv_xml_occurrences_changed"
+    )
+      throw e;
+  }
+  const raw = parseColoradoReportCsv(csvBytes),
+    header = raw.findIndex(
+      (r) => JSON.stringify(r) === JSON.stringify(IE_COLUMNS),
+    );
+  const currency = /^(?:\$[0-9,]+\.[0-9]{2}|\(\$[0-9,]+\.[0-9]{2}\))$/u;
+  const data = raw.slice(header + 1).filter((r) => r.some(Boolean));
+  check(
+    header >= 0 &&
+      data.length > 0 &&
+      data.every(
+        (r) =>
+          currency.test(r[3]!.trim()) &&
+          currency.test(r[0]!.split("Expenditure Total:").at(-1)!.trim()),
+      ),
+    "csv_xml_occurrences_changed",
+  );
+  const rendered = xmlRows.map((row) =>
+    row.map((value, i) => {
+      if (i === 3) return renderedCurrencyMicros(value);
+      if (i === 0) {
+        const edge = value.lastIndexOf(":");
+        return (
+          value.slice(0, edge + 1) +
+          renderedCurrencyMicros(value.slice(edge + 1))
+        );
+      }
+      return value;
+    }),
+  );
+  equalOccurrences(rendered, csvRows);
 }
 function csvData(
   bytes: Uint8Array,
@@ -337,21 +413,24 @@ export function parseColoradoIndependentExpenditureReport(input: {
   check(jurisdiction.length > 0, "native_ie_jurisdiction");
   const expenses: ColoradoReportedExpense[] = [],
     expanded: string[][] = [];
-  let signedParentCents = 0,
-    targetCount = 0,
+  let signedParentMicros = 0n;
+  let targetCount = 0,
     negativeParents = 0,
-    multipleTargetParents = 0;
+    multipleTargetParents = 0,
+    fractionalCentParents = 0;
   for (const group of elements(doc, "Group1")) {
     const groupFields = attributes(group),
       control = caption(text(group.getAttribute("Textbox12")));
-    let sum = 0;
+    let sumMicros = 0n;
     for (const parent of elements(group, "Group2").filter(
       (e) => ancestor(e, "Group1") === group,
     )) {
       const fields = attributes(parent),
-        amountCents = coloradoReportCents(
+        amountMicros = coloradoReportMicros(
           text(parent.getAttribute("Textbox21")),
         );
+      const amountCents =
+        amountMicros % 10_000n === 0n ? Number(amountMicros / 10_000n) : null;
       const date = coloradoReportDate(
         text(parent.getAttribute("ExpenditureDate")),
       );
@@ -386,15 +465,17 @@ export function parseColoradoIndependentExpenditureReport(input: {
         );
       }
       check(targets.length > 0, "native_ie_parent_without_targets");
-      sum = add(sum, amountCents);
+      sumMicros += amountMicros;
       targetCount = add(targetCount, targets.length);
-      negativeParents += Number(amountCents < 0);
+      negativeParents += Number(amountMicros < 0n);
+      fractionalCentParents += Number(amountCents === null);
       multipleTargetParents += Number(targets.length > 1);
       expenses.push({
         reportingCaption,
         reportedName,
         date,
         amountCents,
+        amountMicros: String(amountMicros),
         targets,
       });
       check(
@@ -402,18 +483,16 @@ export function parseColoradoIndependentExpenditureReport(input: {
         "source_row_limit",
       );
     }
-    check(
-      Number(control.slice(control.lastIndexOf(":") + 1)) === sum,
-      "native_ie_parent_money_control",
-    );
-    signedParentCents = add(signedParentCents, sum);
+    const controlMicros = BigInt(control.slice(control.lastIndexOf(":") + 1));
+    check(controlMicros === sumMicros, "native_ie_parent_money_control");
+    signedParentMicros += controlMicros;
   }
   check(
     elements(doc, "Group2").length === expenses.length &&
       elements(doc, "Details").length === targetCount,
     "unowned_native_ie_rows",
   );
-  equalOccurrences(expanded, csvData(input.csv, IE_COLUMNS, root));
+  equalIeOccurrences(expanded, csvData(input.csv, IE_COLUMNS, root), input.csv);
   return {
     jurisdiction,
     startDate,
@@ -421,9 +500,14 @@ export function parseColoradoIndependentExpenditureReport(input: {
     expenses,
     parentCount: expenses.length,
     targetCount,
-    signedParentCents,
+    signedParentMicros: String(signedParentMicros),
+    signedParentCents:
+      signedParentMicros % 10_000n === 0n
+        ? checkedSourceCents(signedParentMicros)
+        : null,
     negativeParents,
     multipleTargetParents,
+    fractionalCentParents,
   };
 }
 export function parseColoradoIeReporterRegistry(input: {

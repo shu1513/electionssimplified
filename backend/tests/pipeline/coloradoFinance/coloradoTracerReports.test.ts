@@ -46,7 +46,10 @@ function report(
   } = {},
 ) {
   const amounts = input.amounts ?? ["100.0000"];
-  const total = amounts.reduce((n, v) => n + coloradoReportCents(v), 0);
+  const total =
+    input.control === undefined
+      ? amounts.reduce((n, v) => n + coloradoReportCents(v), 0)
+      : 0;
   const group = {
     Textbox12: `STATEWIDE Expenditure Total: ${input.control ?? (total / 100).toFixed(2)}`,
   };
@@ -156,6 +159,96 @@ describe("strict Colorado native reports", () => {
       signedParentCents: 610_016,
       negativeParents: 1,
     });
+  });
+  it("retains native fractional-cent shared expenses and closes exact source controls without rounding", () => {
+    const result = parseColoradoIndependentExpenditureReport(
+      report({
+        amounts: ["0.003000", "0.003000", "0.004000"],
+        targetCounts: [2, 2, 2],
+        control: "0.01",
+      }),
+    );
+    expect(result).toMatchObject({
+      parentCount: 3,
+      targetCount: 6,
+      signedParentCents: 1,
+      fractionalCentParents: 3,
+      multipleTargetParents: 3,
+    });
+    expect(result.expenses.map((e) => e.amountCents)).toEqual([
+      null,
+      null,
+      null,
+    ]);
+    expect(result.expenses.map((e) => e.amountMicros)).toEqual([
+      "3000",
+      "3000",
+      "4000",
+    ]);
+  });
+  it("closes a native fractional-cent control without manufacturing cents", () => {
+    const result = parseColoradoIndependentExpenditureReport(
+      report({ amounts: ["0.003000"], targetCounts: [2], control: "0.003000" }),
+    );
+    expect(result).toMatchObject({
+      signedParentMicros: "3000",
+      signedParentCents: null,
+      fractionalCentParents: 1,
+    });
+  });
+  it("rejects unequal fractional-cent controls across CSV and XML", () => {
+    const input = report({
+      amounts: ["0.003000"],
+      targetCounts: [2],
+      control: "0.003000",
+    });
+    input.csv = bytes(
+      str(input.csv).replaceAll(
+        "Expenditure Total: 0.003000",
+        "Expenditure Total: 0.004000",
+      ),
+    );
+    expect(() => parseColoradoIndependentExpenditureReport(input)).toThrow(
+      "csv_xml_occurrences_changed",
+    );
+  });
+  it("checks native CSV cent rendering while retaining exact XML money", () => {
+    const input = report({
+      amounts: ["0.003000"],
+      targetCounts: [2],
+      control: "0.003000",
+    });
+    input.csv = bytes(
+      str(input.csv)
+        .replaceAll("Expenditure Total: 0.003000", "Expenditure Total: $0.00")
+        .replaceAll('"0.003000"', '"$0.00"'),
+    );
+    expect(parseColoradoIndependentExpenditureReport(input)).toMatchObject({
+      signedParentMicros: "3000",
+      signedParentCents: null,
+    });
+    input.csv = bytes(str(input.csv).replaceAll('"$0.00"', '"$0.01"'));
+    expect(() => parseColoradoIndependentExpenditureReport(input)).toThrow(
+      "csv_xml_occurrences_changed",
+    );
+  });
+  it("does not guess native half-cent rounding rules", () => {
+    const input = report({ amounts: ["0.005000"], control: "0.005000" });
+    input.csv = bytes(
+      str(input.csv)
+        .replaceAll("Expenditure Total: 0.005000", "Expenditure Total: $0.00")
+        .replaceAll('"0.005000"', '"$0.00"'),
+    );
+    expect(() => parseColoradoIndependentExpenditureReport(input)).toThrow(
+      "ambiguous_native_currency_rendering",
+    );
+  });
+  it("holds a fractional-cent residual instead of rounding to the printed group total", () => {
+    expect(() =>
+      parseColoradoIndependentExpenditureReport(
+        report({ amounts: ["0.004000"], targetCounts: [2], control: "0.00" }),
+      ),
+    ).toThrow("native_ie_parent_money_control");
   });
   it("does not mistake the source party field for a district", () => {
     const t =

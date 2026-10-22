@@ -14,8 +14,11 @@ Clean native receiving exports and a typed registry exist, but named committee
 receipts still need complete receiving/version/control and positive identity proof.
 This increment does not qualify those donors.
 
-Whole 2025–2026 IE source controls close across CSV/XML and repeated complete
-observations. Native expense parents can list multiple targets without allocations.
+Acquire January 2022 through the observation date, then use each candidate’s
+actual published financial cycle (currently December 9, 2022–December 3, 2026).
+Whole source controls must close across CSV/XML and repeated complete observations.
+Native shared expenses and statewide controls retain fractional cents. Preserve
+exact microdollars; candidate groups must sum to exact cents before publication. Native expense parents can list multiple targets without allocations.
 Count each parent once; preserve signed credits and repeated occurrences. Never
 divide a shared amount or infer support/oppose from a payee or description.
 

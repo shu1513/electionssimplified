@@ -1,3 +1,5 @@
+import { isColoradoReportedIeEnabled } from "../../config/featureFlags.js";
+import { syncDueColoradoReportedIe } from "./coloradoReportedIeBatchSync.js";
 import { stat } from "node:fs/promises";
 import type { Pool, PoolClient } from "pg";
 
@@ -46,7 +48,11 @@ export type ColoradoContributionDataForYear = {
 };
 
 export type ColoradoCandidateFinanceBatchSyncInput = {
-  db: Queryable;
+  db: Queryable & Partial<Pick<Pool, "connect">>;
+  ieOnly?: boolean;
+  ieCacheDir?: string;
+  ieLinkId?: string;
+  refreshIe?: boolean;
   now?: Date;
   dryRun?: boolean;
   maxCandidates?: number;
@@ -71,6 +77,7 @@ export type ColoradoCandidateFinanceBatchSyncItemResult = {
 };
 
 export type ColoradoCandidateFinanceBatchSyncResult = {
+  reportedIe?: Awaited<ReturnType<typeof syncDueColoradoReportedIe>>;
   dryRun: boolean;
   now: string;
   staleAfterDays: number;
@@ -108,7 +115,11 @@ function assertValidDate(date: Date, label: string): void {
   }
 }
 
-function normalizePositiveInteger(value: number | undefined, fallback: number, label: string): number {
+function normalizePositiveInteger(
+  value: number | undefined,
+  fallback: number,
+  label: string,
+): number {
   const normalized = value ?? fallback;
   if (!Number.isInteger(normalized) || normalized <= 0) {
     throw new Error(`Invalid Colorado finance batch sync ${label}: ${value}`);
@@ -125,7 +136,9 @@ function parseTotalDueRows(value: string | number | undefined): number {
   return Number.isSafeInteger(parsed) && parsed >= 0 ? parsed : 0;
 }
 
-function mapDueRow(row: ColoradoCandidateFinanceDueQueryRow): ColoradoCandidateFinanceDueRow {
+function mapDueRow(
+  row: ColoradoCandidateFinanceDueQueryRow,
+): ColoradoCandidateFinanceDueRow {
   return {
     candidateId: row.candidate_id,
     electionId: row.election_id,
@@ -152,7 +165,9 @@ async function fileExists(path: string): Promise<boolean> {
   }
 }
 
-function groupDueRowsByYear(rows: readonly ColoradoCandidateFinanceDueRow[]): Map<number, ColoradoCandidateFinanceDueRow[]> {
+function groupDueRowsByYear(
+  rows: readonly ColoradoCandidateFinanceDueRow[],
+): Map<number, ColoradoCandidateFinanceDueRow[]> {
   const byYear = new Map<number, ColoradoCandidateFinanceDueRow[]>();
   for (const row of rows) {
     const yearRows = byYear.get(row.electionYear) ?? [];
@@ -163,7 +178,7 @@ function groupDueRowsByYear(rows: readonly ColoradoCandidateFinanceDueRow[]): Ma
 }
 
 function groupAutoLinkCandidatesByYear(
-  rows: readonly ColoradoFinanceAutoLinkCandidateElection[]
+  rows: readonly ColoradoFinanceAutoLinkCandidateElection[],
 ): Map<number, ColoradoFinanceAutoLinkCandidateElection[]> {
   const byYear = new Map<number, ColoradoFinanceAutoLinkCandidateElection[]>();
   for (const row of rows) {
@@ -175,7 +190,7 @@ function groupAutoLinkCandidatesByYear(
 }
 
 function groupContributionRowsByCommittee(
-  rows: readonly ColoradoTracerContributionRow[]
+  rows: readonly ColoradoTracerContributionRow[],
 ): Map<string, ColoradoTracerContributionRow[]> {
   const byCommittee = new Map<string, ColoradoTracerContributionRow[]>();
   for (const row of rows) {
@@ -190,11 +205,16 @@ function groupContributionRowsByCommittee(
   return byCommittee;
 }
 
-function coloradoCycleFilingYears(electionYear: number, rawDataZipPath?: string): number[] {
+function coloradoCycleFilingYears(
+  electionYear: number,
+  rawDataZipPath?: string,
+): number[] {
   return rawDataZipPath ? [electionYear] : [electionYear - 1, electionYear];
 }
 
-function coloradoContributionRowIdentity(row: ColoradoTracerContributionRow): string {
+function coloradoContributionRowIdentity(
+  row: ColoradoTracerContributionRow,
+): string {
   const recordId = row.RecordID.trim().toUpperCase();
   return recordId ? `${normalizeCommitteeId(row.CO_ID)}\u0000${recordId}` : "";
 }
@@ -204,7 +224,11 @@ async function readCycleContributionRows(input: {
   rawDataZipPath?: string;
   rawDataCacheDir?: string;
   predicate: (row: ColoradoTracerContributionRow) => boolean;
-}): Promise<{ rows: ColoradoTracerContributionRow[]; zipPath: string; sourceUrl: string }> {
+}): Promise<{
+  rows: ColoradoTracerContributionRow[];
+  zipPath: string;
+  sourceUrl: string;
+}> {
   const cacheDir =
     input.rawDataCacheDir ??
     (process.env.COLORADO_TRACER_CONTRIBUTION_CACHE_DIR?.trim() ||
@@ -213,15 +237,25 @@ async function readCycleContributionRows(input: {
   let zipPath = "";
   let sourceUrl = "";
   let foundMatchingRows = false;
-  for (const filingYear of coloradoCycleFilingYears(input.electionYear, input.rawDataZipPath)) {
-    const paths = getColoradoTracerContributionArtifactCachePaths({ cacheDir, year: filingYear });
+  for (const filingYear of coloradoCycleFilingYears(
+    input.electionYear,
+    input.rawDataZipPath,
+  )) {
+    const paths = getColoradoTracerContributionArtifactCachePaths({
+      cacheDir,
+      year: filingYear,
+    });
     const artifactZipPath = input.rawDataZipPath ?? paths.zipPath;
     if (!(await fileExists(artifactZipPath))) {
-      throw new Error(`Colorado TRACER contribution ZIP not found for ${filingYear}: ${artifactZipPath}`);
+      throw new Error(
+        `Colorado TRACER contribution ZIP not found for ${filingYear}: ${artifactZipPath}`,
+      );
     }
     const metadata = input.rawDataZipPath
       ? null
-      : await readColoradoTracerContributionArtifactCacheMetadata(paths.metadataPath);
+      : await readColoradoTracerContributionArtifactCacheMetadata(
+          paths.metadataPath,
+        );
     const artifactRows = await readColoradoTracerContributionRows({
       zipPath: artifactZipPath,
       year: filingYear,
@@ -230,7 +264,9 @@ async function readCycleContributionRows(input: {
     artifactRowsByYear.push(artifactRows);
     if (!foundMatchingRows) {
       zipPath = artifactZipPath;
-      sourceUrl = metadata?.remote.url ?? buildColoradoTracerContributionZipUrl({ year: filingYear });
+      sourceUrl =
+        metadata?.remote.url ??
+        buildColoradoTracerContributionZipUrl({ year: filingYear });
       foundMatchingRows = artifactRows.length > 0;
     }
   }
@@ -250,12 +286,15 @@ async function loadContributionDataForYear(input: {
   rawDataZipPath?: string;
   rawDataCacheDir?: string;
 }): Promise<ColoradoContributionDataForYear> {
-  const normalizedCommitteeIds = new Set(input.committeeIds.map(normalizeCommitteeId).filter(Boolean));
+  const normalizedCommitteeIds = new Set(
+    input.committeeIds.map(normalizeCommitteeId).filter(Boolean),
+  );
   const data = await readCycleContributionRows({
     electionYear: input.year,
     rawDataZipPath: input.rawDataZipPath,
     rawDataCacheDir: input.rawDataCacheDir,
-    predicate: (row) => normalizedCommitteeIds.has(normalizeCommitteeId(row.CO_ID)),
+    predicate: (row) =>
+      normalizedCommitteeIds.has(normalizeCommitteeId(row.CO_ID)),
   });
 
   return {
@@ -289,7 +328,7 @@ export async function listDueColoradoCandidateFinanceSyncRows(
     maxCandidates: number;
     electionLookbackDays: number;
     electionLookaheadDays: number;
-  }
+  },
 ): Promise<{ rows: ColoradoCandidateFinanceDueRow[]; totalDueRows: number }> {
   const result = await db.query<ColoradoCandidateFinanceDueQueryRow>(
     `
@@ -360,47 +399,100 @@ export async function listDueColoradoCandidateFinanceSyncRows(
       input.maxCandidates,
       input.electionLookbackDays,
       input.electionLookaheadDays,
-    ]
+    ],
   );
 
   return {
     rows: result.rows.map(mapDueRow),
-    totalDueRows: result.rows.length > 0 ? parseTotalDueRows(result.rows[0]?.total_due_rows) : 0,
+    totalDueRows:
+      result.rows.length > 0
+        ? parseTotalDueRows(result.rows[0]?.total_due_rows)
+        : 0,
   };
 }
 
 export async function syncDueColoradoCandidateFinance(
-  input: ColoradoCandidateFinanceBatchSyncInput
+  input: ColoradoCandidateFinanceBatchSyncInput,
 ): Promise<ColoradoCandidateFinanceBatchSyncResult> {
   const now = input.now ?? new Date();
   assertValidDate(now, "now");
 
-  const maxCandidates = normalizePositiveInteger(input.maxCandidates, DEFAULT_MAX_CANDIDATES, "maxCandidates");
-  const staleAfterDays = normalizePositiveInteger(input.staleAfterDays, DEFAULT_STALE_AFTER_DAYS, "staleAfterDays");
+  const maxCandidates = normalizePositiveInteger(
+    input.maxCandidates,
+    DEFAULT_MAX_CANDIDATES,
+    "maxCandidates",
+  );
+  const staleAfterDays = normalizePositiveInteger(
+    input.staleAfterDays,
+    DEFAULT_STALE_AFTER_DAYS,
+    "staleAfterDays",
+  );
   const electionLookbackDays = normalizePositiveInteger(
     input.electionLookbackDays,
     DEFAULT_POST_ELECTION_FINANCE_SYNC_GRACE_DAYS,
-    "electionLookbackDays"
+    "electionLookbackDays",
   );
   const electionLookaheadDays = normalizePositiveInteger(
     input.electionLookaheadDays,
     DEFAULT_ELECTION_LOOKAHEAD_DAYS,
-    "electionLookaheadDays"
+    "electionLookaheadDays",
   );
   const dryRun = input.dryRun === true;
-  const syncFn = input.syncColoradoCandidateFinanceFn ?? syncColoradoCandidateFinance;
+  const syncFn =
+    input.syncColoradoCandidateFinanceFn ?? syncColoradoCandidateFinance;
+
+  // IE acquisition runs before legacy file discovery and direct freshness.
+  let reportedIe:
+    Awaited<ReturnType<typeof syncDueColoradoReportedIe>> | undefined;
+  if (isColoradoReportedIeEnabled()) {
+    if (!input.db.connect) throw new Error("Colorado IE sync requires a pool");
+    reportedIe = await syncDueColoradoReportedIe({
+      db: {
+        query: input.db.query.bind(input.db),
+        connect: input.db.connect.bind(input.db),
+      },
+      now,
+      maxCandidates,
+      staleAfterDays,
+      electionLookbackDays: input.electionLookbackDays,
+      electionLookaheadDays,
+      dryRun,
+      cacheDir: input.ieCacheDir,
+      linkId: input.ieLinkId,
+      refresh: input.refreshIe,
+    });
+  }
+  if (input.ieOnly)
+    return {
+      dryRun,
+      now: now.toISOString(),
+      staleAfterDays,
+      maxCandidates,
+      dueCandidateCount: 0,
+      selectedCandidateCount: 0,
+      syncedCandidateCount: 0,
+      failedCandidateCount: 0,
+      results: [],
+      ...(reportedIe ? { reportedIe } : {}),
+    };
 
   if (input.autoLinkMissingLinks !== false) {
     try {
-      const missingLinkCandidates = await listColoradoCandidateElectionsMissingFinanceLinks(input.db, {
-        now,
-        maxCandidates,
-        electionLookbackDays,
-        electionLookaheadDays,
-      });
-      const contributionRowsByYear = new Map<number, ColoradoTracerContributionRow[]>();
+      const missingLinkCandidates =
+        await listColoradoCandidateElectionsMissingFinanceLinks(input.db, {
+          now,
+          maxCandidates,
+          electionLookbackDays,
+          electionLookaheadDays,
+        });
+      const contributionRowsByYear = new Map<
+        number,
+        ColoradoTracerContributionRow[]
+      >();
       const sourceUrlByYear = new Map<number, string>();
-      for (const [year, candidates] of groupAutoLinkCandidatesByYear(missingLinkCandidates).entries()) {
+      for (const [year, candidates] of groupAutoLinkCandidatesByYear(
+        missingLinkCandidates,
+      ).entries()) {
         const data = await loadAutoLinkContributionRowsForYear({
           year,
           candidates,
@@ -410,25 +502,29 @@ export async function syncDueColoradoCandidateFinance(
         contributionRowsByYear.set(year, data.rows);
         sourceUrlByYear.set(year, data.sourceUrl);
       }
-      const autoLinkResults = await autoLinkMissingColoradoCandidateFinanceLinks({
-        db: input.db,
-        now,
-        maxCandidates,
-        electionLookbackDays,
-        electionLookaheadDays,
-        contributionRowsByYear,
-        sourceUrlByYear,
-        candidateElections: missingLinkCandidates,
-      });
+      const autoLinkResults =
+        await autoLinkMissingColoradoCandidateFinanceLinks({
+          db: input.db,
+          now,
+          maxCandidates,
+          electionLookbackDays,
+          electionLookaheadDays,
+          contributionRowsByYear,
+          sourceUrlByYear,
+          candidateElections: missingLinkCandidates,
+        });
       for (const result of autoLinkResults) {
         if (result.status !== "linked") {
-          console.warn("Colorado finance auto-link did not link candidate election:", result);
+          console.warn(
+            "Colorado finance auto-link did not link candidate election:",
+            result,
+          );
         }
       }
     } catch (error) {
       console.warn(
         "Colorado finance auto-link skipped; continuing with already-linked candidate sync:",
-        error instanceof Error ? error.message : error
+        error instanceof Error ? error.message : error,
       );
     }
   }
@@ -440,8 +536,13 @@ export async function syncDueColoradoCandidateFinance(
     electionLookbackDays,
     electionLookaheadDays,
   });
-  const contributionDataByYear = new Map<number, ColoradoContributionDataForYear>(
-    input.contributionDataByYear ? [...input.contributionDataByYear.entries()] : []
+  const contributionDataByYear = new Map<
+    number,
+    ColoradoContributionDataForYear
+  >(
+    input.contributionDataByYear
+      ? [...input.contributionDataByYear.entries()]
+      : [],
   );
   for (const [year, rows] of groupDueRowsByYear(due.rows).entries()) {
     if (!contributionDataByYear.has(year)) {
@@ -452,7 +553,7 @@ export async function syncDueColoradoCandidateFinance(
           committeeIds: rows.map((row) => row.committeeId),
           rawDataZipPath: input.rawDataZipPath,
           rawDataCacheDir: input.rawDataCacheDir,
-        })
+        }),
       );
     }
   }
@@ -474,7 +575,8 @@ export async function syncDueColoradoCandidateFinance(
         tracerCandidateId: row.tracerCandidateId,
         sourceUrl: row.sourceUrl,
         dryRun,
-        contributionRows: contributionData?.rowsByCommitteeId.get(committeeKey) ?? [],
+        contributionRows:
+          contributionData?.rowsByCommitteeId.get(committeeKey) ?? [],
         contributionSourceUrl: contributionData?.sourceUrl,
         now,
       });
@@ -506,6 +608,7 @@ export async function syncDueColoradoCandidateFinance(
     maxCandidates,
     dueCandidateCount: due.totalDueRows,
     selectedCandidateCount: due.rows.length,
+    ...(reportedIe ? { reportedIe } : {}),
     syncedCandidateCount,
     failedCandidateCount: results.length - syncedCandidateCount,
     results,
