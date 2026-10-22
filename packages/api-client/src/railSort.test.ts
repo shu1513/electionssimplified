@@ -163,6 +163,7 @@ describe("sortRailEntries", () => {
       entry("sheriff", { group: "County: Alameda", level: "county" }),
       entry("rep", { group: "Federal", level: "federal" }),
       entry("mud", { group: "Local", level: "special" }),
+      entry("school", { group: "School: Berkeley Unified School District", level: "school" }),
       entry("odd", { group: "Other", level: "other" }),
       entry("council", { group: "City: Berkeley", level: "city" }),
     ];
@@ -171,6 +172,7 @@ describe("sortRailEntries", () => {
     // both ways, as on the list.
     expect(sortRailEntries(entries, "district_smallest").map((e) => e.id)).toEqual([
       "mud",
+      "school",
       "mayor",
       "council",
       "sheriff",
@@ -184,6 +186,7 @@ describe("sortRailEntries", () => {
       "sheriff",
       "mayor",
       "council",
+      "school",
       "mud",
       "odd",
     ]);
