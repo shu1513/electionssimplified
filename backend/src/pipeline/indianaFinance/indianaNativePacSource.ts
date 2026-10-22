@@ -14,6 +14,7 @@ import {
   type IndianaNativeOriginalMeta,
 } from "./indianaNativeOriginals.js";
 import { readIndianaNativeFinancialEvidence } from "./indianaNativeFinancialEvidence.js";
+import { readIndianaNativeReceiptRuns } from "./indianaNativeReceiptEvidence.js";
 import type { IndianaNativeReceiver } from "./indianaNativeReceiver.js";
 
 export const IN_NATIVE_PAC_REVISION = "in-native-pac-v1";
@@ -219,7 +220,19 @@ export class IndianaNativePacSource {
     if (through > cycleEnd) through = cycleEnd;
     const originals = await this.archive.read();
     try {
-      return this.qualify(originals, receiver, through);
+      // A fresh archive keeps its actual query cutoff after the UTC day rolls
+      // over. Choose the greatest bounded scope, then require all existing
+      // closure checks; never retry an older cutoff to hide a failed check.
+      const savedThrough = readIndianaNativeReceiptRuns(originals)
+        .filter(
+          (r) => r.scope.file === receiver.receivingId &&
+            r.scope.begin === `${receiver.electionYear}-01-01` &&
+            r.scope.end <= through,
+        )
+        .map((r) => r.scope.end)
+        .sort()
+        .at(-1);
+      return this.qualify(originals, receiver, savedThrough ?? through);
     } catch (error) {
       if (!isIndianaNativePacRawRefreshEnabled()) throw error;
       await new IndianaNativePacCollector(this.archive).collect(
