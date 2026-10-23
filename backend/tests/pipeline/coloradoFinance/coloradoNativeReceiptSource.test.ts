@@ -1,4 +1,4 @@
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -10,7 +10,10 @@ import {
   isColoradoNativeReceiptsEnabled,
   isColoradoNativeReceiptsRawRefreshEnabled,
 } from "../../../src/config/featureFlags.js";
-import { coloradoSourceUrl } from "../../../src/pipeline/coloradoFinance/coloradoTracerObservations.js";
+import {
+  COLORADO_TRACER_REPORTS,
+  coloradoSourceUrl,
+} from "../../../src/pipeline/coloradoFinance/coloradoTracerObservations.js";
 import { receiptPacket } from "./coloradoNativeReceiptFixtures.js";
 beforeEach(() => {
   for (const f of [
@@ -52,6 +55,67 @@ describe("separate native Colorado receipt source gates", () => {
         }),
       ).rejects.toThrow("native_receipt_source_unavailable");
       expect(fetchFn).not.toHaveBeenCalled();
+    } finally {
+      await rm(cacheDir, { recursive: true, force: true });
+    }
+  });
+  it("skips an expired saved packet and falls through to gated fresh acquisition", async () => {
+    const cacheDir = await mkdtemp(join(tmpdir(), "co-receipt-test-")),
+      directory = join(cacheDir, "packet-00000000-0000-4000-8000-000000000001"),
+      startedAt = new Date(Date.now() - 40 * 60 * 60 * 1000);
+    try {
+      await mkdir(directory, { mode: 0o700 });
+      await writeFile(
+        join(directory, "manifest.json"),
+        JSON.stringify({
+          version: 1,
+          kind: "committee-registry",
+          year: 2026,
+          complete: true,
+          records: [
+            {
+              role: "registry_catalog",
+              url: COLORADO_TRACER_REPORTS,
+              method: "GET",
+              requestFile: "0001.request.json",
+              requestSha256: "a".repeat(64),
+              file: "0001.response",
+              sha256: "a".repeat(64),
+              bytes: 0,
+              status: 200,
+              eof: true,
+              contentType: null,
+              contentEncoding: null,
+              declaredLength: null,
+              location: null,
+              serverDate: null,
+              startedAt: startedAt.toISOString(),
+              completedAt: new Date(startedAt.getTime() + 1000).toISOString(),
+            },
+          ],
+        }),
+        { mode: 0o600 },
+      );
+      const denied = vi
+        .fn<typeof fetch>()
+        .mockRejectedValue(Error("no_network"));
+      await expect(
+        getColoradoNativeReceiptRegistry({
+          cacheDir,
+          electionYear: 2026,
+          fetchFn: denied,
+        }),
+      ).rejects.toThrow("native_receipt_source_unavailable");
+      expect(denied).not.toHaveBeenCalled();
+      vi.stubEnv("COLORADO_TRACER_RAW_DATA_REFRESH_ENABLED", "true");
+      await expect(
+        getColoradoNativeReceiptRegistry({
+          cacheDir,
+          electionYear: 2026,
+          fetchFn: denied,
+        }),
+      ).rejects.toThrow();
+      expect(denied).toHaveBeenCalledTimes(1);
     } finally {
       await rm(cacheDir, { recursive: true, force: true });
     }

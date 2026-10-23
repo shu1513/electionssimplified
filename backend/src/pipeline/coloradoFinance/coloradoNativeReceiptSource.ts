@@ -289,9 +289,7 @@ async function source<T>(
         m.kind === options.kind &&
         m.year === options.year &&
         m.complete &&
-        m.records?.length &&
-        (!options.receiver ||
-          (await matchesReceiver(directory, m, options.receiver)))
+        m.records?.length
       )
         candidates.push({
           directory,
@@ -299,15 +297,29 @@ async function source<T>(
           first: m.records[0]!.startedAt,
         });
     }
-    const saved = candidates.sort((a, b) => b.first.localeCompare(a.first))[0];
-    if (saved) {
-      const s = await ColoradoTracerObservations.reopen(
-          saved.directory,
-          saved.manifest,
-        ),
-        result = await options.run(s);
-      await s.finish();
-      return { ...result, source: await sourceFacts(s) };
+    for (const saved of candidates.sort((a, b) =>
+      b.first.localeCompare(a.first),
+    )) {
+      try {
+        if (
+          options.receiver &&
+          !(await matchesReceiver(
+            saved.directory,
+            saved.manifest,
+            options.receiver,
+          ))
+        )
+          continue;
+        const s = await ColoradoTracerObservations.reopen(
+            saved.directory,
+            saved.manifest,
+          ),
+          result = await options.run(s);
+        await s.finish();
+        return { ...result, source: await sourceFacts(s) };
+      } catch {
+        /* Expired or unverifiable packets never block gated fresh acquisition. */
+      }
     }
   }
   check(
