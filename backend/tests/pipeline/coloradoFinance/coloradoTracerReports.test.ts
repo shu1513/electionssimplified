@@ -386,6 +386,9 @@ describe("native scalar and framing guards", () => {
     ["-0.10", -10],
     ["12.340000", 1234],
     ["($1,234.56)", -123456],
+    ["$1,234.56", 123456],
+    ["-$1,234.56", -123456],
+    ["(1,234.56)", -123456],
     ["0.1", 10],
   ])("reads exact cents %s", (value, expected) =>
     expect(coloradoReportCents(value)).toBe(expected),
@@ -398,6 +401,15 @@ describe("native scalar and framing guards", () => {
     "1e3",
     "",
     "9007199254740992",
+    "1$2",
+    "1,2",
+    "1,23,456",
+    "$-1.00",
+    "$$1.00",
+    ",123",
+    "123,",
+    "(-1.00)",
+    "1,2345.00",
   ])("rejects unsafe/nondecimal money %s", (value) =>
     expect(() => coloradoReportCents(value)).toThrow(),
   );

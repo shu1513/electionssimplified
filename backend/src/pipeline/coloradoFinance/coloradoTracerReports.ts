@@ -42,6 +42,18 @@ export type ColoradoRegisteredReporter = {
   committeeType: string;
   status: string;
 };
+/** Native candidate roster evidence has names, not candidate/receiving IDs or
+ * financial-cycle bounds. A row cannot replace a separately verified profile. */
+export type ColoradoNativeCandidateListingRow = {
+  electionYear: number;
+  candidateName: string;
+  party: string;
+  officeName: string;
+  districtName: string;
+  receivingName: string;
+  acceptedVsl: string;
+  status: string;
+};
 
 const IE_COLUMNS = [
   "Textbox12",
@@ -98,19 +110,19 @@ function text(value: string | null, code = "missing_source_field"): string {
   );
   return value;
 }
-/** Decimal arithmetic, including source decimal places beyond cents only when
- * they are zero. Floating-point multiplication is not a money parser. */
+/** Exact microdollar arithmetic; additional decimal places must be zero.
+ * Validate currency punctuation before removing it. */
 export function coloradoReportMicros(value: string): bigint {
   check(value.length <= 100, "invalid_source_decimal");
-  let raw = value.trim().replace(/[$,]/gu, "");
+  let raw = value.trim();
   if (/^\(.*\)$/u.test(raw)) raw = `-${raw.slice(1, -1)}`;
-  const match = /^(-?)(\d+)(?:\.(\d{1,12}))?$/u.exec(raw);
+  const match = /^(-?)\$?(\d+|\d{1,3}(?:,\d{3})+)(?:\.(\d{1,12}))?$/u.exec(raw);
   check(
     match && (!match[3]?.slice(6) || /^0*$/u.test(match[3].slice(6))),
     "invalid_source_decimal",
   );
   const micros =
-    BigInt(match[2]!) * 1_000_000n +
+    BigInt(match[2]!.replaceAll(",", "")) * 1_000_000n +
     BigInt((match[3] ?? "").padEnd(6, "0").slice(0, 6));
   const signed = match[1] ? -micros : micros;
   check(
@@ -548,5 +560,110 @@ export function parseColoradoIeReporterRegistry(input: {
     "native_ie_registry_population",
   );
   equalOccurrences(expanded, csvData(input.csv, REGISTRY_COLUMNS, root));
+  return rows;
+}
+
+/** Parse every native roster occurrence, including inactive and unknown-party
+ * rows. Whole CSV/XML equality supplies a population control, not identity. */
+export function parseColoradoCandidateListing(input: {
+  csv: Uint8Array;
+  xml: Uint8Array;
+  electionYear: number;
+}): ColoradoNativeCandidateListingRow[] {
+  check(
+    Number.isSafeInteger(input.electionYear) &&
+      input.electionYear >= 2010 &&
+      input.electionYear <= 2100,
+    "native_candidate_listing_year",
+  );
+  const doc = xml(input.xml),
+    root = doc.documentElement,
+    metadata = [
+      "JurisdictionSelection",
+      "ElectionYear",
+      "OfficeSelection",
+      "DistrictSelection",
+      "ActiveOnlySelection",
+    ],
+    scope = [
+      "STATEWIDE",
+      String(input.electionYear),
+      "ALL",
+      "ALL",
+      "All Statuses",
+    ],
+    columns = [
+      "JurisdictionName",
+      "ElectionYear1",
+      "OfficeName",
+      "DistrictName",
+      "CandidateName",
+      "Textbox9",
+      "Textbox13",
+      "AcceptedVSL",
+      "OrganizationStatus",
+    ];
+  check(
+    root.getAttribute("Name") === "rpt_CF_CAND_001",
+    "native_candidate_listing_kind",
+  );
+  check(
+    metadata.every((key, i) => root.getAttribute(key) === scope[i]),
+    "native_candidate_listing_scope",
+  );
+  check(
+    [...root.querySelectorAll("*")].every((e) =>
+      ["table1", "Detail_Collection", "Detail"].includes(e.localName),
+    ) &&
+      elements(doc, "table1").length <= 1 &&
+      elements(doc, "Detail_Collection").length <= 1,
+    "native_candidate_listing_structure",
+  );
+  const expanded: string[][] = [],
+    rows: ColoradoNativeCandidateListingRow[] = [];
+  for (const detail of elements(doc, "Detail")) {
+    check(
+      detail.parentElement?.localName === "Detail_Collection" &&
+        detail.parentElement.parentElement?.localName === "table1" &&
+        detail.parentElement.parentElement.parentElement === root,
+      "unowned_native_candidate_row",
+    );
+    check(
+      [...detail.attributes].every((a) => columns.includes(a.name)) &&
+        columns.every(
+          (key) =>
+            detail.hasAttribute(key) ||
+            ["DistrictName", "Textbox9"].includes(key),
+        ),
+      "native_candidate_listing_columns",
+    );
+    const values = columns.map((key) =>
+      canonical(key, text(detail.getAttribute(key) ?? "")),
+    );
+    check(
+      values[0] === "STATEWIDE" &&
+        values[1] === String(input.electionYear) &&
+        [values[2], values[4], values[6], values[7], values[8]].every(Boolean),
+      "native_candidate_listing_row_scope",
+    );
+    expanded.push(values);
+    rows.push({
+      electionYear: input.electionYear,
+      candidateName: values[4]!,
+      party: values[5]!,
+      officeName: values[2]!,
+      districtName: values[3]!,
+      receivingName: values[6]!,
+      acceptedVsl: values[7]!,
+      status: values[8]!,
+    });
+  }
+  const csvRows = parseColoradoReportCsv(input.csv);
+  check(
+    JSON.stringify(csvRows[0]) === JSON.stringify(metadata) &&
+      JSON.stringify(csvRows[1]) === JSON.stringify(scope),
+    "native_candidate_listing_csv_scope",
+  );
+  equalOccurrences(expanded, csvData(input.csv, columns, root));
   return rows;
 }

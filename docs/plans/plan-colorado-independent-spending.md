@@ -87,3 +87,25 @@ it cannot bypass source or sync gates. Use it for the deadline reruns above.
 
 This acceptance proves one current statewide context. Legislative district
 identity and native committee-receipt qualification remain open Colorado work.
+
+## Legislative identity research, October 23
+
+The native Candidate Listing supplies complete candidate/party/office/district
+and receiving-name populations for all 18 published election-year options.
+Opening and closing observations match across 3,661 rows and 36 paired CSV/XML
+exports, including inactive candidates and early future-year registrations.
+Blank historical party values remain unknown. A strict roster parser retains
+every occurrence and verifies the full population across both formats.
+
+This roster supplies neither candidate/receiving IDs nor financial-cycle bounds.
+Actual IE target spellings match historical entries with other committees and
+districts, so current-year name uniqueness is insufficient. Native all-years
+search IDs and each peer's published campaign dates must resolve overlapping
+identities before legislative money is admitted. One actual family search now
+closes five grid rows, two native candidate IDs and six complete campaign rows
+against a fresh second observation. Every matching roster row maps to that grid,
+and every grid row maps to published native campaign dates. Those dates separate
+all 58 observed target occurrences from historical peers: 37 single-target
+expenses qualify for further integration; 21 shared parents remain unallocated.
+This is source proof. The current writer and reader remain scoped to the four
+qualified statewide offices; legislative sync/API/card acceptance is still pending.
