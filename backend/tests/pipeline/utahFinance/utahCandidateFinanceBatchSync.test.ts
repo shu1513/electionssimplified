@@ -7,6 +7,10 @@ import {
 import type { UtahCandidateFinanceSyncResult } from "../../../src/pipeline/utahFinance/utahCandidateFinanceSync.js";
 import type { UtahDisclosuresTransactionRow } from "../../../src/pipeline/utahFinance/utahDisclosuresClient.js";
 
+vi.mock("../../../src/pipeline/utahFinance/utahCommitteeCashSync.js", () => ({
+  syncDueUtahCommitteeCash: vi.fn(async () => ({due:0,selected:0,accepted:0,written:0,held:0,failures:[]})),
+}));
+
 const NOW = new Date("2026-06-01T00:00:00.000Z");
 const SOURCE_URL = "https://disclosures.utah.gov/Search/AdvancedSearch/FolderDetails/98765";
 const CANDIDATE_ID = "11111111-1111-4111-8111-111111111111";
@@ -341,4 +345,29 @@ describe("utahCandidateFinanceBatchSync", () => {
     expect(resolveCandidateCommittee).not.toHaveBeenCalled();
     expect(result).toMatchObject({ autoLinkAttemptedCount: 0, autoLinkLinkedCount: 0 });
   });
+});
+
+it("acquires independently due committee cash before a failing legacy direct export", async () => {
+  const { syncDueUtahCommitteeCash } = await import("../../../src/pipeline/utahFinance/utahCommitteeCashSync.js");
+  vi.mocked(syncDueUtahCommitteeCash).mockResolvedValueOnce({due:1,selected:1,accepted:1,written:1,held:0,failures:[]});
+  const loader = vi.fn(async () => { throw new Error("legacy source unavailable"); });
+  const result = await syncDueUtahCandidateFinance({db:{query:vi.fn(async()=>({rows:[dueRow()]}))},now:NOW,autoLinkMissingLinks:false,loadGeneratedReportRowsFn:loader});
+  expect(result.committeeCash?.written).toBe(1);
+  expect(result.failedCandidateCount).toBe(1);
+  expect(vi.mocked(syncDueUtahCommitteeCash).mock.invocationCallOrder.at(-1)).toBeLessThan(loader.mock.invocationCallOrder[0]);
+});
+
+it("runs committee cash alone without auto-linking or loading legacy direct transactions", async () => {
+  const loader=vi.fn();
+  const result=await syncDueUtahCandidateFinance({db:{query:vi.fn()},now:NOW,committeeCashOnly:true,loadGeneratedReportRowsFn:loader});
+  expect(result.autoLinkAttemptedCount).toBe(0);
+  expect(loader).not.toHaveBeenCalled();
+});
+
+it("keeps explicit candidate scope from triggering unrelated auto-link writes", async () => {
+  const db={query:vi.fn(async()=>({rows:[dueRow()]}))};
+  await syncDueUtahCandidateFinance({db,now:NOW,candidateId:CANDIDATE_ID,electionYear:2026,
+    loadGeneratedReportRowsFn:vi.fn(async()=>({rows:[],cachePath:"synthetic.csv",sourceUrl:SOURCE_URL,cacheHit:true})),
+    syncUtahCandidateFinanceFn:vi.fn(async()=>syncResult())});
+  expect(db.query).toHaveBeenCalledOnce();
 });

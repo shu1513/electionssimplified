@@ -1,6 +1,6 @@
 # Utah finance source requalification
 
-Status: source research in progress; no new financial component is accepted yet.
+Status: filed committee cash implemented and verified locally through the ordinary sync, independent source/store comparison, production HTTP API and hydrated candidate card. Candidate-specific IE remains an unresolved source gap.
 
 ## Existing source and pipeline
 
@@ -57,3 +57,27 @@ The positive receiver's three displayed filed statements now reconcile all 266 o
 The source registration, reached through the finance folder's own reference, matches the canonical person's structured name, House office, and district. The registration's ID differs from the finance-folder ID. The research handoff incorrectly reused the registration ID for an export URL; future acquisition must keep these roles separate and use the actual finance-folder export link. The failed browser download establishes no valid closing export.
 
 Nine saved PAC registry pages contain 225 distinct typed filer names. Their exact overlap with the annual PAC export is incomplete; the pager window does not establish a full registry census. Finish the relevant filer inventory, current amendment/public-view semantics, and closing-source controls before the protected writer, independent due sync, actual API/card proof, and Utah PR.
+
+## Implementation decision after closing source check
+
+The correct finance-folder closing export contains 281 occurrences, including two newly entered General receipts. The three filed report references and all 266 filed occurrences remain stable. The narrow accepted component will cover current public filed statements only. Six matched cash contributions in those statements total $11,500; the additional $1,000 committee gift in the unfiled General group is outside this scope. The refreshed typed annual PAC export contains 46,528 occurrences and the same 181 receiving-name groups. Exact PAC receiving-name matches establish reported-name recognition, not registration identity or a complete PAC census.
+
+Implement a separate saved-original-first acquisition, strict native statement verifier, uncapped committee-cash aggregation, protected atomic component writer and independent due gate. It must run even when the old direct summary is fresh or its acquisition fails. The receiving folder's own registration reference must resolve canonical structured name, office and district. Every current-year filed statement must be reached from that folder; current main-table occurrences, cash controls and CSV rows must agree. Amendment-history popups are not additional transactions: use the folder's currently displayed report and require full agreement with the current export. Any nonempty CSV amendment linkage, duplicate/ambiguous report label, unstable filed inventory, malformed original, missing detail or unsupported flags holds the entire component. General/unfiled groups are explicitly excluded, never treated as filed or used to fill totals.
+
+Store reported committee names and signed cash contribution subtotals with a separate observation clock; exclude in-kind and loan rows. Do not turn spending/payee names into contribution returns. State coverage explicitly as filed, itemized cash contributions, limited to exact names in the observed PAC-class export; it is not net receipts or all PAC money. A new card may be created from this component without inventing direct totals or outside-spending zeros. Existing direct totals and freshness remain independent. Re-run after the October 27 pre-general deadline as scheduled above.
+
+Required proof remains: ordinary local due sync, independent uncapped source/store equality, actual HTTP API and hydrated candidate page, then a Utah-only PR. Source-only reader work is not a completed Utah fix. IE still lacks qualified candidate allocations and must remain unknown with an explicit coverage note.
+
+## Local proof completed
+
+Migration 380 was committed before applying it with the normal local migration runner. Applied migrations 378/379 were left unchanged. The ordinary Utah due-sync script ran a single canonical candidate's committee-cash component from genuine saved originals: three filed statements, all 266 filed occurrences, five recognized reported-name groups, six cash contributions, **$11,500**. Fifteen receipts outside the displayed filed inventory remain excluded.
+
+A separate Python CSV/Decimal implementation reconciled every uncapped stored reported name, group identity, cent amount and occurrence count against the complete closing source. Its comparison also confirmed the exact stored source-observation clock. The first JavaScript audit's clock diagnostic had lost milliseconds by passing a Date object to Date.parse; this was a proof-reader error, corrected and independently checked, not a change to stored money or timestamps.
+
+The ordinary repeat was idempotent. A missing-source run held the component and preserved all donor rows, source clocks and legacy direct summaries. The actual production HTTP endpoint returned all five displayed names/amounts/identities and the same $11,500; direct totals and their headline clock remained unchanged. A real candidate route loaded in the Browser pane with zero console/hydration errors. A React-only content expansion was verified and restored. The finance disclosure, every committee link/amount, group count, source footer and filed-subset coverage note matched the API. No outside-spending zero was presented. No financial screenshots or source-row dumps were saved.
+
+For manual reruns, enable the ordinary Utah read/sync flags inline, use `--committee-cash-only --candidate-id=<canonical UUID> --year=2026 --raw-cache-dir=<private cache>`, and use `--refresh-committee-cash` to bypass only component staleness. Saved originals are read first. `--committee-cash-network` explicitly permits source GETs for missing originals; `--refresh-cache` requests replacement acquisition. Missing, old or challenged originals hold the component. Do not infer a complete PAC census from this recognized subset. Reacquire and rerun after the October 27 deadline.
+
+Utah committee cash has a real sync/API/card proof. Candidate-specific IE remains a separate unresolved source gap; this PR must not be described as a completed IE integration. Kansas contributor-name publication and every new Missouri publication remain held.
+
+Final focused validation: 128 Utah pipeline/script regressions pass. The Utah address-reader regression was also updated for the independent component query and explicit outside coverage note.

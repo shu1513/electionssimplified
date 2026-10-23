@@ -8993,6 +8993,7 @@ describe("lookupElectionDetailById", () => {
         ],
       },
       outside_spending: {
+        outside_coverage_note: "Candidate-specific Utah outside-spending targets, support/opposition and allocations have not been verified; outside spending remains unknown.",
         support_total: null,
         oppose_total: null,
         top_supporting_groups: [],
@@ -9014,11 +9015,12 @@ describe("lookupElectionDetailById", () => {
         ],
       },
     });
-    expect(query).toHaveBeenCalledTimes(12);
+    expect(query).toHaveBeenCalledTimes(13);
     expect(query.mock.calls[7]?.[0]).toContain("public.ut_candidate_finance_summaries");
     expect(query.mock.calls[8]?.[0]).toContain("public.ut_candidate_finance_direct_breakdowns");
     expect(String(query.mock.calls[8]?.[0])).toContain("breakdown.category_type = 'contribution_size'");
     expect(query.mock.calls[9]?.[0]).toContain("public.ut_candidate_finance_supporting_committee_industries");
+    expect(query.mock.calls[10]?.[0]).toContain("public.ut_candidate_finance_pac_sources");
     expect(query.mock.calls.map((call) => String(call[0])).join("\\n")).not.toContain("public.candidate_finance_summaries");
   });
 

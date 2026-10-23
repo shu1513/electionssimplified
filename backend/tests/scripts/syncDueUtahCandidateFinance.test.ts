@@ -107,3 +107,10 @@ describe("syncDueUtahCandidateFinance script", () => {
     expect(typeof output.ts).toBe("string");
   });
 });
+
+it("parses explicit independent component scope without weakening source filters", () => {
+  expect(parseSyncDueUtahCandidateFinanceScriptArgs(["--committee-cash-only","--refresh-committee-cash","--candidate-id=11111111-1111-4111-8111-111111111111","--year=2026"]))
+    .toMatchObject({committeeCashOnly:true,refreshCommitteeCash:true,candidateId:"11111111-1111-4111-8111-111111111111",electionYear:2026});
+  expect(()=>parseSyncDueUtahCandidateFinanceScriptArgs(["--candidate-id=invalid"])).toThrow("Invalid --candidate-id");
+  expect(()=>parseSyncDueUtahCandidateFinanceScriptArgs(["--year=9999"])).toThrow("Invalid --year");
+});
