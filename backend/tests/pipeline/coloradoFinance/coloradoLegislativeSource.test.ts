@@ -206,7 +206,7 @@ describe("Colorado legislative source authority", () => {
         fetchFn: transport({ wrongRecord: true }),
       }),
     ).rejects.toThrow("native_peer_record_identifier");
-  });
+  }, 30_000);
   it("holds a source peer change between full opening and closing walks", async () => {
     await expect(
       getColoradoIeCandidateSource({

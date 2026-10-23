@@ -113,4 +113,20 @@ This is source proof. The protected writer/reader now have a separate legislativ
 revision that requires those peer and seat controls; existing statewide snapshots
 retain their original shape and revision. Every record action uses its own page's
 form state. Repeated pages, wrong returned IDs and changed closing inventories hold
-the component. Legislative sync/API/card acceptance is still pending.
+the component.
+
+The ordinary local IE-only CLI now also proves one existing House context: five
+groups from 37 single-target expenses, $161,505.38 supporting and $62,293.12
+opposing. Its actual financial cycle is December 6, 2024–December 3, 2026; this
+source observation includes filings through October 22. Twenty-one shared parents
+remain unallocated. All 58 matching target occurrences have one applicable native
+candidate/campaign context after the historical peer dates are checked.
+
+Uncapped SQL, the actual HTTP API and the hydrated candidate page agree on every
+group and amount. Default-off behavior, source links and district/cycle coverage
+text pass. Reusing the same genuine originals is idempotent. A fresh 21-original
+candidate/peer acquisition followed by an injected group-insert failure rolls back
+the real source replacement and group deletion. All component rows, existing
+statewide money, legacy direct finance and their clocks remain unchanged.
+These two local candidate acceptances do not constitute a full statewide batch.
+Native named committee-receipt qualification remains open.
