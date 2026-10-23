@@ -10,9 +10,13 @@ const PATHS = new Set([
   "/CampaignFinance/Reports/ReportParameters.aspx",
   "/CampaignFinance/Reports/ReportViewer.aspx",
   "/CampaignFinance/Reserved.ReportViewerWebControl.axd",
+  "/PublicSite/Reports/ReportViewer.aspx",
+  "/PublicSite/Reserved.ReportViewerWebControl.axd",
   "/PublicSite/SearchPages/CommitteeSearch.aspx",
   "/PublicSite/SearchPages/CandidateSearch.aspx",
   "/PublicSite/SearchPages/CandidateDetail.aspx",
+  "/PublicSite/SearchPages/FilingDetail.aspx",
+  "/PublicSite/SearchPages/FilingAmendmentSelect.aspx",
 ]);
 const MAX_BODY = 64 * 1024 * 1024;
 const MAX_RECORDS = 256;
@@ -37,7 +41,7 @@ export type ColoradoObservation = {
 };
 export type ColoradoObservationManifest = {
   version: 1;
-  kind: "ie" | "candidate" | "legislative-candidate";
+  kind: "ie" | "candidate" | "legislative-candidate" | "committee-registry" | "named-receipts";
   year: number;
   complete: boolean;
   records: ColoradoObservation[];
@@ -105,7 +109,7 @@ export async function coloradoPrivateOriginal(
 function validateManifest(manifest: ColoradoObservationManifest): void {
   check(
     manifest.version === 1 &&
-      ["ie", "candidate", "legislative-candidate"].includes(manifest.kind) &&
+      ["ie", "candidate", "legislative-candidate", "committee-registry", "named-receipts"].includes(manifest.kind) &&
       Number.isSafeInteger(manifest.year) &&
       manifest.year >= 2022 &&
       manifest.year <= 2100 &&
@@ -115,7 +119,7 @@ function validateManifest(manifest: ColoradoObservationManifest): void {
   check(
     Array.isArray(manifest.records) &&
       manifest.records.length > 0 &&
-      manifest.records.length <= MAX_RECORDS,
+      manifest.records.length <= (manifest.kind === "named-receipts" ? 2048 : MAX_RECORDS),
     "native_manifest_population",
   );
   let prior = 0;
@@ -193,7 +197,7 @@ export class ColoradoTracerObservations {
   }
   static async create(
     root: string,
-    kind: "ie" | "candidate" | "legislative-candidate",
+    kind: ColoradoObservationManifest["kind"],
     year: number,
     fetcher: typeof fetch = fetch,
   ): Promise<ColoradoTracerObservations> {
@@ -231,7 +235,7 @@ export class ColoradoTracerObservations {
     check(/^[a-z0-9_]+$/u.test(role), "native_observation_role");
     const canonical = coloradoSourceUrl(url).href,
       method = body === undefined ? "GET" : "POST";
-    check(this.cursor < MAX_RECORDS, "native_observation_limit");
+    check(this.cursor < (this.manifest.kind === "named-receipts" ? 2048 : MAX_RECORDS), "native_observation_limit");
     if (this.saved) {
       const record = this.manifest.records[this.cursor++];
       check(

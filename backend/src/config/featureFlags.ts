@@ -119,6 +119,10 @@ export const isColoradoReportedIeEnabled = (): boolean =>
   isCandidateFinanceEnabled() && coloradoFinance.isEnabled() && readBooleanEnv("COLORADO_REPORTED_IE_ENABLED", false);
 export const isColoradoReportedIeRawRefreshEnabled = (): boolean =>
   isColoradoReportedIeEnabled() && isColoradoTracerRawDataRefreshEnabled();
+export const isColoradoNativeReceiptsEnabled = (): boolean =>
+  isCandidateFinanceEnabled() && coloradoFinance.isEnabled() && readBooleanEnv("COLORADO_NATIVE_RECEIPTS_ENABLED", false);
+export const isColoradoNativeReceiptsRawRefreshEnabled = (): boolean =>
+  isColoradoNativeReceiptsEnabled() && isColoradoTracerRawDataRefreshEnabled();
 
 // Denver municipal finance (SearchLight) is its own module — Denver filers
 // are not in state TRACER, so these are independent of the Colorado flags.
