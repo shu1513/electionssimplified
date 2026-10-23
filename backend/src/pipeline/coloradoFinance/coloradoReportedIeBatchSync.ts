@@ -16,7 +16,7 @@ import {
   type ColoradoIeDataset,
 } from "./coloradoReportedIeSource.js";
 import {
-  CO_IE_REVISION,
+  coloradoIeRevision,
   writeColoradoReportedIe,
 } from "./coloradoReportedIeStore.js";
 export type ColoradoIeBatchInput = {
@@ -98,14 +98,14 @@ export async function syncDueColoradoReportedIe(input: ColoradoIeBatchInput) {
           !s ||
           !isDeepStrictEqual(s.receiver_context, r) ||
           (s.source_facts as { revision?: string })?.revision !==
-            CO_IE_REVISION ||
+            coloradoIeRevision(r) ||
           !Number.isFinite(clock) ||
           clock > now.getTime() ||
           clock < now.getTime() - stale * 86400000) &&
         (input.refresh ||
           !a ||
           !isDeepStrictEqual(a.receiver_context, r) ||
-          a.source_revision !== CO_IE_REVISION ||
+          a.source_revision !== coloradoIeRevision(r) ||
           !Number.isFinite(retry) ||
           retry > now.getTime() ||
           retry <= now.getTime() - 86400000)
@@ -183,7 +183,7 @@ async function attempt(db: ColoradoIeBatchInput["db"], r: ColoradoIeReceiver) {
         r.linkId,
         r.electionYear,
         JSON.stringify(r),
-        CO_IE_REVISION,
+        coloradoIeRevision(r),
         new Date().toISOString(),
       ],
     );

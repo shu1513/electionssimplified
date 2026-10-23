@@ -11,6 +11,8 @@ import {
 } from "./coloradoTracerReports.js";
 import {
   coloradoPartyKey,
+  coloradoIeNativeDistrict,
+  coloradoIeNativeOffice,
   type ColoradoNativeCandidateProof,
 } from "./coloradoNativeCandidateIdentity.js";
 import {
@@ -30,8 +32,15 @@ import {
   type ColoradoReportedIeProjection,
 } from "./coloradoReportedIeAggregation.js";
 export const CO_IE_REVISION = "native-ie-v1";
+export const CO_LEGISLATIVE_IE_REVISION = "native-ie-legislative-v1";
+export const coloradoIeRevision = (
+  receiver: Pick<ColoradoIeReceiver, "officeName" | "districtName">,
+) =>
+  coloradoIeNativeDistrict(receiver)
+    ? CO_LEGISLATIVE_IE_REVISION
+    : CO_IE_REVISION;
 export type ColoradoIeStoredFacts = {
-  revision: typeof CO_IE_REVISION;
+  revision: typeof CO_IE_REVISION | typeof CO_LEGISLATIVE_IE_REVISION;
   startDate: string;
   endDate: string;
   dataset: ColoradoSourceFacts;
@@ -91,7 +100,7 @@ export function validateColoradoIeStored(
   projection: ColoradoReportedIeProjection,
 ): void {
   check(
-    facts?.revision === CO_IE_REVISION &&
+    facts?.revision === coloradoIeRevision(receiver) &&
       /^\d{4}-\d{2}-\d{2}$/u.test(facts.startDate) &&
       /^\d{4}-\d{2}-\d{2}$/u.test(facts.endDate) &&
       facts.startDate === `${receiver.electionYear - 4}-01-01` &&
@@ -108,6 +117,19 @@ export function validateColoradoIeStored(
     "stored_ie_source_scope",
   );
   validateColoradoIeReceiverIdentity(receiver, identity);
+  const nativeDistrict = coloradoIeNativeDistrict(receiver);
+  check(
+    !nativeDistrict ||
+      (identity.districtName === nativeDistrict &&
+        identity.nativeOfficeName ===
+          coloradoIeNativeOffice(receiver.officeName) &&
+        Number.isSafeInteger(identity.peerCandidateCount) &&
+        identity.peerCandidateCount! > 0 &&
+        Number.isSafeInteger(identity.peerCampaignCount) &&
+        identity.peerCampaignCount! >= identity.peerCandidateCount! &&
+        facts.candidate.originals.length >= 15),
+    "stored_ie_legislative_identity",
+  );
   check(
     identity.receivingId === receiver.receivingId &&
       (!receiver.tracerCandidateId ||
@@ -120,6 +142,12 @@ export function validateColoradoIeStored(
     "stored_ie_identity",
   );
   const c = projection.controls;
+  check(
+    !nativeDistrict ||
+      (Number.isSafeInteger(c.ambiguousCandidateParents) &&
+        c.ambiguousCandidateParents! >= 0),
+    "stored_ie_legislative_controls",
+  );
   for (const [k, v] of Object.entries(c)) {
     if (k === "sourceSignedParentMicros") {
       check(typeof v === "string" && /^-?\d+$/u.test(v), "stored_ie_controls");
@@ -140,7 +168,10 @@ export function validateColoradoIeStored(
       c.sourceTargets >= c.sourceParents &&
       c.sourceFractionalCentParents <= c.sourceParents &&
       c.sourceUnidentifiedTargets <= c.sourceTargets &&
-      c.outsideCycleParents + c.sharedCandidateParents + c.allocatedParents <=
+      c.outsideCycleParents +
+        c.sharedCandidateParents +
+        c.allocatedParents +
+        (c.ambiguousCandidateParents ?? 0) <=
         c.sourceParents,
     "stored_ie_controls",
   );
@@ -199,6 +230,7 @@ export async function writeColoradoReportedIe(input: {
     "receivingId",
     "receivingName",
     "tracerCandidateId",
+    "districtName",
   ] as const)
     check(
       candidate.expected[key] === receiver[key],
@@ -206,7 +238,7 @@ export async function writeColoradoReportedIe(input: {
     );
   const projection = aggregateColoradoReportedIe(dataset, candidate),
     facts: ColoradoIeStoredFacts = {
-      revision: CO_IE_REVISION,
+      revision: coloradoIeRevision(receiver),
       startDate: dataset.startDate,
       endDate: dataset.endDate,
       dataset: dataset.source,

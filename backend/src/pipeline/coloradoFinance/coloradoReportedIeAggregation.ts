@@ -6,6 +6,7 @@ import {
   coloradoIePersonMatches,
   coloradoPartyKey,
 } from "./coloradoNativeCandidateIdentity.js";
+import { coloradoTargetHasUniqueNativeCycle } from "./coloradoNativePeerIdentity.js";
 import type {
   ColoradoIeCandidateSource,
   ColoradoIeDataset,
@@ -32,6 +33,7 @@ export type ColoradoReportedIeProjection = {
     allocatedParents: number;
     supportCents: number;
     opposeCents: number;
+    ambiguousCandidateParents?: number;
   };
 };
 function check(value: unknown, code: string): asserts value {
@@ -50,9 +52,20 @@ export function aggregateColoradoReportedIe(
     ColoradoIeDataset,
     "electionYear" | "startDate" | "endDate" | "reports" | "registry"
   >,
-  candidate: Pick<ColoradoIeCandidateSource, "identity" | "expected">,
+  candidate: Pick<ColoradoIeCandidateSource, "identity" | "expected" | "peers">,
 ): ColoradoReportedIeProjection {
   const { identity } = candidate;
+  const legislative = !!identity.districtName,
+    nativeOffice = identity.nativeOfficeName ?? identity.officeName;
+  check(
+    !legislative ||
+      (candidate.peers &&
+        candidate.peers.length > 0 &&
+        candidate.peers.length === identity.peerCandidateCount &&
+        candidate.peers.reduce((n, p) => n + p.campaigns.length, 0) ===
+          identity.peerCampaignCount),
+    "missing_native_legislative_peers",
+  );
   check(
     dataset.electionYear === identity.cycleYear &&
       dataset.startDate <= identity.cycleStart &&
@@ -84,6 +97,7 @@ export function aggregateColoradoReportedIe(
     allocatedParents: 0,
     supportCents: 0,
     opposeCents: 0,
+    ...(legislative ? { ambiguousCandidateParents: 0 } : {}),
   };
   let sourceTotal = 0n;
   for (const report of dataset.reports) {
@@ -128,7 +142,10 @@ export function aggregateColoradoReportedIe(
           t.name &&
           coloradoIePersonMatches(identity.candidateName, t.name) &&
           coloradoReportedNameKey(t.office) ===
-            coloradoReportedNameKey(identity.officeName),
+            coloradoReportedNameKey(nativeOffice) &&
+          (!legislative ||
+            !coloradoPartyKey(t.party) ||
+            coloradoPartyKey(t.party) === identity.party),
       );
       if (!matches.length) continue;
       check(
@@ -147,6 +164,22 @@ export function aggregateColoradoReportedIe(
       }
       const target = matches[0]!;
       check(target.stance, "unresolved_ie_stance");
+      if (
+        legislative &&
+        !coloradoTargetHasUniqueNativeCycle({
+          target,
+          date: expense.date,
+          profiles: candidate.peers!,
+          candidateId: identity.candidateId,
+          cycleYear: identity.cycleYear,
+          party: identity.party,
+          officeName: nativeOffice,
+          districtName: identity.districtName!,
+        })
+      ) {
+        controls.ambiguousCandidateParents!++;
+        continue;
+      }
       const key = coloradoReportedNameKey(expense.reportedName);
       check(knownReporters.has(key), "unverified_ie_reporting_name");
       const groupKey = `${target.stance}:${key}`,

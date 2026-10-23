@@ -17,9 +17,19 @@ import {
 } from "./coloradoTracerReports.js";
 import {
   qualifyColoradoNativeCandidateProfile,
+  coloradoIeNativeDistrict,
+  coloradoIePersonMatches,
+  coloradoPartyKey,
   type ColoradoIeCandidateIdentity,
   type ColoradoNativeCandidateProof,
 } from "./coloradoNativeCandidateIdentity.js";
+import {
+  parseColoradoNativePeerGrid,
+  parseColoradoNativePeerProfile,
+  type ColoradoNativePeerGridRow,
+  type ColoradoNativePeerProfile,
+  type ColoradoNativePostback,
+} from "./coloradoNativePeerIdentity.js";
 import {
   COLORADO_TRACER_ORIGIN,
   COLORADO_TRACER_REPORTS,
@@ -67,6 +77,7 @@ export type ColoradoIeCandidateSource = Readonly<{
   expected: ColoradoIeCandidateIdentity;
   identity: ColoradoNativeCandidateProof;
   source: ColoradoSourceFacts;
+  peers?: readonly ColoradoNativePeerProfile[];
 }>;
 type Options = { cacheDir?: string; refresh?: boolean; fetchFn?: typeof fetch };
 const verifiedDatasets = new WeakSet<object>(),
@@ -392,7 +403,209 @@ async function candidateProtocol(
         "native_candidate_identity_changed",
       );
   }
+  if (coloradoIeNativeDistrict(expected)) {
+    const peers = await legislativePeerProtocol(sequence, opening!);
+    return {
+      expected: { ...expected },
+      identity: {
+        ...opening!,
+        peerCandidateCount: peers.length,
+        peerCampaignCount: peers.reduce((n, p) => n + p.campaigns.length, 0),
+      },
+      peers,
+    };
+  }
   return { expected: { ...expected }, identity: opening! };
+}
+
+/** The source's all-years/all-status family census supplies every possible
+ * native candidate ID. Each record action stays bound to its own saved page. */
+async function legislativePeerProtocol(
+  sequence: ColoradoTracerObservations,
+  primary: ColoradoNativeCandidateProof,
+): Promise<ColoradoNativePeerProfile[]> {
+  const catalog = await sequence.request(
+      "peer_catalog",
+      COLORADO_TRACER_REPORTS,
+    ),
+    navigation = html(catalog.bytes, catalog.url),
+    url = nativeLink(navigation, "Candidate Search", catalog.url);
+  const rawFamily = primary.candidateName.includes(",")
+    ? primary.candidateName.split(",")[0]!
+    : primary.candidateName.replace(/\([^()]*\)/gu, "");
+  const tokens = rawFamily
+      .normalize("NFKC")
+      .toUpperCase()
+      .replace(/\b(?:JR|SR|II|III|IV)\b/gu, " ")
+      .match(/[A-Z0-9]+/gu),
+    family = tokens?.at(-1);
+  check(family && family.length <= 100, "native_peer_family_scope");
+  const stable = (rows: unknown[]) => rows.map((r) => JSON.stringify(r)).sort();
+  const actionUrl = (
+    parent: HTMLFormElement,
+    base: string,
+    action: ColoradoNativePostback,
+  ) => {
+    const target = coloradoSourceUrl(
+      action.action || parent.getAttribute("action") || base,
+      base,
+    );
+    check(
+      target.pathname === "/PublicSite/SearchPages/CandidateSearch.aspx",
+      "native_peer_action_scope",
+    );
+    return target.href;
+  };
+  let openingRows: unknown[] | undefined,
+    openingProfiles: ColoradoNativePeerProfile[] | undefined;
+  for (const phase of ["opening", "closing"]) {
+    const response = await sequence.request(`${phase}_peer_form`, url),
+      doc = html(response.bytes, response.url),
+      parent = form(doc),
+      values = controls(parent);
+    for (const [id, label] of [
+      ["lstElectionYear", "Select all years..."],
+      ["ddlStatus", "Select all statuses..."],
+      ["ddlParty_ucddlParty", "Select all parties..."],
+      ["ddlJurisdiction", "Select all jurisdictions..."],
+    ])
+      select(doc, `_ctl0_Content_${id}`, label!, values);
+    const contains = [
+      ...parent.querySelectorAll<HTMLInputElement>("input[type=radio]"),
+    ].filter(
+      (e) =>
+        e.name.includes("rblLastNameSearchType") &&
+        [...doc.querySelectorAll("label")].some(
+          (l) =>
+            l.getAttribute("for") === e.id &&
+            /contains/iu.test(l.textContent ?? ""),
+        ),
+    );
+    check(contains.length === 1, "native_peer_contains_control");
+    values.set(contains[0]!.name, contains[0]!.value);
+    values.set(input(doc, "_ctl0_Content_txtLastName").name, family!);
+    for (const id of ["txtFirstName", "txtCandidateID"])
+      values.set(input(doc, `_ctl0_Content_${id}`).name, "");
+    const submit = input(doc, "_ctl0_Content_btnSearch");
+    values.set(submit.name, submit.value);
+    let result = await sequence.request(
+      `${phase}_peer_search`,
+      action(parent, response.url),
+      values,
+    );
+    const census: unknown[] = [],
+      seenRows = new Set<string>(),
+      profiles = new Map<string, ColoradoNativePeerProfile>(),
+      records: { row: ColoradoNativePeerGridRow; page: typeof result }[] = [];
+    if (html(result.bytes).getElementById("_ctl0_Content_lblCandidateID")) {
+      const profile = parseColoradoNativePeerProfile(result.bytes);
+      profiles.set(profile.candidateId, profile);
+    } else {
+      for (let page = 1; ; page++) {
+        check(page <= 100, "native_peer_page_budget");
+        const parsed = parseColoradoNativePeerGrid(result.bytes, page);
+        for (const row of parsed.rows) {
+          const { action: ignored, ...identity } = row;
+          void ignored;
+          const key = JSON.stringify(identity);
+          check(!seenRows.has(key), "native_peer_duplicate_grid_row");
+          seenRows.add(key);
+          census.push(identity);
+          records.push({ row, page: result });
+        }
+        if (!parsed.next) break;
+        const d = html(result.bytes, result.url),
+          f = form(d),
+          p = controls(f);
+        p.set("__EVENTTARGET", parsed.next.target);
+        p.set("__EVENTARGUMENT", parsed.next.argument);
+        result = await sequence.request(
+          `${phase}_peer_page_${page + 1}`,
+          actionUrl(f, result.url, parsed.next),
+          p,
+        );
+      }
+      for (const record of records) {
+        if (profiles.has(record.row.candidateId)) continue;
+        const d = html(record.page.bytes, record.page.url),
+          f = form(d),
+          p = controls(f);
+        p.set("__EVENTTARGET", record.row.action.target);
+        p.set("__EVENTARGUMENT", record.row.action.argument);
+        const profileReply = await sequence.request(
+            `${phase}_peer_profile_${profiles.size}`,
+            actionUrl(f, record.page.url, record.row.action),
+            p,
+          ),
+          profile = parseColoradoNativePeerProfile(profileReply.bytes);
+        check(
+          new URL(profileReply.url).pathname ===
+            "/PublicSite/SearchPages/CandidateDetail.aspx" &&
+            profile.candidateId === record.row.candidateId,
+          "native_peer_record_identifier",
+        );
+        profiles.set(profile.candidateId, profile);
+      }
+      for (const { row } of records) {
+        const profile = profiles.get(row.candidateId)!;
+        check(
+          profile.campaigns.some(
+            (c) =>
+              c.cycleYear === row.electionYear &&
+              coloradoIePersonMatches(c.candidateName, row.candidateName) &&
+              coloradoPartyKey(c.party) === coloradoPartyKey(row.party) &&
+              coloradoReportedNameKey(c.jurisdiction) ===
+                coloradoReportedNameKey(row.jurisdiction) &&
+              coloradoReportedNameKey(c.officeName) ===
+                coloradoReportedNameKey(row.officeName) &&
+              coloradoReportedNameKey(c.districtName) ===
+                coloradoReportedNameKey(row.districtName) &&
+              coloradoReportedNameKey(c.status) ===
+                coloradoReportedNameKey(row.campaignStatus),
+          ),
+          "native_peer_grid_campaign_binding",
+        );
+      }
+    }
+    check(profiles.has(primary.candidateId), "native_peer_primary_missing");
+    const primaryProfile = profiles.get(primary.candidateId)!;
+    check(
+      primaryProfile.receivingId === primary.receivingId &&
+        coloradoIePersonMatches(
+          primaryProfile.candidateName,
+          primary.candidateName,
+        ) &&
+        primaryProfile.campaigns.some(
+          (c) =>
+            c.cycleYear === primary.cycleYear &&
+            c.cycleStart === primary.cycleStart &&
+            c.cycleEnd === primary.cycleEnd &&
+            coloradoReportedNameKey(c.officeName) ===
+              coloradoReportedNameKey(primary.nativeOfficeName!) &&
+            coloradoReportedNameKey(c.districtName) ===
+              coloradoReportedNameKey(primary.districtName!) &&
+            coloradoPartyKey(c.party) === primary.party,
+        ),
+      "native_peer_primary_cycle_binding",
+    );
+    const fullProfiles = [...profiles.values()].sort((a, b) =>
+      a.candidateId.localeCompare(b.candidateId),
+    );
+    for (const p of fullProfiles)
+      p.campaigns.sort((a, b) =>
+        JSON.stringify(a).localeCompare(JSON.stringify(b)),
+      );
+    if (!openingProfiles) {
+      openingRows = census;
+      openingProfiles = fullProfiles;
+    } else
+      check(
+        isDeepStrictEqual(stable(openingRows!), stable(census)) &&
+          isDeepStrictEqual(openingProfiles, fullProfiles),
+        "native_peer_closing_population_changed",
+      );
+  }
+  return openingProfiles!;
 }
 async function facts(
   sequence: ColoradoTracerObservations,
@@ -418,7 +631,7 @@ async function facts(
 }
 async function source<T extends object>(
   input: Options & {
-    kind: "ie" | "candidate";
+    kind: "ie" | "candidate" | "legislative-candidate";
     year: number;
     run: (sequence: ColoradoTracerObservations) => Promise<T>;
     verified: WeakSet<object>;
@@ -532,7 +745,9 @@ export async function getColoradoIeCandidateSource(
   );
   return source({
     ...input,
-    kind: "candidate",
+    kind: coloradoIeNativeDistrict(input.expected)
+      ? "legislative-candidate"
+      : "candidate",
     year: input.expected.electionYear,
     run: (sequence) => candidateProtocol(sequence, input.expected),
     verified: verifiedCandidates,

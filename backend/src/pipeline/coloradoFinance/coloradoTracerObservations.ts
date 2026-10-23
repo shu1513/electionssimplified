@@ -11,6 +11,7 @@ const PATHS = new Set([
   "/CampaignFinance/Reports/ReportViewer.aspx",
   "/CampaignFinance/Reserved.ReportViewerWebControl.axd",
   "/PublicSite/SearchPages/CommitteeSearch.aspx",
+  "/PublicSite/SearchPages/CandidateSearch.aspx",
   "/PublicSite/SearchPages/CandidateDetail.aspx",
 ]);
 const MAX_BODY = 64 * 1024 * 1024;
@@ -36,7 +37,7 @@ export type ColoradoObservation = {
 };
 export type ColoradoObservationManifest = {
   version: 1;
-  kind: "ie" | "candidate";
+  kind: "ie" | "candidate" | "legislative-candidate";
   year: number;
   complete: boolean;
   records: ColoradoObservation[];
@@ -104,7 +105,7 @@ export async function coloradoPrivateOriginal(
 function validateManifest(manifest: ColoradoObservationManifest): void {
   check(
     manifest.version === 1 &&
-      ["ie", "candidate"].includes(manifest.kind) &&
+      ["ie", "candidate", "legislative-candidate"].includes(manifest.kind) &&
       Number.isSafeInteger(manifest.year) &&
       manifest.year >= 2022 &&
       manifest.year <= 2100 &&
@@ -192,7 +193,7 @@ export class ColoradoTracerObservations {
   }
   static async create(
     root: string,
-    kind: "ie" | "candidate",
+    kind: "ie" | "candidate" | "legislative-candidate",
     year: number,
     fetcher: typeof fetch = fetch,
   ): Promise<ColoradoTracerObservations> {

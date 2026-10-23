@@ -20,6 +20,35 @@ export const COLORADO_IE_STATEWIDE_OFFICES = [
   "Secretary of State",
   "State Treasurer",
 ] as const;
+export const COLORADO_IE_LEGISLATIVE_OFFICES = [
+  "State Lower Chamber Legislator",
+  "State Senator",
+] as const;
+export function coloradoIeNativeOffice(officeName: string): string {
+  if (officeName === "State Lower Chamber Legislator") return "COLORADO HOUSE";
+  if (officeName === "State Senator") return "COLORADO SENATE";
+  return officeName;
+}
+/** Canonical seat and native district are independently named authorities. */
+export function coloradoIeNativeDistrict(expected: {
+  officeName: string;
+  districtName?: string;
+}): string | null {
+  if (
+    !(COLORADO_IE_LEGISLATIVE_OFFICES as readonly string[]).includes(
+      expected.officeName,
+    )
+  )
+    return null;
+  const match =
+    /^State (House|Senate) District ([1-9][0-9]*)(?: \((?:19|20)[0-9]{2}\))?; Colorado$/u.exec(
+      expected.districtName ?? "",
+    );
+  const chamber = expected.officeName === "State Senator" ? "Senate" : "House";
+  if (!match || match[1] !== chamber)
+    throw new ColoradoReportError("unqualified_ie_legislative_district");
+  return `${chamber} District ${Number(match[2])}`;
+}
 export type ColoradoIeCandidateIdentity = {
   candidateName: string;
   party: string;
@@ -29,6 +58,7 @@ export type ColoradoIeCandidateIdentity = {
   receivingId: string;
   receivingName: string;
   tracerCandidateId: string | null;
+  districtName?: string;
 };
 export type ColoradoNativeCandidateProof = {
   candidateName: string;
@@ -39,6 +69,10 @@ export type ColoradoNativeCandidateProof = {
   cycleYear: number;
   cycleStart: string;
   cycleEnd: string;
+  nativeOfficeName?: string;
+  districtName?: string;
+  peerCandidateCount?: number;
+  peerCampaignCount?: number;
 };
 function check(value: unknown, code: string): asserts value {
   if (!value) throw new ColoradoReportError(code);
@@ -85,11 +119,16 @@ export function qualifyColoradoNativeCandidateProfile(
     "native_profile_byte_limit",
   );
   check(
-    (COLORADO_IE_STATEWIDE_OFFICES as readonly string[]).includes(
-      expected.officeName,
-    ),
+    (
+      [
+        ...COLORADO_IE_STATEWIDE_OFFICES,
+        ...COLORADO_IE_LEGISLATIVE_OFFICES,
+      ] as readonly string[]
+    ).includes(expected.officeName),
     "unqualified_ie_office_scope",
   );
+  const nativeOffice = coloradoIeNativeOffice(expected.officeName),
+    nativeDistrict = coloradoIeNativeDistrict(expected);
   check(
     /^[1-9]\d{0,19}$/u.test(expected.receivingId) &&
       Number.isSafeInteger(expected.electionYear) &&
@@ -141,7 +180,7 @@ export function qualifyColoradoNativeCandidateProfile(
   check(party && party === expectedParty, "native_candidate_party_conflict");
   check(
     coloradoReportedNameKey(field("lblCandOffice")) ===
-      coloradoReportedNameKey(expected.officeName) &&
+      coloradoReportedNameKey(nativeOffice) &&
       coloradoReportedNameKey(field("lblCandJurisdiction")) === "STATEWIDE",
     "native_candidate_office_conflict",
   );
@@ -176,7 +215,10 @@ export function qualifyColoradoNativeCandidateProfile(
       coloradoPartyKey(row[2]!) === party &&
       coloradoReportedNameKey(row[3]!) === "STATEWIDE" &&
       coloradoReportedNameKey(row[4]!) ===
-        coloradoReportedNameKey(expected.officeName) &&
+        coloradoReportedNameKey(nativeOffice) &&
+      (!nativeDistrict ||
+        coloradoReportedNameKey(row[5]!) ===
+          coloradoReportedNameKey(nativeDistrict)) &&
       coloradoReportedNameKey(row[6]!) === "ACTIVE",
     "native_campaign_identity_conflict",
   );
@@ -200,5 +242,8 @@ export function qualifyColoradoNativeCandidateProfile(
     cycleYear: expected.electionYear,
     cycleStart,
     cycleEnd,
+    ...(nativeDistrict
+      ? { nativeOfficeName: nativeOffice, districtName: nativeDistrict }
+      : {}),
   };
 }

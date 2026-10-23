@@ -138,7 +138,7 @@ export async function overlayColoradoReportedIe(
               : null,
           top_supporting_groups: groups("support"),
           top_opposing_groups: groups("oppose"),
-          outside_coverage_note: `Partial Colorado coverage: signed native IE expenses naming one candidate with matching party and office, ${identity.cycleStart} through ${facts.endDate}, net of reported credits. Shared expenses without candidate allocations and unresolved identities, parties or stances are excluded. Groups use exact reported names verified in the IE committee registry; these are not legal-entity counts. Filings checked ${facts.dataset.observedAt.slice(0, 10)}–${facts.dataset.completedAt.slice(0, 10)}; candidate profile checked ${facts.candidate.observedAt.slice(0, 10)}. Later and unfiled expenses may be absent. The headline update date may reflect campaign receipts.`,
+          outside_coverage_note: `Partial Colorado coverage: signed native IE expenses naming one candidate with ${identity.districtName ? "matching party, office and district across independently checked campaign periods" : "matching party and office"}, ${identity.cycleStart} through ${facts.endDate}, net of reported credits. Shared expenses without candidate allocations and unresolved identities, parties or stances are excluded. Groups use exact reported names verified in the IE committee registry; these are not legal-entity counts. Filings checked ${facts.dataset.observedAt.slice(0, 10)}–${facts.dataset.completedAt.slice(0, 10)}; candidate profile checked ${facts.candidate.observedAt.slice(0, 10)}. Later and unfiled expenses may be absent. The headline update date may reflect campaign receipts.`,
         },
       });
     } catch {

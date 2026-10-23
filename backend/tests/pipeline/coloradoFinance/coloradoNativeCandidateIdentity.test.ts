@@ -115,7 +115,40 @@ describe("Colorado native person and financial cycle", () => {
         ...expected,
         officeName: "State Senator",
       }),
-    ).toThrow("unqualified_ie_office_scope"));
+    ).toThrow("unqualified_ie_legislative_district"));
+  it("binds a native House district to the exact canonical chamber and seat", () => {
+    const raw = edit(
+      edit(
+        profile({ lblCandOffice: "COLORADO HOUSE" }),
+        "<td>Governor</td>",
+        "<td>COLORADO HOUSE</td>",
+      ),
+      "<td></td>",
+      "<td>House District 42</td>",
+    );
+    const context = {
+      ...expected,
+      officeName: "State Lower Chamber Legislator",
+      districtName: "State House District 42 (2022); Colorado",
+    };
+    expect(qualifyColoradoNativeCandidateProfile(raw, context)).toMatchObject({
+      officeName: "State Lower Chamber Legislator",
+      nativeOfficeName: "COLORADO HOUSE",
+      districtName: "House District 42",
+    });
+    expect(() =>
+      qualifyColoradoNativeCandidateProfile(raw, {
+        ...context,
+        districtName: "State House District 12 (2022); Colorado",
+      }),
+    ).toThrow("native_campaign_identity_conflict");
+    expect(() =>
+      qualifyColoradoNativeCandidateProfile(raw, {
+        ...context,
+        districtName: "State Senate District 42 (2022); Colorado",
+      }),
+    ).toThrow("unqualified_ie_legislative_district");
+  });
   it("holds an error page", () =>
     expect(() =>
       qualifyColoradoNativeCandidateProfile(

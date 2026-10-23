@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { aggregateColoradoReportedIe } from "../../../src/pipeline/coloradoFinance/coloradoReportedIeAggregation.js";
+import type { ColoradoIeCandidateSource } from "../../../src/pipeline/coloradoFinance/coloradoReportedIeSource.js";
 import type {
   ColoradoReportedExpense,
   ColoradoReportedIeReport,
@@ -48,7 +49,13 @@ const expense = (
   date,
   targets,
 });
-function run(expenses: ColoradoReportedExpense[]) {
+function run(
+  expenses: ColoradoReportedExpense[],
+  candidate: Pick<
+    ColoradoIeCandidateSource,
+    "identity" | "expected" | "peers"
+  > = { identity, expected },
+) {
   const totalMicros = expenses.reduce((n, e) => n + BigInt(e.amountMicros), 0n);
   const report: ColoradoReportedIeReport = {
     jurisdiction: "STATEWIDE",
@@ -79,10 +86,128 @@ function run(expenses: ColoradoReportedExpense[]) {
         },
       ],
     },
-    { identity, expected },
+    candidate,
   );
 }
 describe("Colorado exact native IE allocations", () => {
+  const legislative = (): Pick<
+    ColoradoIeCandidateSource,
+    "identity" | "expected" | "peers"
+  > => ({
+    expected: {
+      ...expected,
+      officeName: "State Lower Chamber Legislator",
+      districtName: "State House District 42 (2022); Colorado",
+    },
+    identity: {
+      ...identity,
+      officeName: "State Lower Chamber Legislator",
+      nativeOfficeName: "COLORADO HOUSE",
+      districtName: "House District 42",
+      cycleStart: "2024-12-06",
+      peerCandidateCount: 1,
+      peerCampaignCount: 1,
+    },
+    peers: [
+      {
+        candidateId: identity.candidateId,
+        candidateName: identity.candidateName,
+        receivingId: identity.receivingId,
+        receivingName: expected.receivingName,
+        committeeType: "Candidate Committee",
+        party: "Democratic",
+        officeName: "COLORADO HOUSE",
+        jurisdiction: "STATEWIDE",
+        candidateStatus: "Active",
+        receivingStatus: "Active",
+        campaigns: [
+          {
+            candidateName: identity.candidateName,
+            cycleYear: 2026,
+            cycleStart: "2024-12-06",
+            cycleEnd: "2026-12-03",
+            party: "Democratic",
+            officeName: "COLORADO HOUSE",
+            jurisdiction: "STATEWIDE",
+            districtName: "House District 42",
+            status: "Active",
+          },
+        ],
+      },
+    ],
+  });
+  it("uses independently qualified native legislative office/district cycles", () => {
+    const r = run(
+      [
+        expense("100000000", [
+          target("Ada Example", "support", "COLORADO HOUSE"),
+        ]),
+      ],
+      legislative(),
+    );
+    expect(r.controls).toMatchObject({
+      allocatedParents: 1,
+      ambiguousCandidateParents: 0,
+      supportCents: 10000,
+    });
+  });
+  it("excludes an ambiguous single parent without losing a separately identified expense", () => {
+    const candidate = legislative(),
+      primary = candidate.peers![0]!,
+      other = {
+        ...primary,
+        candidateId: "20260000003",
+        candidateName: "Ada B Example",
+        campaigns: primary.campaigns.map((c) => ({
+          ...c,
+          candidateName: "Ada B Example",
+        })),
+      };
+    candidate.identity.candidateName =
+      primary.candidateName =
+      primary.campaigns[0]!.candidateName =
+        "Ada A Example";
+    const peers = [primary, other],
+      qualified = {
+        ...candidate,
+        peers,
+        identity: {
+          ...candidate.identity,
+          peerCandidateCount: 2,
+          peerCampaignCount: 2,
+        },
+      };
+    const r = run(
+      [
+        expense("100000000", [
+          target("Ada Example", "support", "COLORADO HOUSE"),
+        ]),
+        expense("200000000", [
+          target("Ada A Example", "support", "COLORADO HOUSE"),
+        ]),
+      ],
+      qualified,
+    );
+    expect(r.controls).toMatchObject({
+      sourceParents: 2,
+      allocatedParents: 1,
+      ambiguousCandidateParents: 1,
+      supportCents: 20000,
+    });
+  });
+  it("requires complete native peer proof instead of reverting to a name match", () => {
+    const c = legislative();
+    expect(() =>
+      run(
+        [
+          expense("100000000", [
+            target("Ada Example", "support", "COLORADO HOUSE"),
+          ]),
+        ],
+        { ...c, peers: undefined },
+      ),
+    ).toThrow("missing_native_legislative_peers");
+  });
   it("nets signed credits and retains repeated actual occurrences", () => {
     const r = run([
       expense("100000000"),

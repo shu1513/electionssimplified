@@ -4,6 +4,7 @@ import {
   validateColoradoIeStored,
   writeColoradoReportedIe,
   CO_IE_REVISION,
+  CO_LEGISLATIVE_IE_REVISION,
   type ColoradoIeStoredFacts,
 } from "../../../src/pipeline/coloradoFinance/coloradoReportedIeStore.js";
 import { aggregateColoradoReportedIe } from "../../../src/pipeline/coloradoFinance/coloradoReportedIeAggregation.js";
@@ -153,6 +154,141 @@ beforeEach(() => {
 });
 afterEach(() => vi.unstubAllEnvs());
 describe("Colorado protected IE storage", () => {
+  function legislativePacket() {
+    const p = packet(),
+      r = {
+        ...receiver,
+        officeName: "State Lower Chamber Legislator",
+        linkOffice: "State Lower Chamber Legislator",
+        districtName: "State House District 42 (2022); Colorado",
+      };
+    p.dataset.reports[0]!.expenses[0]!.targets[0]!.office = "COLORADO HOUSE";
+    const candidate: ColoradoIeCandidateSource = {
+      ...p.candidate,
+      expected: r,
+      identity: {
+        ...p.candidate.identity,
+        officeName: r.officeName,
+        nativeOfficeName: "COLORADO HOUSE",
+        districtName: "House District 42",
+        peerCandidateCount: 1,
+        peerCampaignCount: 1,
+      },
+      source: {
+        ...p.candidate.source,
+        originals: Array.from({ length: 21 }, (_, i) => ({
+          ...p.candidate.source.originals[0]!,
+          file: `${String(i + 1).padStart(4, "0")}.response`,
+        })),
+      },
+      peers: [
+        {
+          candidateId: r.tracerCandidateId!,
+          candidateName: "Ada Example",
+          receivingId: r.receivingId,
+          receivingName: r.receivingName,
+          committeeType: "Candidate Committee",
+          party: "Democratic",
+          officeName: "COLORADO HOUSE",
+          jurisdiction: "STATEWIDE",
+          candidateStatus: "Active",
+          receivingStatus: "Active",
+          campaigns: [
+            {
+              candidateName: "Ada Example",
+              cycleYear: 2026,
+              cycleStart: "2022-12-09",
+              cycleEnd: "2026-12-03",
+              party: "Democratic",
+              jurisdiction: "STATEWIDE",
+              officeName: "COLORADO HOUSE",
+              districtName: "House District 42",
+              status: "Active",
+            },
+          ],
+        },
+      ],
+    };
+    return {
+      receiver: r,
+      candidate,
+      dataset: p.dataset,
+      facts: {
+        ...p.facts,
+        revision: CO_LEGISLATIVE_IE_REVISION,
+        candidate: candidate.source,
+      },
+      projection: aggregateColoradoReportedIe(p.dataset, candidate),
+    };
+  }
+  it("validates the separate legislative revision and native seat/peer controls", () => {
+    const p = legislativePacket();
+    expect(() =>
+      validateColoradoIeStored(
+        p.receiver,
+        p.candidate.identity,
+        p.facts,
+        p.projection,
+      ),
+    ).not.toThrow();
+    expect(() =>
+      validateColoradoIeStored(
+        {
+          ...p.receiver,
+          districtName: "State House District 12 (2022); Colorado",
+        },
+        p.candidate.identity,
+        p.facts,
+        p.projection,
+      ),
+    ).toThrow("stored_ie_legislative_identity");
+    expect(() =>
+      validateColoradoIeStored(
+        p.receiver,
+        p.candidate.identity,
+        { ...p.facts, revision: CO_IE_REVISION },
+        p.projection,
+      ),
+    ).toThrow("stored_ie_window");
+  });
+  it("requires complete peer observation and ambiguity controls on read", () => {
+    const p = legislativePacket();
+    delete p.projection.controls.ambiguousCandidateParents;
+    expect(() =>
+      validateColoradoIeStored(
+        p.receiver,
+        p.candidate.identity,
+        p.facts,
+        p.projection,
+      ),
+    ).toThrow("stored_ie_legislative_controls");
+    p.projection.controls.ambiguousCandidateParents = 0;
+    expect(() =>
+      validateColoradoIeStored(
+        p.receiver,
+        p.candidate.identity,
+        { ...p.facts, candidate: packet().candidate.source },
+        p.projection,
+      ),
+    ).toThrow("stored_ie_legislative_identity");
+  });
+  it("rejects a changed canonical seat before connecting for a write", async () => {
+    vi.mocked(isVerifiedColoradoIeDataset).mockReturnValue(true);
+    vi.mocked(isVerifiedColoradoIeCandidateSource).mockReturnValue(true);
+    const p = legislativePacket(),
+      connect = vi.fn();
+    await expect(
+      writeColoradoReportedIe({
+        ...p,
+        receiver: {
+          ...p.receiver,
+          districtName: "State House District 12 (2022); Colorado",
+        },
+        db: { connect } as never,
+      }),
+    ).rejects.toThrow("ie_expected_context_changed");
+    expect(connect).not.toHaveBeenCalled();
+  });
   it("validates complete group and original closure", () => {
     const p = packet();
     expect(() =>

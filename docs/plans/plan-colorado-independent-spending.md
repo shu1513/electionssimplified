@@ -26,9 +26,11 @@ Count each parent once; preserve signed credits and repeated occurrences. Never
 divide a shared amount or infer support/oppose from a payee or description.
 
 Source target fields give explicit person, party and office, but no district.
-Initially admit only independently verified current statewide Governor, Attorney
-General, Secretary of State and State Treasurer contexts. Legislative identity
-remains held. Reporting captions contain a registered name plus a literal trailing
+The first local acceptance admitted independently verified current statewide
+Governor, Attorney General, Secretary of State and State Treasurer contexts.
+Legislative contexts additionally require the canonical chamber/district bridge,
+an all-years/all-status native candidate census and each peer's actual financial
+cycle. Reporting captions contain a registered name plus a literal trailing
 comma; exact complete typed registry and native profile evidence corroborate the
 reporter. Do not treat vendors as reporting committees or infer legal entities from
 name hints.
@@ -107,5 +109,8 @@ against a fresh second observation. Every matching roster row maps to that grid,
 and every grid row maps to published native campaign dates. Those dates separate
 all 58 observed target occurrences from historical peers: 37 single-target
 expenses qualify for further integration; 21 shared parents remain unallocated.
-This is source proof. The current writer and reader remain scoped to the four
-qualified statewide offices; legislative sync/API/card acceptance is still pending.
+This is source proof. The protected writer/reader now have a separate legislative
+revision that requires those peer and seat controls; existing statewide snapshots
+retain their original shape and revision. Every record action uses its own page's
+form state. Repeated pages, wrong returned IDs and changed closing inventories hold
+the component. Legislative sync/API/card acceptance is still pending.
