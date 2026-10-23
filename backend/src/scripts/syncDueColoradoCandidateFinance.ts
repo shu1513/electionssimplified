@@ -24,9 +24,13 @@ export type SyncDueColoradoCandidateFinanceScriptOptions = {
   ieCacheDir?: string;
   ieLinkId?: string;
   refreshIe?: boolean;
+  receiptsOnly?: boolean;
+  receiptsCacheDir?: string;
+  receiptsLinkId?: string;
+  refreshReceipts?: boolean;
 };
 
-const KNOWN_BOOLEAN_FLAGS = new Set(["--dry-run", "--force", "--ie-only", "--refresh-ie"]);
+const KNOWN_BOOLEAN_FLAGS = new Set(["--dry-run", "--force", "--ie-only", "--refresh-ie", "--receipts-only", "--refresh-receipts"]);
 const KNOWN_VALUE_FLAGS = new Set([
   "--max-candidates",
   "--stale-after-days",
@@ -35,7 +39,9 @@ const KNOWN_VALUE_FLAGS = new Set([
   "--raw-cache-dir",
   "--raw-zip",
   "--ie-cache-dir",
-  "--ie-link-id"
+  "--ie-link-id",
+  "--receipts-cache-dir",
+  "--receipts-link-id"
 ]);
 
 function assertNoUnknownColoradoCandidateFinanceArgs(args: readonly string[]): void {
@@ -46,13 +52,20 @@ export function parseSyncDueColoradoCandidateFinanceScriptArgs(
   args: readonly string[]
 ): SyncDueColoradoCandidateFinanceScriptOptions {
   assertNoUnknownColoradoCandidateFinanceArgs(args);
+  if (args.includes("--ie-only") && args.includes("--receipts-only")) throw new Error("Select only one Colorado finance component");
   const ieCacheDir = readStrictFlagValue(args, "--ie-cache-dir") || undefined;
   const ieLinkId = readStrictFlagValue(args, "--ie-link-id") || undefined;
+  const receiptsCacheDir = readStrictFlagValue(args, "--receipts-cache-dir") || undefined;
+  const receiptsLinkId = readStrictFlagValue(args, "--receipts-link-id") || undefined;
   return {
     ...(args.includes("--ie-only") ? { ieOnly: true } : {}),
     ...(args.includes("--refresh-ie") ? { refreshIe: true } : {}),
     ...(ieCacheDir ? { ieCacheDir } : {}),
     ...(ieLinkId ? { ieLinkId } : {}),
+    ...(args.includes("--receipts-only") ? {receiptsOnly:true} : {}),
+    ...(args.includes("--refresh-receipts") ? {refreshReceipts:true} : {}),
+    ...(receiptsCacheDir ? {receiptsCacheDir} : {}),
+    ...(receiptsLinkId ? {receiptsLinkId} : {}),
     dryRun: args.includes("--dry-run"),
     force: args.includes("--force"),
     maxCandidates: readStrictPositiveIntegerFlag(args, "--max-candidates"),
@@ -113,7 +126,11 @@ async function main(): Promise<void> {
       ieOnly: options.ieOnly,
       ieCacheDir: options.ieCacheDir,
       ieLinkId: options.ieLinkId,
-      refreshIe: options.refreshIe
+      refreshIe: options.refreshIe,
+      receiptsOnly: options.receiptsOnly,
+      receiptsCacheDir: options.receiptsCacheDir,
+      receiptsLinkId: options.receiptsLinkId,
+      refreshReceipts: options.refreshReceipts
     });
 
     console.log(

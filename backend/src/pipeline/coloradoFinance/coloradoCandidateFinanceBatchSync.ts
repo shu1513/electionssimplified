@@ -1,5 +1,6 @@
-import { isColoradoCampaignFinanceSyncEnabled, isColoradoReportedIeEnabled } from "../../config/featureFlags.js";
+import { isColoradoCampaignFinanceSyncEnabled, isColoradoReportedIeEnabled, isColoradoNativeReceiptsEnabled } from "../../config/featureFlags.js";
 import { syncDueColoradoReportedIe } from "./coloradoReportedIeBatchSync.js";
+import { syncDueColoradoNativeReceipts } from "./coloradoNativeReceiptBatchSync.js";
 import { stat } from "node:fs/promises";
 import type { Pool, PoolClient } from "pg";
 
@@ -53,6 +54,10 @@ export type ColoradoCandidateFinanceBatchSyncInput = {
   ieCacheDir?: string;
   ieLinkId?: string;
   refreshIe?: boolean;
+  receiptsOnly?: boolean;
+  receiptsCacheDir?: string;
+  receiptsLinkId?: string;
+  refreshReceipts?: boolean;
   now?: Date;
   dryRun?: boolean;
   maxCandidates?: number;
@@ -78,6 +83,7 @@ export type ColoradoCandidateFinanceBatchSyncItemResult = {
 
 export type ColoradoCandidateFinanceBatchSyncResult = {
   reportedIe?: Awaited<ReturnType<typeof syncDueColoradoReportedIe>>;
+  nativeReceipts?: Awaited<ReturnType<typeof syncDueColoradoNativeReceipts>>;
   dryRun: boolean;
   now: string;
   staleAfterDays: number;
@@ -389,6 +395,7 @@ export async function syncDueColoradoCandidateFinance(
 ): Promise<ColoradoCandidateFinanceBatchSyncResult> {
   const now = input.now ?? new Date();
   assertValidDate(now, "now");
+  if (input.ieOnly && input.receiptsOnly) throw new Error("Select only one Colorado finance component");
 
   const maxCandidates = normalizePositiveInteger(input.maxCandidates, DEFAULT_MAX_CANDIDATES, "maxCandidates");
   const staleAfterDays = normalizePositiveInteger(input.staleAfterDays, DEFAULT_STALE_AFTER_DAYS, "staleAfterDays");
@@ -407,7 +414,7 @@ export async function syncDueColoradoCandidateFinance(
 
   // IE acquisition runs before legacy file discovery and direct freshness.
   let reportedIe: Awaited<ReturnType<typeof syncDueColoradoReportedIe>> | undefined;
-  if (isColoradoReportedIeEnabled() && isColoradoCampaignFinanceSyncEnabled()) {
+  if (!input.receiptsOnly && isColoradoReportedIeEnabled() && isColoradoCampaignFinanceSyncEnabled()) {
     if (!input.db.connect) throw new Error("Colorado IE sync requires a pool");
     reportedIe = await syncDueColoradoReportedIe({
       db: {
@@ -425,7 +432,17 @@ export async function syncDueColoradoCandidateFinance(
       refresh: input.refreshIe
     });
   }
-  if (input.ieOnly)
+  let nativeReceipts: Awaited<ReturnType<typeof syncDueColoradoNativeReceipts>> | undefined;
+  if (!input.ieOnly && isColoradoNativeReceiptsEnabled() && isColoradoCampaignFinanceSyncEnabled()) {
+    if (!input.db.connect) throw new Error("Colorado native receipt sync requires a pool");
+    nativeReceipts = await syncDueColoradoNativeReceipts({
+      db: {query:input.db.query.bind(input.db),connect:input.db.connect.bind(input.db)},
+      now,maxCandidates,staleAfterDays,electionLookbackDays:input.electionLookbackDays,
+      electionLookaheadDays,dryRun,cacheDir:input.receiptsCacheDir,
+      linkId:input.receiptsLinkId,refresh:input.refreshReceipts,
+    });
+  }
+  if (input.ieOnly || input.receiptsOnly)
     return {
       dryRun,
       now: now.toISOString(),
@@ -436,7 +453,8 @@ export async function syncDueColoradoCandidateFinance(
       syncedCandidateCount: 0,
       failedCandidateCount: 0,
       results: [],
-      ...(reportedIe ? { reportedIe } : {})
+      ...(reportedIe ? { reportedIe } : {}),
+      ...(nativeReceipts ? { nativeReceipts } : {})
     };
 
   if (input.autoLinkMissingLinks !== false) {
@@ -556,6 +574,7 @@ export async function syncDueColoradoCandidateFinance(
     dueCandidateCount: due.totalDueRows,
     selectedCandidateCount: due.rows.length,
     ...(reportedIe ? { reportedIe } : {}),
+    ...(nativeReceipts ? { nativeReceipts } : {}),
     syncedCandidateCount,
     failedCandidateCount: results.length - syncedCandidateCount,
     results

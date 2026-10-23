@@ -10,9 +10,9 @@ direct contribution ZIP path; new IE acquisition and freshness must work separat
 
 Fresh contribution ZIPs still fail strict whole-source decoding or CSV grammar.
 The bulk donor ContributorType is distinct from the receiving CommitteeType.
-Clean native receiving exports and a typed registry exist, but named committee
-receipts still need complete receiving/version/control and positive identity proof.
-This increment does not qualify those donors.
+Clean native receiving exports and the complete typed registry now support a
+separate cash-donor component. The source path and acceptance below qualify one
+receiving context; malformed ZIPs remain held.
 
 Acquire January 2022 through the observation date, then use each candidate’s
 actual published financial cycle (currently December 9, 2022–December 3, 2026).
@@ -87,8 +87,8 @@ selects a private originals cache, and `--ie-link-id` targets a verified link.
 `--refresh-ie` makes the selected IE contexts due and acquires fresh originals;
 it cannot bypass source or sync gates. Use it for the deadline reruns above.
 
-This acceptance proves one current statewide context. Legislative district
-identity and native committee-receipt qualification remain open Colorado work.
+This first acceptance proves one current statewide context. Subsequent
+legislative and native cash-receipt acceptances are documented below.
 
 ## Legislative identity research, October 23
 
@@ -129,4 +129,82 @@ candidate/peer acquisition followed by an injected group-insert failure rolls ba
 the real source replacement and group deletion. All component rows, existing
 statewide money, legacy direct finance and their clocks remain unchanged.
 These two local candidate acceptances do not constitute a full statewide batch.
-Native named committee-receipt qualification remains open.
+Native cash-receipt acceptance below adds one independently qualified receiver.
+
+## Native named committee receipts: source decision, October 23
+
+The native receiving report closes all 14 currently filed periods in one verified
+House committee's actual December 6, 2024–December 3, 2026 financial cycle.
+Its 257 receipt occurrences reconcile to independent filing parents: $107,240
+gross, $2,750 signed returns and $104,490 net. Reports currently end October 14.
+All current regular filings are filed and unamended; unknown versions or kinds
+must hold the component until qualified.
+
+Acquire every native committee class across All Counties, STATEWIDE and FEDERAL,
+including inactive registrations. Complete opening/closing CSV/XML populations
+close across 15,112 registry occurrences. Federal scope supplies 120 Federal PAC
+rows absent from the other two scopes. Exact normalized registry names identify
+78 cash receipts in this receiver: 69 reported-name groups totaling $64,675.
+All 78 have blank contributor types. Explicit individuals and unmatched businesses
+remain excluded; no name-token heuristic or inferred industry.
+
+Two current major-contributor notices each match one regular receipt and must
+not add money again. Their full exports, independent totals, receiver identity
+and empty loan sections close. The
+[official supplemental calendar](https://www.coloradosos.gov/pubs/elections/CampaignFinance/calendars/2026/2026SupplementalRptCalendar.pdf)
+also requires separate 24-hour notices for major contributions during October
+4–November 2. Keep the post-deadline manual reruns above, including late notices
+and amendments.
+
+Implementation proceeds through strict parsers and genuine replay, saved-first
+native acquisition, a separately gated protected cash-donor component, then the
+ordinary local CLI, uncapped SQL, actual API and hydrated candidate-card proof.
+Receipt freshness must remain independent of the malformed bulk ZIP and IE.
+The reader remains default off and requires successful whole-source qualification
+through that protected path.
+
+## Native cash implementation and local acceptance
+
+`COLORADO_NATIVE_RECEIPTS_ENABLED` defaults off beneath the global and Colorado
+read gates. Acquisition uses complete saved originals first; the existing raw
+refresh flag permits fresh native reports. The component has separate source,
+donor and retry tables, canonical ownership checks and an atomic replacement
+transaction. Neither direct ZIP discovery nor IE freshness controls this path.
+
+The ordinary Colorado due-sync CLI accepts `--receipts-only`,
+`--receipts-cache-dir`, `--receipts-link-id` and `--refresh-receipts`. Enable the
+normal Colorado sync flag inline for writes. `--ie-only` and `--receipts-only`
+are mutually exclusive. Deadline reruns must include fresh receipt acquisition
+when this component is enabled.
+
+Actual production acquisition retained 219 registry and 251 receiving originals.
+Saved-only replay made zero network calls and reproduced every control. The
+ordinary targeted receipts-only CLI then wrote one source and 69 donor groups
+from 78 registered-name receipts, totaling $64,675. Uncapped SQL compared every
+name, key and amount to the genuine source in memory. All existing Colorado
+links, direct finance, IE components and their clocks stayed unchanged. The
+actual HTTP API agrees on total/count and its five displayed groups; default-off
+behavior and existing direct/IE/headline clocks pass.
+
+This is one qualified receiving context, not a full statewide batch. Initial
+admission requires complete positive native history controls, unamended regular
+filings, the three qualified monetary/return kinds, zero noncash contributions
+and expense-return controls, and every current major notice represented by
+regular cash occurrences. Unknown empty-history states, amendments, new kinds,
+loans in notices or uncovered notices hold the component and preserve prior
+money and clocks; they require further source qualification. No zero or complete
+statewide-coverage claim follows from a held component.
+
+Migration 379 was applied through the ordinary local runner. All 402 previous
+checksums stayed unchanged. Migration 379 is now immutable.
+
+The actual hydrated CandidatePage also passes: both disclosures open, the cash
+heading, $64,675, 69 reported groups, all five displayed names/amounts, “and 64
+more,” full coverage text and official links agree. Existing IE sentences remain
+correct. The browser reported zero page errors and zero remote requests; no
+financial screenshots, video, traces or extracted text files were created.
+
+Real writer replay is idempotent. A new complete 219-original registry observation
+followed by an injected donor-insert failure exercises actual source replacement
+and donor deletion, then rolls back. All nine Colorado component/legacy tables
+and their clocks remain identical, with zero committed financial changes.

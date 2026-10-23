@@ -51,6 +51,13 @@ describe("syncDueColoradoCandidateFinance script", () => {
       "Unknown Colorado candidate finance due sync flag: --dryrun"
     );
   });
+  it("parses native receipt controls independently of IE and direct ZIPs", () => {
+    expect(parseSyncDueColoradoCandidateFinanceScriptArgs([
+      "--receipts-only", "--refresh-receipts", "--receipts-cache-dir=/tmp/co-receipts",
+      "--receipts-link-id=00000000-0000-4000-8000-000000000001"
+    ])).toMatchObject({receiptsOnly:true,refreshReceipts:true,receiptsCacheDir:"/tmp/co-receipts",receiptsLinkId:"00000000-0000-4000-8000-000000000001"});
+    expect(()=>parseSyncDueColoradoCandidateFinanceScriptArgs(["--ie-only","--receipts-only"])).toThrow("Select only one Colorado finance component");
+  });
 
   it("rejects digit-only values above Number.MAX_SAFE_INTEGER instead of rounding them", () => {
     expect(() => parseSyncDueColoradoCandidateFinanceScriptArgs(["--max-candidates=9007199254740993"])).toThrow(

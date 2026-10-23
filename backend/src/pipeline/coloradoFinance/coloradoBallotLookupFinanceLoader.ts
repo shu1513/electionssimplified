@@ -1,3 +1,4 @@
+import {overlayColoradoNativeReceipts} from "./coloradoNativeReceiptReader.js";
 import { overlayColoradoReportedIe } from "./coloradoReportedIeReader.js";
 import type { Pool, PoolClient } from "pg";
 
@@ -43,6 +44,10 @@ type ColoradoFinanceDirectBreakdownRow = {
   contributor_count: string | number | null;
   source_url: string | null;
 };
+
+async function overlayColoradoFinanceComponents(db:Queryable,summaries:Map<string,BallotLookupFinanceSummary>,candidates:readonly CandidateRow[],elections:readonly ElectionRow[]) {
+  return overlayColoradoNativeReceipts(db,await overlayColoradoReportedIe(db,summaries,candidates,elections),candidates,elections);
+}
 
 export async function loadColoradoCandidateFinanceSummariesByCandidateElection(
   db: Queryable,
@@ -94,7 +99,7 @@ export async function loadColoradoCandidateFinanceSummariesByCandidateElection(
   );
 
   if (summaryResult.rows.length === 0) {
-    return overlayColoradoReportedIe(db, new Map(), candidateRows, electionRows);
+    return overlayColoradoFinanceComponents(db, new Map(), candidateRows, electionRows);
   }
 
   const selectedRequests = summaryResult.rows.map((row) => ({
@@ -168,7 +173,7 @@ export async function loadColoradoCandidateFinanceSummariesByCandidateElection(
     }
   }
 
-  return overlayColoradoReportedIe(
+  return overlayColoradoFinanceComponents(
     db,
     new Map(
       summaryResult.rows.map((row) => {
