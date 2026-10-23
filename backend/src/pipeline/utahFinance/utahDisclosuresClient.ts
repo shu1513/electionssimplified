@@ -302,7 +302,7 @@ function parseBoolean(value: string | undefined): boolean | undefined {
   if (!normalized) {
     return undefined;
   }
-  if (["true", "t", "yes", "y", "1"].includes(normalized)) {
+  if (["true", "t", "yes", "y", "1", "x"].includes(normalized)) {
     return true;
   }
   if (["false", "f", "no", "n", "0"].includes(normalized)) {
@@ -359,59 +359,73 @@ function normalizeHeader(value: string): string {
   return value.replace(/^\uFEFF/, "").trim();
 }
 
-function parseCsvRows(csv: string): string[][] {
+function parseCsvRows(csv: string, strict = false): string[][] {
+  if (strict) csv = csv.replace(/^\uFEFF/, "");
   const rows: string[][] = [];
   let row: string[] = [];
   let field = "";
   let inQuotes = false;
+  let quoteClosed = false;
+  let rowHasSyntax = false;
+  const fail = () => {
+    throw new UtahDisclosuresClientError("bad_response", "Utah disclosures CSV has invalid quoting");
+  };
 
   for (let index = 0; index < csv.length; index += 1) {
     const char = csv[index];
     const next = csv[index + 1];
-
     if (inQuotes) {
       if (char === '"' && next === '"') {
         field += '"';
         index += 1;
       } else if (char === '"') {
         inQuotes = false;
+        quoteClosed = true;
       } else {
         field += char;
       }
       continue;
     }
-
+    if (strict && quoteClosed && ![",", "\r", "\n"].includes(char)) fail();
     if (char === '"') {
+      if (strict && (field.length > 0 || quoteClosed)) fail();
       inQuotes = true;
+      rowHasSyntax = true;
       continue;
     }
     if (char === ",") {
       row.push(field);
       field = "";
+      quoteClosed = false;
+      rowHasSyntax = true;
       continue;
     }
     if (char === "\n") {
-      row.push(field);
-      rows.push(row);
+      if (!strict || rowHasSyntax) {
+        row.push(field);
+        rows.push(row);
+      }
       row = [];
       field = "";
+      quoteClosed = false;
+      rowHasSyntax = false;
       continue;
     }
     if (char === "\r") {
+      if (strict && next !== "\n") fail();
       continue;
     }
     field += char;
+    rowHasSyntax = true;
   }
-
   if (inQuotes) {
     throw new UtahDisclosuresClientError("bad_response", "Utah disclosures CSV has an unterminated quoted field");
   }
-
-  if (field.length > 0 || row.length > 0) {
+  if (strict ? rowHasSyntax : field.length > 0 || row.length > 0) {
     row.push(field);
     rows.push(row);
   }
-  return rows.filter((fields) => fields.some((fieldValue) => fieldValue.trim().length > 0));
+  return strict ? rows : rows.filter((fields) => fields.some((value) => value.trim().length > 0));
 }
 
 function rowObjectFromCells(cells: readonly string[], headers: readonly string[]): UtahDisclosuresCsvRow {
@@ -425,8 +439,8 @@ function rowObjectFromCells(cells: readonly string[], headers: readonly string[]
   return row;
 }
 
-function parseUtahDisclosuresCsvPayload(csv: string): { headers: string[]; rows: UtahDisclosuresCsvRow[] } {
-  const rows = parseCsvRows(csv);
+function parseUtahDisclosuresCsvPayload(csv: string, strict = false): { headers: string[]; rows: UtahDisclosuresCsvRow[] } {
+  const rows = parseCsvRows(csv, strict);
   if (rows.length === 0) {
     return { headers: [], rows: [] };
   }
@@ -438,6 +452,7 @@ function parseUtahDisclosuresCsvPayload(csv: string): { headers: string[]; rows:
   const seen = new Set<string>();
   for (const header of headers) {
     if (!header) {
+      if (strict) throw new UtahDisclosuresClientError("bad_response", "Utah disclosures CSV has an empty header");
       continue;
     }
     if (seen.has(header)) {
@@ -449,7 +464,18 @@ function parseUtahDisclosuresCsvPayload(csv: string): { headers: string[]; rows:
     throw new UtahDisclosuresClientError("bad_response", "Utah disclosures CSV header row is empty");
   }
 
+  if (strict && rows.slice(1).some((row) => row.length !== headers.length)) {
+    throw new UtahDisclosuresClientError("bad_response", "Utah disclosures CSV has inconsistent record widths");
+  }
   return { headers, rows: rows.slice(1).map((row) => rowObjectFromCells(row, headers)) };
+}
+
+/** Complete syntax and width validation for source-specific native readers. */
+export function parseUtahDisclosuresStrictCsvPayload(csv: string): {
+  headers: string[];
+  rows: UtahDisclosuresCsvRow[];
+} {
+  return parseUtahDisclosuresCsvPayload(csv, true);
 }
 
 export function parseUtahDisclosuresCsvRows(csv: string): UtahDisclosuresCsvRow[] {
