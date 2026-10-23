@@ -1,3 +1,4 @@
+import { coloradoSourceDay } from "../../../src/pipeline/coloradoFinance/coloradoTracerObservations.js";
 import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 import {
   validateColoradoIeStored,
@@ -50,7 +51,7 @@ const receiver: ColoradoIeReceiver = {
 };
 function packet() {
   const time = new Date().toISOString(),
-    day = time.slice(0, 10),
+    day = coloradoSourceDay(time),
     body = {
       packetDirectory: "packet-00000000-0000-4000-8000-000000000004",
       observedAt: time,

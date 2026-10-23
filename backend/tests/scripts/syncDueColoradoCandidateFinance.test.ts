@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   parseSyncDueColoradoCandidateFinanceScriptArgs,
-  toSyncDueColoradoCandidateFinanceScriptOutput,
+  toSyncDueColoradoCandidateFinanceScriptOutput
 } from "../../src/scripts/syncDueColoradoCandidateFinance.js";
 
 describe("syncDueColoradoCandidateFinance script", () => {
@@ -17,7 +17,7 @@ describe("syncDueColoradoCandidateFinance script", () => {
         "--lookback-days=2",
         "--lookahead-days=365",
         "--raw-cache-dir=/tmp/tracer",
-        "--raw-zip=/tmp/tracer.zip",
+        "--raw-zip=/tmp/tracer.zip"
       ])
     ).toEqual({
       dryRun: true,
@@ -27,10 +27,25 @@ describe("syncDueColoradoCandidateFinance script", () => {
       electionLookbackDays: 2,
       electionLookaheadDays: 365,
       rawCacheDir: "/tmp/tracer",
-      rawZipPath: "/tmp/tracer.zip",
+      rawZipPath: "/tmp/tracer.zip"
     });
   });
 
+  it("parses independent IE controls without requiring a direct ZIP", () => {
+    expect(
+      parseSyncDueColoradoCandidateFinanceScriptArgs([
+        "--ie-only",
+        "--refresh-ie",
+        "--ie-cache-dir=/tmp/native-co",
+        "--ie-link-id=00000000-0000-4000-8000-000000000001"
+      ])
+    ).toMatchObject({
+      ieOnly: true,
+      refreshIe: true,
+      ieCacheDir: "/tmp/native-co",
+      ieLinkId: "00000000-0000-4000-8000-000000000001"
+    });
+  });
   it("rejects unknown flags instead of silently ignoring typos", () => {
     expect(() => parseSyncDueColoradoCandidateFinanceScriptArgs(["--dryrun"])).toThrow(
       "Unknown Colorado candidate finance due sync flag: --dryrun"
@@ -58,7 +73,7 @@ describe("syncDueColoradoCandidateFinance script", () => {
       options: {
         dryRun: true,
         force: true,
-        maxCandidates: 2,
+        maxCandidates: 2
       },
       result: {
         dryRun: true,
@@ -69,15 +84,15 @@ describe("syncDueColoradoCandidateFinance script", () => {
         selectedCandidateCount: 2,
         syncedCandidateCount: 1,
         failedCandidateCount: 1,
-        results: [],
-      },
+        results: []
+      }
     });
 
     expect(output).toMatchObject({
       type: "colorado_candidate_finance_due_sync",
       started_at: "2026-01-02T03:04:05.000Z",
       dry_run: true,
-      force: true,
+      force: true
     });
     expect(typeof output.ts).toBe("string");
   });

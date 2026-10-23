@@ -18,7 +18,10 @@ Acquire January 2022 through the observation date, then use each candidate’s
 actual published financial cycle (currently December 9, 2022–December 3, 2026).
 Whole source controls must close across CSV/XML and repeated complete observations.
 Native shared expenses and statewide controls retain fractional cents. Preserve
-exact microdollars; candidate groups must sum to exact cents before publication. Native expense parents can list multiple targets without allocations.
+exact microdollars; candidate groups must sum to exact cents before publication.
+CSV currency cells verify native cent rendering; XML retains exact decimals.
+Use the agency’s America/Denver calendar day for report and registry dates.
+Native expense parents can list multiple targets without allocations.
 Count each parent once; preserve signed credits and repeated occurrences. Never
 divide a shared amount or infer support/oppose from a payee or description.
 
@@ -57,3 +60,30 @@ late/amended filings. These are manual reruns; no automation.
 
 Sources: [native reports](https://tracer.sos.colorado.gov/PublicSite/Reports/Reports.aspx),
 [bulk downloads](https://tracer.sos.colorado.gov/PublicSite/DataDownload.aspx).
+
+## Local acceptance, October 22–23, 2026
+
+The ordinary IE-only CLI wrote one source component and two reported-name groups
+from six allocated expenses: $153,630 supporting and $967,058.33 opposing one
+verified existing candidate. The native source cycle is December 9, 2022 through
+December 3, 2026; this observation includes filings through October 22. Nineteen
+shared candidate expense parents remain unallocated.
+
+Uncapped local SQL, the actual HTTP API and the hydrated candidate profile agree.
+The same genuine originals produce an idempotent write. An injected group-insert
+failure after source replacement and group deletion rolls back all money and
+clocks. All existing Colorado links, direct summaries and breakdowns remain
+unchanged. New functionality defaults off.
+
+For a local run, pass `CANDIDATE_FINANCE_ENABLED=true`,
+`COLORADO_CAMPAIGN_FINANCE_ENABLED=true`,
+`COLORADO_CAMPAIGN_FINANCE_SYNC_ENABLED=true`, and
+`COLORADO_REPORTED_IE_ENABLED=true` inline. The existing
+`COLORADO_TRACER_RAW_DATA_REFRESH_ENABLED=true` flag permits public acquisition.
+Run the normal Colorado due-sync command with `--ie-only`; `--ie-cache-dir`
+selects a private originals cache, and `--ie-link-id` targets a verified link.
+`--refresh-ie` makes the selected IE contexts due and acquires fresh originals;
+it cannot bypass source or sync gates. Use it for the deadline reruns above.
+
+This acceptance proves one current statewide context. Legislative district
+identity and native committee-receipt qualification remain open Colorado work.

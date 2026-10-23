@@ -134,6 +134,16 @@ describe("Colorado IE independent integration", () => {
     expect(syncDueColoradoReportedIe).not.toHaveBeenCalled();
     expect(query).not.toHaveBeenCalled();
   });
+  it("skips the IE writer pool requirement when only the read gate is enabled", async () => {
+    vi.stubEnv("COLORADO_CAMPAIGN_FINANCE_SYNC_ENABLED", "false");
+    const query = vi.fn();
+    await syncDueColoradoCandidateFinance({
+      db: { query } as never,
+      ieOnly: true,
+    });
+    expect(syncDueColoradoReportedIe).not.toHaveBeenCalled();
+    expect(query).not.toHaveBeenCalled();
+  });
   it("validates all groups before display limits and works without direct money", async () => {
     const s = stored(),
       query = vi.fn().mockResolvedValue({ rows: [s] });

@@ -52,6 +52,7 @@ beforeEach(() => {
     vi.stubEnv(k, "true");
 });
 afterEach(async () => {
+  vi.useRealTimers();
   vi.unstubAllEnvs();
   vi.restoreAllMocks();
   for (const p of roots.splice(0))
@@ -227,6 +228,27 @@ describe("Colorado source factory authority", () => {
         fetchFn: transport({ changedClosing: true }),
       }),
     ).rejects.toThrow("native_ie_closing_population_changed");
+  }, 60000);
+  it("requests the agency day during the hours after UTC midnight", async () => {
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date("2026-10-23T01:00:00.000Z"));
+    const fetchFn = transport(),
+      packet = await getColoradoIeDataset({
+        electionYear: 2026,
+        cacheDir: await root(),
+        fetchFn,
+      });
+    expect(packet.endDate).toBe("2026-10-22");
+    const posts = fetchFn.mock.calls.filter(
+      ([, init]) => init?.method === "POST",
+    );
+    expect(posts).toHaveLength(8);
+    expect(
+      posts.every(
+        ([, init]) =>
+          new URLSearchParams(String(init!.body)).get("end") === "10/22/2026",
+      ),
+    ).toBe(true);
   }, 60000);
   it("cannot forge the immutable source brand", () =>
     expect(isVerifiedColoradoIeDataset({})).toBe(false));

@@ -45,6 +45,17 @@ export type ColoradoObservationReply = { bytes: Uint8Array; url: string };
 const check = (value: unknown, code: string): void => {
   if (!value) throw new ColoradoReportError(code);
 };
+/** Native report and all-status registry dates use the agency's local day. */
+export function coloradoSourceDay(observedAt: string): string {
+  const fields = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Denver",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date(observedAt));
+  const field = (kind: string) => fields.find((p) => p.type === kind)!.value;
+  return `${field("year")}-${field("month")}-${field("day")}`;
+}
 export const coloradoOriginalSha = (raw: Uint8Array | string): string =>
   createHash("sha256").update(raw).digest("hex");
 export function coloradoSourceUrl(

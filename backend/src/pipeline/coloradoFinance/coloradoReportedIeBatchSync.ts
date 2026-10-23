@@ -111,17 +111,24 @@ export async function syncDueColoradoReportedIe(input: ColoradoIeBatchInput) {
           retry <= now.getTime() - 86400000)
       );
     })
-    .sort(
-      (a, b) =>
-        String(
-          attempts.find((t) => t.link_id === a.linkId)?.last_attempted_at ?? "",
-        ).localeCompare(
-          String(
-            attempts.find((t) => t.link_id === b.linkId)?.last_attempted_at ??
-              "",
-          ),
-        ) || a.linkId.localeCompare(b.linkId),
-    );
+    .sort((a, b) => {
+      const attempted = (linkId: string): number => {
+        const value = attempts.find(
+          (t) => t.link_id === linkId,
+        )?.last_attempted_at;
+        const date =
+          value == null
+            ? NaN
+            : value instanceof Date
+              ? value.getTime()
+              : Date.parse(String(value));
+        return Number.isFinite(date) ? date : Number.NEGATIVE_INFINITY;
+      };
+      return (
+        attempted(a.linkId) - attempted(b.linkId) ||
+        a.linkId.localeCompare(b.linkId)
+      );
+    });
   output.totalDueRows = due.length;
   output.selectedCandidates = Math.min(due.length, max);
   if (input.dryRun) return output;

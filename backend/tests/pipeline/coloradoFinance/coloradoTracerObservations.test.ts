@@ -6,6 +6,7 @@ import {
   COLORADO_TRACER_REPORTS,
   ColoradoTracerObservations,
   coloradoSourceUrl,
+  coloradoSourceDay,
 } from "../../../src/pipeline/coloradoFinance/coloradoTracerObservations.js";
 
 const roots: string[] = [];
@@ -21,20 +22,26 @@ afterEach(async () => {
   vi.restoreAllMocks();
 });
 const fetcher = (body = "native-original") =>
-  vi
-    .fn<typeof fetch>()
-    .mockImplementation(
-      async () =>
-        new Response(body, {
-          status: 200,
-          headers: {
-            "Content-Type": "text/html",
-            "Content-Length": String(new TextEncoder().encode(body).length),
-          },
-        }),
-    );
+  vi.fn<typeof fetch>().mockImplementation(
+    async () =>
+      new Response(body, {
+        status: 200,
+        headers: {
+          "Content-Type": "text/html",
+          "Content-Length": String(new TextEncoder().encode(body).length),
+        },
+      }),
+  );
 
 describe("Colorado genuine observation sequence", () => {
+  it.each([
+    ["2026-10-23T01:00:00.000Z", "2026-10-22"],
+    ["2026-10-23T06:00:00.000Z", "2026-10-23"],
+    ["2026-12-10T06:59:59.000Z", "2026-12-09"],
+    ["2026-12-10T07:00:00.000Z", "2026-12-10"],
+  ])("uses the agency calendar day for %s", (clock, day) =>
+    expect(coloradoSourceDay(clock)).toBe(day),
+  );
   it("replays the actual request and complete original without network", async () => {
     const liveFetch = fetcher(),
       live = await ColoradoTracerObservations.create(
@@ -145,14 +152,12 @@ describe("Colorado genuine observation sequence", () => {
     ).toBe(0);
   });
   it("rejects a declared-length mismatch and keeps the actual bytes", async () => {
-    const short = vi
-      .fn<typeof fetch>()
-      .mockResolvedValue(
-        new Response("short", {
-          status: 200,
-          headers: { "Content-Length": "10" },
-        }),
-      );
+    const short = vi.fn<typeof fetch>().mockResolvedValue(
+      new Response("short", {
+        status: 200,
+        headers: { "Content-Length": "10" },
+      }),
+    );
     const live = await ColoradoTracerObservations.create(
       await root(),
       "ie",

@@ -25,6 +25,7 @@ import {
   COLORADO_TRACER_REPORTS,
   ColoradoTracerObservations,
   coloradoOriginalSha,
+  coloradoSourceDay,
   coloradoPrivateOriginal,
   coloradoSourceUrl,
   type ColoradoObservationManifest,
@@ -280,8 +281,8 @@ async function globalProtocol(sequence: ColoradoTracerObservations) {
       catalog.url,
     ),
     registryUrl = nativeLink(doc, "Committee Listing", catalog.url);
-  // The actual first observation day remains authoritative across UTC midnight.
-  const endDate = sequence.manifest.records[0]!.startedAt.slice(0, 10),
+  // Keep the first Colorado observation day fixed even across midnight.
+  const endDate = coloradoSourceDay(sequence.manifest.records[0]!.startedAt),
     startDate = `${sequence.manifest.year - 4}-01-01`;
   check(startDate <= endDate, "native_report_window");
   const opening = new Map<string, { csv: Uint8Array; xml: Uint8Array }>(),

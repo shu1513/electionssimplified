@@ -1,3 +1,4 @@
+import { coloradoSourceDay } from "./coloradoTracerObservations.js";
 import type { Pool } from "pg";
 import { isDeepStrictEqual } from "node:util";
 import {
@@ -103,7 +104,7 @@ export function validateColoradoIeStored(
   check(
     facts.dataset.originals.length >= 41 &&
       facts.candidate.originals.length >= 8 &&
-      facts.endDate === facts.dataset.observedAt.slice(0, 10),
+      facts.endDate === coloradoSourceDay(facts.dataset.observedAt),
     "stored_ie_source_scope",
   );
   validateColoradoIeReceiverIdentity(receiver, identity);
