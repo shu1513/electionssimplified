@@ -1,3 +1,4 @@
+import { appendDenverReportedCommitteeCash } from "./denverReportedCommitteeCashBallotSummary.js";
 // Ballot-lookup read side for Denver (plan Phase 3): a thin config wrapper
 // over the shared standard-shape loader. Denver deltas: link identity is
 // filer_id (not committee_id), outside tables key on spender_id/spender_name
@@ -12,7 +13,7 @@
 
 import type { Pool, PoolClient } from "pg";
 
-import { isDenverCampaignFinanceEnabled } from "../../config/featureFlags.js";
+import { isDenverCampaignFinanceEnabled, isDenverReportedCommitteeCashEnabled } from "../../config/featureFlags.js";
 import type {
   BallotLookupFinanceSummary,
   StateFinanceRequestCandidateRow,
@@ -43,7 +44,7 @@ export async function loadDenverCandidateFinanceSummariesByCandidateElection(
   candidateRows: readonly StateFinanceRequestCandidateRow[],
   electionRows: readonly StateFinanceRequestElectionRow[],
 ): Promise<Map<string, BallotLookupFinanceSummary>> {
-  return loadStandardStateFinanceSummariesByCandidateElection({
+  const summaries = await loadStandardStateFinanceSummariesByCandidateElection({
     db,
     candidateRows,
     electionRows,
@@ -74,4 +75,6 @@ export async function loadDenverCandidateFinanceSummariesByCandidateElection(
       outsideGroupBreakdowns: "denver_candidate_finance_outside_group_breakdowns",
     },
   });
+  if (isDenverReportedCommitteeCashEnabled()) await appendDenverReportedCommitteeCash(db, summaries);
+  return summaries;
 }

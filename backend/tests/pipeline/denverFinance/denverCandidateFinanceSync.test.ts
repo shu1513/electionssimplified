@@ -361,3 +361,18 @@ describe("syncDenverCandidateFinance", () => {
     expect(clientQueries.map((entry) => entry.sql)).toContain("COMMIT");
   });
 });
+
+describe("Denver committee cash sync integration", () => {
+ it("feeds qualified monetary committee cash independently of outside spending", async () => {
+  const routes=defaultRoutes(), page=routes.SearchContributionTransactions as {searchContributionTransactions: Record<string,unknown>[]};
+  Object.assign(page.searchContributionTransactions[0]!,{contactTypeId:3,contributorName:"Example PAC",orgName:"Example PAC",date:"2026-10-14T06:00:00"});
+  routes["positionType=1"]=[];routes["positionType=2"]=[];
+  Object.assign(routes.getFinancialOverviewByCandCommittee as object,{independentExpendituresSupportingCandidate:0,independentExpendituresOpposingCandidate:0});
+  const result=await syncDenverCandidateFinance(baseInput(routes));expect(result).toMatchObject({reportedCommitteeCashCents:10000,reportedCommitteeCashGroupCount:1,reportedCommitteeCashGiftCount:1,outsideGroupCount:0,directContributionCents:15000});
+ });
+ it("holds an identified signed committee adjustment instead of exposing gross cash as net", async () => {
+  const routes=defaultRoutes(),page=routes.SearchContributionTransactions as {searchContributionTransactions: Record<string,unknown>[]};
+  Object.assign(page.searchContributionTransactions[2]!,{contactTypeId:3,contributorName:"Example PAC",date:"2026-10-14T06:00:00"});
+  await expect(syncDenverCandidateFinance(baseInput(routes))).rejects.toThrow(/signed/);
+ });
+});

@@ -1,3 +1,4 @@
+import { aggregateDenverReportedCommitteeCash } from "./denverReportedCommitteeCash.js";
 // Phase 3 per-candidate sync: pulls one linked filer's cycle money from
 // SearchLight, proves the fixture-pinned composition rules against the live
 // responses, and writes one all-or-nothing snapshot.
@@ -90,6 +91,9 @@ export type DenverCandidateFinanceSyncResult = {
   cashOnHandCents: number | null;
   outsideSupportCents: number;
   outsideOpposeCents: number;
+  reportedCommitteeCashGroupCount: number;
+  reportedCommitteeCashCents: number;
+  reportedCommitteeCashGiftCount: number;
   directBreakdownCount: number;
   outsideGroupCount: number;
   contributionRowCount: number;
@@ -197,6 +201,8 @@ export async function syncDenverCandidateFinance(input: {
       `Denver receipts composition failed for filer ${filerId}: contributions endpoint ${usd(contributionsEndpointCents)} != feed donor sum ${usd(direct.directContributionCents)} + FEF ${usd(direct.fefFundingCents)}`,
     );
 
+  const reportedCommitteeCash = aggregateDenverReportedCommitteeCash({ rows: sweep.rows, committeeEntityIds });
+
   // --- Outside spending (check 3 inside). ---
   const outside = await aggregateDenverOutsideSpending({
     filerId,
@@ -291,6 +297,7 @@ export async function syncDenverCandidateFinance(input: {
       },
       directBreakdowns,
       outsideGroups,
+      reportedCommitteeCash,
       syncedAt: now,
     });
 
@@ -304,6 +311,9 @@ export async function syncDenverCandidateFinance(input: {
     cashOnHandCents,
     outsideSupportCents: outside.supportTotalCents,
     outsideOpposeCents: outside.opposeTotalCents,
+    reportedCommitteeCashGroupCount: reportedCommitteeCash.donors.length,
+    reportedCommitteeCashCents: reportedCommitteeCash.amountCents,
+    reportedCommitteeCashGiftCount: reportedCommitteeCash.contributionCount,
     directBreakdownCount: directBreakdowns.length,
     outsideGroupCount: outsideGroups.length,
     contributionRowCount: sweep.rows.length,

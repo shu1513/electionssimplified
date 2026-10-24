@@ -416,3 +416,8 @@ describe("denverSearchlightClient", () => {
     );
   });
 });
+
+it("preserves native organization labels for committee cash without carrying address fields", async () => {
+ const fetchImpl=vi.fn().mockResolvedValue(jsonResponse(contributionResponse([rawContributionRow({contributorName:null,orgName:"Example Political Fund",contactTypeId:2})],50,1)));
+ const page=await searchDenverContributionTransactions({pageNum:1,pageSize:10},{fetchImpl});expect(page.rows[0]).toMatchObject({organizationName:"Example Political Fund",contactTypeId:2,contributorName:null});expect(page.rows[0]).not.toHaveProperty("address1");
+});

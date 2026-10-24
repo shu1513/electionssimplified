@@ -846,6 +846,8 @@ export type DenverContributionTransaction = {
   officeSought: string | null;
   district: string | null;
   contributorName: string | null;
+  /** Native organization label; not a registry identity. */
+  organizationName?: string | null;
   contributorId: number | null;
   amountCents: number;
   date: string | null;
@@ -878,6 +880,7 @@ function contributionRowFromRaw(raw: unknown, index: number): DenverContribution
     officeSought: optionalTrimmedString(row.officeSought),
     district: optionalTrimmedString(row.district),
     contributorName: optionalTrimmedString(row.contributorName),
+    organizationName: optionalTrimmedString(row.orgName),
     contributorId: optionalInteger(row.contributorId),
     amountCents: moneyToCents(row.amount, `contribution transaction ${index} amount`),
     date: optionalTrimmedString(row.date),
