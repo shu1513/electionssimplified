@@ -12,6 +12,11 @@ import { readStrictFlagValue, readStrictPositiveIntegerFlag } from "../utils/cli
 import { assertKnownCliFlags } from "./financeCliFlagGuard.js";
 
 export type SyncDueUtahCandidateFinanceScriptOptions = {
+  committeeCashOnly?: boolean;
+  candidateId?: string;
+  electionYear?: number;
+  refreshCommitteeCash?: boolean;
+  committeeCashNetwork?: boolean;
   dryRun: boolean;
   force: boolean;
   maxCandidates?: number;
@@ -22,14 +27,23 @@ export type SyncDueUtahCandidateFinanceScriptOptions = {
   refreshCache: boolean;
 };
 
-const KNOWN_BOOLEAN_FLAGS = new Set(["--dry-run", "--force", "--refresh-cache"]);
-const KNOWN_VALUE_FLAGS = new Set(["--lookahead-days", "--lookback-days", "--max-candidates", "--raw-cache-dir", "--stale-after-days"]);
+const KNOWN_BOOLEAN_FLAGS = new Set(["--dry-run", "--force", "--refresh-cache", "--committee-cash-only", "--refresh-committee-cash", "--committee-cash-network"]);
+const KNOWN_VALUE_FLAGS = new Set(["--lookahead-days", "--lookback-days", "--max-candidates", "--raw-cache-dir", "--stale-after-days", "--candidate-id", "--year"]);
 
 export function parseSyncDueUtahCandidateFinanceScriptArgs(
   args: readonly string[]
 ): SyncDueUtahCandidateFinanceScriptOptions {
   assertKnownCliFlags(args, "Utah candidate finance due sync", KNOWN_BOOLEAN_FLAGS, KNOWN_VALUE_FLAGS);
+  const candidateId = readStrictFlagValue(args, "--candidate-id") ?? undefined;
+  if (candidateId && !/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/i.test(candidateId)) throw new Error("Invalid --candidate-id");
+  const electionYear = readStrictPositiveIntegerFlag(args, "--year");
+  if (electionYear !== undefined && (electionYear < 1998 || electionYear > 2100)) throw new Error("Invalid --year");
   return {
+    ...(args.includes("--committee-cash-only") ? {committeeCashOnly:true} : {}),
+    ...(args.includes("--refresh-committee-cash") ? {refreshCommitteeCash:true} : {}),
+    ...(args.includes("--committee-cash-network") ? {committeeCashNetwork:true} : {}),
+    ...(candidateId ? {candidateId} : {}),
+    ...(electionYear ? {electionYear} : {}),
     dryRun: args.includes("--dry-run"),
     force: args.includes("--force"),
     maxCandidates: readStrictPositiveIntegerFlag(args, "--max-candidates"),
@@ -76,6 +90,9 @@ export async function runSyncDueUtahCandidateFinanceScript(input: {
   try {
     const result = await syncDueUtahCandidateFinance({
       db: pool,
+      committeeCashOnly: input.options.committeeCashOnly, candidateId: input.options.candidateId,
+      electionYear: input.options.electionYear, refreshCommitteeCash: input.options.refreshCommitteeCash,
+      committeeCashNetwork: input.options.committeeCashNetwork,
       now: input.startedAt,
       dryRun: input.options.dryRun,
       maxCandidates: input.options.maxCandidates,

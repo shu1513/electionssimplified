@@ -1,3 +1,5 @@
+import type { BallotLookupFinanceSummary } from "../address/ballotLookupFinanceShared.js";
+import { appendUtahCommitteeCashSummaries, UTAH_OUTSIDE_CASH_NOTE } from "./utahCommitteeCashBallotSummary.js";
 import type { Pool, PoolClient } from "pg";
 
 import { isUtahCampaignFinanceEnabled } from "../../config/featureFlags.js";
@@ -31,36 +33,7 @@ export type UtahBallotLookupSupportingCommitteeIndustrySummary = UtahBallotLooku
   supporting_committee_name: string;
 };
 
-export type UtahBallotLookupFinanceSummary = {
-  source: "UTAH_DISCLOSURES";
-  cycle: number;
-  fec_candidate_id: null;
-  controlled_committee_id: string | null;
-  last_synced_at: string;
-  direct_campaign: {
-    total_raised: number | null;
-    total_spent: number | null;
-    cash_on_hand: number | null;
-    debts_owed: null;
-    top_occupations: [];
-    top_employers: [];
-    top_industries: [];
-    contribution_size_buckets: UtahBallotLookupFinanceBreakdown[];
-  };
-  outside_spending: {
-    support_total: null;
-    oppose_total: null;
-    top_supporting_groups: [];
-    top_opposing_groups: [];
-    top_supporting_industries: [];
-    top_opposing_industries: [];
-  };
-  backing_summary: {
-    top_direct_donor_occupations: [];
-    top_outside_supporting_industries: [];
-    top_supporting_committee_industries?: UtahBallotLookupSupportingCommitteeIndustrySummary[];
-  };
-};
+export type UtahBallotLookupFinanceSummary = BallotLookupFinanceSummary;
 
 type UtahFinanceSummaryRequest = {
   candidate_id: string;
@@ -249,14 +222,7 @@ export async function loadUtahCandidateFinanceSummariesByCandidateElection(input
     [JSON.stringify(requests)]
   );
 
-  if (summaryResult.rows.length === 0) {
-    return new Map();
-  }
-
-  const selectedRequests = summaryResult.rows.map((row) => ({
-    candidate_id: row.candidate_id,
-    election_id: row.election_id,
-  }));
+  const selectedRequests = requests;
 
   const directBreakdownResult = await input.db.query<UtahFinanceDirectBreakdownRow>(
     `
@@ -398,7 +364,7 @@ export async function loadUtahCandidateFinanceSummariesByCandidateElection(input
     supportingCommitteeIndustriesByCandidateElection.set(key, list);
   }
 
-  return new Map(
+  const summaries = new Map<string, UtahBallotLookupFinanceSummary>(
     summaryResult.rows.map((row) => {
       const key = candidateElectionKey(row.candidate_id, row.election_id);
       const supportingCommitteeIndustries = supportingCommitteeIndustriesByCandidateElection.get(key) ?? [];
@@ -421,6 +387,7 @@ export async function loadUtahCandidateFinanceSummariesByCandidateElection(input
             contribution_size_buckets: contributionSizeBucketsByCandidateElection.get(key) ?? [],
           },
           outside_spending: {
+            outside_coverage_note: UTAH_OUTSIDE_CASH_NOTE,
             support_total: null,
             oppose_total: null,
             top_supporting_groups: [],
@@ -439,4 +406,6 @@ export async function loadUtahCandidateFinanceSummariesByCandidateElection(input
       ];
     })
   );
+  await appendUtahCommitteeCashSummaries(input.db, requests, summaries);
+  return summaries;
 }
