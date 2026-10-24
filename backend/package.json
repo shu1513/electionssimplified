@@ -512,7 +512,8 @@
     "west-virginia-candidates:finance:probe": "tsx src/scripts/probeWestVirginiaCandidateFinance.ts",
     "west-virginia-candidates:finance:raw:refresh": "tsx src/scripts/refreshWestVirginiaCampaignFinanceRawData.ts",
     "west-virginia-candidates:finance:auto-link": "tsx src/scripts/autoLinkWestVirginiaCandidateFinance.ts",
-    "west-virginia-candidates:finance:sync-due": "tsx src/scripts/syncDueWestVirginiaCandidateFinance.ts"
+    "west-virginia-candidates:finance:sync-due": "tsx src/scripts/syncDueWestVirginiaCandidateFinance.ts",
+    "west-virginia-candidates:finance:outside-documents:refresh": "tsx src/scripts/refreshWestVirginiaOutsideDocuments.ts"
   },
   "dependencies": {
     "@aws-sdk/client-sesv2": "^3.1078.0",

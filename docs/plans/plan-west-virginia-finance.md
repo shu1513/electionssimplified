@@ -479,6 +479,11 @@ ECC documents flow through the same ledger as a distinct legal category. A struc
 §3-8-2(c) index from the SOS collapses this phase into a conventional import with the
 ledger as audit trail.
 
+**Built 2026-10-23 (local DB only).** Inventory module + refresh CLI, reviewed ledger
+(365 documents: 347 accepted / 14 rejected / 4 review), sync merge with the electronic
+IE path, document-aware stored-evidence guard. See `backend/docs/west-virginia-campaign-finance.md`
+"Phase 3 outside documents".
+
 ### Phase 4 — prod promotion
 
 Standard new-state checklist: migrations, data promotion, flags in Render env +

@@ -51,6 +51,15 @@ import {
 import { aggregateWestVirginiaElectronicOutsideSpending, type WestVirginiaElectronicOutsideSpendingResult } from "./westVirginiaElectronicOutsideSpendingAggregator.js";
 import { readWestVirginiaElectronicOutsideSpendingArtifact } from "./westVirginiaElectronicOutsideSpendingCache.js";
 import { validateWestVirginiaPreviouslyPublishedIe, type WestVirginiaStoredOutsideEvidence } from "./westVirginiaElectronicOutsideSpendingPersistenceGuard.js";
+import {
+  aggregateWestVirginiaDocumentOutsideSpending,
+  assertWestVirginiaOutsideLedgerMatchesInventory,
+  readWestVirginiaOutsideDocumentLedger,
+  type WestVirginiaDocumentIeProvenance,
+  type WestVirginiaDocumentOutsideSpendingResult,
+  type WestVirginiaOutsideDocumentLedger,
+} from "./westVirginiaOutsideDocumentLedger.js";
+import { readWestVirginiaOutsideDocumentInventory } from "./westVirginiaOutsideDocumentInventory.js";
 import { readWestVirginiaCommitteeRegistryArtifact } from "./westVirginiaCfrsRegistryCache.js";
 import { reconcileWestVirginiaCommitteeDonors, type WestVirginiaCommitteeDonorReconciliation } from "./westVirginiaCommitteeDonorReconciliation.js";
 import { reconcileWestVirginiaCommittee } from "./westVirginiaPhaseZero.js";
@@ -79,6 +88,8 @@ export type WestVirginiaFinanceArtifactLoader = {
   /** Missing registry preserves committee donor rows while direct receipts remain usable. */
   registryRows?: () => Promise<WestVirginiaCommitteeRow[]>;
   electronicOutsideData?: () => Promise<Awaited<ReturnType<typeof readWestVirginiaElectronicOutsideSpendingArtifact>>>;
+  /** Reviewed F-7b / EC document ledger, already checked against the PDF inventory. Missing preserves stored document IE. */
+  outsideDocumentLedger?: () => Promise<WestVirginiaOutsideDocumentLedger>;
 };
 
 function requireClean<T>(label: string, result: { rows: T[]; errors: { line: number; reason: string }[] }): T[] {
@@ -109,6 +120,14 @@ export function createWestVirginiaFinanceArtifactLoader(cacheDir?: string): West
     readWestVirginiaBulkArtifact({ kind, year, cacheDir: resolvedCacheDir }).then((read) => read.csvText);
   return {
     electronicOutsideData: () => once("electronic-ie", () => readWestVirginiaElectronicOutsideSpendingArtifact({ cacheDir: resolvedCacheDir })),
+    outsideDocumentLedger: () => once("outside-documents", async () => {
+      const [ledger, inventory] = await Promise.all([
+        readWestVirginiaOutsideDocumentLedger(),
+        readWestVirginiaOutsideDocumentInventory({ cacheDir: resolvedCacheDir }),
+      ]);
+      assertWestVirginiaOutsideLedgerMatchesInventory(ledger, inventory.inventory);
+      return ledger;
+    }),
     registryRows: () => once("registry", async () => (await readWestVirginiaCommitteeRegistryArtifact({ cacheDir: resolvedCacheDir })).rows),
     scheduleRows: (year) =>
       once(`reps:${year}`, async () =>
@@ -158,6 +177,8 @@ export type WestVirginiaCandidateFinanceSyncResult = {
   outsideDiagnostics: string[];
   outsideSupportTotal: number | null;
   outsideOpposeTotal: number | null;
+  outsideElectronicCount: number;
+  outsideDocumentCount: number;
   outsideGroupsWritten: number;
   outsideSourceSha256?: string;
   breakdownCounts: { occupation: number; industry: number; contribution_size: number };
@@ -323,6 +344,7 @@ export async function syncWestVirginiaCandidateFinance(input: {
   // outside data while reconciled direct receipts and donors can still update.
   let outsideResult: WestVirginiaElectronicOutsideSpendingResult | undefined;
   let outsideSourceSha256: string | undefined;
+  let electronicArtifactSha256: string | undefined;
   const outsideDiagnostics: string[] = [];
   if (loader.electronicOutsideData) {
     try {
@@ -337,30 +359,80 @@ export async function syncWestVirginiaCandidateFinance(input: {
         currentFilingsByOrg: artifact.currentFilingsByOrg,
       });
       outsideDiagnostics.push(...outsideResult.diagnostics);
-      if (outsideResult.summary) {
-        const previous = await input.db.query<WestVirginiaStoredOutsideEvidence>(
-          `SELECT outside_group.committee_id, outside_group.support_oppose, outside_group.source_transactions
-           FROM public.wv_candidate_finance_outside_groups outside_group
-           JOIN public.wv_candidate_finance_links link ON link.id = outside_group.link_id
-           WHERE link.candidate_id = $1::uuid AND link.election_id = $2::uuid
-             AND link.link_status = 'active' AND outside_group.election_year = $3`,
-          [input.candidateId, input.electionId, input.electionYear]
-        );
-        validateWestVirginiaPreviouslyPublishedIe({ previousGroups: previous.rows, currentProvenance: outsideResult.provenance });
-        outsideSourceSha256 = artifact.metadata.sha256;
-      }
+      if (outsideResult.summary) electronicArtifactSha256 = artifact.metadata.sha256;
     } catch (error) {
       outsideResult = undefined;
       outsideDiagnostics.push(error instanceof Error ? error.message : String(error));
     }
   }
-  const outside = outsideResult?.summary;
-  const outsideGroups: WestVirginiaFinanceOutsideGroupInput[] | undefined = outside?.groups.map((group) => ({
-    ...group,
-    sourceTransactions: outsideResult!.provenance
-      .filter((row) => row.spenderEntityId === group.committeeId && row.supportOppose === group.supportOppose)
-      .map((row) => ({ ...row })),
-  }));
+  // Document (F-7b / EC) evidence from the reviewed ledger. The ledger loader
+  // fails closed when a reviewed PDF changed or the inventory is missing, which
+  // preserves stored document rows; an explicit non-accepted review decision is
+  // the only way a published document row may disappear.
+  let documentResult: WestVirginiaDocumentOutsideSpendingResult | undefined;
+  let documentLedger: WestVirginiaOutsideDocumentLedger | undefined;
+  if (loader.outsideDocumentLedger) {
+    try {
+      documentLedger = await loader.outsideDocumentLedger();
+      documentResult = aggregateWestVirginiaDocumentOutsideSpending({
+        candidateNameNormalized: normalizeWestVirginiaCandidateNameForStorage(candidateName),
+        officeName: input.officeName, district: input.district, window, ledger: documentLedger, sourceUrl: WEST_VIRGINIA_CFRS_SOURCE_URL,
+      });
+    } catch (error) {
+      documentResult = undefined;
+      outsideDiagnostics.push(error instanceof Error ? error.message : String(error));
+    }
+  }
+  const electronicOk = outsideResult?.summary !== undefined;
+  const documentsOk = documentResult !== undefined;
+  const electronicProvenance = electronicOk ? outsideResult!.provenance : [];
+  const documentProvenance: WestVirginiaDocumentIeProvenance[] = documentsOk ? documentResult!.provenance : [];
+  // An electronic-side failure that is not the benign "no rows" outcome must not
+  // let a documents-only write drop stored electronic rows: the stored-evidence
+  // guard below throws in that case and the whole outside write is skipped.
+  let outside: { supportTotal: number; opposeTotal: number; groups: WestVirginiaFinanceOutsideGroupInput[] } | undefined;
+  if ((electronicOk || documentsOk) && electronicProvenance.length + documentProvenance.length > 0) {
+    try {
+      const previous = await input.db.query<WestVirginiaStoredOutsideEvidence>(
+        `SELECT outside_group.committee_id, outside_group.support_oppose, outside_group.source_transactions
+         FROM public.wv_candidate_finance_outside_groups outside_group
+         JOIN public.wv_candidate_finance_links link ON link.id = outside_group.link_id
+         WHERE link.candidate_id = $1::uuid AND link.election_id = $2::uuid
+           AND link.link_status = 'active' AND outside_group.election_year = $3`,
+        [input.candidateId, input.electionId, input.electionYear]
+      );
+      validateWestVirginiaPreviouslyPublishedIe({
+        previousGroups: previous.rows, currentProvenance: electronicProvenance, currentDocumentProvenance: documentProvenance,
+        explicitlyUnpublishedDocumentIds: new Set((documentLedger?.entries ?? [])
+          .filter((entry) => entry.reviewStatus !== "accepted").map((entry) => entry.documentID)),
+      });
+      const merged = new Map<string, WestVirginiaFinanceOutsideGroupInput & { cents: number }>();
+      const add = (group: { committeeId: string; committeeName: string; supportOppose: "support" | "oppose"; amount: number; sourceUrl: string | null },
+        rows: readonly Record<string, unknown>[]) => {
+        const key = `${group.committeeId}\0${group.supportOppose}`;
+        const current = merged.get(key) ?? { ...group, amount: 0, cents: 0, sourceTransactions: [] as Record<string, unknown>[] };
+        if (current.committeeName !== group.committeeName) throw new Error(`outside spender ${group.committeeId} name differs between electronic and document evidence`);
+        current.cents += Math.round(group.amount * 100);
+        current.sourceTransactions = [...current.sourceTransactions, ...rows];
+        merged.set(key, current);
+      };
+      for (const group of outsideResult?.summary?.groups ?? []) {
+        add(group, electronicProvenance.filter((row) => row.spenderEntityId === group.committeeId && row.supportOppose === group.supportOppose).map((row) => ({ ...row })));
+      }
+      for (const group of documentResult?.groups ?? []) {
+        add(group, documentProvenance.filter((row) => row.spenderEntityId === group.committeeId && row.supportOppose === group.supportOppose).map((row) => ({ ...row })));
+      }
+      const groups = [...merged.values()].map(({ cents, ...group }) => ({ ...group, amount: cents / 100 }))
+        .sort((left, right) => right.amount - left.amount || left.committeeId.localeCompare(right.committeeId) || left.supportOppose.localeCompare(right.supportOppose));
+      const sum = (stance: "support" | "oppose") => groups.filter((g) => g.supportOppose === stance).reduce((total, g) => total + Math.round(g.amount * 100), 0) / 100;
+      outside = { supportTotal: sum("support"), opposeTotal: sum("oppose"), groups };
+      if (electronicOk) outsideSourceSha256 = electronicArtifactSha256;
+    } catch (error) {
+      outside = undefined;
+      outsideDiagnostics.push(error instanceof Error ? error.message : String(error));
+    }
+  }
+  const outsideGroups: WestVirginiaFinanceOutsideGroupInput[] | undefined = outside?.groups;
 
   let summaryWritten = false;
   let directBreakdownsWritten = 0;
@@ -418,6 +490,8 @@ export async function syncWestVirginiaCandidateFinance(input: {
     outsideDiagnostics,
     outsideSupportTotal: outside?.supportTotal ?? null,
     outsideOpposeTotal: outside?.opposeTotal ?? null,
+    outsideElectronicCount: outside ? electronicProvenance.length : 0,
+    outsideDocumentCount: outside ? documentProvenance.length : 0,
     outsideGroupsWritten,
     ...(outsideSourceSha256 === undefined ? {} : { outsideSourceSha256 }),
     pacDonorCount: pacDonors?.length ?? null,

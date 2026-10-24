@@ -458,3 +458,47 @@ Rows arrive under `data.candidates`; the seat is in `officeName`, not a district
 - Prod (Phase 4): apply migration 267, set `WEST_VIRGINIA_CAMPAIGN_FINANCE_ENABLED`
   (read) in Render — already `"true"` in `render.yaml` — keep the sync flag off, promote
   the five `wv_candidate_finance_*` tables, deploy. Nothing is in prod yet.
+
+## Phase 3 outside documents (built 2026-10-23, local DB only)
+
+Scope: every registered IEC (org type 104) and ECC (org type 105) committee's
+document store, filtered to "Independent Expenditure Report" / "Electioneering
+Communication Report" documents received in 2025–2026. Live run 2026-10-23:
+99 committees swept, **365 documents (all received in 2026), 30 filers**, 147 MB
+of PDFs, cached under `scratch/west-virginia-campaign-finance/cfrs/outside-documents/`
+with `inventory.json` (SHA-256 per file). CLI (live, refresh-flag gated):
+`west-virginia-candidates:finance:outside-documents:refresh --received-year 2025 --received-year 2026`.
+
+Reading: the forms are scanned F-7b / F-14 pages; OCR (pdftotext → tesseract)
+was a hint only, every page was read by eye. Typed spreadsheet attachments
+(West Virginians for Life, School Freedom Fund, NRA) were read row by row.
+
+Ledger: `backend/evidence/west-virginia-finance/outside-document-ledger.json`
+(`westVirginiaOutsideDocumentLedger.ts`), one entry per document pinned to the
+PDF's SHA-256, one row per expenditure block. Targets are stored as the exact
+roster storage name (`wv_candidate_finance_links.candidate_name_normalized`) plus
+office and district, resolved at review time; non-roster targets (judicial races,
+primary losers, non-candidates) keep `targetRosterName: null` and never publish.
+
+Review outcome: 365 entries = **347 accepted, 14 rejected, 4 review**.
+Accepted expenditures 2,365 rows / $8,250,222.40 as filed; 1,620 rows /
+$3,932,538.77 aimed at November roster candidates. Rejected = byte-identical
+re-uploads (4 pairs), four Mountaineer Freedom Alliance re-uploads with the
+controller added, superseded amendments (Raise the Bar, WV for Life 9/14 and
+10/1 restatements, WV First Patriots F-14 duplicate of its F-7b), and one F-7A
+mislabeled as an IE report. Review = Sugar Maple 10833 (restates 10720), WV for
+Life 10940 (restates 10791), 11210 and 11233 (10/1 spending restated as 11272 +
+11274). Rules applied inside accepted entries, each noted on the entry:
+negative amounts excluded (AFP 10657, 10661), blocks with both or neither stance
+box marked excluded (Chamber 10864/10954, Coal Victory 10793, Home Sweet Home
+10751, WVWA 10935/10985), joint two-candidate blocks left unmatched (Coal
+Victory 10848/10913), "also in same mailer" notes without an amount excluded
+(Conservative Policy Action 11264/11300).
+
+Publication: the sync merges accepted ledger rows inside the cycle window with
+the electronic IE rows per (spender, stance); provenance rows carry
+`kind: "document"` and the stored-evidence guard lets a published document row
+disappear only when the ledger entry is now `review`/`rejected`. The ledger
+loader fails closed when the inventory is missing or a reviewed PDF's bytes
+changed. Coverage note: registered IEC/ECC filers only (§3-8-2(c) SOS index
+still unanswered).

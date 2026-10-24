@@ -33,7 +33,7 @@ describe("WV committee donor reader", () => {
     expect(sql).toContain("donor.election_year = link.election_year");
     expect(sql).toContain("GROUP BY selected.candidate_id, selected.election_id, donor.committee_id");
     expect(result.direct_campaign.direct_coverage_note).toContain("unique registry match");
-    expect(result.outside_spending.outside_coverage_note).toContain("Scanned paper and rapid reports are omitted");
+    expect(result.outside_spending.outside_coverage_note).toContain("filers without a registered committee is not covered");
   });
   it("hides trusted candidate/leadership classifications but retains low-confidence unknowns and party donors", async () => {
     const result = [...(await loadWestVirginiaCandidateFinanceSummariesByCandidateElection(dbFor([
