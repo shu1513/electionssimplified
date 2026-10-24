@@ -432,4 +432,73 @@ it("aborts an in-flight retrieve when the user types again, resolving null", asy
     expect(retrieveSignal?.aborted).toBe(true);
     await expect(retrievedPromise).resolves.toBeNull();
   });
+
+  it("closeSession retrieves the top suggestion with the live token, then kills the session", async () => {
+    apiRequestMock.mockResolvedValueOnce({ suggestions: [SUGGESTION] });
+    const { result } = renderHook(() => useAddressSuggestions());
+
+    act(() => {
+      result.current.onInputChanged("200 N Spring");
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(SUGGEST_DEBOUNCE_MS + 10);
+    });
+    const suggestToken = (apiRequestMock.mock.calls[0][1] as { body: { session_token: string } }).body
+      .session_token;
+
+    // Typed-then-searched: the form submits without a pick.
+    apiRequestMock.mockResolvedValueOnce({ address: "200 N Spring St, Los Angeles, CA 90012, USA" });
+    act(() => {
+      result.current.closeSession();
+    });
+    expect(apiRequestMock.mock.calls).toHaveLength(2);
+    const retrieveCall = apiRequestMock.mock.calls[1];
+    expect(retrieveCall[0]).toBe("/api/address/autocomplete/retrieve");
+    expect((retrieveCall[1] as { body: unknown }).body).toEqual({
+      place_id: SUGGESTION.place_id,
+      session_token: suggestToken,
+    });
+
+    // The session is dead: a second close sends nothing.
+    act(() => {
+      result.current.closeSession();
+    });
+    expect(apiRequestMock.mock.calls).toHaveLength(2);
+
+    // Next entry starts a NEW session token.
+    apiRequestMock.mockResolvedValueOnce({ suggestions: [] });
+    act(() => {
+      result.current.onInputChanged("500 Main St");
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(SUGGEST_DEBOUNCE_MS + 10);
+    });
+    const nextToken = (apiRequestMock.mock.calls[2][1] as { body: { session_token: string } }).body
+      .session_token;
+    expect(nextToken).not.toBe(suggestToken);
+  });
+
+  it("closeSession with no landed suggestion sends nothing and cancels the pending suggest", async () => {
+    // The leading-edge suggest never resolves (slow network), so no place_id
+    // ever lands; the debounced follow-up is still pending at submit time.
+    apiRequestMock.mockReturnValueOnce(new Promise(() => undefined));
+    const { result } = renderHook(() => useAddressSuggestions());
+
+    act(() => {
+      result.current.onInputChanged("200 N Spring");
+    });
+    act(() => {
+      result.current.onInputChanged("200 N Spring S");
+    });
+    act(() => {
+      result.current.closeSession();
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(SUGGEST_DEBOUNCE_MS + 10);
+    });
+    // Only the leading-edge suggest went out: no retrieve, and the pending
+    // debounced suggest was cancelled rather than opening a fresh session.
+    expect(apiRequestMock.mock.calls).toHaveLength(1);
+    expect(apiRequestMock.mock.calls[0][0]).toBe("/api/address/autocomplete");
+  });
 });

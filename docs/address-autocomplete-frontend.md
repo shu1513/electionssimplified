@@ -101,6 +101,16 @@ free, and reused tokens are treated as no-session.
   that entry.
 - After a retrieve completes — or the user clears the field and starts over —
   the session is dead. Generate a new token for the next entry. Never reuse.
+- **Submit without a pick closes the session.** Most visitors type the whole
+  address and press Search without touching the dropdown (Oct 2026: ~45,000
+  billed suggest requests against ~4,300 picked suggestions). On submit the
+  form calls the hook's `closeSession()`, which fires one retrieve for the
+  top suggestion of the latest response with the live token and discards the
+  result — the typed text is what gets searched. That turns the entry into a
+  completed session (free keystrokes, one Place Details Essentials call).
+  When no suggestion ever landed there is nothing to retrieve and the lone
+  suggest bills as abandoned. Entries abandoned without a submit still bill
+  per request.
 
 ## Input behavior
 

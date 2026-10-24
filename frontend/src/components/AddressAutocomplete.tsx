@@ -1,4 +1,5 @@
-import { useRef, useState } from "react";
+import { useImperativeHandle, useRef, useState } from "react";
+import type { Ref } from "react";
 import { Combobox, ComboboxInput, ComboboxOption, ComboboxOptions } from "@headlessui/react";
 import type { AddressLocation, AddressSuggestion } from "@voteapp/api-client";
 import { useAdoptPreHydrationValue } from "../lib/preHydrationInput";
@@ -9,7 +10,16 @@ import { useAddressSuggestions } from "@voteapp/api-client";
 // input stays a plain controlled text field and the dropdown simply
 // disappears.
 
+/** Imperative handle for the owning form: call closeSession() on submit so
+ * a typed-then-searched entry ends its Google session (billing: one
+ * completed session instead of one charge per keystroke). Safe to call when
+ * nothing was typed or a suggestion was already picked — both are no-ops. */
+export type AddressAutocompleteHandle = {
+  closeSession: () => void;
+};
+
 type AddressAutocompleteProps = {
+  ref?: Ref<AddressAutocompleteHandle>;
   value: string;
   /** location is set only when the value came from a completed dropdown
    * selection; every keystroke or fallback call passes it as undefined, so
@@ -46,6 +56,7 @@ type AddressAutocompleteProps = {
 };
 
 export function AddressAutocomplete({
+  ref,
   value,
   onChange,
   onRetrievePendingChange,
@@ -58,8 +69,9 @@ export function AddressAutocomplete({
   // focus handling below.
   const [focused, setFocused] = useState(false);
   const showSearchIcon = Boolean(searchIconWhenIdle) && !focused && value === "";
-  const { suggestions, enabled, onInputChanged, selectSuggestion, clearSuggestions, warmup } =
+  const { suggestions, enabled, onInputChanged, selectSuggestion, clearSuggestions, warmup, closeSession } =
     useAddressSuggestions();
+  useImperativeHandle(ref, () => ({ closeSession }), [closeSession]);
 
   // The landing page is prerendered: text typed before hydration exists only
   // in the DOM. Adopt it the same way a keystroke would land — into the

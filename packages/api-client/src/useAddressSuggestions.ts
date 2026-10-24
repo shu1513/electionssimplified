@@ -49,12 +49,23 @@ export type UseAddressSuggestionsResult = {
   clearSuggestions: () => void;
   /** Call on input focus: warms connections before the first keystroke. */
   warmup: () => void;
+  /** Call when the form submits without a dropdown pick. Ends the live
+   * Google session with a fire-and-forget retrieve of the top suggestion so
+   * the entry bills as one completed session instead of one charge per
+   * keystroke (docs/address-autocomplete-frontend.md). The retrieved
+   * address is discarded: the visitor's typed text is what gets searched. */
+  closeSession: () => void;
 };
 
 export function useAddressSuggestions(): UseAddressSuggestionsResult {
   const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]);
   const [enabled, setEnabled] = useState(true);
   const sessionTokenRef = useRef<string | null>(null);
+  // place_id of the top suggestion from the latest suggest response of the
+  // live session, kept outside React state because the web dropdown clears
+  // its suggestions on blur (which a Search click triggers before submit)
+  // while closeSession still needs something to retrieve.
+  const lastPlaceIdRef = useRef<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const requestSeqRef = useRef(0);
@@ -91,7 +102,9 @@ export function useAddressSuggestions(): UseAddressSuggestionsResult {
         // block the form — that includes a malformed 200 whose body lacks a
         // suggestions array, which would otherwise crash the page at
         // suggestions.length.
-        setSuggestions(Array.isArray(response.suggestions) ? response.suggestions : []);
+        const next = Array.isArray(response.suggestions) ? response.suggestions : [];
+        setSuggestions(next);
+        lastPlaceIdRef.current = typeof next[0]?.place_id === "string" ? next[0].place_id : null;
       }
     } catch (error) {
       if (seq !== requestSeqRef.current) {
@@ -119,6 +132,7 @@ export function useAddressSuggestions(): UseAddressSuggestionsResult {
         // Entry abandoned: the session is dead; the next entry gets a fresh
         // token.
         sessionTokenRef.current = null;
+        lastPlaceIdRef.current = null;
       }
       if (!enabledRef.current || trimmed.length < SUGGEST_MIN_CHARS) {
         abortRef.current?.abort();
@@ -181,6 +195,7 @@ export function useAddressSuggestions(): UseAddressSuggestionsResult {
     // starts a fresh session instead of reusing the spent token (the local
     // sessionToken copy still rides on the retrieve request).
     sessionTokenRef.current = null;
+    lastPlaceIdRef.current = null;
     // Abortable like the suggests: a keystroke supersedes the result anyway
     // (the seq check below), and without an abort the caller's
     // retrieve-pending state would hold Search hostage for the full network
@@ -226,5 +241,37 @@ export function useAddressSuggestions(): UseAddressSuggestionsResult {
     setSuggestions([]);
   }, []);
 
-  return { suggestions, enabled, onInputChanged, selectSuggestion, clearSuggestions, warmup };
+  const closeSession = useCallback(() => {
+    const sessionToken = sessionTokenRef.current;
+    if (!sessionToken) {
+      return; // No live session: nothing typed, or a pick already ended it.
+    }
+    const placeId = lastPlaceIdRef.current;
+    // Kill the session first so nothing can reuse the spent token: a pending
+    // debounced suggest would otherwise fire after the close and open a
+    // fresh one-request session that bills as abandoned.
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+      debounceRef.current = null;
+    }
+    abortRef.current?.abort();
+    requestSeqRef.current += 1;
+    sessionTokenRef.current = null;
+    lastPlaceIdRef.current = null;
+    if (!placeId) {
+      // No suggestion ever landed (submitted within the first round trip, or
+      // Google had nothing): there is no place to retrieve, and the lone
+      // suggest bills as abandoned either way.
+      return;
+    }
+    // Fire-and-forget: the response is never applied — the visitor's typed
+    // text is what gets searched — so nothing waits on it and a failure
+    // changes nothing (the token is dead regardless).
+    void apiRequest("/api/address/autocomplete/retrieve", {
+      method: "POST",
+      body: { place_id: placeId, session_token: sessionToken },
+    }).catch(() => undefined);
+  }, []);
+
+  return { suggestions, enabled, onInputChanged, selectSuggestion, clearSuggestions, warmup, closeSession };
 }
