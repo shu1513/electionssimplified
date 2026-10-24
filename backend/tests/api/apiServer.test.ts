@@ -4281,7 +4281,7 @@ describe("createApiApp", () => {
             ],
           },
           outside_spending: { support_total: 897.1, oppose_total: null,
-            outside_coverage_note: expect.stringContaining("Scanned paper and rapid reports are omitted"),
+            outside_coverage_note: expect.stringContaining("filers without a registered committee is not covered"),
             top_supporting_groups: [{ committee_id: "1040002875", amount: 897.1, source_url: outsideSourceUrl }],
             top_supporting_industries: [],
           },

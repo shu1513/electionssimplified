@@ -37,6 +37,9 @@ describe("WV outside document inventory refresh", () => {
     const run3 = await refreshWestVirginiaOutsideDocumentInventory({ cacheDir, years: [2026], ...harness("prd/Docs/3981/b.pdf", "%PDF-1 replacement") });
     expect(run3).toMatchObject({ downloaded: 1, reused: 0, replaced: 1 });
     expect(run3.inventory.documents[0]!.sha256).not.toBe(run1.inventory.documents[0]!.sha256);
-    expect(await readFile(join(cacheDir, "outside-documents/3981/10001.pdf"), "utf8")).toBe("%PDF-1 replacement");
+    expect(run3.inventory.documents[0]!.filePath).toMatch(/^outside-documents\/3981\/10001\.[a-f0-9]{12}\.pdf$/);
+    expect(await readFile(join(cacheDir, run3.inventory.documents[0]!.filePath), "utf8")).toBe("%PDF-1 replacement");
+    // The file the previous inventory referenced is left untouched.
+    expect(await readFile(join(cacheDir, run1.inventory.documents[0]!.filePath), "utf8")).toBe("%PDF-1 original");
   });
 });

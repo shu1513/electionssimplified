@@ -71,6 +71,7 @@ import {
 } from "./westVirginiaReportingCycleWindows.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
+const NO_OUTSIDE_EVIDENCE = "no_outside_evidence_for_candidate";
 type ConnectableQueryable = Queryable & { connect: () => Promise<PoolClient> };
 
 export class WestVirginiaCandidateFinanceSyncError extends Error {
@@ -89,7 +90,7 @@ export type WestVirginiaFinanceArtifactLoader = {
   registryRows?: () => Promise<WestVirginiaCommitteeRow[]>;
   electronicOutsideData?: () => Promise<Awaited<ReturnType<typeof readWestVirginiaElectronicOutsideSpendingArtifact>>>;
   /** Reviewed F-7b / EC document ledger, already checked against the PDF inventory. Missing preserves stored document IE. */
-  outsideDocumentLedger?: () => Promise<WestVirginiaOutsideDocumentLedger>;
+  outsideDocumentLedger?: () => Promise<{ ledger: WestVirginiaOutsideDocumentLedger; unreviewedDocumentIds: number[] }>;
 };
 
 function requireClean<T>(label: string, result: { rows: T[]; errors: { line: number; reason: string }[] }): T[] {
@@ -125,8 +126,8 @@ export function createWestVirginiaFinanceArtifactLoader(cacheDir?: string): West
         readWestVirginiaOutsideDocumentLedger(),
         readWestVirginiaOutsideDocumentInventory({ cacheDir: resolvedCacheDir }),
       ]);
-      assertWestVirginiaOutsideLedgerMatchesInventory(ledger, inventory.inventory);
-      return ledger;
+      const { unreviewedDocumentIds } = assertWestVirginiaOutsideLedgerMatchesInventory(ledger, inventory.inventory);
+      return { ledger, unreviewedDocumentIds };
     }),
     registryRows: () => once("registry", async () => (await readWestVirginiaCommitteeRegistryArtifact({ cacheDir: resolvedCacheDir })).rows),
     scheduleRows: (year) =>
@@ -373,7 +374,13 @@ export async function syncWestVirginiaCandidateFinance(input: {
   let documentLedger: WestVirginiaOutsideDocumentLedger | undefined;
   if (loader.outsideDocumentLedger) {
     try {
-      documentLedger = await loader.outsideDocumentLedger();
+      const loaded = await loader.outsideDocumentLedger();
+      documentLedger = loaded.ledger;
+      // Documents in the cache that no reviewer has read yet: the published
+      // totals omit whatever they contain until the ledger covers them.
+      if (loaded.unreviewedDocumentIds.length > 0) {
+        outsideDiagnostics.push(`outside_documents_unreviewed:${loaded.unreviewedDocumentIds.length}`);
+      }
       documentResult = aggregateWestVirginiaDocumentOutsideSpending({
         candidateNameNormalized: normalizeWestVirginiaCandidateNameForStorage(candidateName),
         officeName: input.officeName, district: input.district, window, ledger: documentLedger, sourceUrl: WEST_VIRGINIA_CFRS_SOURCE_URL,
@@ -403,7 +410,7 @@ export async function syncWestVirginiaCandidateFinance(input: {
         [input.candidateId, input.electionId, input.electionYear]
       );
       const nothingCurrent = electronicProvenance.length + documentProvenance.length === 0;
-      if (nothingCurrent && previous.rows.length === 0) throw new Error("no_outside_evidence_for_candidate");
+      if (nothingCurrent && previous.rows.length === 0) throw new Error(NO_OUTSIDE_EVIDENCE);
       validateWestVirginiaPreviouslyPublishedIe({
         previousGroups: previous.rows, currentProvenance: electronicProvenance, currentDocumentProvenance: documentProvenance,
         explicitlyUnpublishedDocumentIds: new Set((documentLedger?.entries ?? [])
@@ -441,7 +448,10 @@ export async function syncWestVirginiaCandidateFinance(input: {
       if (electronicOk) outsideSourceSha256 = electronicArtifactSha256;
     } catch (error) {
       outside = undefined;
-      outsideDiagnostics.push(error instanceof Error ? error.message : String(error));
+      const message = error instanceof Error ? error.message : String(error);
+      // Nothing current and nothing stored is the ordinary case for most
+      // candidates, not a failure worth reporting.
+      if (message !== NO_OUTSIDE_EVIDENCE) outsideDiagnostics.push(message);
     }
   }
   const outsideGroups: WestVirginiaFinanceOutsideGroupInput[] | undefined = outside?.groups;

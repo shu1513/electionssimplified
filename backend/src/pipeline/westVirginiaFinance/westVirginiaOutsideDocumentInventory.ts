@@ -175,11 +175,14 @@ export async function refreshWestVirginiaOutsideDocumentInventory(input: {
   const log = input.log ?? (() => {});
 
   // A cached PDF is reused only when the previous inventory recorded the same
-  // remote object for that document; a changed s3DocName means re-download.
-  let previousByDocument = new Map<string, string>();
+  // remote object for that document and the bytes still match its hash. A
+  // changed s3DocName is downloaded to a new hash-derived path, so a file the
+  // current inventory references is never overwritten and that inventory stays
+  // self-consistent if this run fails before writing its replacement.
+  let previousByDocument = new Map<string, WestVirginiaOutsideDocumentEntry>();
   try {
     const previous = parseWestVirginiaOutsideDocumentInventory(JSON.parse(await readFile(paths.inventoryPath, "utf8")));
-    previousByDocument = new Map(previous.documents.map((entry) => [`${entry.orgID}:${entry.documentID}`, entry.s3DocName]));
+    previousByDocument = new Map(previous.documents.map((entry) => [`${entry.orgID}:${entry.documentID}`, entry]));
   } catch { /* first run or unreadable inventory: nothing is reused */ }
   const documents: WestVirginiaOutsideDocumentEntry[] = [];
   const committeeSummaries: WestVirginiaOutsideDocumentInventory["committees"] = [];
@@ -199,21 +202,28 @@ export async function refreshWestVirginiaOutsideDocumentInventory(input: {
       orgStatus: committee.orgStatus, documentCount: rows.length, ieDocumentCount: inScope.length,
     });
     for (const row of inScope) {
-      const relative = `outside-documents/${committee.orgID}/${row.documentID}.pdf`;
-      const absolute = resolve(paths.cacheDir, relative);
-      const sameRemote = previousByDocument.get(`${committee.orgID}:${row.documentID}`) === row.s3DocName;
-      let file = sameRemote ? await existingFile(absolute) : null;
-      if (file) reused += 1;
-      else {
-        if (!sameRemote && previousByDocument.has(`${committee.orgID}:${row.documentID}`)) {
+      const prior = previousByDocument.get(`${committee.orgID}:${row.documentID}`);
+      const sameRemote = prior !== undefined && prior.s3DocName === row.s3DocName;
+      const priorFile = sameRemote ? await existingFile(resolve(paths.cacheDir, prior.filePath)) : null;
+      let relative: string;
+      let file: { bytes: number; sha256: string };
+      if (prior && priorFile && priorFile.sha256 === prior.sha256) {
+        relative = prior.filePath;
+        file = priorFile;
+        reused += 1;
+      } else {
+        if (prior && !sameRemote) {
           replaced += 1;
-          log(`remote object changed for ${relative}; re-downloading`);
+          log(`remote object changed for ${prior.filePath}; re-downloading`);
         }
         const url = await mintUrl(row.s3DocName, input.clientOptions);
-        const tmp = `${absolute}.${process.pid}.part`;
+        const tmp = resolve(paths.documentsDir, String(committee.orgID), `${row.documentID}.${process.pid}.part`);
         const result = await download({ url, outputPath: tmp }, input.clientOptions);
         if (result.bytesWritten === 0) { await rm(tmp, { force: true }); throw new Error(`Empty West Virginia document ${row.documentID}`); }
-        await rename(tmp, absolute);
+        relative = `outside-documents/${committee.orgID}/${row.documentID}.${result.sha256.slice(0, 12)}.pdf`;
+        const absolute = resolve(paths.cacheDir, relative);
+        if (await existingFile(absolute)) await rm(tmp, { force: true });
+        else await rename(tmp, absolute);
         file = { bytes: result.bytesWritten, sha256: result.sha256 };
         downloaded += 1;
         log(`downloaded ${relative} (${result.bytesWritten} bytes)`);
