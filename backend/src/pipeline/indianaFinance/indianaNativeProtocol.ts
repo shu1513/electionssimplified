@@ -121,7 +121,7 @@ function field(d: Document, id: string): string {
   const n = d.querySelectorAll(`#${id}`); inCheck(n.length === 1, "native_field_count"); return inText(n[0]!);
 }
 export type IndianaNativeReceipt = { url: string; cells: string[]; name: string; committee: string; kind: string; day: string; cents: number };
-export type IndianaNativeReceiptPage = { count: number; totalCents: number; rows: IndianaNativeReceipt[]; pager: IndianaNativePager };
+export type IndianaNativeReceiptPage = { count: number; totalCents: number; rows: IndianaNativeReceipt[]; pager: IndianaNativePager | null };
 /** Type in the search grid is contribution kind, never contributor class. */
 export function parseIndianaNativeReceiptPage(d: Document, url: string): IndianaNativeReceiptPage {
   const g = oneTable(d, "_ctl0_Content_dgdSearchResults");
@@ -137,7 +137,14 @@ export function parseIndianaNativeReceiptPage(d: Document, url: string): Indiana
     return { url: inPublicUrl(links[0]!.href, url), cells, name: cells[0]!, committee: cells[5]!, kind: cells[2]!, day: inDay(cells[4]!), cents: inCents(cells[3]!) };
   });
   inCheck(rows.length > 0 && rows.length <= 50, "native_receipt_page_rows");
-  return { count, totalCents: inCents(field(d, "_ctl0_Content_lblTotalContributions")), rows, pager: inPager(g, 9) };
+  const totalCents = inCents(field(d, "_ctl0_Content_lblTotalContributions"));
+  const hasPager = [...g.rows].some(r => r.children.length === 1 && Number(r.children[0]!.getAttribute("colspan")) >= 9);
+  if (!hasPager) {
+    // Native small result sets omit the pager. Their initial response is the
+    // whole walk only when the explicit count and signed money both close.
+    inCheck(count <= 10 && rows.length === count && rows.reduce((n, r) => inAdd(n, r.cents), 0) === totalCents, "native_unpaged_receipt_incomplete");
+  }
+  return { count, totalCents, rows, pager: hasPager ? inPager(g, 9) : null };
 }
 export type IndianaNativeReceiptDetail = { file: string; committee: string; committeeClass: string; donorClass: string; name: string; kind: string; day: string; cents: number };
 export function parseIndianaNativeReceiptDetail(d: Document): IndianaNativeReceiptDetail {
@@ -150,7 +157,7 @@ export function closeIndianaNativeReceiptPages(opening: readonly IndianaNativeRe
   const first = opening[0]!, rows: IndianaNativeReceipt[] = [], seen = new Set<string>();
   for (let i = 0; i < opening.length; i++) {
     const p = opening[i]!;
-    inCheck(p.count === first.count && p.totalCents === first.totalCents && p.pager.page === i + 1, "native_receipt_scope_changed");
+    inCheck(p.count === first.count && p.totalCents === first.totalCents && (p.pager ? p.pager.page === i + 1 : opening.length === 1 && i === 0 && p.count <= 10), "native_receipt_scope_changed");
     for (const r of p.rows) {
       inCheck(inKey(r.committee) === inKey(committee) && !seen.has(r.url), "native_receipt_identity_conflict"); seen.add(r.url); rows.push(r);
     }
@@ -177,7 +184,7 @@ export function qualifyIndianaNativePacSubset(input: { all: readonly IndianaNati
   return { gifts, excludedNonGiftRows, inKindCents, cashCents };
 }
 export type IndianaNativeFiling = { cells: string[]; kind: string; begin: string; end: string; amended: boolean; callback: [string, string] };
-export function parseIndianaNativeFilingPage(d: Document): { rows: IndianaNativeFiling[]; pager: IndianaNativePager } {
+export function parseIndianaNativeFilingPage(d: Document): { rows: IndianaNativeFiling[]; pager: IndianaNativePager | null } {
   const g = oneTable(d, "_ctl0_Content_dgdFilingHistory");
   headers(g, ["Description", "Period Begin", "Period End", "Due Date", "Filed Date", "Amended?", "Status"]);
   const rows = [...g.rows].filter(r => r.children.length === 7 && r.children[0]!.tagName === "TD").map(r => {
@@ -186,7 +193,9 @@ export function parseIndianaNativeFilingPage(d: Document): { rows: IndianaNative
     return { cells, kind: cells[0]!, begin: cells[1]!, end: cells[2]!, amended: cells[5] === "Yes", callback: inCallback(links[0]!.getAttribute("href") ?? "") };
   });
   inCheck(rows.length > 0 && rows.length <= 50, "native_filing_rows");
-  return { rows, pager: inPager(g, 7) };
+  const hasPager = [...g.rows].some(r => r.children.length === 1 && Number(r.children[0]!.getAttribute("colspan")) >= 7);
+  inCheck(hasPager || rows.length <= 10, "native_unpaged_inventory_overflow");
+  return { rows, pager: hasPager ? inPager(g, 7) : null };
 }
 /** Latest unique native filed clock selects the replacement. The source's
  * blank/Amended labels are markers, not numeric version ordinals. */

@@ -107,9 +107,11 @@ export class IndianaNativePacCollector {
     }[] = [];
     try {
       qualifyIndianaNativeReceiver(receiver, parseIndianaNativeCommittee(d));
-      let parsed = parseIndianaNativeFilingPage(d),
-        action: [string, string] | null = parsed.pager.resize;
+      let parsed = parseIndianaNativeFilingPage(d);
+      if (!parsed.pager) return [{ original: current, rows: parsed.rows }];
+      let action: [string, string] | null = parsed.pager.resize;
       while (action) {
+        inCheck(parsed.pager, "native_inventory_pager_missing");
         const body = callback(d, action, parsed.pager);
         d.defaultView?.close();
         current = await this.archive.observe(url, body);
@@ -117,7 +119,7 @@ export class IndianaNativePacCollector {
         qualifyIndianaNativeReceiver(receiver, parseIndianaNativeCommittee(d));
         parsed = parseIndianaNativeFilingPage(d);
         inCheck(
-          parsed.pager.page === pages.length + 1,
+          parsed.pager !== null && parsed.pager.page === pages.length + 1,
           "native_inventory_page_sequence",
         );
         pages.push({ original: current, rows: parsed.rows });
@@ -280,10 +282,12 @@ export class IndianaNativePacCollector {
     const rows: ReturnType<typeof parseIndianaNativeReceiptPage>["rows"] = [];
     try {
       const initial = parseIndianaNativeReceiptPage(d, target);
+      if (!initial.pager) return initial.rows;
       let parsed = initial,
-        action: [string, string] | null = parsed.pager.resize,
+        action: [string, string] | null = initial.pager.resize,
         pages = 0;
       while (action) {
+        inCheck(parsed.pager, "native_receipt_pager_missing");
         body = callback(d, action, parsed.pager);
         d.defaultView?.close();
         current = await this.archive.observe(target, body);
@@ -292,7 +296,7 @@ export class IndianaNativePacCollector {
         inCheck(
           parsed.count === initial.count &&
             parsed.totalCents === initial.totalCents &&
-            parsed.pager.page === ++pages,
+            parsed.pager !== null && parsed.pager.page === ++pages,
           "native_receipt_query_changed",
         );
         rows.push(...parsed.rows);

@@ -35,17 +35,27 @@ function inventories(originals:readonly IndianaNativeOriginal[],receiver:Indiana
       try{
         d=inHtml(first.raw,first.meta.url);const c=parseIndianaNativeCommittee(d);
         if(c.file!==receiver.receivingId)continue;qualifyIndianaNativeReceiver(receiver,c);
-        let p=parseIndianaNativeFilingPage(d);inCheck(p.pager.page===1,"inventory_initial_page");
+        let p=parseIndianaNativeFilingPage(d);
+        if (!p.pager) {
+          // The committee-search redirect identifies the filer; it is not a
+          // second inventory walk before the collector's opening observation.
+          const previous=records[index-1];
+          if(previous?.meta.method==="POST"&&path(previous)==="/PublicSite/SearchPages/CommitteeSearch.aspx"&&previous.meta.status===302&&previous.meta.location&&sameUrl(inPublicUrl(previous.meta.location,previous.meta.url),first.meta.url))continue;
+          out.push({pages:[{original:first,rows:p.rows,state:state(d)}],rows:p.rows,originals:[first],start:first.meta.startedAt,end:first.meta.completedAt});
+          continue;
+        }
+        inCheck(p.pager.page===1,"inventory_initial_page");
         const pages:InventoryPage[]=[],used=[first];let resize=true,complete=false;
         for(let j=index+1;j<records.length;j++){
           const o=records[j]!;if(o.meta.method==="GET"&&sameUrl(o.meta.url,first.meta.url))break;
           if(o.meta.method!=="POST"||!sameUrl(o.meta.url,first.meta.url)||!usable(o))continue;
-          const callback=resize?p.pager.resize:p.pager.next;
+          const pager=p.pager;inCheck(pager,"inventory_paging_missing");
+          const callback=resize?pager.resize:pager.next;
           inCheck(callback&&follows(o,callback,state(d)),"inventory_postback_conflict");
-          inCheck(request(o).get(p.pager.sizeName)===p.pager.size50Value,"inventory_page_size");
+          inCheck(request(o).get(pager.sizeName)===pager.size50Value,"inventory_page_size");
           d.defaultView?.close();d=inHtml(o.raw,o.meta.url);
           qualifyIndianaNativeReceiver(receiver,parseIndianaNativeCommittee(d));p=parseIndianaNativeFilingPage(d);
-          inCheck(p.pager.page===pages.length+1,"inventory_page_sequence");
+          inCheck(p.pager!==null&&p.pager.page===pages.length+1,"inventory_page_sequence");
           pages.push({original:o,rows:p.rows,state:state(d)});used.push(o);resize=false;
           inCheck(pages.length<=100,"inventory_resource_limit");
           if(!p.pager.next){complete=true;break;}
