@@ -530,3 +530,17 @@ describe("Austin component preservation and committee cash transactions", () => 
     expect(calls.some(call => call.sql.includes("atx_candidate_finance_pac_"))).toBe(false);
   });
 });
+
+
+describe("Austin committee observation ordering", () => {
+  it("rolls back an older observation before replacing summary or donor money", async () => {
+    const query = queryMock(sql => sql.includes("SELECT observed_at >") ? { rows: [{ newer: true }] } : null);
+    const { db } = poolMock(query);
+    await expect(replaceAustinCandidateFinanceSnapshot({ db: db as never, link, summary, directBreakdowns: [],
+      reportedCommitteeCash: { donors: [], amountCents: 0, contributionCount: 0, reportedThrough: "2024-06-30" } }))
+      .rejects.toThrow("older committee cash observation");
+    const calls = query.mock.calls.map(call => String(call[0]));
+    expect(calls.at(-1)).toBe("ROLLBACK");
+    expect(calls.some(sql => /(?:INSERT INTO|DELETE FROM) public.atx_candidate_finance_(summaries|pac_)/.test(sql))).toBe(false);
+  });
+});

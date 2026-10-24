@@ -292,6 +292,14 @@ export async function replaceAustinCandidateFinanceSnapshot(input: {
       link: input.link,
     });
     const year = input.link.electionYear;
+    // The link upsert holds its row lock until commit, serializing writers
+    // before this full-precision source-clock comparison.
+    if (cash) {
+      const prior = await client.query<{ newer: boolean }>(`SELECT observed_at > $3::timestamptz newer
+        FROM public.atx_candidate_finance_pac_sources WHERE link_id=$1::uuid AND election_year=$2 FOR UPDATE`,
+      [linkId, year, syncedAt]);
+      if (prior.rows.some(row => row.newer)) throw new Error("Austin older committee cash observation cannot replace a newer snapshot");
+    }
     await client.query(
       `INSERT INTO public.atx_candidate_finance_summaries (link_id,election_year,total_receipts,direct_contribution_total,total_disbursements,cash_on_hand,outside_support_total,outside_oppose_total,source_url,last_synced_at) VALUES ($1::uuid,$2,$3,$4,$5,$6,$7,$8,$9,$10::timestamptz) ON CONFLICT (link_id,election_year) DO UPDATE SET total_receipts=EXCLUDED.total_receipts,direct_contribution_total=EXCLUDED.direct_contribution_total,total_disbursements=EXCLUDED.total_disbursements,cash_on_hand=EXCLUDED.cash_on_hand,outside_support_total=CASE WHEN $11::boolean THEN EXCLUDED.outside_support_total ELSE atx_candidate_finance_summaries.outside_support_total END,outside_oppose_total=CASE WHEN $12::boolean THEN EXCLUDED.outside_oppose_total ELSE atx_candidate_finance_summaries.outside_oppose_total END,source_url=EXCLUDED.source_url,last_synced_at=EXCLUDED.last_synced_at`,
       [
