@@ -493,6 +493,9 @@ export const isOregonCampaignFinanceSyncEnabled = oregonFinance.isSyncEnabled;
 const rhodeIslandFinance = defineStateFinanceFlagPair("RHODE_ISLAND_CAMPAIGN_FINANCE");
 export const isRhodeIslandCampaignFinanceEnabled = rhodeIslandFinance.isEnabled;
 export const isRhodeIslandCampaignFinanceSyncEnabled = rhodeIslandFinance.isSyncEnabled;
+export const isRhodeIslandReportedCommitteeCashEnabled = rhodeIslandFinance.gate(
+  "RHODE_ISLAND_REPORTED_COMMITTEE_CASH_ENABLED"
+);
 export const isRhodeIslandErtsRawDataRefreshEnabled = rhodeIslandFinance.gate(
   "RHODE_ISLAND_ERTS_RAW_DATA_REFRESH_ENABLED"
 );

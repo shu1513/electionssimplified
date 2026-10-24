@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   createErtsTransport,
@@ -205,5 +205,63 @@ describe("fetchErtsFilingPdf", () => {
     await expect(
       fetchErtsFilingPdf(transport, "https://ricampaignfinance.com/ExportDocs/2235-RICF2-1-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa.pdf")
     ).rejects.toThrow(/did not start with %PDF-/);
+  });
+});
+
+describe("default HTTP redirect handling", () => {
+  afterEach(() => vi.unstubAllGlobals());
+  const start = "https://www.ricampaignfinance.com/RIPublic/Reporting/TransactionReport.aspx";
+  function nativeResponse(url: string, status: number, location?: string): Response {
+    const result = new Response(status === 200 ? "No Contributions were found for the Search criteria you entered" : "redirect", {
+      status,
+      headers: { "content-type": "text/html", ...(location ? { location } : {}) },
+    });
+    Object.defineProperty(result, "url", { value: url });
+    return result;
+  }
+
+  it("upgrades the native HTTP empty-window redirect before sending, with pacing", async () => {
+    const next = "https://ricampaignfinance.com/RIPublic/Contributions.aspx";
+    const fetch = vi.fn().mockImplementationOnce(async (url: string) =>
+      nativeResponse(url, 302, next.replace("https:", "http:")))
+      .mockImplementationOnce(async (url: string) => nativeResponse(url, 200));
+    vi.stubGlobal("fetch", fetch);
+    const sleep = vi.fn(async () => {});
+    const result = await createErtsTransport({ sleep, maxAttempts: 1 }).fetch(start);
+    expect(result.finalUrl).toBe(next);
+    expect(fetch.mock.calls.map(([url]) => url)).toEqual([start, next]);
+    expect(fetch.mock.calls.every(([, options]) => options.redirect === "manual")).toBe(true);
+    expect(sleep).toHaveBeenCalledWith(2_000);
+  });
+
+  it.each([
+    "https://example.com/", "http://example.com/", "https://user:pass@ricampaignfinance.com/",
+    "https://ricampaignfinance.com:444/", "file:///tmp/private",
+  ])("refuses an untrusted redirect before another request: %s", async (location) => {
+    const fetch = vi.fn(async (url: string) => nativeResponse(url, 302, location));
+    vi.stubGlobal("fetch", fetch);
+    await expect(createErtsTransport({ sleep: async () => {}, maxAttempts: 1 }).fetch(start))
+      .rejects.toThrow(/outside the HTTPS portal/);
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([302, 303, 307, 308])("preserves redirect method semantics for %i", async (status) => {
+    const fetch = vi.fn().mockImplementationOnce(async (url: string) =>
+      nativeResponse(url, status, "/RIPublic/Contributions.aspx"))
+      .mockImplementationOnce(async (url: string) => nativeResponse(url, 200));
+    vi.stubGlobal("fetch", fetch);
+    const body = new URLSearchParams({ __EVENTTARGET: "test" });
+    await createErtsTransport({ sleep: async () => {}, maxAttempts: 1 }).fetch(start, body);
+    const options = fetch.mock.calls[1]![1];
+    expect(options.method).toBe(status >= 307 ? "POST" : "GET");
+    expect(options.body).toBe(status >= 307 ? body : undefined);
+  });
+
+  it("bounds portal redirect loops", async () => {
+    const fetch = vi.fn(async (url: string) => nativeResponse(url, 302, start));
+    vi.stubGlobal("fetch", fetch);
+    await expect(createErtsTransport({ sleep: async () => {}, maxAttempts: 1 }).fetch(start))
+      .rejects.toThrow(/redirect limit/);
+    expect(fetch).toHaveBeenCalledTimes(6);
   });
 });

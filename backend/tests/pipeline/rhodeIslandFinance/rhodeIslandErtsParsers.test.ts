@@ -20,6 +20,8 @@ import {
   ERTS_CONTRIBUTION_TYPE_CODES,
 } from "../../../src/pipeline/rhodeIslandFinance/rhodeIslandErtsParsers.js";
 
+import { selectErtsCycleCf2Filings } from "../../../src/pipeline/rhodeIslandFinance/rhodeIslandErtsArtifactAcquisition.js";
+
 // Fixtures are trimmed captures of the live ERTS pages taken during the PR 3
 // acquisition spike (2026-08-13). They pin the shapes the spike proved so a
 // silent portal change shows up as a test failure rather than as wrong money.
@@ -159,6 +161,62 @@ describe("parseErtsFilingListPage", () => {
     expect(rows.filter((row) => row.formName === "RIMPF2")).toHaveLength(1);
   });
 
+  function registrationRow(input: { title?: string; begin?: string; end?: string; filed?: boolean; form?: string; link?: boolean } = {}) {
+    const filed = input.filed !== false;
+    const link = input.link ?? filed;
+    const href = `https://secure.ricampaignfinance.com/RhodeIslandCF/Candidate/FilingAmendmentSelect.aspx?X=T&amp;FilingID=41&amp;FormName=${input.form ?? "RICF1"}`;
+    return `<tr><td>${input.title ?? "Amendment of Organization"}</td><td>${input.begin ?? ""}</td><td>${input.end ?? ""}</td><td></td><td>${filed ? "Received by BOE" : "Not Filed"}</td><td>${filed ? "Jan 2 2026 1:00PM" : ""}</td><td>No</td><td>${link ? `<a href="${href}">View</a>` : ""}</td></tr>`;
+  }
+  function registrationPage(row: string) {
+    return `<table id="grdSearchResults">${row}</table>`;
+  }
+
+  it.each(["Notice of Organization - (CF-1)", "Amendment of Organization"])("preserves a filed %s with no reporting period", title => {
+    expect(parseErtsFilingListPage(registrationPage(registrationRow({ title })))).toEqual([
+      expect.objectContaining({ reportType: title, periodBegin: "", periodEnd: "", filingId: "41", formName: "RICF1", filedAt: "Jan 2 2026 1:00PM" }),
+    ]);
+  });
+
+  it("retains a filed blank-period MPF-3 without selecting it as cash reporting", () => {
+    const html = registrationPage(registrationRow({ title: "MPF3, Affidavit and Payment Request", form: "RIMPF3" }));
+    const rows = parseErtsFilingListPage(html);
+    expect(rows).toEqual([expect.objectContaining({ periodBegin: "", periodEnd: "", formName: "RIMPF3", filingId: "41" })]);
+    expect(selectErtsCycleCf2Filings({ rows, cycleBeginIso: "2025-01-01", cycleEndIso: "2026-12-31" })).toMatchObject({
+      selected: [], nonCf2FiledRowCount: 1, unusablePeriodRowCount: 0,
+    });
+  });
+
+  it.each([
+    { form: "RICF2" }, { form: "RICF1" }, { filed: false },
+    { link: false }, { begin: "01/01/2026" }, { end: "invalid" },
+  ])("rejects an unverified blank-period MPF-3 %o", input => {
+    const row = registrationRow({ title: "MPF3, Affidavit and Payment Request", form: "RIMPF3", ...input });
+    expect(() => parseErtsFilingListPage(registrationPage(row))).toThrow(/pinned shape/);
+  });
+
+  it("preserves a known unfiled registration without inventing dates or a filing id", () => {
+    expect(parseErtsFilingListPage(registrationPage(registrationRow({ filed: false })))).toEqual([
+      expect.objectContaining({ periodBegin: "", periodEnd: "", filedAt: "", filingId: null, formName: null }),
+    ]);
+  });
+
+  it.each([
+    { title: "Unknown report" }, { form: "RICF2" }, { begin: "01/01/2026" },
+    { end: "not a date" }, { link: false }, { filed: false, link: true },
+  ])("continues to reject an unqualified nonperiod record %o", input => {
+    expect(() => parseErtsFilingListPage(registrationPage(registrationRow(input)))).toThrow(/does not match the pinned shape/);
+  });
+
+  it("leaves CF-2 selection unchanged while retaining known registration metadata", () => {
+    const html = fixture("organization-filings.html").replace("</table>", registrationRow() + registrationRow({ filed: false }) + "</table>");
+    const all = parseErtsFilingListPage(html);
+    const selection = selectErtsCycleCf2Filings({ rows: all, cycleBeginIso: "2025-01-01", cycleEndIso: "2026-12-31" });
+    expect(all).toHaveLength(6);
+    expect(selection.selected.map(row => row.filingId).sort()).toEqual(["230557", "239295"]);
+    expect(selection.nonCf2FiledRowCount).toBe(2);
+    expect(selection.unfiledRowCount).toBe(2);
+  });
+
   it("throws on a data-like row whose period no longer parses", () => {
     // A silently dropped filing would silently drop its reporting period.
     const drifted = fixture("organization-filings.html").replace("10/01/2025", "Oct 1, 2025");
@@ -296,6 +354,20 @@ describe("parseErtsCf8IndexPage", () => {
 });
 
 describe("classifyErtsSearchResult", () => {
+  const expenseEmpty = '<span id="lblNoReportMsg">There were no reports found, please try your search again.</span>';
+  it("recognizes the native expense empty marker only in the expense context", () => {
+    expect(classifyErtsSearchResult(expenseEmpty, "dgrExpenditure")).toBe("no_rows");
+    expect(classifyErtsSearchResult(expenseEmpty, "dgrContribution")).toBe("unreadable");
+  });
+  it.each([
+    expenseEmpty.replace('id="lblNoReportMsg"', 'id="other"'),
+    expenseEmpty.replace("There were no reports found, please try your search again.", "There were no reports found."),
+    "<p>There were no reports found, please try your search again.</p>",
+    "<p>No Contributions were found for the Search criteria you entered.</p>",
+    "<p>No Records were found for the Search criteria you entered.</p>",
+  ])("rejects a generic or wrong-context expense empty page", (html) => {
+    expect(classifyErtsSearchResult(html, "dgrExpenditure")).toBe("unreadable");
+  });
   it("recognizes a result grid, the portal's no-rows message, and nothing else", () => {
     expect(classifyErtsSearchResult('<table id="dgrContribution"><tr></tr></table>', "dgrContribution")).toBe("rows");
     expect(
