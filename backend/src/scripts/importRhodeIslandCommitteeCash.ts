@@ -51,6 +51,7 @@ export async function runImportRhodeIslandCash(input: { options: ImportRhodeIsla
     // Source identities, selectors and financial line items never enter logs.
     return { type: "rhode_island_committee_cash_import", dry_run: o.dryRun, accepted: 1,
       written: result?.status === "written" ? 1 : 0, unchanged: result?.status === "unchanged" ? 1 : 0,
+      direct_finance_reconciled: packet.summary !== null,
       reports: packet.reportCount, receiving_rows: packet.receivingRows, committee_groups: packet.donors.length,
       committee_cash_occurrences: packet.selectedOccurrences, committee_cash_cents: packet.totalCents,
       coverage_through: packet.coverageThrough, source_observed_at: packet.observedAt };

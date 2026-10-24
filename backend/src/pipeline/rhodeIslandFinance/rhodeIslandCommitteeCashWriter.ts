@@ -12,8 +12,9 @@ type Link = { id: string; candidate_id: string; election_id: string; election_ye
   district: string | null; link_status: string; link_source: string };
 
 /** Scoped manual import: review of ballot/office/registration identity precedes
- * this call. One shared transaction writes legacy direct finance and the new
- * source/donor rows. Outside data is omitted and preserved. Failed source,
+ * this call. One shared transaction writes qualified direct finance and the
+ * new source/donor rows. Withheld direct and outside data are omitted and
+ * preserved. Failed source,
  * stale context, older clocks or conflicts cannot advance accepted clocks.
  */
 export async function writeRhodeIslandCashPacket(input: {
@@ -33,7 +34,7 @@ export async function writeRhodeIslandCashPacket(input: {
     sourceUrl: p.sourceUrl, lastVerifiedAt: new Date(p.observedAt) };
   try {
     const result = await replaceRhodeIslandCandidateFinanceSnapshot({ db, link, syncedAt: new Date(p.observedAt),
-      summary: p.summary, directBreakdowns: p.directBreakdowns,
+      ...(p.summary ? { summary: p.summary, directBreakdowns: p.directBreakdowns } : {}),
       beforeSnapshotWrite: async ({ db: tx }) => {
         for (const key of [`ri-cash:context:${c.candidateId}:${c.electionId}`, `ri-cash:account:${c.committeeId}:${c.electionYear}`].sort()) {
           await tx.query("SELECT pg_advisory_xact_lock(hashtextextended($1::text, 0))", [key]);
@@ -70,10 +71,12 @@ export async function writeRhodeIslandCashPacket(input: {
               throw new AlreadyApplied(existing.id);
             }
           }
-          const summary = await tx.query<{ newer: boolean }>(`SELECT last_synced_at>$3::timestamptz newer
-            FROM public.ri_candidate_finance_summaries WHERE link_id=$1::uuid AND election_year=$2 FOR UPDATE`,
-          [existing.id, c.electionYear, p.observedAt]);
-          check(!summary.rows.some(s => s.newer), "newer_direct_finance_clock");
+          if (p.summary) {
+            const summary = await tx.query<{ newer: boolean }>(`SELECT last_synced_at>$3::timestamptz newer
+              FROM public.ri_candidate_finance_summaries WHERE link_id=$1::uuid AND election_year=$2 FOR UPDATE`,
+            [existing.id, c.electionYear, p.observedAt]);
+            check(!summary.rows.some(s => s.newer), "newer_direct_finance_clock");
+          }
         }
       },
       afterSnapshotWrite: async ({ db: tx, linkId, electionYear }) => {

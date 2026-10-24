@@ -52,6 +52,16 @@ describe("Rhode Island committee cash transactional writer", () => {
     expect(sourceCall[1]).toContain(packet().observedAt);
     expect(d.client.release).toHaveBeenCalledOnce();
   });
+  it("writes qualified committee receipts without touching withheld direct rows or clocks", async () => {
+    const d = database({ siblings: [existing()], newerSummary: true });
+    const p = { ...packet(), summary: null };
+    expect(await write({ db: d.db, packet: p, reviewedMapping: true })).toMatchObject({ status: "written", donorsWritten: 1 });
+    const sql = d.statements();
+    expect(sql.some(s => /(?:INSERT INTO|DELETE FROM|UPDATE) public\.ri_candidate_finance_(summaries|direct_breakdowns|outside)/.test(s))).toBe(false);
+    expect(sql.some(s => s.includes("FROM public.ri_candidate_finance_summaries WHERE"))).toBe(false);
+    expect(sql.some(s => s.includes("INSERT INTO public.ri_candidate_finance_pac_sources"))).toBe(true);
+    expect(sql[sql.length - 1]).toBe("COMMIT");
+  });
   it("rolls back direct and source writes if a donor insert fails", async () => {
     const d = database({ failDonor: true }); await expect(write({ db: d.db, packet: packet(), reviewedMapping: true })).rejects.toThrow(/synthetic_donor_failure/);
     expect(d.statements()).toContain("ROLLBACK"); expect(d.statements()).not.toContain("COMMIT");

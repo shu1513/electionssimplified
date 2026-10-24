@@ -30,6 +30,17 @@ describe("Rhode Island gross reported committee cash", () => {
       expect.objectContaining({ sourceClass: "Party", amountCents: 100_000, contributionCount: 1 }),
     ]);
   });
+  it("closes a native negative expenditure-side return without netting gross committee receipts", () => {
+    const rows = [receipt(), receipt({ contributionId: "2", contributionType: "Refund of Contribution", transType: "Expenditure", amountCents: -10_000 })];
+    expect(aggregate(input(rows))).toMatchObject({ totalCents: 100_000, selectedOccurrences: 1, receivingRows: 2 });
+  });
+  it.each([
+    { transType: "Contribution" }, { amountCents: 10_000 }, { amountCents: 0 },
+    { mpfMatchAmountCents: 1 }, { contributionType: "Unknown Return" },
+  ])("holds an unverified return shape %o", patch => {
+    const returned = receipt({ contributionId: "2", contributionType: "Refund of Contribution", transType: "Expenditure", amountCents: -10_000, ...patch });
+    expect(() => aggregate(input([receipt(), returned]))).toThrow(/committee cash held/);
+  });
   it("combines case/space variants but preserves reported class and punctuation distinctions", () => {
     const result = aggregate(input([receipt(), receipt({ contributionId: "2", fullName: " example  pac " }),
       receipt({ contributionId: "3", fullName: "Example-PAC" }), receipt({ contributionId: "4", contributionType: "Party" })]));

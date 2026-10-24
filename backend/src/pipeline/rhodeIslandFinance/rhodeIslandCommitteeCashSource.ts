@@ -31,7 +31,7 @@ export type RhodeIslandCashPacket = Readonly<{
   totalCents: number;
   selectedOccurrences: number;
   donors: readonly Readonly<{ key: string; name: string; sourceClass: "PAC" | "Party"; amountCents: number; contributionCount: number }>[];
-  summary: Readonly<{ totalReceipts: number; directContributionTotal: number; totalDisbursements: number; cashOnHand: number; sourceUrl: string }>;
+  summary: Readonly<{ totalReceipts: number; directContributionTotal: number; totalDisbursements: number; cashOnHand: number; sourceUrl: string }> | null;
   directBreakdowns: readonly Readonly<{ categoryType: "contribution_size"; categoryName: string; amount: number; contributorCount: number; sourceUrl: string | null }>[];
 }>;
 const accepted = new WeakSet<object>();
@@ -94,7 +94,13 @@ export async function loadRhodeIslandCashPacket(context: RhodeIslandCashContext,
     check(!snapshots.has(filingId), "duplicate_current_cf2"); snapshots.set(filingId, { pdfUrl: latest.pdfUrl, rows, groupings });
   }
   const finance = await aggregateRhodeIslandOrganizationCycleFinance({ cacheDir, orgId: context.committeeId, cycleBeginIso: start, cycleEndIso: end });
-  check(finance.publishable && finance.summary && finance.cf2Selection.periods.length === snapshots.size, "legacy_finance_reconciliation");
+  // PAC/Party gross receipts have their own complete export and CF-2 line
+  // controls below. A discrepancy in other cash totals withholds direct
+  // finance; it cannot erase independently reconciled committee receipts.
+  // Invalid CF-2 periods and every other legacy quarantine still hold all.
+  check(finance.cf2Selection.periods.length === snapshots.size &&
+    finance.cf2Selection.quarantineReasons.length === 0 &&
+    finance.quarantineReasons.every(reason => reason.reason === "cf2_reconciliation_mismatch"), "legacy_finance_reconciliation");
   for (const { key, manifest } of seen.values()) {
     const current = await readErtsArtifact({ cacheDir, key });
     check(current.manifest.sha256 === manifest.sha256 && current.manifest.retrievedAt === manifest.retrievedAt &&
@@ -111,9 +117,9 @@ export async function loadRhodeIslandCashPacket(context: RhodeIslandCashContext,
   const sourceDigest = createHash("sha256").update(JSON.stringify([...seen].sort(([a], [b]) => a.localeCompare(b))
     .map(([path, { manifest }]) => [path, manifest.sha256]))).digest("hex");
   const packet: RhodeIslandCashPacket = Object.freeze({ context, observedAt: observedAt!, sourceDigest,
-    sourceUrl: finance.summary.sourceUrl, coverageThrough: cash.coverageThrough, reportCount: periods.length,
+    sourceUrl: finance.summary?.sourceUrl ?? ertsContributionReportUrl({ orgId: context.committeeId, begin: us(start), end: us(end) }), coverageThrough: cash.coverageThrough, reportCount: periods.length,
     receivingRows: cash.receivingRows, totalCents: cash.totalCents, selectedOccurrences: cash.selectedOccurrences,
-    donors: Object.freeze(cash.donors.map(d => Object.freeze({ ...d }))), summary: Object.freeze({ ...finance.summary }),
-    directBreakdowns: Object.freeze(finance.directBreakdowns.map(d => Object.freeze({ ...d }))) });
+    donors: Object.freeze(cash.donors.map(d => Object.freeze({ ...d }))), summary: finance.publishable && finance.summary ? Object.freeze({ ...finance.summary }) : null,
+    directBreakdowns: Object.freeze((finance.publishable ? finance.directBreakdowns : []).map(d => Object.freeze({ ...d }))) });
   accepted.add(packet); return packet;
 }

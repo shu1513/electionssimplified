@@ -71,8 +71,13 @@ export function aggregateRhodeIslandCommitteeCash(input: {
     check(/^\d+$/.test(row.contributionId) && !ids.has(row.contributionId), "receipt_identity");
     ids.add(row.contributionId);
     day(row.receiptDateIso);
-    check(row.receiptDateIso <= input.observedDay && row.transType === "Contribution", "receipt_scope");
-    check(Object.hasOwn(ERTS_CONTRIBUTION_TYPE_CODES, row.contributionType), "unknown_receipt_type");
+    // The native receiving export also carries separately reported negative
+    // expenditure-side returns. Retain them in whole-export closure, but do
+    // not subtract them from this explicitly gross PAC/Party receipt basis.
+    const reportedReturn = row.contributionType === "Refund of Contribution" && row.transType === "Expenditure"
+      && row.amountCents < 0 && row.mpfMatchAmountCents === 0;
+    check(row.receiptDateIso <= input.observedDay && (row.transType === "Contribution" || reportedReturn), "receipt_scope");
+    check(Object.hasOwn(ERTS_CONTRIBUTION_TYPE_CODES, row.contributionType) || reportedReturn, "unknown_receipt_type");
     const matches = periods.map((p, i) => p.beginIso <= row.receiptDateIso && row.receiptDateIso <= p.endIso ? i : -1).filter(i => i >= 0);
     check(matches.length === 1, "receipt_period_membership");
     const periodTotals = totals[matches[0]!]!;
@@ -92,7 +97,8 @@ export function aggregateRhodeIslandCommitteeCash(input: {
   for (const [index, period] of periods.entries()) {
     const exported = totals[index]!;
     for (const type of new Set([...exported.keys(), ...period.groupings.keys()])) {
-      check(Object.hasOwn(ERTS_CONTRIBUTION_TYPE_CODES, type), "unknown_summary_or_return_type");
+      check(Object.hasOwn(ERTS_CONTRIBUTION_TYPE_CODES, type) ||
+        type === "Refund of Contribution" && exported.has(type), "unknown_summary_or_return_type");
       const reported = period.groupings.get(type) ?? 0;
       check(Number.isSafeInteger(reported) && (exported.get(type) ?? 0) === reported, "whole_export_summary_mismatch");
     }

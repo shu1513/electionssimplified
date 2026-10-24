@@ -19,7 +19,7 @@ async function metadata(key: ErtsArtifactKey, change: (value: any) => void) {
   const path = getErtsArtifactPaths({ cacheDir, key }).manifestPath;
   const value = JSON.parse(await readFile(path, "utf8")); change(value); await writeFile(path, JSON.stringify(value));
 }
-async function install() {
+async function install(overrides: Record<string, string> = {}) {
   async function store(key: ErtsArtifactKey, body: string | Uint8Array, url: string) {
     await storeErtsArtifact({ cacheDir, key, body, url, retrievedAt: stamp, source: { organizationName: context.committeeName } });
   }
@@ -32,7 +32,7 @@ async function install() {
   await store({ type: "filing_versions", filingId: "11" }, '<table id="grdAmendments"><tr><td>Amendment</td><td>Desc</td><td>Date Filed</td><td></td></tr>' +
     `<tr><td></td><td><a href="${pdfUrl}">report</a></td><td>Oct 6 2026 9:00AM</td><td></td></tr></table>`,
   "https://secure.ricampaignfinance.com/RhodeIslandCF/Candidate/FilingAmendmentSelect.aspx?FilingID=11&FormName=RICF2");
-  const values: Record<string, string> = { "4. Political Action Committees": "1000", "3. Political Parties": "500", "3. Total Cash": "1500", "5. Ending Cash Balance": "1500" };
+  const values: Record<string, string> = { "4. Political Action Committees": "1000", "3. Political Parties": "500", "3. Total Cash": "1500", "5. Ending Cash Balance": "1500", ...overrides };
   const lines = ERTS_CF2_SUMMARY_LABELS.flatMap((label, i) => [{ text: label, x: 48, y: 700 - i * 20 }, { text: values[label] ?? "0", x: 300, y: 700 - i * 20 }]);
   await store({ type: "filing_pdf", filingId: "11", guid: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" }, makeMinimalPdf(lines), pdfUrl);
   await store({ type: "contribution_report", ...window }, '<table id="dgrReport"><tr><td>Summary Groupings</td><td>Total</td></tr><tr><td>PAC</td><td>$1,000.00</td></tr><tr><td>Party</td><td>$500.00</td></tr></table><table id="dgrContribution"><tr><td>rows</td></tr></table>',
@@ -57,6 +57,16 @@ describe("verified Rhode Island cache packets", () => {
     expect(() => assertRhodeIslandCashPacket(p)).not.toThrow();
     expect(() => assertRhodeIslandCashPacket({ ...p })).toThrow(/unverified_packet/);
     expect([p, p.context, p.summary, p.donors, ...p.donors, p.directBreakdowns, ...p.directBreakdowns].every(Object.isFrozen)).toBe(true);
+  });
+  it("qualifies reconciled PAC/Party lines while withholding conflicting overall direct cash", async () => {
+    await install({ "3. Total Cash": "1501", "5. Ending Cash Balance": "1501" });
+    const p = await loadRhodeIslandCashPacket(context, cacheDir);
+    expect(p).toMatchObject({ totalCents: 150_000, selectedOccurrences: 2, summary: null, directBreakdowns: [] });
+    expect(() => assertRhodeIslandCashPacket(p)).not.toThrow();
+  });
+  it("still holds a conflicting authoritative PAC line", async () => {
+    await install({ "4. Political Action Committees": "1001" });
+    await expect(loadRhodeIslandCashPacket(context, cacheDir)).rejects.toThrow(/cf2_committee_cash_mismatch/);
   });
   it("refuses caller-constructed totals", () => {
     expect(() => assertRhodeIslandCashPacket({ totalCents: 1 } as RhodeIslandCashPacket)).toThrow(/unverified_packet/);
