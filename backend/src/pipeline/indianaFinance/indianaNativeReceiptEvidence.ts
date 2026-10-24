@@ -78,6 +78,10 @@ export function readIndianaNativeReceiptRuns(originals: readonly IndianaNativeOr
         inCheck(firstIndex===index+1,"receipt_initial_result_missing");
         const used=[form,search,records[firstIndex]!]; d.defaultView?.close();d=originalHtml(records[firstIndex]!);
         const initial=parseIndianaNativeReceiptPage(d,url), pages:IndianaNativeReceiptPage[]=[];
+        if (!initial.pager) {
+          runs.push({scope,pages:[initial],originals:used,start:form.meta.startedAt,end:used.at(-1)!.meta.completedAt});
+          continue;
+        }
         inCheck(initial.pager.page===1,"receipt_initial_page");
         let previous=initial, expectResize=true, complete=false;
         for(let j=firstIndex+1;j<records.length;j++) {
@@ -94,13 +98,14 @@ export function readIndianaNativeReceiptRuns(originals: readonly IndianaNativeOr
             if(diagnostics&&/^[A-Za-z0-9_:$]+$/.test(name))diagnostics[`filter_control_${name}`]=(diagnostics[`filter_control_${name}`]??0)+1;
             inCheck(false,"receipt_paging_filter_conflict");
           }
-          const expected=expectResize?previous.pager.resize:previous.pager.next;
+          const pager=previous.pager;inCheck(pager,"receipt_paging_missing");
+          const expected=expectResize?pager.resize:pager.next;
           inCheck(expected&&request.get("__EVENTTARGET")===expected[0]&&request.get("__EVENTARGUMENT")===expected[1],"receipt_paging_action_conflict");
-          const size=request.get(previous.pager.sizeName);
-          inCheck(size===previous.pager.size50Value,"receipt_paging_size_conflict");
+          const size=request.get(pager.sizeName);
+          inCheck(size===pager.size50Value,"receipt_paging_size_conflict");
           d.defaultView?.close();d=originalHtml(o);
           const p=parseIndianaNativeReceiptPage(d,url);
-          inCheck(p.count===initial.count&&p.totalCents===initial.totalCents&&p.pager.page===pages.length+1,"receipt_paging_scope_changed");
+          inCheck(p.count===initial.count&&p.totalCents===initial.totalCents&&p.pager!==null&&p.pager.page===pages.length+1,"receipt_paging_scope_changed");
           pages.push(p);used.push(o);previous=p;expectResize=false;
           const rows=pages.reduce((n,p)=>n+p.rows.length,0);
           inCheck(rows<=initial.count,"receipt_paging_overflow");

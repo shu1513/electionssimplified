@@ -77,6 +77,42 @@ describe("Indiana native financial boundaries", () => {
   });
 });
 
+
+describe("Indiana complete unpaged native receipts", () => {
+  function grid(count = 3, amounts = [10000, 20000, 30000], total = amounts.reduce((n, v) => n + v, 0)) {
+    return html(`<span id="_ctl0_Content_lblRecordsFound">${count} records found</span><span id="_ctl0_Content_lblTotalContributions">$${(total / 100).toFixed(2)}</span><table id="_ctl0_Content_dgdSearchResults"><tr>${["Contributor", "City, State", "Type", "Amount", "Date", "Candidate/Committee Name", "In Kind?", "Large?", ""].map(v => `<th>${v}</th>`).join("")}</tr>${amounts.map((amount, index) => `<tr><td>Synthetic PAC ${index}</td><td>Example, IN</td><td>Direct</td><td>$${(amount / 100).toFixed(2)}</td><td>10/1/2026</td><td>Synthetic Committee</td><td></td><td></td><td><a onclick="window.open('/PublicSite/SearchPages/ContributionDetail.aspx?Synthetic=${index}')">View</a></td></tr>`).join("")}</table>`);
+  }
+  it("accepts the whole initial response without inventing a resize action", () => {
+    const d = grid();
+    try {
+      const p = parseIndianaNativeReceiptPage(d, origin);
+      expect(p.pager).toBeNull();
+      expect(closeIndianaNativeReceiptPages([p], [structuredClone(p)], "Synthetic Committee")).toHaveLength(3);
+      expect(p.totalCents).toBe(60000);
+      expect(() => closeIndianaNativeReceiptPages([p], [{ ...p, totalCents: 0 }], "Synthetic Committee")).toThrow("native_receipt_closing_changed");
+      expect(() => closeIndianaNativeReceiptPages([p, p], [p, p], "Synthetic Committee")).toThrow("native_receipt_scope_changed");
+    } finally { d.defaultView?.close(); }
+  });
+  it.each([
+    [4, [10000, 20000, 30000], 60000],
+    [11, Array(11).fill(10000), 110000],
+    [3, [10000, 20000, 30000], 60001],
+  ])("rejects missing paging, incomplete rows or nonclosing money", (count, amounts, total) => {
+    const d = grid(count, amounts, total);
+    try { expect(() => parseIndianaNativeReceiptPage(d, origin)).toThrow("native_unpaged_receipt_incomplete"); }
+    finally { d.defaultView?.close(); }
+  });
+  it("preserves signed credits and still rejects duplicate native events", () => {
+    const d = grid(2, [10000, -2000]);
+    try {
+      const p = parseIndianaNativeReceiptPage(d, origin);
+      expect(p.totalCents).toBe(8000);
+      const duplicate = { ...p, rows: [p.rows[0]!, p.rows[0]!], totalCents: 20000 };
+      expect(() => closeIndianaNativeReceiptPages([duplicate], [duplicate], "Synthetic Committee")).toThrow("native_receipt_identity_conflict");
+    } finally { d.defaultView?.close(); }
+  });
+});
+
 // Supplemental reports can overlap later regular filings. Late corrections
 // must hold, rather than double counting or quietly dropping the supplement.
 describe("Indiana current financial periods", () => {

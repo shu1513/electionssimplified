@@ -31,7 +31,7 @@ The shared factory (`createStandardStateFinanceSnapshotWriter`) after PR #488 + 
 | houston | factory wrapper | — | factory | factory | factory | — | — | — |
 | illinois | 5 | +`sbe_candidate_id`,`sbe_district_type`,`sbe_office`,`is_at_large`; →`committee_key` | R+oC; +`debts_owed` | 2000 | pool | G,M | `cash_on_hand` | std |
 | idaho | 5 via existing factory; independent reported-PAC source/group/attempt tables since migration 352 | →`registration_guid`/`filer_name` | existing snapshot unchanged; PAC source/groups atomic replace, stale/equal-clock guards | 2026 for reported PAC | pinned pool transaction | canonical person/office/district/cycle + unique active link; native identity and itemized TPAC category closure | signed receipt corrections before grouping | existing size/source-type; separate reported committee-interest overlay |
-| indiana | 3 (no outside) | none | R; only receipts+direct | 2000 | self | M | — | std+`pac_backed_industry` |
+| indiana | 3 legacy (no outside) + 3 independently gated native-PAC tables (376) | none; native component rechecks canonical receiver | R legacy; atomic native source/group replacement with own clocks | 2000 legacy; 2026 native | self + independent transaction | M; full current report/receipt/return closure, including closed native unpaged ledgers | signed native receipt credits | std+`pac_backed_industry`; separate reported PAC cash overlay ([plan](plans/plan-indiana-finance-gaps.md)) |
 | kentucky | 5 | +`candidate_key`; →`committee_key` | R | 2000 | pool | G | `cash_on_hand` | std |
 | losAngelesCity | 4 (no `outside_group_breakdowns`); `lacity_` prefix | different shape (city outlier) | — | none | self | — | — | — |
 | louisiana | 5 | →`filer_number`/`filer_name` | R | 2000 | pool | G | `cash_on_hand` | std+`contributor_type`+`donor` |
@@ -89,7 +89,7 @@ Val+ distribution before Missouri: pairing validation `G` in 12 (two message var
 | florida | **no loader file** | — | — |
 | hawaii | standard | `committee_id` | `committee_id` |
 | houston / illinois / texas | wrappers over shared loader | — | — |
-| indiana | standard | `committee_id` | direct-only |
+| indiana | standard plus independently gated native-PAC overlay | `committee_id` | direct-only outside; uncapped native PAC validation before top-five details |
 | idaho | standard wrapper plus default-off reported-PAC overlay | `registration_guid` | `filer_key`; reported PAC groups use native source entity keys, full totals before top-five details; IE already wired, electioneering excluded |
 | kentucky | standard | `committee_key` | `committee_key` |
 | losAngelesCity | `losAngelesBallotLookupFinanceLoader.ts` | `fppc_committee_id` | city outlier |

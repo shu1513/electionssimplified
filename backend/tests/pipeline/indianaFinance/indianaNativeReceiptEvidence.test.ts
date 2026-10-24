@@ -33,6 +33,20 @@ describe("Indiana genuine receipt-walk provenance",()=>{
  it("accepts a real scoped search/postback chain when results omit search controls",()=>{
   const runs=readIndianaNativeReceiptRuns(walk());expect(runs).toHaveLength(1);expect(runs[0]!.scope.kind).toBe("pac");expect(runs[0]!.pages[0]!.rows).toHaveLength(1);
  });
+ it("accepts an unpaged initial result only with its real scoped form and redirect chain",()=>{
+  const source=walk().slice(0,3), old=source[2]!;
+  const raw=Buffer.from(old.raw).toString("utf8").replace(/<tr><td colspan="9">.*?<\/tr>/, "");
+  source[2]=original(2,old.meta.url,raw);
+  const runs=readIndianaNativeReceiptRuns(source);
+  expect(runs).toHaveLength(1);
+  expect(runs[0]!.pages[0]!.pager).toBeNull();
+  expect(runs[0]!.originals).toHaveLength(3);
+  expect(readIndianaNativeReceiptRuns(source.slice(2))).toEqual([]);
+  const changed=source.map(o=>({...o})), redirect=changed[1]!, u=new URL(redirect.meta.location!);
+  u.searchParams.set("FinanceCategoryID","-32768");
+  changed[1]=original(1,base,"",redirect.request,u.href);
+  expect(readIndianaNativeReceiptRuns(changed)).toEqual([]);
+ });
  it("rejects a saved result URL without its fresh form/search submission",()=>{
   expect(readIndianaNativeReceiptRuns(walk().slice(2))).toEqual([]);
  });

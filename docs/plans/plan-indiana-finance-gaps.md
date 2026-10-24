@@ -93,17 +93,53 @@ provide generic expenditure types/purpose and public-question stance, rather tha
 a candidate-independence certification.
 
 Indiana IE admission remains held by source evidence. This is neither a
-whole-cycle absence claim nor a completed IE fix. Draft PR
+whole-cycle absence claim nor a completed IE fix. Merged PR
 [#1626](https://github.com/shu1513/electionssimplified/pull/1626) contains the proved
 PAC path; outside spending remains unknown. Recheck fresh filings after the stated
-deadlines. Kansas donor-name and Missouri code/local proofs remain separately
-requested, with their public release held pending review.
+deadlines. Kansas contributor-name publication and all new Missouri publication
+remain held pending review.
+
+## Unpaged native ledgers — October 23 follow-up
+
+The native portal omits paging controls for small receipt results and filing
+histories. A real three-receipt PAC query and an eight-row filing history both
+failed the previous parser's mandatory-pager check. The collector and saved-source
+verifier now accept the actual complete initial response without inventing a
+resize action. Unpaged receipts require at most ten rows and exact published
+count/signed-money closure; unpaged filing histories require one to ten filed
+rows with the full native schema. Larger results retain native postback paging.
+
+The committee-search redirect establishes identity and cannot double as an
+independent closing inventory. Separate opening/closing observations, complete
+receipt occurrence sets, literal PAC details, current report versions, report
+periods, parent controls, returns and canonical receiving ownership still gate
+admission. The first source control remains held for incomplete cycle coverage;
+another remains held for a blank contributor name. Neither is published as a
+partial PAC subtotal.
+
+A separate qualified receiver completed the actual ordinary local sync: three
+regular reports, twenty receiving occurrences, sixteen PAC cash gifts, ten
+reported-name groups and **$14,700**. A Python/BeautifulSoup/Decimal reference
+matched every uncapped stored name, native event, group key, amount, count and
+source clock. The actual production HTTP API and hydrated candidate route matched
+all five displayed donor rows, total, group count, source link and full coverage
+note. A reversible React menu interaction verified hydration. Legacy direct rows
+and clocks, the migration ledger and unknown outside totals stayed unchanged;
+writer replay was idempotent and missing source evidence preserved the component.
+No migration or production activation is needed for this correction.
+
+The follow-up has 149 passing Indiana tests across 25 files and a passing backend
+typecheck. A fresh October 8–16 advertising control also closed eight expenses and
+all details without establishing candidate-specific independence. The current
+annual expenditure original still fails strict whole-source decoding. These
+observations leave IE unknown; they do not establish statewide absence.
 
 ## Remaining implementation and proof
 
 - Finish independent IE qualification, then the smallest supported integration.
 - Complete the independent IE source decision before claiming the state gap resolved.
-  The PAC path has ordinary local sync/store/API/card proof; no Indiana PR yet.
+  The PAC path has ordinary local sync/store/API/card proof in merged PR #1626;
+  the unpaged acquisition follow-up has its own real local proof.
 
 ## Late filings and manual reruns
 
