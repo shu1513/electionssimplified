@@ -1,3 +1,4 @@
+import { aggregateLosAngelesReportedCommitteeCash } from "./losAngelesReportedCommitteeCash.js";
 import type { Pool, PoolClient } from "pg";
 import {
   classifyFinanceLabel,
@@ -46,23 +47,24 @@ export async function syncLosAngelesCandidateFinance(input: {
   now?: Date;
 }): Promise<{
   linkWritten: boolean;
+  reportedCommitteeCashGroupCount: number;
+  reportedCommitteeCashCents: number;
+  reportedCommitteeCashGiftCount: number;
   directBreakdownCount: number;
   outsideGroupCount: number;
   reconciledContributionTotal: number;
   headlineContributionTotal: number;
   reconciliationDifference: number;
 }> {
-  const [records, supportRows, opposeRows] = await Promise.all([
-    getLosAngelesCommitteeContributions(
-      {
-        committeeId: input.total.fppcCommitteeId,
-        electionYear: input.electionYear,
-      },
-      {
-        ...defaultLosAngelesOpenDataClientOptions(),
-        ...input.openDataClientOptions,
-      },
-    ),
+  const receivingIds = [...(input.total.fppcCommitteeIds ?? [input.total.fppcCommitteeId])].sort();
+  if (!receivingIds.length || receivingIds.length > 2 || new Set(receivingIds).size !== receivingIds.length ||
+    !receivingIds.includes(input.total.fppcCommitteeId) || receivingIds.some(id => !/^\d{4,12}$/.test(id)))
+    throw new Error("Invalid Los Angeles receiving committee scope");
+  const [ledgers, supportRows, opposeRows] = await Promise.all([
+    Promise.all(receivingIds.map(committeeId => getLosAngelesCommitteeContributions(
+      { committeeId, electionYear: input.electionYear },
+      { ...defaultLosAngelesOpenDataClientOptions(), ...input.openDataClientOptions },
+    ))),
     getLosAngelesIndependentSpending(
       {
         electionSeatCandidateId: input.total.electionSeatCandidateId,
@@ -78,11 +80,27 @@ export async function syncLosAngelesCandidateFinance(input: {
       input.ethicsClientOptions,
     ),
   ]);
+  const records = ledgers.flat();
+  if (receivingIds.length > 1 && (!input.total.sourceElectionDates || input.total.sourceElectionDates.length !== 2 ||
+    input.total.sourceElectionDates.some(date => !date.startsWith(`${input.electionYear}-`)) ||
+    records.some(row => !row.electionDate || !input.total.sourceElectionDates!.includes(row.electionDate.slice(0, 10)))))
+    throw new Error("Los Angeles paired ledgers do not match the published election calendar");
   const direct = aggregateLosAngelesDirectContributions({ records });
   const outside = aggregateLosAngelesOutsideSpending([
     ...supportRows,
     ...opposeRows,
   ]);
+  const cents = (value: number): number => {
+    const result = Math.round(value * 100);
+    if (!Number.isSafeInteger(result)) throw new Error("Los Angeles finance exceeds safe cent precision");
+    return result;
+  };
+  if (cents(direct.reconciledContributionTotal) !== cents(input.total.totalContributions))
+    throw new Error("Los Angeles full receiving scope does not reconcile to the headline");
+  if (cents(outside.supportTotal) !== cents(input.total.outsideSupportTotal) || cents(outside.opposeTotal) !== cents(input.total.outsideOpposeTotal))
+    throw new Error("Los Angeles independent spending does not reconcile to the headline");
+  const reportedCommitteeCash = aggregateLosAngelesReportedCommitteeCash({ records, receivingCommitteeIds: receivingIds,
+    candidateName: input.candidateName, electionYear: input.electionYear, reportedThrough: input.total.reportedThrough });
   const classifications = new Map<string, FinanceLabelClassification>();
   for (const row of direct.breakdowns)
     if (row.categoryType === "employer")
@@ -139,6 +157,7 @@ export async function syncLosAngelesCandidateFinance(input: {
         ethicsCandidatePersonId: input.total.candidatePersonId,
         ethicsSeatCandidateId: input.total.electionSeatCandidateId,
         fppcCommitteeId: input.total.fppcCommitteeId,
+        fppcCommitteeIds: receivingIds,
         committeeName: input.total.committeeName,
         internalCommitteePersonId: input.total.internalCommitteePersonId,
         linkStatus: "active",
@@ -160,11 +179,15 @@ export async function syncLosAngelesCandidateFinance(input: {
       },
       directBreakdowns: breakdowns,
       outsideGroups: outside.groups,
+      reportedCommitteeCash,
       classifications: [...classifications.values()],
       syncedAt: input.now,
     });
   return {
     linkWritten: !input.dryRun,
+    reportedCommitteeCashGroupCount: reportedCommitteeCash.donors.length,
+    reportedCommitteeCashCents: reportedCommitteeCash.amountCents,
+    reportedCommitteeCashGiftCount: reportedCommitteeCash.contributionCount,
     directBreakdownCount: breakdowns.length,
     outsideGroupCount: outside.groups.length,
     reconciledContributionTotal: direct.reconciledContributionTotal,

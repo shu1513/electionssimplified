@@ -173,6 +173,7 @@ export async function autoLinkMissingLosAngelesCandidateFinanceLinks(input: {
           ethicsCandidatePersonId: total.candidatePersonId,
           ethicsSeatCandidateId: total.electionSeatCandidateId,
           fppcCommitteeId: total.fppcCommitteeId,
+          fppcCommitteeIds: total.fppcCommitteeIds,
           committeeName: total.committeeName,
           internalCommitteePersonId: total.internalCommitteePersonId,
           linkStatus: "active",

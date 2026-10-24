@@ -18,6 +18,10 @@ export type LosAngelesOpenDataClientOptions = {
 };
 
 export type LosAngelesContributionRecord = {
+  /** Native publication-row identity; not an invented transaction hash. */
+  sourceRowId?: string | null;
+  periodBeginDate?: string | null;
+  memo?: string | null;
   contributionDate: string | null;
   contributorName: string;
   occupation: string | null;
@@ -69,6 +73,7 @@ function nullableString(
 
 function amountValue(row: Record<string, unknown>, key: string): number | null {
   const value = row[key];
+  if (value === undefined || value === null || String(value).trim() === "") return null;
   const parsed =
     typeof value === "number"
       ? value
@@ -83,15 +88,20 @@ function mapContribution(
   const committeeName = stringValue(row, "cmt_nm");
   const schedule = stringValue(row, "schedule").toUpperCase();
   const amount = amountValue(row, "con_amount");
+  const rawPaid = row.con_amount_pd_forgiven;
+  const paid = rawPaid === undefined || rawPaid === null || String(rawPaid).trim() === "" ? 0 : amountValue(row, "con_amount_pd_forgiven");
   if (
     !/^\d{4,12}$/.test(committeeId) ||
     !committeeName ||
     !schedule ||
-    amount === null
+    amount === null || paid === null
   ) {
     return null;
   }
   return {
+    sourceRowId: nullableString(row, "source_row_id"),
+    periodBeginDate: nullableString(row, "per_beg_date"),
+    memo: nullableString(row, "memo"),
     contributionDate: nullableString(row, "con_date"),
     contributorName: stringValue(row, "con_name"),
     occupation: nullableString(row, "con_occp"),
@@ -102,7 +112,7 @@ function mapContribution(
     seatDescription: nullableString(row, "seat_desc"),
     contributionType: nullableString(row, "con_type"),
     amount,
-    amountPaidOrForgiven: amountValue(row, "con_amount_pd_forgiven") ?? 0,
+    amountPaidOrForgiven: paid,
     schedule,
     periodEndDate: nullableString(row, "per_end_date"),
     electionDate: nullableString(row, "election_date"),
@@ -139,10 +149,9 @@ async function fetchPage(
       const payload: unknown = await response.json();
       if (!Array.isArray(payload))
         throw new Error("Los Angeles Open Data response is not an array");
-      return payload.filter(
-        (row): row is Record<string, unknown> =>
-          typeof row === "object" && row !== null && !Array.isArray(row),
-      );
+      if (payload.some(row => typeof row !== "object" || row === null || Array.isArray(row)))
+        throw new Error("Los Angeles Open Data page contains an invalid record");
+      return payload as Record<string, unknown>[];
     } catch (error) {
       if (
         attempt < retries &&
@@ -188,6 +197,7 @@ export async function getLosAngelesCommitteeContributions(
     "maxPages",
   );
   const results: LosAngelesContributionRecord[] = [];
+  const seen = new Set<string>();
   for (let page = 0; page < maxPages; page += 1) {
     const url = new URL(
       `${LOS_ANGELES_OPEN_DATA_BASE_URL}/${LOS_ANGELES_CONTRIBUTIONS_DATASET_ID}.json`,
@@ -196,15 +206,18 @@ export async function getLosAngelesCommitteeContributions(
       "$where",
       `cmt_id=${soqlString(committeeId)} AND election_date>=${soqlString(`${input.electionYear}-01-01T00:00:00.000`)} AND election_date<${soqlString(`${input.electionYear + 1}-01-01T00:00:00.000`)}`,
     );
+    url.searchParams.set("$select", "*, :id as source_row_id");
     url.searchParams.set("$order", "con_date,cmt_id,con_name,con_amount,:id");
     url.searchParams.set("$limit", String(pageLimit));
     url.searchParams.set("$offset", String(page * pageLimit));
     const rows = await fetchPage(url.toString(), options);
-    results.push(
-      ...rows
-        .map(mapContribution)
-        .filter((row): row is LosAngelesContributionRecord => row !== null),
-    );
+    for (const raw of rows) {
+      const row = mapContribution(raw);
+      if (!row || row.committeeId !== committeeId || !row.sourceRowId || seen.has(row.sourceRowId))
+        throw new Error("Los Angeles Open Data has an invalid, foreign or duplicate publication row");
+      seen.add(row.sourceRowId);
+      results.push(row);
+    }
     if (rows.length < pageLimit) {
       const sourceElectionDates = new Set(
         results

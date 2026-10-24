@@ -1,3 +1,4 @@
+import { losAngelesReceivingCommitteeIds, normalizeLosAngelesCommitteeKey, type LosAngelesReportedCommitteeCash } from "./losAngelesReportedCommitteeCash.js";
 import type { Pool, PoolClient } from "pg";
 import type { FinanceLabelClassification } from "../finance/financeLabelClassifier.js";
 import { upsertFinanceLabelClassification } from "../finance/financeIndustryClassificationService.js";
@@ -16,6 +17,7 @@ export type LosAngelesFinanceLinkInput = {
   ethicsCandidatePersonId: string;
   ethicsSeatCandidateId: string;
   fppcCommitteeId: string;
+  fppcCommitteeIds?: readonly string[];
   committeeName: string;
   internalCommitteePersonId?: string | null;
   linkStatus?: "active" | "needs_review" | "inactive";
@@ -121,6 +123,7 @@ async function upsertLink(
   );
   const fppcCommitteeId = text(link.fppcCommitteeId, "FPPC committee id");
   const committeeName = text(link.committeeName, "committee name");
+  const receivingIds = losAngelesReceivingCommitteeIds(fppcCommitteeId, link.fppcCommitteeIds);
   // Manual protection applies to EVERY automatic write, not only active
   // upserts, and probes manual rows of ANY status: an operator-disabled
   // (inactive/needs_review) manual link with this committee id is the
@@ -143,6 +146,8 @@ async function upsertLink(
         throw new Error(
           "Los Angeles automatic finance link matches an operator-disabled manual link",
         );
+      if (link.fppcCommitteeIds) await db.query(
+        `UPDATE public.lacity_candidate_finance_links SET fppc_committee_ids=$2::text[] WHERE id=$1::uuid`, [sameCommittee.id, receivingIds]);
       return sameCommittee.id;
     }
     // A disabled manual link with a DIFFERENT committee id does not block a
@@ -162,7 +167,7 @@ async function upsertLink(
   // manual between the probe and this statement blocks the update (no id
   // returned, the throw below aborts) instead of being rewritten.
   const result = await db.query<{ id: string }>(
-    `INSERT INTO public.lacity_candidate_finance_links (candidate_id,election_id,election_year,candidate_name_normalized,office_name,seat_number,ethics_election_id,ethics_candidate_person_id,ethics_seat_candidate_id,fppc_committee_id,committee_name,internal_committee_person_id,link_status,link_source,source_url,last_verified_at) VALUES ($1::uuid,$2::uuid,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16::timestamptz) ON CONFLICT (candidate_id,election_id,fppc_committee_id) DO UPDATE SET election_year=EXCLUDED.election_year,candidate_name_normalized=EXCLUDED.candidate_name_normalized,office_name=EXCLUDED.office_name,seat_number=EXCLUDED.seat_number,ethics_election_id=EXCLUDED.ethics_election_id,ethics_candidate_person_id=EXCLUDED.ethics_candidate_person_id,ethics_seat_candidate_id=EXCLUDED.ethics_seat_candidate_id,committee_name=EXCLUDED.committee_name,internal_committee_person_id=EXCLUDED.internal_committee_person_id,link_status=EXCLUDED.link_status,link_source=EXCLUDED.link_source,source_url=EXCLUDED.source_url,last_verified_at=EXCLUDED.last_verified_at WHERE lacity_candidate_finance_links.link_source<>'manual' OR EXCLUDED.link_source='manual' RETURNING id::text`,
+    `INSERT INTO public.lacity_candidate_finance_links (candidate_id,election_id,election_year,candidate_name_normalized,office_name,seat_number,ethics_election_id,ethics_candidate_person_id,ethics_seat_candidate_id,fppc_committee_id,committee_name,internal_committee_person_id,link_status,link_source,source_url,last_verified_at,fppc_committee_ids) VALUES ($1::uuid,$2::uuid,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16::timestamptz,$17::text[]) ON CONFLICT (candidate_id,election_id,fppc_committee_id) DO UPDATE SET election_year=EXCLUDED.election_year,candidate_name_normalized=EXCLUDED.candidate_name_normalized,office_name=EXCLUDED.office_name,seat_number=EXCLUDED.seat_number,ethics_election_id=EXCLUDED.ethics_election_id,ethics_candidate_person_id=EXCLUDED.ethics_candidate_person_id,ethics_seat_candidate_id=EXCLUDED.ethics_seat_candidate_id,committee_name=EXCLUDED.committee_name,fppc_committee_ids=EXCLUDED.fppc_committee_ids,internal_committee_person_id=EXCLUDED.internal_committee_person_id,link_status=EXCLUDED.link_status,link_source=EXCLUDED.link_source,source_url=EXCLUDED.source_url,last_verified_at=EXCLUDED.last_verified_at WHERE lacity_candidate_finance_links.link_source<>'manual' OR EXCLUDED.link_source='manual' RETURNING id::text`,
     [
       candidateId,
       electionId,
@@ -180,6 +185,7 @@ async function upsertLink(
       link.linkSource ?? "manual",
       optional(link.sourceUrl),
       link.lastVerifiedAt?.toISOString() ?? null,
+      receivingIds,
     ],
   );
   if (!result.rows[0]?.id)
@@ -203,16 +209,42 @@ export async function replaceLosAngelesCandidateFinanceSnapshot(input: {
   directBreakdowns: readonly LosAngelesDirectBreakdown[];
   outsideGroups: readonly LosAngelesOutsideGroupInput[];
   classifications?: readonly FinanceLabelClassification[];
+  reportedCommitteeCash?: LosAngelesReportedCommitteeCash;
   syncedAt?: Date;
 }): Promise<{ linkId: string }> {
   if (typeof input.db.connect !== "function")
     throw new Error("Los Angeles finance snapshot writes require a Pool");
   const syncedAt = input.syncedAt ?? new Date();
+  const cash = input.reportedCommitteeCash;
+  if (cash) {
+    const scope = losAngelesReceivingCommitteeIds(input.link.fppcCommitteeId, input.link.fppcCommitteeIds);
+    if (JSON.stringify(cash.receivingCommitteeIds) !== JSON.stringify(scope)) throw new Error("Los Angeles cash receiving scope does not match the link");
+    if (cash.donors.length && cash.reportedThrough === null) throw new Error("Los Angeles cash requires report date evidence");
+    if (cash.reportedThrough !== null && (!/^\d{4}-\d{2}-\d{2}$/.test(cash.reportedThrough) || !Number.isFinite(Date.parse(cash.reportedThrough)) ||
+      new Date(cash.reportedThrough).toISOString().slice(0,10) !== cash.reportedThrough)) throw new Error("Los Angeles cash report date is invalid");
+    const keys = new Set<string>(); let total = 0, gifts = 0;
+    for (const donor of cash.donors) {
+      if (!donor.committeeKey || donor.committeeKey !== normalizeLosAngelesCommitteeKey(donor.committeeName) || keys.has(donor.committeeKey) ||
+        !Number.isSafeInteger(donor.amountCents) || donor.amountCents <= 0 || !Number.isSafeInteger(donor.contributionCount) || donor.contributionCount <= 0)
+        throw new Error("Los Angeles cash has invalid reported groups");
+      keys.add(donor.committeeKey); total += donor.amountCents; gifts += donor.contributionCount;
+    }
+    if (!Number.isSafeInteger(total) || !Number.isSafeInteger(gifts) || total !== cash.amountCents || gifts !== cash.contributionCount)
+      throw new Error("Los Angeles cash source counts and cents do not close");
+  }
   const client = await input.db.connect();
   try {
     await client.query("BEGIN");
     const linkId = await upsertLink(client, input.link);
     const year = input.link.electionYear;
+    if (cash) {
+      // Also serializes matching manual links whose standalone upsert reused
+      // an existing row. Compare clocks in PG at full source precision.
+      await client.query(`SELECT id FROM public.lacity_candidate_finance_links WHERE id=$1::uuid FOR UPDATE`, [linkId]);
+      const prior = await client.query<{ newer: boolean }>(`SELECT observed_at > $3::timestamptz newer FROM public.lacity_candidate_finance_pac_sources
+        WHERE link_id=$1::uuid AND election_year=$2 FOR UPDATE`, [linkId, year, syncedAt.toISOString()]);
+      if (prior.rows.some(row => row.newer)) throw new Error("Los Angeles older cash observation cannot replace a newer snapshot");
+    }
     await client.query(
       `INSERT INTO public.lacity_candidate_finance_summaries (link_id,election_year,total_receipts,total_disbursements,cash_on_hand,matching_funds,outside_support_total,outside_oppose_total,membership_support_total,membership_oppose_total,source_url,reported_through,last_synced_at) VALUES ($1::uuid,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12::date,$13::timestamptz) ON CONFLICT (link_id,election_year) DO UPDATE SET total_receipts=EXCLUDED.total_receipts,total_disbursements=EXCLUDED.total_disbursements,cash_on_hand=EXCLUDED.cash_on_hand,matching_funds=EXCLUDED.matching_funds,outside_support_total=EXCLUDED.outside_support_total,outside_oppose_total=EXCLUDED.outside_oppose_total,membership_support_total=EXCLUDED.membership_support_total,membership_oppose_total=EXCLUDED.membership_oppose_total,source_url=EXCLUDED.source_url,reported_through=EXCLUDED.reported_through,last_synced_at=EXCLUDED.last_synced_at`,
       [
@@ -268,6 +300,18 @@ export async function replaceLosAngelesCandidateFinanceSnapshot(input: {
           syncedAt.toISOString(),
         ],
       );
+    if (cash) {
+      await client.query(`INSERT INTO public.lacity_candidate_finance_pac_sources
+        (link_id,election_year,amount_cents,contribution_count,group_count,reported_through,observed_at,receiving_committee_ids)
+        VALUES ($1::uuid,$2,$3::bigint,$4,$5,$6::date,$7::timestamptz,$8::text[])
+        ON CONFLICT (link_id,election_year) DO UPDATE SET amount_cents=EXCLUDED.amount_cents,contribution_count=EXCLUDED.contribution_count,
+          group_count=EXCLUDED.group_count,reported_through=EXCLUDED.reported_through,observed_at=EXCLUDED.observed_at,receiving_committee_ids=EXCLUDED.receiving_committee_ids`,
+      [linkId,year,String(cash.amountCents),cash.contributionCount,cash.donors.length,cash.reportedThrough,syncedAt.toISOString(),cash.receivingCommitteeIds]);
+      await client.query(`DELETE FROM public.lacity_candidate_finance_pac_donors WHERE link_id=$1::uuid AND election_year=$2`, [linkId,year]);
+      for (const donor of cash.donors) await client.query(`INSERT INTO public.lacity_candidate_finance_pac_donors
+        (link_id,election_year,committee_key,committee_name,amount_cents,contribution_count) VALUES ($1::uuid,$2,$3,$4,$5::bigint,$6)`,
+      [linkId,year,donor.committeeKey,donor.committeeName,String(donor.amountCents),donor.contributionCount]);
+    }
     for (const classification of input.classifications ?? [])
       await upsertFinanceLabelClassification({ db: client, classification });
     await client.query("COMMIT");

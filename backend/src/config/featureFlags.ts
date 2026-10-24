@@ -381,6 +381,7 @@ export const isNewYorkCityCampaignFinanceEnabled = newYorkCityFinance.isEnabled;
 export const isNewYorkCityCampaignFinanceSyncEnabled = newYorkCityFinance.isSyncEnabled;
 
 const losAngelesCityFinance = defineStateFinanceFlagPair("LOS_ANGELES_CITY_CAMPAIGN_FINANCE");
+export const isLosAngelesReportedCommitteeCashEnabled = losAngelesCityFinance.gate("LOS_ANGELES_CITY_REPORTED_COMMITTEE_CASH_ENABLED");
 export const isLosAngelesCityCampaignFinanceEnabled = losAngelesCityFinance.isEnabled;
 export const isLosAngelesCityCampaignFinanceSyncEnabled = losAngelesCityFinance.isSyncEnabled;
 

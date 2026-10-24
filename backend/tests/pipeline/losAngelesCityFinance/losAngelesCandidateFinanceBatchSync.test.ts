@@ -76,6 +76,9 @@ describe("Los Angeles candidate finance batch sync", () => {
     );
     vi.mocked(syncLosAngelesCandidateFinance).mockResolvedValue({
       linkWritten: true,
+      reportedCommitteeCashGroupCount: 0,
+      reportedCommitteeCashCents: 0,
+      reportedCommitteeCashGiftCount: 0,
       directBreakdownCount: 0,
       outsideGroupCount: 0,
       reconciledContributionTotal: 100,
