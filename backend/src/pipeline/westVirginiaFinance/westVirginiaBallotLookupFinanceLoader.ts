@@ -22,7 +22,7 @@ import { PAC_INTERESTS_NOT_LISTED, pacInterestDisplayName, UNCLASSIFIED_PAC_INTE
 type Queryable = Pick<Pool | PoolClient, "query">;
 
 const WEST_VIRGINIA_OUTSIDE_COVERAGE_NOTE =
-  "Only electronically reported independent expenditures with verified current filing versions and unique candidate matches are included. Scanned paper and rapid reports are omitted; unavailable or unproven empty data preserves prior spending.";
+  "Includes independent expenditure and electioneering communication reports filed by committees registered with the Secretary of State, read from the filed documents, plus electronically reported independent expenditures with verified filing versions. Spending by filers without a registered committee is not covered; unavailable or unproven empty data preserves prior spending.";
 
 type WestVirginiaFinancePacDonorRow = {
   candidate_id: string;

@@ -1,24 +1,49 @@
 import type { WestVirginiaElectronicIeProvenance } from "./westVirginiaElectronicOutsideSpendingAggregator.js";
+import { isWestVirginiaDocumentIeProvenance, type WestVirginiaDocumentIeProvenance } from "./westVirginiaOutsideDocumentLedger.js";
 export type WestVirginiaStoredOutsideEvidence = {
   committee_id: string;
   support_oppose: string;
   source_transactions: unknown;
 };
 /** Disappearing rows require independent empty-report proof, not merely a new version.
- * A stable current version may not silently change its economic or filing identity. */
+ * A stable current version may not silently change its economic or filing identity.
+ * Document (F-7b ledger) rows may disappear only through an explicit reviewer decision
+ * that moved the document out of `accepted`. */
 export function validateWestVirginiaPreviouslyPublishedIe(input: {
   previousGroups: readonly WestVirginiaStoredOutsideEvidence[];
   currentProvenance: readonly WestVirginiaElectronicIeProvenance[];
+  currentDocumentProvenance?: readonly WestVirginiaDocumentIeProvenance[];
+  /** Document ids the ledger now lists as `review` or `rejected`. */
+  explicitlyUnpublishedDocumentIds?: ReadonlySet<number>;
 }): void {
   const key = (row: Pick<WestVirginiaElectronicIeProvenance, "spenderEntityId" | "transactionID" | "reportID">) =>
     JSON.stringify([row.spenderEntityId, row.transactionID, row.reportID]);
   const current = new Map(input.currentProvenance.map((row) => [key(row), row]));
+  const documentKey = (row: Pick<WestVirginiaDocumentIeProvenance, "documentID" | "expenditureIndex">) => `${row.documentID}:${row.expenditureIndex}`;
+  const currentDocuments = new Map((input.currentDocumentProvenance ?? []).map((row) => [documentKey(row), row]));
   for (const group of input.previousGroups) {
     if (!Array.isArray(group.source_transactions) || group.source_transactions.length === 0) {
       throw new Error("Stored West Virginia outside spending lacks reviewed transaction provenance");
     }
     for (const value of group.source_transactions) {
       if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("Invalid stored West Virginia IE provenance");
+      if (isWestVirginiaDocumentIeProvenance(value)) {
+        const prior = value;
+        if (prior.spenderEntityId !== group.committee_id || prior.supportOppose !== group.support_oppose ||
+            !Number.isSafeInteger(prior.documentID) || prior.documentID <= 0 ||
+            !Number.isSafeInteger(prior.expenditureIndex) || prior.expenditureIndex <= 0 || !/^[a-f0-9]{64}$/.test(prior.sha256)) {
+          throw new Error("Invalid stored West Virginia document IE provenance");
+        }
+        const row = currentDocuments.get(documentKey(prior));
+        if (!row) {
+          if (input.explicitlyUnpublishedDocumentIds?.has(prior.documentID)) continue;
+          throw new Error(`Previously published West Virginia document IE ${prior.documentID}#${prior.expenditureIndex} disappeared without an explicit ledger review decision`);
+        }
+        for (const field of ["sha256", "amount", "supportOppose", "expenditureDate", "spenderEntityId", "targetRosterName"] as const) {
+          if (row[field] !== prior[field]) throw new Error(`West Virginia document IE ${prior.documentID}#${prior.expenditureIndex} changed ${field} without a new document`);
+        }
+        continue;
+      }
       const prior = value as WestVirginiaElectronicIeProvenance;
       if (prior.spenderEntityId !== group.committee_id || prior.supportOppose !== group.support_oppose ||
           !Number.isSafeInteger(prior.transactionID) || prior.transactionID <= 0 ||
