@@ -1,7 +1,7 @@
 import type { Pool, PoolClient } from "pg";
 import { assertRhodeIslandCashPacket, type RhodeIslandCashPacket } from "./rhodeIslandCommitteeCashSource.js";
 import { riCommitteeCashCheck as check } from "./rhodeIslandCommitteeCashAggregator.js";
-import { RHODE_ISLAND_FINANCE_ELIGIBLE_OFFICE_KEYS } from "./rhodeIslandFinanceEligibleOffices.js";
+import { loadRhodeIslandCanonicalCashContext } from "./rhodeIslandCommitteeCashContext.js";
 import { normalizeRhodeIslandCandidateNameForStorage } from "./rhodeIslandCandidateCommitteeResolver.js";
 import { replaceRhodeIslandCandidateFinanceSnapshot } from "./rhodeIslandFinanceWriter.js";
 
@@ -38,25 +38,8 @@ export async function writeRhodeIslandCashPacket(input: {
         for (const key of [`ri-cash:context:${c.candidateId}:${c.electionId}`, `ri-cash:account:${c.committeeId}:${c.electionYear}`].sort()) {
           await tx.query("SELECT pg_advisory_xact_lock(hashtextextended($1::text, 0))", [key]);
         }
-        const current = await tx.query<{ candidate_name: string; election_year: number; office_scope: string; office_name: string;
-          district: string | null; district_type: string; geoid_compact: string }>(`
-          SELECT COALESCE(NULLIF(trim(candidate.display_name),''),trim(candidate.first_name||' '||candidate.last_name)) candidate_name,
-            extract(year FROM election.election_date)::integer election_year, office.scope office_scope, office.canonical_name office_name,
-            district.district_type,district.geoid_compact,
-            CASE WHEN district.district_type IN ('state_upper','state_lower') THEN
-              NULLIF(regexp_replace(substring(district.geoid_compact FROM char_length(district.state_fips)+1),'^0+',''),'') END district
-          FROM public.candidates candidate JOIN public.candidate_elections roster ON roster.candidate_id=candidate.id
-          JOIN public.elections election ON election.id=roster.election_id JOIN public.districts district ON district.id=election.district_id
-          JOIN public.offices office ON office.id=election.office_id
-          WHERE candidate.id=$1::uuid AND election.id=$2::uuid AND candidate.deleted_at IS NULL
-            AND roster.status NOT IN ('withdrawn','lost') AND district.state='RI'
-            AND election.race_type='office' AND election.election_stage='general'
-            AND election.election_date BETWEEN CURRENT_DATE-1 AND CURRENT_DATE+730
-            AND (office.scope||'::'||office.canonical_name)=ANY($3::text[])
-          FOR UPDATE OF candidate,roster,election,district,office`,
-        [c.candidateId, c.electionId, [...RHODE_ISLAND_FINANCE_ELIGIBLE_OFFICE_KEYS]]);
-        const actual = current.rows[0];
-        check(current.rows.length === 1 && actual && actual.candidate_name === c.candidateName && actual.election_year === c.electionYear &&
+        const actual = await loadRhodeIslandCanonicalCashContext(tx, c.candidateId, c.electionId, true);
+        check(actual && actual.candidate_name === c.candidateName && actual.last_name === c.searchLastName && actual.election_year === c.electionYear &&
           actual.office_scope === c.officeScope && actual.office_name === c.officeName && actual.district === c.district, "canonical_context_changed");
         const seat = Number(actual.geoid_compact.slice(2));
         check(actual.office_scope === "statewide"

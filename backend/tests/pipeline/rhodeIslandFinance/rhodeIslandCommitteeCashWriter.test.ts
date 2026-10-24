@@ -19,7 +19,7 @@ function packet(): RhodeIslandCashPacket {
 }
 function database(options: { canonical?: object[]; siblings?: object[]; source?: object[]; newerSummary?: boolean; failDonor?: boolean } = {}) {
   const query = vi.fn(async (sql: string) => {
-    if (sql.includes("FROM public.candidates candidate")) return { rows: options.canonical ?? [{ candidate_name: "Jordan Example", election_year: 2026,
+    if (sql.includes("FROM public.candidates candidate")) return { rows: options.canonical ?? [{ candidate_name: "Jordan Example", last_name: "Example", election_year: 2026,
       office_scope: "statewide", office_name: "Governor", district: null, district_type: "statewide", geoid_compact: "44" }] };
     if (sql.includes("FROM public.ri_candidate_finance_links WHERE")) return { rows: options.siblings ?? [] };
     if (sql.includes("FROM public.ri_candidate_finance_pac_sources WHERE")) return { rows: options.source ?? [] };
