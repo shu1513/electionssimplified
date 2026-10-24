@@ -13,6 +13,7 @@ import {qualifyIndianaNativeReceiver,type IndianaNativeReceiver} from "./indiana
 const sameUrl=(a:string,b:string)=>{const x=new URL(a),y=new URL(b);x.searchParams.sort();y.searchParams.sort();return x.href===y.href;};
 const usable=(o:IndianaNativeOriginal)=>inSuccessfulOriginal(o,"html")&&inFreshOriginal(o);
 const path=(o:IndianaNativeOriginal)=>new URL(o.meta.url).pathname;
+const redirectsTo=(o:IndianaNativeOriginal,target:string)=>{if(!o.meta.location)return false;try{return sameUrl(inPublicUrl(o.meta.location,o.meta.url),target);}catch{return false;}};
 const state=(d:Document)=>{const f=inForm(d);return [f.get("__VIEWSTATE"),f.get("__EVENTVALIDATION")];};
 const request=(o:IndianaNativeOriginal)=>{inCheck(o.request!==null&&o.meta.method==="POST","financial_original_request");return new URLSearchParams(o.request);};
 function follows(o:IndianaNativeOriginal,expected:[string,string],s:(string|null)[]):boolean {
@@ -39,8 +40,13 @@ function inventories(originals:readonly IndianaNativeOriginal[],receiver:Indiana
         if (!p.pager) {
           // The committee-search redirect identifies the filer; it is not a
           // second inventory walk before the collector's opening observation.
-          const previous=records[index-1];
-          if(previous?.meta.method==="POST"&&path(previous)==="/PublicSite/SearchPages/CommitteeSearch.aspx"&&previous.meta.status===302&&previous.meta.location&&sameUrl(inPublicUrl(previous.meta.location,previous.meta.url),first.meta.url))continue;
+          // Walk back through any intermediate redirect hops the collector
+          // followed so the identity observation is excluded even when the
+          // search redirect did not land on this page directly.
+          let k=index-1,target=first.meta.url;
+          while(k>=0){const hop=records[k]!;if(hop.meta.method!=="GET"||![301,302,303,307,308].includes(hop.meta.status)||!redirectsTo(hop,target))break;target=hop.meta.url;k--;}
+          const start=records[k];
+          if(start?.meta.method==="POST"&&path(start)==="/PublicSite/SearchPages/CommitteeSearch.aspx"&&start.meta.status===302&&redirectsTo(start,target))continue;
           out.push({pages:[{original:first,rows:p.rows,state:state(d)}],rows:p.rows,originals:[first],start:first.meta.startedAt,end:first.meta.completedAt});
           continue;
         }

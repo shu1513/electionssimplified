@@ -31,6 +31,14 @@ describe("Indiana complete unpaged filing inventories", () => {
   const search={...lookup,raw:Buffer.alloc(0),request,meta:{...lookup.meta,url:"https://campaignfinance.in.gov/PublicSite/SearchPages/CommitteeSearch.aspx",file:"search.original",method:"POST" as const,status:302,location:lookup.meta.url,requestFile:"search.request",requestSha256:inHash(request),bytes:0,sha256:inHash(Buffer.alloc(0)),startedAt:new Date(Date.now()-4000).toISOString(),completedAt:new Date(Date.now()-4000).toISOString()}};
   expect(()=>closeIndianaNativeInventory([search,...rows],receiver)).toThrow("independent_filing_inventory_missing");
   expect(closeIndianaNativeInventory([search,...rows,make(2)],receiver)[1]!.rows).toHaveLength(8);
+  // An identity lookup reached through an intermediate redirect hop is still excluded.
+  const http=lookup.meta.url.replace("https:","http:"),hopTime=new Date(Date.now()-3500).toISOString();
+  const hop={...search,request:null,meta:{...search.meta,url:http,file:"hop.original",method:"GET" as const,location:lookup.meta.url,requestFile:null,requestSha256:null,startedAt:hopTime,completedAt:hopTime}};
+  const hoppedSearch={...search,meta:{...search.meta,location:http}};
+  expect(()=>closeIndianaNativeInventory([hoppedSearch,hop,...rows],receiver)).toThrow("independent_filing_inventory_missing");
+  expect(closeIndianaNativeInventory([hoppedSearch,hop,...rows,make(2)],receiver)[1]!.rows).toHaveLength(8);
+  // A redirect hop without a committee-search origin does not exclude a genuine inventory.
+  expect(closeIndianaNativeInventory([hop,...rows],receiver)[1]!.rows).toHaveLength(8);
   expect(()=>closeIndianaNativeInventory([rows[0]!,make(1,page(8,true))],receiver)).toThrow("filing_inventory_changed");
   expect(()=>closeIndianaNativeInventory(rows,{...receiver,activeOwnerCount:2})).toThrow("independent_filing_inventory_missing");
  });
