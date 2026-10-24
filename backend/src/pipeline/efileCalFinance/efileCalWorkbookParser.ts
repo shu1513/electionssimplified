@@ -72,6 +72,8 @@ export type EfileCalContributionRow = EfileCalFilingRowBase & {
   entityCd: string | null;
   contributorLastName: string | null;
   contributorFirstName: string | null;
+  /** Reported giving committee ID, when the source supplies Cmte_ID. */
+  contributorCommitteeId?: string | null;
   contributorOccupation: string | null;
   contributorEmployer: string | null;
   contributorSelfEmployed: boolean;
@@ -370,6 +372,7 @@ function parseContributionRow({ row, ctx }: { row: RawRow; ctx: RowContext }): E
     entityCd: toText(row["Entity_Cd"]),
     contributorLastName: toText(row["Ctrib_NamL"]),
     contributorFirstName: toText(row["Ctrib_NamF"]),
+    contributorCommitteeId: toText(row["Cmte_ID"]),
     contributorOccupation: toText(row["Ctrib_Occ"]),
     contributorEmployer: toText(row["Ctrib_Emp"]),
     contributorSelfEmployed: toFlag(row["Ctrib_Self"], "Ctrib_Self", ctx),
