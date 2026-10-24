@@ -1,6 +1,6 @@
 # Rhode Island reported finance gaps
 
-Status: receiving source qualified privately; ordinary acquisition/sync, card proof and PR remain pending. Wisconsin publication, Kansas contributor names and all new Missouri publication remain held.
+Status: ordinary receiving acquisition and an independently checked cache packet pass; financial sync, card proof and PR remain pending. Wisconsin publication, Kansas contributor names and all new Missouri publication remain held.
 
 ## Source, current code and donor types
 
@@ -9,6 +9,8 @@ Rhode Island publishes candidate independent expenditures and other covered disb
 The current module has a WebForms client, artifact acquisition/cache, report/version parsers, a CF-2 selector, receiving aggregator, resolver/auto-link, writer wrapper and ballot loader. It exposes probe/raw-refresh commands. The consolidation plan deliberately describes Rhode Island as import-style; absence of a batch runner alone is not a defect. Reuse existing contracts and add the smallest scoped import/sync path that fits. Outside source acquisition must remain independent of receiving finance.
 
 Native receiving exports explicitly distinguish PAC and Party cash from their aggregate, in-kind and loan categories. Recognize typed itemized cash without generic-name inference, distinguish unnamed aggregates from named donors, and qualify signed returns before claiming net positions. Source records and uncapped proof remain private.
+
+The new component's basis is gross positive itemized native PAC/Party cash receipts, before separately reported expenditure-side returns. State that basis explicitly; it is not a net position or a claim to identify every registered donor. Unknown types/summary return labels, nonpositive committee receipts, duplicate native IDs, incomplete certified periods and unreconciled exports hold the whole component. Preserve equal gifts as separate native occurrences. Require every exported type to match the native period summary and the PAC/Party cash lines to close against the current CF-2, including separately counted unnamed aggregates. Summary-only groups not reproduced by the export remain a qualification gap for this component.
 
 ## Priority and receiving evidence
 
@@ -23,6 +25,8 @@ The ordinary acquisition also follows a native empty-window redirect to an HTTP 
 ## Proof and implementation gates
 
 Make source-specific changes in small tested steps. Use the ordinary committed acquisition script/default clients after the parser checkpoint; custom research replay is not sync proof. Before any financial write, run actual schema/ledger preflight, keep applied migrations immutable and identifiers at most 63 characters. Before PR, complete a real scoped local import/sync, independent uncapped source/store comparison, production HTTP API and hydrated candidate route. Verify missing-source preservation and idempotence. Preserve the existing small-amount display policy; use a separate fully researched receiving control if the initial valid committee detail is below that threshold. No environment files, provider calls, production operations, merge or deployment.
+
+Ordinary raw acquisition now completes with default clients and the existing CF-2/expense reconciliation. A cache-only loader independently rechecks source scope, hashes, current versions and whole exports, requires one fresh mutable acquisition vintage and retains its original clock. Older immutable GUID PDFs are accepted only through the current version selection. Only frozen packets minted by that loader can enter the new writer. Initial manual mapping still requires independent ballot/office/registration review; native name-only search alone does not establish it. Real uncapped packet proof agrees with an independent implementation; no financial write is implied by that source proof.
 
 ## Reporting deadlines and manual reruns
 
