@@ -339,6 +339,17 @@ describe("reconcileRhodeIslandPeriodAgainstCf2", () => {
 });
 
 describe("aggregateRhodeIslandOrganizationCycleFinance", () => {
+  it("withholds an empty expenditure page when the authoritative CF-2 reports spending", async () => {
+    await installPeriods([{
+      ...MCKEE_Q2_2026,
+      expenditureReportHtml: '<span id="lblNoReportMsg">There were no reports found, please try your search again.</span>',
+    }]);
+    const result = await aggregateRhodeIslandOrganizationCycleFinance({ cacheDir, orgId: "2235", ...CYCLE });
+    expect(result).toMatchObject({ publishable: false, summary: null, directBreakdowns: [] });
+    expect(result.quarantineReasons).toContainEqual(expect.objectContaining({
+      reason: "cf2_reconciliation_mismatch", detail: expect.stringContaining("search expenditures"),
+    }));
+  });
   it("reproduces the spike's McKee Q2 2026 reconciliation from cached fixtures and publishes", async () => {
     await installPeriods([MCKEE_Q2_2026]);
     const result = await aggregateRhodeIslandOrganizationCycleFinance({ cacheDir, orgId: "2235", ...CYCLE });

@@ -13,7 +13,7 @@
 // Bumped whenever a pinned vocabulary or an output field changes, so cached
 // artifacts validated under an older version re-validate instead of being
 // trusted (north carolina cache discipline).
-export const RHODE_ISLAND_ERTS_PARSER_VERSION = 2;
+export const RHODE_ISLAND_ERTS_PARSER_VERSION = 3;
 
 // Base of every public portal route. Lives here (not the client) because the
 // CF-8 index parser must absolutize relative `/ReportsScanned/` links.
@@ -195,7 +195,20 @@ export function parseErtsSummaryGroupings(html: string, gridId: string): Map<str
  */
 export function classifyErtsSearchResult(html: string, resultGridId: string): "rows" | "no_rows" | "unreadable" {
   if (new RegExp(`<table[^>]*id="${resultGridId}"`, "i").test(html)) return "rows";
-  if (/No [A-Za-z]+ were found for the Search criteria you entered/i.test(stripErtsTags(html))) return "no_rows";
+  const noun = resultGridId === ERTS_CONTRIBUTION_RESULT_GRID_ID ? "Contributions" :
+    resultGridId === ERTS_EXPENDITURE_RESULT_GRID_ID ? "Expenditures" : null;
+  if (noun && new RegExp(`No ${noun} were found for the Search criteria you entered`, "i").test(stripErtsTags(html))) {
+    return "no_rows";
+  }
+  // Current empty expenditure reports redirect to this native message.
+  // The CF-2 reconciliation still independently verifies zero disbursements;
+  // an unmarked generic empty search page is never sufficient.
+  if (resultGridId === ERTS_EXPENDITURE_RESULT_GRID_ID) {
+    const message = /<span\b[^>]*\bid=["']lblNoReportMsg["'][^>]*>([\s\S]*?)<\/span>/i.exec(html)?.[1];
+    if (message && stripErtsTags(message).trim() === "There were no reports found, please try your search again.") {
+      return "no_rows";
+    }
+  }
   return "unreadable";
 }
 

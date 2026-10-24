@@ -337,6 +337,20 @@ describe("parseErtsCf8IndexPage", () => {
 });
 
 describe("classifyErtsSearchResult", () => {
+  const expenseEmpty = '<span id="lblNoReportMsg">There were no reports found, please try your search again.</span>';
+  it("recognizes the native expense empty marker only in the expense context", () => {
+    expect(classifyErtsSearchResult(expenseEmpty, "dgrExpenditure")).toBe("no_rows");
+    expect(classifyErtsSearchResult(expenseEmpty, "dgrContribution")).toBe("unreadable");
+  });
+  it.each([
+    expenseEmpty.replace('id="lblNoReportMsg"', 'id="other"'),
+    expenseEmpty.replace("There were no reports found, please try your search again.", "There were no reports found."),
+    "<p>There were no reports found, please try your search again.</p>",
+    "<p>No Contributions were found for the Search criteria you entered.</p>",
+    "<p>No Records were found for the Search criteria you entered.</p>",
+  ])("rejects a generic or wrong-context expense empty page", (html) => {
+    expect(classifyErtsSearchResult(html, "dgrExpenditure")).toBe("unreadable");
+  });
   it("recognizes a result grid, the portal's no-rows message, and nothing else", () => {
     expect(classifyErtsSearchResult('<table id="dgrContribution"><tr></tr></table>', "dgrContribution")).toBe("rows");
     expect(
