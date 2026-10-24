@@ -148,7 +148,7 @@ export async function loadUtahCashPacket(context: UtahCashContext, options: {
       const temporary = `${path}.${process.pid}.tmp`; await writeFile(temporary, JSON.stringify(o), { mode: 0o600 }); await rename(temporary, path);
     }
     const time = Date.parse(o.observedAt);
-    check(o.url === sourceUrl && ["http", "saved-http-body", "browser-dom"].includes(o.kind) && typeof o.body === "string" && Number.isFinite(time) && time <= now.getTime() + 60_000 && now.getTime() - time <= 86_400_000, "original_identity_or_age");
+    check(o.url === sourceUrl && ["http", "saved-http-body", "browser-dom"].includes(o.kind) && typeof o.body === "string" && Number.isFinite(time) && time <= Date.now() + 60_000 && now.getTime() - time <= 86_400_000, "original_identity_or_age");
     times.push(time); return o;
   }
   const sourceUrl = url(`/Search/PublicSearch/FolderDetails/${context.folderId}`);

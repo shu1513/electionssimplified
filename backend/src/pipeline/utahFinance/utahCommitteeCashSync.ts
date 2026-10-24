@@ -4,6 +4,7 @@ import { loadUtahCashPacket, type UtahCashContext } from "./utahCommitteeCashSou
 import { replaceUtahCommitteeCash } from "./utahCommitteeCashWriter.js";
 
 type Queryable = Pick<Pool | PoolClient,"query">;
+const HOLD_PREFIX="Utah committee cash held: ";
 export type UtahCommitteeCashSyncOptions = {
   db: Queryable; now: Date; maxCandidates: number; staleAfterDays: number;
   electionLookbackDays: number; electionLookaheadDays: number; rawDataCacheDir?: string;
@@ -24,6 +25,7 @@ export async function syncDueUtahCommitteeCash(input: UtahCommitteeCashSyncOptio
     JOIN public.elections e ON e.id=l.election_id JOIN public.districts d ON d.id=e.district_id
     JOIN public.offices o ON o.id=e.office_id
     LEFT JOIN public.ut_candidate_finance_pac_sources s ON s.link_id=l.id AND s.election_year=l.election_year AND s.folder_id=l.folder_id
+    LEFT JOIN public.ut_candidate_finance_pac_attempts a ON a.link_id=l.id AND a.election_year=l.election_year
     WHERE l.link_status='active' AND c.deleted_at IS NULL AND ce.status NOT IN ('withdrawn','lost')
       AND d.state='UT' AND e.race_type='office' AND (o.scope||'::'||o.canonical_name)=ANY($1::text[])
       AND extract(year FROM e.election_date)::integer=l.election_year
@@ -31,7 +33,7 @@ export async function syncDueUtahCommitteeCash(input: UtahCommitteeCashSyncOptio
       AND e.election_date <= (($2::timestamptz AT TIME ZONE 'UTC')::date + make_interval(days=>$4::integer))
       AND ($5::uuid IS NULL OR l.candidate_id=$5::uuid) AND ($6::integer IS NULL OR l.election_year=$6::integer)
       AND ($7::boolean OR s.last_synced_at IS NULL OR s.last_synced_at < $2::timestamptz-make_interval(days=>$8::integer))
-    ORDER BY s.last_synced_at NULLS FIRST,l.candidate_name_normalized,l.id LIMIT $9::integer`,
+    ORDER BY a.attempted_at NULLS FIRST,l.candidate_name_normalized,l.id LIMIT $9::integer`,
     [UTAH_FINANCE_ELIGIBLE_OFFICE_KEYS,input.now.toISOString(),input.electionLookbackDays,input.electionLookaheadDays,
       input.candidateId??null,input.electionYear??null,input.refreshCommitteeCash===true,input.staleAfterDays,input.maxCandidates]);
   let accepted=0, written=0, held=0;
@@ -40,12 +42,18 @@ export async function syncDueUtahCommitteeCash(input: UtahCommitteeCashSyncOptio
     const context:UtahCashContext={linkId:row.link_id,candidateId:row.candidate_id,electionId:row.election_id,
       candidateName:row.candidate_name,electionYear:row.election_year,folderId:row.folder_id,
       officeScope:row.office_scope,officeName:row.office_name,district:row.district};
+    let holdCode:string|null=null;
     try{
       const packet=await loadUtahCashPacket(context,{cacheDir:input.rawDataCacheDir??"scratch/utah-campaign-finance/disclosures",
         now:input.now,refresh:input.refreshCache,allowNetwork:input.committeeCashNetwork});
       accepted++;
       if(!input.dryRun && await replaceUtahCommitteeCash(input.db as Pool,packet))written++;
-    }catch(e){held++;const message=e instanceof Error?e.message:"";failures.push(/^Utah committee cash held: [a-z_]+$/.test(message)?message:"Utah committee cash held: acquisition_or_write_failed");}
+    }catch(e){held++;const message=e instanceof Error?e.message:"";holdCode=/^Utah committee cash held: [a-z_]+$/.test(message)?message.slice(HOLD_PREFIX.length):"acquisition_or_write_failed";failures.push(HOLD_PREFIX+holdCode);}
+    // Every attempt rotates the candidate to the back of the queue so held
+    // candidates cannot starve the rest; successful syncs stay on last_synced_at.
+    if(!input.dryRun)await input.db.query(`INSERT INTO public.ut_candidate_finance_pac_attempts (link_id,election_year,attempted_at,hold_code)
+      VALUES ($1::uuid,$2::integer,$3::timestamptz,$4) ON CONFLICT (link_id,election_year) DO UPDATE SET attempted_at=EXCLUDED.attempted_at,hold_code=EXCLUDED.hold_code`,
+      [row.link_id,row.election_year,new Date().toISOString(),holdCode]);
   }
   return {due:Number(result.rows[0]?.total_due??0),selected:result.rows.length,accepted,written,held,failures};
 }

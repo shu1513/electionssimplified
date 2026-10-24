@@ -39,7 +39,7 @@ export async function appendUtahCommitteeCashSummaries(
     });
     clocks.set(key,row.observed_at);
     if(!row.committee_id||!row.committee_name||row.amount_cents===null)continue;
-    const cents=Number(row.amount_cents);if(!Number.isSafeInteger(cents)||cents<=0)continue;
+    const cents=Number(row.amount_cents);if(!Number.isSafeInteger(cents))continue;
     const trusted=row.industry_slug && isPacInterestSlug(row.industry_slug) && (row.classification_source==="manual" || (row.confidence==="high" && ["rule","ai"].includes(row.classification_source??"")))?row.industry_slug:null;
     const interest=trusted??classifyPacInterest({committeeName:row.committee_name,committeeType:null,designation:null,organizationType:null,connectedOrganization:null}).interestSlug??UNCLASSIFIED_PAC_INTEREST;
     if((PAC_INTERESTS_NOT_LISTED as readonly string[]).includes(interest))continue;
