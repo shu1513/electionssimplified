@@ -267,6 +267,10 @@ export function buildAustinPacFunderBreakdownRows(input: {
 
 export type AustinCandidateFinanceSyncResult = {
   written: boolean;
+  reportedCommitteeCashGroupCount: number;
+  reportedCommitteeCashCents: number;
+  reportedCommitteeCashGiftCount: number;
+  outsideComponentPreserved: boolean;
   totalRaisedCents: number;
   totalSpentCents: number;
   cashOnHandCents: number | null;
@@ -377,6 +381,12 @@ export async function syncAustinCandidateFinance(input: {
     windowFrom,
     windowTo,
   });
+
+  // An empty qualified subset with unresolved candidate payments cannot
+  // replace previous outside evidence or claim a new financial zero. Count
+  // payments, not signed cents: multi-target payments can net to zero.
+  const preserveOutside = outside.groups.length === 0 && (outside.multiTargetPaymentCount > 0 ||
+    outside.undirectedCents !== 0 || outside.ambiguousDirectionCents !== 0 || outside.rowsWithoutSpender > 0);
 
   // --- Previous-vs-new drop bound (baseline = this filer's active link).
   const filerKey = normalizeAustinFinanceTextKey(filerName);
@@ -496,13 +506,14 @@ export async function syncAustinCandidateFinance(input: {
         directContributionTotalCents: direct.totalRaisedCents,
         totalDisbursementsCents: direct.totalSpentCents,
         cashOnHandCents: direct.cashOnHandCents,
-        outsideSupportCents: outside.supportTotalCents,
-        outsideOpposeCents: outside.opposeTotalCents,
+        outsideSupportCents: preserveOutside ? undefined : outside.supportTotalCents,
+        outsideOpposeCents: preserveOutside ? undefined : outside.opposeTotalCents,
         sourceUrl: AUSTIN_FINANCE_LINK_SOURCE_URL,
       },
       directBreakdowns,
-      outsideGroups,
-      outsideGroupBreakdowns,
+      outsideGroups: preserveOutside ? undefined : outsideGroups,
+      outsideGroupBreakdowns: preserveOutside ? undefined : outsideGroupBreakdowns,
+      reportedCommitteeCash: direct.reportedCommitteeCash,
       // Only classifications worth caching (the Houston filter): a resolved
       // slug, or a non-unknown source recording a deliberate verdict.
       classifications: [...classifications.values()].filter(
@@ -520,6 +531,10 @@ export async function syncAustinCandidateFinance(input: {
 
   return {
     written: !input.dryRun,
+    reportedCommitteeCashGroupCount: direct.reportedCommitteeCash.donors.length,
+    reportedCommitteeCashCents: direct.reportedCommitteeCash.amountCents,
+    reportedCommitteeCashGiftCount: direct.reportedCommitteeCash.contributionCount,
+    outsideComponentPreserved: preserveOutside,
     totalRaisedCents: direct.totalRaisedCents,
     totalSpentCents: direct.totalSpentCents,
     cashOnHandCents: direct.cashOnHandCents,

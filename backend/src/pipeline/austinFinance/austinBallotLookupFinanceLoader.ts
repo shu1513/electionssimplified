@@ -1,3 +1,4 @@
+import { appendAustinReportedCommitteeCash } from "./austinReportedCommitteeCashBallotSummary.js";
 // Ballot-lookup read side for Austin (plan Phase 3): a thin config wrapper
 // over the shared standard-shape loader. Austin deltas: link identity is
 // filer_key (no filer id exists), outside tables key on
@@ -13,7 +14,7 @@
 
 import type { Pool, PoolClient } from "pg";
 
-import { isAustinCampaignFinanceEnabled } from "../../config/featureFlags.js";
+import { isAustinCampaignFinanceEnabled, isAustinReportedCommitteeCashEnabled } from "../../config/featureFlags.js";
 import type {
   BallotLookupFinanceSummary,
   StateFinanceRequestCandidateRow,
@@ -33,14 +34,14 @@ type Queryable = Pick<Pool | PoolClient, "query">;
 // own city filing, and one payment naming several candidates is not split.
 const AUSTIN_OUTSIDE_COVERAGE_NOTE =
   "Counts only outside spending whose spender declared support or opposition for this candidate in its " +
-  "City of Austin filings; payments naming several candidates at once, or with no declared direction, are not included.";
+  "City of Austin filings; payments naming several candidates at once, or with no declared direction, are not included. Unavailable totals do not mean zero.";
 
 export async function loadAustinCandidateFinanceSummariesByCandidateElection(
   db: Queryable,
   candidateRows: readonly StateFinanceRequestCandidateRow[],
   electionRows: readonly StateFinanceRequestElectionRow[],
 ): Promise<Map<string, BallotLookupFinanceSummary>> {
-  return loadStandardStateFinanceSummariesByCandidateElection({
+  const summaries = await loadStandardStateFinanceSummariesByCandidateElection({
     db,
     candidateRows,
     electionRows,
@@ -71,4 +72,6 @@ export async function loadAustinCandidateFinanceSummariesByCandidateElection(
       outsideGroupBreakdowns: "atx_candidate_finance_outside_group_breakdowns",
     },
   });
+  if (isAustinReportedCommitteeCashEnabled()) await appendAustinReportedCommitteeCash(db, summaries);
+  return summaries;
 }

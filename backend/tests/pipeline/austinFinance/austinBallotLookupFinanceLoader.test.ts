@@ -1,3 +1,4 @@
+import { isAustinReportedCommitteeCashEnabled } from "../../../src/config/featureFlags.js";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { candidateElectionKey } from "../../../src/pipeline/address/ballotLookupFinanceShared.js";
@@ -91,5 +92,18 @@ describe("Austin ballot finance loader", () => {
     );
     expect(result.size).toBe(0);
     expect(query).not.toHaveBeenCalled();
+  });
+});
+
+
+describe("Austin committee cash publication gate", () => {
+  it("is default-off and remains under the source master flag", () => {
+    vi.stubEnv("AUSTIN_CAMPAIGN_FINANCE_ENABLED", "true");
+    vi.stubEnv("AUSTIN_REPORTED_COMMITTEE_CASH_ENABLED", undefined);
+    expect(isAustinReportedCommitteeCashEnabled()).toBe(false);
+    vi.stubEnv("AUSTIN_REPORTED_COMMITTEE_CASH_ENABLED", "true");
+    expect(isAustinReportedCommitteeCashEnabled()).toBe(true);
+    vi.stubEnv("AUSTIN_CAMPAIGN_FINANCE_ENABLED", "false");
+    expect(isAustinReportedCommitteeCashEnabled()).toBe(false);
   });
 });

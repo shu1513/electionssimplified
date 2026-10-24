@@ -192,6 +192,10 @@ describe("syncAustinCandidateFinance", () => {
     const result = await syncAustinCandidateFinance(baseInput(defaultRoutes()));
     expect(result).toEqual({
       written: false,
+      reportedCommitteeCashGroupCount: 0,
+      reportedCommitteeCashCents: 0,
+      reportedCommitteeCashGiftCount: 0,
+      outsideComponentPreserved: false,
       totalRaisedCents: 6_453_800, // 37,474.00 + 27,064.00
       totalSpentCents: 4_538_762, // 15,527.43 + 29,860.19
       cashOnHandCents: 18_177_650,
@@ -344,6 +348,8 @@ describe("syncAustinCandidateFinance", () => {
       "0.00",
       AUSTIN_FINANCE_LINK_SOURCE_URL,
       "2026-08-19T12:00:00.000Z",
+      true,
+      true,
     ]);
     const groupInsert = clientQueries.find((entry) => entry.sql.includes("atx_candidate_finance_outside_groups ("));
     expect(groupInsert?.params).toEqual([
@@ -401,5 +407,49 @@ describe("syncAustinCandidateFinance", () => {
       ],
     ]);
     expect(clientQueries.map((entry) => entry.sql)).toContain("COMMIT");
+  });
+});
+
+
+describe("Austin independent cash and incomplete outside evidence", () => {
+  it("writes committee cash while preserving unresolved empty outside data", async () => {
+    const routes = defaultRoutes();
+    routes["u3cd-iecr"] = routes["u3cd-iecr"]!.map(row => ({ ...row, election_date: "2024-11-05T00:00:00.000" }));
+    routes["3kfv-biw6"]![0] = { ...routes["3kfv-biw6"]![0], donor: "Example Workers PAC", donor_type: "ENTITY", donor_reported_occupation: null };
+    const calls: Array<{ sql: string; params: unknown[] }> = [];
+    const db = { query: vi.fn().mockResolvedValue({ rows: [] }), connect: async () => ({
+      query: async (sql: string, params: unknown[] = []) => { calls.push({ sql, params });
+        return { rows: sql.startsWith("INSERT INTO public.atx_candidate_finance_links") ? [{ id: "link" }] : [] }; }, release: vi.fn(),
+    }) } as never;
+    const result = await syncAustinCandidateFinance({ ...baseInput(routes), db, dryRun: false });
+    expect(result.outsideComponentPreserved).toBe(true);
+    expect(result.reportedCommitteeCashGroupCount).toBe(1);
+    expect(result.reportedCommitteeCashCents).toBe(3_700_000);
+    expect(calls.some(call => /(?:INSERT INTO|DELETE FROM) public.atx_candidate_finance_outside/.test(call.sql))).toBe(false);
+    const summary = calls.find(call => call.sql.startsWith("INSERT INTO public.atx_candidate_finance_summaries"))!;
+    expect(summary.params.slice(6, 8)).toEqual([null, null]);
+    expect(summary.params.slice(10)).toEqual([false, false]);
+    expect(calls.some(call => call.sql.startsWith("INSERT INTO public.atx_candidate_finance_pac_donors"))).toBe(true);
+    expect(calls.at(-1)?.sql).toBe("COMMIT");
+  });
+});
+
+describe("Austin unresolved multi-target payments that net to zero", () => {
+  it("still preserves prior outside data instead of writing a zero", async () => {
+    const routes = defaultRoutes();
+    const dce = (id: string, amount: string, target: string) => ({ dce_id: id, parent_transaction: "R81-F0000" + id, paid_by: "City Accountability Project",
+      payee: "Print Co", payment_date: "2026-03-01T00:00:00.000", payment_amount: amount, candidate_or_measure: target, office_sought_info: "COUNCIL_MBR_DISTRICT_09" });
+    routes["8p2b-ewep"] = [dce("1", "100.00", "Qadri, Zohaib"), dce("2", "100.00", "Other, Person"),
+      dce("3", "-100.00", "Qadri, Zohaib"), dce("4", "-100.00", "Other, Person")];
+    const calls: Array<{ sql: string; params: unknown[] }> = [];
+    const db = { query: vi.fn().mockResolvedValue({ rows: [] }), connect: async () => ({
+      query: async (sql: string, params: unknown[] = []) => { calls.push({ sql, params });
+        return { rows: sql.startsWith("INSERT INTO public.atx_candidate_finance_links") ? [{ id: "link" }] : [] }; }, release: vi.fn(),
+    }) } as never;
+    const result = await syncAustinCandidateFinance({ ...baseInput(routes), db, dryRun: false });
+    expect(result.outsideComponentPreserved).toBe(true);
+    expect(calls.some(call => /(?:INSERT INTO|DELETE FROM) public.atx_candidate_finance_outside/.test(call.sql))).toBe(false);
+    const summary = calls.find(call => call.sql.startsWith("INSERT INTO public.atx_candidate_finance_summaries"))!;
+    expect(summary.params.slice(10)).toEqual([false, false]);
   });
 });
