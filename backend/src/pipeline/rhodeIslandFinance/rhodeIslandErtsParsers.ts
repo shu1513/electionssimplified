@@ -13,7 +13,7 @@
 // Bumped whenever a pinned vocabulary or an output field changes, so cached
 // artifacts validated under an older version re-validate instead of being
 // trusted (north carolina cache discipline).
-export const RHODE_ISLAND_ERTS_PARSER_VERSION = 3;
+export const RHODE_ISLAND_ERTS_PARSER_VERSION = 4;
 
 // Base of every public portal route. Lives here (not the client) because the
 // CF-8 index parser must absolutize relative `/ReportsScanned/` links.
@@ -392,7 +392,7 @@ export function parseErtsOrganizationSearchRows(html: string): ErtsOrganizationS
 
 export type ErtsFilingRow = {
   reportType: string;
-  // Recognized CF-1 registration records have no reporting period.
+  // Recognized CF-1 registrations and filed MPF-3 requests have no period.
   periodBegin: string;
   periodEnd: string;
   status: string;
@@ -418,8 +418,8 @@ export const ERTS_FILING_LIST_GRID_ID = "grdSearchResults";
  * Fail-closed: only the pinned header row may be skipped — a data-like row
  * whose financial period no longer parses throws, because a silently dropped
  * filing would silently drop its reporting period from the totals. Known CF-1
- * registration records have blank periods and remain in the inventory; the
- * CF-2 selector excludes them by form type, rather than inventing dates.
+ * registrations and filed MPF-3 payment requests have blank periods and remain
+ * in the inventory; the CF-2 selector excludes them by form type.
  */
 export function parseErtsFilingListPage(html: string): ErtsFilingRow[] {
   const rows: ErtsFilingRow[] = [];
@@ -435,7 +435,13 @@ export function parseErtsFilingListPage(html: string): ErtsFilingRow[] {
       && cells[1] === "" && cells[2] === ""
       && ((formName === "RICF1" && filingId !== null && cells[5] !== "")
         || (link === null && cells[5] === ""));
-    if (cells.length < 7 || (!hasPeriod && !isKnownRegistration)) {
+    // Native MPF-3 affidavits request public financing, not a CF-2 period.
+    // Require the exact filed form identity; do not accept unknown/unfiled
+    // nonperiod reports or turn their absence into a financial zero.
+    const isFiledMatchingFundsRequest = cells[0] === "MPF3, Affidavit and Payment Request"
+      && cells[1] === "" && cells[2] === ""
+      && formName === "RIMPF3" && filingId !== null && cells[5] !== "";
+    if (cells.length < 7 || (!hasPeriod && !isKnownRegistration && !isFiledMatchingFundsRequest)) {
       throw new Error(
         `ERTS filing list row does not match the pinned shape (cells: ${JSON.stringify(cells.slice(0, 4))}…)`
       );

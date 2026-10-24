@@ -177,6 +177,23 @@ describe("parseErtsFilingListPage", () => {
     ]);
   });
 
+  it("retains a filed blank-period MPF-3 without selecting it as cash reporting", () => {
+    const html = registrationPage(registrationRow({ title: "MPF3, Affidavit and Payment Request", form: "RIMPF3" }));
+    const rows = parseErtsFilingListPage(html);
+    expect(rows).toEqual([expect.objectContaining({ periodBegin: "", periodEnd: "", formName: "RIMPF3", filingId: "41" })]);
+    expect(selectErtsCycleCf2Filings({ rows, cycleBeginIso: "2025-01-01", cycleEndIso: "2026-12-31" })).toMatchObject({
+      selected: [], nonCf2FiledRowCount: 1, unusablePeriodRowCount: 0,
+    });
+  });
+
+  it.each([
+    { form: "RICF2" }, { form: "RICF1" }, { filed: false },
+    { link: false }, { begin: "01/01/2026" }, { end: "invalid" },
+  ])("rejects an unverified blank-period MPF-3 %o", input => {
+    const row = registrationRow({ title: "MPF3, Affidavit and Payment Request", form: "RIMPF3", ...input });
+    expect(() => parseErtsFilingListPage(registrationPage(row))).toThrow(/pinned shape/);
+  });
+
   it("preserves a known unfiled registration without inventing dates or a filing id", () => {
     expect(parseErtsFilingListPage(registrationPage(registrationRow({ filed: false })))).toEqual([
       expect.objectContaining({ periodBegin: "", periodEnd: "", filedAt: "", filingId: null, formName: null }),
