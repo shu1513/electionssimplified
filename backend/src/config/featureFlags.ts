@@ -127,6 +127,7 @@ export const isColoradoNativeReceiptsRawRefreshEnabled = (): boolean =>
 // Denver municipal finance (SearchLight) is its own module — Denver filers
 // are not in state TRACER, so these are independent of the Colorado flags.
 const denverFinance = defineStateFinanceFlagPair("DENVER_CAMPAIGN_FINANCE");
+export const isDenverReportedCommitteeCashEnabled = denverFinance.gate("DENVER_REPORTED_COMMITTEE_CASH_ENABLED");
 export const isDenverCampaignFinanceEnabled = denverFinance.isEnabled;
 export const isDenverCampaignFinanceSyncEnabled = denverFinance.isSyncEnabled;
 

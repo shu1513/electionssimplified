@@ -1,3 +1,5 @@
+import type { DenverReportedCommitteeCash } from "./denverReportedCommitteeCash.js";
+import { normalizeDenverTextKey } from "./denverCandidateCommitteeResolver.js";
 // Link writes and the all-or-nothing snapshot writer (plan Phase 1). Copy of
 // the San José writer's semantics — one active link per (candidate,
 // election); a manual active link is protected (a matching automatic link
@@ -234,11 +236,30 @@ export async function replaceDenverCandidateFinanceSnapshot(input: {
   summary: DenverFinanceSummaryInput;
   directBreakdowns: readonly DenverDirectBreakdownInput[];
   outsideGroups: readonly DenverOutsideGroupInput[];
+  reportedCommitteeCash?: DenverReportedCommitteeCash;
   syncedAt?: Date;
 }): Promise<{ linkId: string }> {
   if (typeof input.db.connect !== "function")
     throw new Error("Denver finance snapshot writes require a Pool");
   const syncedAt = (input.syncedAt ?? new Date()).toISOString();
+  const cash = input.reportedCommitteeCash;
+  if (cash) {
+    if (cash.donors.length > 0 && cash.transactionThrough === null) throw new Error("Denver committee cash requires transaction date evidence");
+    if (cash.transactionThrough !== null && (!/^\d{4}-\d{2}-\d{2}$/.test(cash.transactionThrough) ||
+      !Number.isFinite(Date.parse(cash.transactionThrough)) || new Date(cash.transactionThrough).toISOString().slice(0, 10) !== cash.transactionThrough))
+      throw new Error("Denver committee cash requires a valid transaction date");
+    const keys = new Set<string>();
+    let total = 0, gifts = 0;
+    for (const donor of cash.donors) {
+      if (!donor.committeeKey || donor.committeeKey !== normalizeDenverTextKey(donor.committeeName) || keys.has(donor.committeeKey) ||
+        !Number.isSafeInteger(donor.amountCents) || donor.amountCents <= 0 ||
+        !Number.isSafeInteger(donor.contributionCount) || donor.contributionCount <= 0)
+        throw new Error("Denver committee cash has invalid reported groups");
+      keys.add(donor.committeeKey); total += donor.amountCents; gifts += donor.contributionCount;
+    }
+    if (!Number.isSafeInteger(total) || !Number.isSafeInteger(gifts) || total !== cash.amountCents || gifts !== cash.contributionCount)
+      throw new Error("Denver committee cash source counts and cents do not close");
+  }
   const client = await input.db.connect();
   try {
     await client.query("BEGIN");
@@ -247,6 +268,15 @@ export async function replaceDenverCandidateFinanceSnapshot(input: {
       link: input.link,
     });
     const year = input.link.electionYear;
+    // The link upsert holds its row lock until commit, serializing writers
+    // before this full-precision source-clock comparison.
+    if (cash) {
+      const prior = await client.query<{ newer: boolean }>(`SELECT observed_at > $3::timestamptz newer
+        FROM public.denver_candidate_finance_pac_sources WHERE link_id=$1::uuid AND election_year=$2 FOR UPDATE`,
+      [linkId, year, syncedAt]);
+      if (prior.rows.some(row => row.newer)) throw new Error("Denver older committee cash observation cannot replace a newer snapshot");
+    }
+
     await client.query(
       `INSERT INTO public.denver_candidate_finance_summaries (link_id,election_year,total_receipts,direct_contribution_total,total_disbursements,cash_on_hand,loans_received,public_funds_received,outside_support_total,outside_oppose_total,source_url,last_synced_at) VALUES ($1::uuid,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12::timestamptz) ON CONFLICT (link_id,election_year) DO UPDATE SET total_receipts=EXCLUDED.total_receipts,direct_contribution_total=EXCLUDED.direct_contribution_total,total_disbursements=EXCLUDED.total_disbursements,cash_on_hand=EXCLUDED.cash_on_hand,loans_received=EXCLUDED.loans_received,public_funds_received=EXCLUDED.public_funds_received,outside_support_total=EXCLUDED.outside_support_total,outside_oppose_total=EXCLUDED.outside_oppose_total,source_url=EXCLUDED.source_url,last_synced_at=EXCLUDED.last_synced_at`,
       [
@@ -318,6 +348,20 @@ export async function replaceDenverCandidateFinanceSnapshot(input: {
           syncedAt,
         ],
       );
+    if (cash) {
+      await client.query(`INSERT INTO public.denver_candidate_finance_pac_sources
+        (link_id,election_year,amount_cents,contribution_count,group_count,transaction_through,observed_at)
+        VALUES ($1::uuid,$2,$3::bigint,$4,$5,$6::date,$7::timestamptz)
+        ON CONFLICT (link_id,election_year) DO UPDATE SET amount_cents=EXCLUDED.amount_cents,
+          contribution_count=EXCLUDED.contribution_count,group_count=EXCLUDED.group_count,
+          transaction_through=EXCLUDED.transaction_through,observed_at=EXCLUDED.observed_at`,
+      [linkId, year, String(cash.amountCents), cash.contributionCount, cash.donors.length, cash.transactionThrough, syncedAt]);
+      await client.query(`DELETE FROM public.denver_candidate_finance_pac_donors WHERE link_id=$1::uuid AND election_year=$2`, [linkId, year]);
+      for (const donor of cash.donors) await client.query(`INSERT INTO public.denver_candidate_finance_pac_donors
+        (link_id,election_year,committee_key,committee_name,amount_cents,contribution_count)
+        VALUES ($1::uuid,$2,$3,$4,$5::bigint,$6)`,
+      [linkId, year, donor.committeeKey, donor.committeeName, String(donor.amountCents), donor.contributionCount]);
+    }
     await client.query("COMMIT");
     return { linkId };
   } catch (error) {

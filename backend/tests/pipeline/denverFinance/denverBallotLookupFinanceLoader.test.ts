@@ -116,3 +116,11 @@ describe("Denver ballot finance loader", () => {
     expect(query).not.toHaveBeenCalled();
   });
 });
+
+it("requires the explicit committee reader gate under the Denver master flag", async () => {
+ vi.stubEnv("DENVER_CAMPAIGN_FINANCE_ENABLED","true");vi.stubEnv("DENVER_REPORTED_COMMITTEE_CASH_ENABLED","true");
+ const query=vi.fn().mockResolvedValueOnce({rows:[summaryRow()]}).mockResolvedValue({rows:[]});
+ await loadDenverCandidateFinanceSummariesByCandidateElection({query} as never,[{candidate_id:"c",election_id:"e"}],[DENVER_ATLARGE_ELECTION]);
+ expect(query.mock.calls.filter(c=>String(c[0]).includes("JOIN public.denver_candidate_finance_pac_sources"))).toHaveLength(1);
+ query.mockClear();vi.stubEnv("DENVER_CAMPAIGN_FINANCE_ENABLED","false");await loadDenverCandidateFinanceSummariesByCandidateElection({query} as never,[{candidate_id:"c",election_id:"e"}],[DENVER_ATLARGE_ELECTION]);expect(query).not.toHaveBeenCalled();
+});
