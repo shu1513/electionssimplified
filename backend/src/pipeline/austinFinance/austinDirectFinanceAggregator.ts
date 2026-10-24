@@ -38,6 +38,7 @@
 //     bucket. Bucket boundaries are the shared LA set — Austin's $500 cap
 //     means the top buckets stay empty, which is a true statement.
 
+import { aggregateAustinReportedCommitteeCash, type AustinReportedCommitteeCash } from "./austinReportedCommitteeCash.js";
 import { normalizeAustinFinanceTextKey } from "./austinFinanceKeys.js";
 import {
   parseAustinOfficeSoughtCode,
@@ -88,6 +89,7 @@ export type AustinDirectAggregation = {
   /** Null when no cycle report carries a balance. */
   cashOnHandCents: number | null;
   breakdowns: AustinDirectBreakdownInput[];
+  reportedCommitteeCash: AustinReportedCommitteeCash;
   /** Counted itemized rows on cycle reports (pledges/expenditures set aside). */
   itemizedRowCount: number;
   /** Pledge / misfiled-expenditure rows set aside. */
@@ -252,6 +254,7 @@ export function aggregateAustinDirectFinance(input: {
       })),
   ];
   return {
+    reportedCommitteeCash: aggregateAustinReportedCommitteeCash({ contributions: counted, reports: [...cycleReports, ...keptSpecialReports], filerName: input.filerName }),
     cycleReports,
     keptSpecialReports,
     totalRaisedCents,

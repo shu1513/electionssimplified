@@ -21,13 +21,15 @@
 // source-health checks — the write is one transaction, so a summary can
 // never coexist with breakdowns or outside groups from a different as-of.
 // Source unavailable → the caller does not call this at all and the prior
-// snapshot survives untouched; source affirmatively reports no qualifying
+// snapshot survives untouched. Omitted outside or committee components preserve
+// prior detail; explicit qualified empty components clear it. Source affirmatively reports no qualifying
 // data → the caller passes zero totals and empty arrays and the
 // delete-and-insert clears the stale detail rows (outside-group deletes
 // cascade into outside_group_breakdowns).
 
 import type { Pool, PoolClient } from "pg";
 
+import type { AustinReportedCommitteeCash } from "./austinReportedCommitteeCash.js";
 import type { FinanceLabelClassification } from "../finance/financeLabelClassifier.js";
 import { upsertFinanceLabelClassification } from "../finance/financeIndustryClassificationService.js";
 import { normalizeAustinFinanceTextKey } from "./austinFinanceKeys.js";
@@ -63,8 +65,8 @@ export type AustinFinanceSummaryInput = {
   totalDisbursementsCents: number | null;
   /** `contrib_balance` of the latest effective report — a signed balance. */
   cashOnHandCents: number | null;
-  outsideSupportCents: number | null;
-  outsideOpposeCents: number | null;
+  outsideSupportCents?: number | null;
+  outsideOpposeCents?: number | null;
   sourceUrl: string | null;
 };
 
@@ -234,8 +236,9 @@ export async function replaceAustinCandidateFinanceSnapshot(input: {
   link: AustinFinanceLinkInput;
   summary: AustinFinanceSummaryInput;
   directBreakdowns: readonly AustinDirectBreakdownInput[];
-  outsideGroups: readonly AustinOutsideGroupInput[];
-  outsideGroupBreakdowns: readonly AustinOutsideGroupBreakdownInput[];
+  outsideGroups?: readonly AustinOutsideGroupInput[];
+  reportedCommitteeCash?: AustinReportedCommitteeCash;
+  outsideGroupBreakdowns?: readonly AustinOutsideGroupBreakdownInput[];
   /**
    * Donor-label industry classifications behind the breakdowns, persisted to
    * the shared `finance_label_classifications` cache (the ballot-lookup
@@ -252,17 +255,34 @@ export async function replaceAustinCandidateFinanceSnapshot(input: {
   // a group in the SAME snapshot (the FK would reject it anyway, but as an
   // opaque constraint error after the deletes already ran).
   const groupKeys = new Set(
-    input.outsideGroups.map(
+    (input.outsideGroups ?? []).map(
       (group) =>
         `${keyOf(group.spenderName, "spender name")}|${group.supportOppose}`,
     ),
   );
-  for (const row of input.outsideGroupBreakdowns) {
+  for (const row of input.outsideGroupBreakdowns ?? []) {
     const key = `${keyOf(row.spenderName, "spender name")}|${row.supportOppose}`;
     if (!groupKeys.has(key))
       throw new Error(
         `Austin outside group breakdown has no matching outside group: ${row.spenderName} (${row.supportOppose})`,
       );
+  }
+  const cash = input.reportedCommitteeCash;
+  if (cash) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(cash.reportedThrough) ||
+      !Number.isFinite(Date.parse(cash.reportedThrough)) || new Date(cash.reportedThrough).toISOString().slice(0, 10) !== cash.reportedThrough)
+      throw new Error("Austin committee cash requires a valid report date");
+    const keys = new Set<string>();
+    let total = 0, gifts = 0;
+    for (const donor of cash.donors) {
+      if (donor.committeeKey !== keyOf(donor.committeeName, "committee name") || keys.has(donor.committeeKey) ||
+        !Number.isSafeInteger(donor.amountCents) || donor.amountCents <= 0 ||
+        !Number.isSafeInteger(donor.contributionCount) || donor.contributionCount <= 0)
+        throw new Error("Austin committee cash has invalid reported groups");
+      keys.add(donor.committeeKey); total += donor.amountCents; gifts += donor.contributionCount;
+    }
+    if (!Number.isSafeInteger(total) || !Number.isSafeInteger(gifts) || total !== cash.amountCents || gifts !== cash.contributionCount)
+      throw new Error("Austin committee cash source counts and cents do not close");
   }
   const client = await input.db.connect();
   try {
@@ -273,7 +293,7 @@ export async function replaceAustinCandidateFinanceSnapshot(input: {
     });
     const year = input.link.electionYear;
     await client.query(
-      `INSERT INTO public.atx_candidate_finance_summaries (link_id,election_year,total_receipts,direct_contribution_total,total_disbursements,cash_on_hand,outside_support_total,outside_oppose_total,source_url,last_synced_at) VALUES ($1::uuid,$2,$3,$4,$5,$6,$7,$8,$9,$10::timestamptz) ON CONFLICT (link_id,election_year) DO UPDATE SET total_receipts=EXCLUDED.total_receipts,direct_contribution_total=EXCLUDED.direct_contribution_total,total_disbursements=EXCLUDED.total_disbursements,cash_on_hand=EXCLUDED.cash_on_hand,outside_support_total=EXCLUDED.outside_support_total,outside_oppose_total=EXCLUDED.outside_oppose_total,source_url=EXCLUDED.source_url,last_synced_at=EXCLUDED.last_synced_at`,
+      `INSERT INTO public.atx_candidate_finance_summaries (link_id,election_year,total_receipts,direct_contribution_total,total_disbursements,cash_on_hand,outside_support_total,outside_oppose_total,source_url,last_synced_at) VALUES ($1::uuid,$2,$3,$4,$5,$6,$7,$8,$9,$10::timestamptz) ON CONFLICT (link_id,election_year) DO UPDATE SET total_receipts=EXCLUDED.total_receipts,direct_contribution_total=EXCLUDED.direct_contribution_total,total_disbursements=EXCLUDED.total_disbursements,cash_on_hand=EXCLUDED.cash_on_hand,outside_support_total=CASE WHEN $11::boolean THEN EXCLUDED.outside_support_total ELSE atx_candidate_finance_summaries.outside_support_total END,outside_oppose_total=CASE WHEN $12::boolean THEN EXCLUDED.outside_oppose_total ELSE atx_candidate_finance_summaries.outside_oppose_total END,source_url=EXCLUDED.source_url,last_synced_at=EXCLUDED.last_synced_at`,
       [
         linkId,
         year,
@@ -289,10 +309,12 @@ export async function replaceAustinCandidateFinanceSnapshot(input: {
         centsToDollars(input.summary.cashOnHandCents, "cash on hand", {
           allowNegative: true,
         }),
-        centsToDollars(input.summary.outsideSupportCents, "outside support"),
-        centsToDollars(input.summary.outsideOpposeCents, "outside oppose"),
+        centsToDollars(input.summary.outsideSupportCents ?? null, "outside support"),
+        centsToDollars(input.summary.outsideOpposeCents ?? null, "outside oppose"),
         optional(input.summary.sourceUrl),
         syncedAt,
+        input.summary.outsideSupportCents !== undefined,
+        input.summary.outsideOpposeCents !== undefined,
       ],
     );
     await client.query(
@@ -313,15 +335,15 @@ export async function replaceAustinCandidateFinanceSnapshot(input: {
           syncedAt,
         ],
       );
-    // Cascades into outside_group_breakdowns.
-    await client.query(
+    // Omitted outside detail preserves all prior groups and their clocks.
+    if (input.outsideGroups !== undefined) await client.query(
       `DELETE FROM public.atx_candidate_finance_outside_groups WHERE link_id=$1::uuid AND election_year=$2`,
       [linkId, year],
     );
     // Plain inserts: the aggregator already groups per (spender identity,
     // direction) — a unique-key collision here is a caller bug and should
     // abort the snapshot, not be papered over.
-    for (const group of input.outsideGroups)
+    for (const group of input.outsideGroups ?? [])
       await client.query(
         `INSERT INTO public.atx_candidate_finance_outside_groups (link_id,election_year,spender_key,spender_name,support_oppose,amount,source_url,last_synced_at) VALUES ($1::uuid,$2,$3,$4,$5,$6,$7,$8::timestamptz)`,
         [
@@ -335,7 +357,7 @@ export async function replaceAustinCandidateFinanceSnapshot(input: {
           syncedAt,
         ],
       );
-    for (const row of input.outsideGroupBreakdowns)
+    for (const row of input.outsideGroupBreakdowns ?? [])
       await client.query(
         `INSERT INTO public.atx_candidate_finance_outside_group_breakdowns (link_id,election_year,spender_key,support_oppose,category_type,category_name,amount,contributor_count,source_url,last_synced_at) VALUES ($1::uuid,$2,$3,$4,$5,$6,$7,$8,$9,$10::timestamptz)`,
         [
@@ -351,6 +373,20 @@ export async function replaceAustinCandidateFinanceSnapshot(input: {
           syncedAt,
         ],
       );
+    if (cash) {
+      await client.query(`INSERT INTO public.atx_candidate_finance_pac_sources
+        (link_id,election_year,amount_cents,contribution_count,group_count,reported_through,observed_at)
+        VALUES ($1::uuid,$2,$3::bigint,$4,$5,$6::date,$7::timestamptz)
+        ON CONFLICT (link_id,election_year) DO UPDATE SET amount_cents=EXCLUDED.amount_cents,
+          contribution_count=EXCLUDED.contribution_count,group_count=EXCLUDED.group_count,
+          reported_through=EXCLUDED.reported_through,observed_at=EXCLUDED.observed_at`,
+      [linkId, year, String(cash.amountCents), cash.contributionCount, cash.donors.length, cash.reportedThrough, syncedAt]);
+      await client.query(`DELETE FROM public.atx_candidate_finance_pac_donors WHERE link_id=$1::uuid AND election_year=$2`, [linkId, year]);
+      for (const donor of cash.donors) await client.query(`INSERT INTO public.atx_candidate_finance_pac_donors
+        (link_id,election_year,committee_key,committee_name,amount_cents,contribution_count)
+        VALUES ($1::uuid,$2,$3,$4,$5::bigint,$6)`,
+      [linkId, year, donor.committeeKey, donor.committeeName, String(donor.amountCents), donor.contributionCount]);
+    }
     for (const classification of input.classifications ?? [])
       await upsertFinanceLabelClassification({ db: client, classification });
     await client.query("COMMIT");

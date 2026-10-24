@@ -136,6 +136,7 @@ export const isDenverCampaignFinanceSyncEnabled = denverFinance.isSyncEnabled;
 const austinFinance = defineStateFinanceFlagPair("AUSTIN_CAMPAIGN_FINANCE");
 export const isAustinCampaignFinanceEnabled = austinFinance.isEnabled;
 export const isAustinCampaignFinanceSyncEnabled = austinFinance.isSyncEnabled;
+export const isAustinReportedCommitteeCashEnabled = austinFinance.gate("AUSTIN_REPORTED_COMMITTEE_CASH_ENABLED");
 
 const connecticutFinance = defineStateFinanceFlagPair("CONNECTICUT_CAMPAIGN_FINANCE");
 export const isConnecticutCampaignFinanceEnabled = connecticutFinance.isEnabled;

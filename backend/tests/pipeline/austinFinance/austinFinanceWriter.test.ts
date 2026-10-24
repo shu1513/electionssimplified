@@ -159,6 +159,8 @@ describe("Austin finance writer", () => {
       "0.00",
       "https://data.austintexas.gov/d/b2pc-2s8n",
       expect.any(String),
+      true,
+      true,
     ]);
     // The link write carries the derived key AND the exact source spelling.
     const linkCall = query.mock.calls.find((call) =>
@@ -481,5 +483,50 @@ describe("Austin finance writer", () => {
         outsideGroupBreakdowns: [],
       }),
     ).rejects.toThrow(/require a Pool/);
+  });
+});
+
+describe("Austin component preservation and committee cash transactions", () => {
+  const cash = { donors: [{ committeeKey: "EXAMPLE PAC", committeeName: "Example PAC", amountCents: 100_000, contributionCount: 2 }],
+    amountCents: 100_000, contributionCount: 2, reportedThrough: "2026-06-30" };
+  it("writes source controls and every uncapped donor inside the snapshot transaction", async () => {
+    const { db, query } = poolMock();
+    await replaceAustinCandidateFinanceSnapshot({ db: db as never, link, summary, directBreakdowns: [], reportedCommitteeCash: cash });
+    const calls = query.mock.calls.map(call => ({ sql: String(call[0]), params: call[1] }));
+    expect(calls.find(call => call.sql.startsWith("INSERT INTO public.atx_candidate_finance_pac_sources"))?.params)
+      .toEqual(["link-1", 2024, "100000", 2, 1, "2026-06-30", expect.any(String)]);
+    expect(calls.find(call => call.sql.startsWith("INSERT INTO public.atx_candidate_finance_pac_donors"))?.params)
+      .toEqual(["link-1", 2024, "EXAMPLE PAC", "Example PAC", "100000", 2]);
+    expect(calls.at(-1)?.sql).toBe("COMMIT");
+  });
+  it("rejects broken source totals before any mutation", async () => {
+    const { db, query } = poolMock();
+    await expect(replaceAustinCandidateFinanceSnapshot({ db: db as never, link, summary, directBreakdowns: [],
+      reportedCommitteeCash: { ...cash, amountCents: 1 } })).rejects.toThrow("do not close");
+    expect(query).not.toHaveBeenCalled();
+  });
+  it("rolls back the entire snapshot if donor persistence fails", async () => {
+    const query = queryMock();
+    const ordinary = query.getMockImplementation()!;
+    query.mockImplementation((sql: unknown) => String(sql).startsWith("INSERT INTO public.atx_candidate_finance_pac_donors")
+      ? Promise.reject(new Error("donor write failed")) : ordinary(sql));
+    const { db, release } = poolMock(query);
+    await expect(replaceAustinCandidateFinanceSnapshot({ db: db as never, link, summary, directBreakdowns: [], reportedCommitteeCash: cash }))
+      .rejects.toThrow("donor write failed");
+    expect(query.mock.calls.map(call => String(call[0])).at(-1)).toBe("ROLLBACK");
+    expect(query.mock.calls.some(call => call[0] === "COMMIT")).toBe(false);
+    expect(release).toHaveBeenCalledOnce();
+  });
+  it("omits outside mutations and retains summary totals when outside evidence is unresolved", async () => {
+    const { db, query } = poolMock();
+    await replaceAustinCandidateFinanceSnapshot({ db: db as never, link,
+      summary: { ...summary, outsideSupportCents: undefined, outsideOpposeCents: undefined }, directBreakdowns: [] });
+    const calls = query.mock.calls.map(call => ({ sql: String(call[0]), params: call[1] as unknown[] }));
+    expect(calls.some(call => /(?:DELETE FROM|INSERT INTO) public.atx_candidate_finance_outside/.test(call.sql))).toBe(false);
+    const written = calls.find(call => call.sql.startsWith("INSERT INTO public.atx_candidate_finance_summaries"))!;
+    expect(written.params.slice(6, 8)).toEqual([null, null]);
+    expect(written.params.slice(10)).toEqual([false, false]);
+    expect(written.sql).toContain("ELSE atx_candidate_finance_summaries.outside_support_total");
+    expect(calls.some(call => call.sql.includes("atx_candidate_finance_pac_"))).toBe(false);
   });
 });
