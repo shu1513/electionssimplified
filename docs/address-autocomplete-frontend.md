@@ -87,10 +87,12 @@ of this section had the session rule wrong — see the correction below):
 - Our retrieve field mask (`formattedAddress,location,types,addressComponents`)
   stays in the Place Details Essentials tier: 10,000 free per month, then $5
   per 1,000.
-- Ending a session with a Pro or Enterprise Place Details call bills that
-  call at the Pro/Enterprise rate (about $17 per 1,000). At our ~7 suggest
-  requests per entry (~$0.02) that is no cheaper than paying per request, so
-  we stay on Essentials.
+- Ending a session with a Place Details call that requests any Pro,
+  Enterprise, or Enterprise + Atmosphere field bills that call at the
+  Enterprise + Atmosphere rate ($25 per 1,000, 1,000 free per month) no
+  matter which of those fields it asked for (Google's SKU details). That is
+  more than our ~7 suggest requests per entry cost (~$0.02), so a pricier
+  terminating call never pays for itself; we stay on Essentials.
 - Abandoned entries, requests without a session token, and reused tokens
   bill every request under Autocomplete Requests — the same as above for any
   entry shorter than 13 requests.
@@ -120,16 +122,6 @@ no-session.
   that entry.
 - After a retrieve completes — or the user clears the field and starts over —
   the session is dead. Generate a new token for the next entry. Never reuse.
-- **Submit without a pick closes the session.** Most visitors type the whole
-  address and press Search without touching the dropdown (Oct 2026: ~45,000
-  billed suggest requests against ~4,300 picked suggestions). On submit the
-  form calls the hook's `closeSession()`, which fires one retrieve for the
-  top suggestion of the latest response with the live token and discards the
-  result — the typed text is what gets searched. That turns the entry into a
-  completed session (free keystrokes, one Place Details Essentials call).
-  When no suggestion ever landed there is nothing to retrieve and the lone
-  suggest bills as abandoned. Entries abandoned without a submit still bill
-  per request.
 
 ## Input behavior
 
