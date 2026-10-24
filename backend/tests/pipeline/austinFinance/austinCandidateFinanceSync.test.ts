@@ -433,3 +433,23 @@ describe("Austin independent cash and incomplete outside evidence", () => {
     expect(calls.at(-1)?.sql).toBe("COMMIT");
   });
 });
+
+describe("Austin unresolved multi-target payments that net to zero", () => {
+  it("still preserves prior outside data instead of writing a zero", async () => {
+    const routes = defaultRoutes();
+    const dce = (id: string, amount: string, target: string) => ({ dce_id: id, parent_transaction: "R81-F0000" + id, paid_by: "City Accountability Project",
+      payee: "Print Co", payment_date: "2026-03-01T00:00:00.000", payment_amount: amount, candidate_or_measure: target, office_sought_info: "COUNCIL_MBR_DISTRICT_09" });
+    routes["8p2b-ewep"] = [dce("1", "100.00", "Qadri, Zohaib"), dce("2", "100.00", "Other, Person"),
+      dce("3", "-100.00", "Qadri, Zohaib"), dce("4", "-100.00", "Other, Person")];
+    const calls: Array<{ sql: string; params: unknown[] }> = [];
+    const db = { query: vi.fn().mockResolvedValue({ rows: [] }), connect: async () => ({
+      query: async (sql: string, params: unknown[] = []) => { calls.push({ sql, params });
+        return { rows: sql.startsWith("INSERT INTO public.atx_candidate_finance_links") ? [{ id: "link" }] : [] }; }, release: vi.fn(),
+    }) } as never;
+    const result = await syncAustinCandidateFinance({ ...baseInput(routes), db, dryRun: false });
+    expect(result.outsideComponentPreserved).toBe(true);
+    expect(calls.some(call => /(?:INSERT INTO|DELETE FROM) public.atx_candidate_finance_outside/.test(call.sql))).toBe(false);
+    const summary = calls.find(call => call.sql.startsWith("INSERT INTO public.atx_candidate_finance_summaries"))!;
+    expect(summary.params.slice(10)).toEqual([false, false]);
+  });
+});

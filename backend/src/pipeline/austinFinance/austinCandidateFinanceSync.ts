@@ -383,8 +383,9 @@ export async function syncAustinCandidateFinance(input: {
   });
 
   // An empty qualified subset with unresolved candidate payments cannot
-  // replace previous outside evidence or claim a new financial zero.
-  const preserveOutside = outside.groups.length === 0 && (outside.multiTargetCents !== 0 ||
+  // replace previous outside evidence or claim a new financial zero. Count
+  // payments, not signed cents: multi-target payments can net to zero.
+  const preserveOutside = outside.groups.length === 0 && (outside.multiTargetPaymentCount > 0 ||
     outside.undirectedCents !== 0 || outside.ambiguousDirectionCents !== 0 || outside.rowsWithoutSpender > 0);
 
   // --- Previous-vs-new drop bound (baseline = this filer's active link).
