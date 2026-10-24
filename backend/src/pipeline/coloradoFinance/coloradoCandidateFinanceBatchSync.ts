@@ -83,7 +83,11 @@ export type ColoradoCandidateFinanceBatchSyncItemResult = {
 
 export type ColoradoCandidateFinanceBatchSyncResult = {
   reportedIe?: Awaited<ReturnType<typeof syncDueColoradoReportedIe>>;
+  /** Set when the reported IE component failed in an ordinary run; the direct sync still ran. */
+  reportedIeError?: string;
   nativeReceipts?: Awaited<ReturnType<typeof syncDueColoradoNativeReceipts>>;
+  /** Set when the native receipt component failed in an ordinary run; the direct sync still ran. */
+  nativeReceiptsError?: string;
   dryRun: boolean;
   now: string;
   staleAfterDays: number;
@@ -413,35 +417,67 @@ export async function syncDueColoradoCandidateFinance(
   const syncFn = input.syncColoradoCandidateFinanceFn ?? syncColoradoCandidateFinance;
 
   // IE acquisition runs before legacy file discovery and direct freshness.
+  // Each component is fault-isolated from the legacy direct sync: the
+  // component keeps its own tables, clocks and retry state, so a failure
+  // outside its per-receiver handling (receiver listing, source/attempt
+  // queries, option validation, a non-pool caller) is recorded on the batch
+  // result and the direct sync still runs. Component-only runs rethrow so
+  // the CLI exits non-zero.
   let reportedIe: Awaited<ReturnType<typeof syncDueColoradoReportedIe>> | undefined;
+  let reportedIeError: string | undefined;
   if (!input.receiptsOnly && isColoradoReportedIeEnabled() && isColoradoCampaignFinanceSyncEnabled()) {
-    if (!input.db.connect) throw new Error("Colorado IE sync requires a pool");
-    reportedIe = await syncDueColoradoReportedIe({
-      db: {
-        query: input.db.query.bind(input.db),
-        connect: input.db.connect.bind(input.db)
-      },
-      now,
-      maxCandidates,
-      staleAfterDays,
-      electionLookbackDays: input.electionLookbackDays,
-      electionLookaheadDays,
-      dryRun,
-      cacheDir: input.ieCacheDir,
-      linkId: input.ieLinkId,
-      refresh: input.refreshIe
-    });
+    try {
+      if (!input.db.connect) throw new Error("Colorado IE sync requires a pool");
+      reportedIe = await syncDueColoradoReportedIe({
+        db: {
+          query: input.db.query.bind(input.db),
+          connect: input.db.connect.bind(input.db)
+        },
+        now,
+        maxCandidates,
+        staleAfterDays,
+        electionLookbackDays: input.electionLookbackDays,
+        electionLookaheadDays,
+        dryRun,
+        cacheDir: input.ieCacheDir,
+        linkId: input.ieLinkId,
+        refresh: input.refreshIe
+      });
+    } catch (error) {
+      if (input.ieOnly) throw error;
+      reportedIeError = error instanceof Error ? error.message : String(error);
+      console.warn("Colorado reported IE sync skipped; continuing with direct sync:", reportedIeError);
+    }
   }
   let nativeReceipts: Awaited<ReturnType<typeof syncDueColoradoNativeReceipts>> | undefined;
+  let nativeReceiptsError: string | undefined;
   if (!input.ieOnly && isColoradoNativeReceiptsEnabled() && isColoradoCampaignFinanceSyncEnabled()) {
-    if (!input.db.connect) throw new Error("Colorado native receipt sync requires a pool");
-    nativeReceipts = await syncDueColoradoNativeReceipts({
-      db: {query:input.db.query.bind(input.db),connect:input.db.connect.bind(input.db)},
-      now,maxCandidates,staleAfterDays,electionLookbackDays:input.electionLookbackDays,
-      electionLookaheadDays,dryRun,cacheDir:input.receiptsCacheDir,
-      linkId:input.receiptsLinkId,refresh:input.refreshReceipts,
-    });
+    try {
+      if (!input.db.connect) throw new Error("Colorado native receipt sync requires a pool");
+      nativeReceipts = await syncDueColoradoNativeReceipts({
+        db: { query: input.db.query.bind(input.db), connect: input.db.connect.bind(input.db) },
+        now,
+        maxCandidates,
+        staleAfterDays,
+        electionLookbackDays: input.electionLookbackDays,
+        electionLookaheadDays,
+        dryRun,
+        cacheDir: input.receiptsCacheDir,
+        linkId: input.receiptsLinkId,
+        refresh: input.refreshReceipts
+      });
+    } catch (error) {
+      if (input.receiptsOnly) throw error;
+      nativeReceiptsError = error instanceof Error ? error.message : String(error);
+      console.warn("Colorado native receipt sync skipped; continuing with direct sync:", nativeReceiptsError);
+    }
   }
+  const componentResults = {
+    ...(reportedIe ? { reportedIe } : {}),
+    ...(reportedIeError ? { reportedIeError } : {}),
+    ...(nativeReceipts ? { nativeReceipts } : {}),
+    ...(nativeReceiptsError ? { nativeReceiptsError } : {})
+  };
   if (input.ieOnly || input.receiptsOnly)
     return {
       dryRun,
@@ -453,8 +489,7 @@ export async function syncDueColoradoCandidateFinance(
       syncedCandidateCount: 0,
       failedCandidateCount: 0,
       results: [],
-      ...(reportedIe ? { reportedIe } : {}),
-      ...(nativeReceipts ? { nativeReceipts } : {})
+      ...componentResults
     };
 
   if (input.autoLinkMissingLinks !== false) {
@@ -573,8 +608,7 @@ export async function syncDueColoradoCandidateFinance(
     maxCandidates,
     dueCandidateCount: due.totalDueRows,
     selectedCandidateCount: due.rows.length,
-    ...(reportedIe ? { reportedIe } : {}),
-    ...(nativeReceipts ? { nativeReceipts } : {}),
+    ...componentResults,
     syncedCandidateCount,
     failedCandidateCount: results.length - syncedCandidateCount,
     results

@@ -1,6 +1,8 @@
 import { candidateElectionKey } from "../../../src/pipeline/address/ballotLookupFinanceShared.js";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { syncDueColoradoCandidateFinance } from "../../../src/pipeline/coloradoFinance/coloradoCandidateFinanceBatchSync.js";
+import { loadColoradoCandidateFinanceSummariesByCandidateElection } from "../../../src/pipeline/coloradoFinance/coloradoBallotLookupFinanceLoader.js";
+import { captureError } from "../../../src/observability/sentry.js";
 import { syncDueColoradoReportedIe } from "../../../src/pipeline/coloradoFinance/coloradoReportedIeBatchSync.js";
 import { listColoradoIeReceivers } from "../../../src/pipeline/coloradoFinance/coloradoReportedIeReceiver.js";
 import { overlayColoradoReportedIe } from "../../../src/pipeline/coloradoFinance/coloradoReportedIeReader.js";
@@ -21,6 +23,9 @@ vi.mock(
     listColoradoIeReceivers: vi.fn(),
   }),
 );
+vi.mock("../../../src/observability/sentry.js", () => ({
+  captureError: vi.fn(),
+}));
 vi.mock(
   "../../../src/pipeline/coloradoFinance/coloradoReportedIeStore.js",
   async (original) => ({
@@ -197,6 +202,100 @@ describe("Colorado IE independent integration", () => {
       elections,
     );
     expect(map.get(key)).toBe(prior);
+  });
+  it("isolates an IE component failure from the ordinary direct sync", async () => {
+    vi.mocked(syncDueColoradoReportedIe).mockRejectedValue(
+      Error("relation co_reported_ie_sources does not exist"),
+    );
+    const query = vi.fn().mockResolvedValue({ rows: [] }),
+      connect = vi.fn(),
+      warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    try {
+      const result = await syncDueColoradoCandidateFinance({
+        db: { query, connect } as never,
+        autoLinkMissingLinks: false,
+        rawDataZipPath: "/nonexistent.zip",
+      });
+      expect(result.reportedIe).toBeUndefined();
+      expect(result.reportedIeError).toBe(
+        "relation co_reported_ie_sources does not exist",
+      );
+      expect(result.results).toEqual([]);
+      expect(query).toHaveBeenCalledTimes(1);
+      expect(warn).toHaveBeenCalledWith(
+        "Colorado reported IE sync skipped; continuing with direct sync:",
+        "relation co_reported_ie_sources does not exist",
+      );
+    } finally {
+      warn.mockRestore();
+    }
+  });
+  it("skips the IE component for a non-pool caller without stopping the direct sync", async () => {
+    const query = vi.fn().mockResolvedValue({ rows: [] }),
+      warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    try {
+      const result = await syncDueColoradoCandidateFinance({
+        db: { query } as never,
+        autoLinkMissingLinks: false,
+      });
+      expect(syncDueColoradoReportedIe).not.toHaveBeenCalled();
+      expect(result.reportedIeError).toBe("Colorado IE sync requires a pool");
+      expect(query).toHaveBeenCalledTimes(1);
+    } finally {
+      warn.mockRestore();
+    }
+  });
+  it("still fails an IE-only run when the IE component fails", async () => {
+    vi.mocked(syncDueColoradoReportedIe).mockRejectedValue(
+      Error("invalid_ie_batch_options"),
+    );
+    await expect(
+      syncDueColoradoCandidateFinance({
+        db: { query: vi.fn(), connect: vi.fn() } as never,
+        ieOnly: true,
+      }),
+    ).rejects.toThrow("invalid_ie_batch_options");
+  });
+  it("keeps direct Colorado summaries when a component overlay query fails", async () => {
+    vi.mocked(listColoradoIeReceivers).mockRejectedValue(
+      Error("canceling statement due to lock timeout"),
+    );
+    const query = vi
+        .fn()
+        .mockResolvedValueOnce({
+          rows: [
+            {
+              candidate_id: receiver.candidateId,
+              election_id: receiver.electionId,
+              committee_id: receiver.receivingId,
+              election_year: 2026,
+              total_receipts: "1234.5",
+              source_url: null,
+              last_synced_at: "2026-10-01T00:00:00.000Z",
+            },
+          ],
+        })
+        .mockResolvedValueOnce({ rows: [] }),
+      warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    try {
+      const result = await loadColoradoCandidateFinanceSummariesByCandidateElection(
+        { query } as never,
+        candidates,
+        elections,
+      );
+      expect(result.get(key)?.direct_campaign.total_raised).toBe(1234.5);
+      expect(result.get(key)?.outside_spending.support_total).toBeNull();
+      expect(warn).toHaveBeenCalledWith(
+        "Colorado finance component overlay skipped; keeping direct summaries:",
+        expect.objectContaining({ component: "reported_ie" }),
+      );
+      expect(captureError).toHaveBeenCalledWith(
+        expect.any(Error),
+        expect.objectContaining({ finance_component: "reported_ie" }),
+      );
+    } finally {
+      warn.mockRestore();
+    }
   });
   it("performs no source queries when the component gate is off", async () => {
     vi.stubEnv("COLORADO_REPORTED_IE_ENABLED", "false");

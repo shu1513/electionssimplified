@@ -3,6 +3,8 @@ import { overlayColoradoReportedIe } from "./coloradoReportedIeReader.js";
 import type { Pool, PoolClient } from "pg";
 
 import { isColoradoCampaignFinanceEnabled } from "../../config/featureFlags.js";
+import { captureError } from "../../observability/sentry.js";
+import { describeError } from "../../observability/scrubText.js";
 import {
   addFinanceBreakdown,
   buildStateFinanceSummaryRequests,
@@ -45,8 +47,33 @@ type ColoradoFinanceDirectBreakdownRow = {
   source_url: string | null;
 };
 
-async function overlayColoradoFinanceComponents(db:Queryable,summaries:Map<string,BallotLookupFinanceSummary>,candidates:readonly CandidateRow[],elections:readonly ElectionRow[]) {
-  return overlayColoradoNativeReceipts(db,await overlayColoradoReportedIe(db,summaries,candidates,elections),candidates,elections);
+// Each component overlay is fault-isolated: the direct summaries above are
+// already built, so a failing component query (transient DB error, missing
+// migration, lock timeout) must degrade to "no component money" instead of
+// dropping the whole Colorado adapter for this lookup. The overlays mutate
+// `summaries` in place, so returning it keeps every overlay already applied.
+async function overlayColoradoFinanceComponents(
+  db: Queryable,
+  summaries: Map<string, BallotLookupFinanceSummary>,
+  candidates: readonly CandidateRow[],
+  elections: readonly ElectionRow[]
+): Promise<Map<string, BallotLookupFinanceSummary>> {
+  const overlays = [
+    { name: "reported_ie", overlay: overlayColoradoReportedIe },
+    { name: "native_receipts", overlay: overlayColoradoNativeReceipts },
+  ] as const;
+  for (const { name, overlay } of overlays) {
+    try {
+      summaries = await overlay(db, summaries, candidates, elections);
+    } catch (error) {
+      console.warn("Colorado finance component overlay skipped; keeping direct summaries:", {
+        component: name,
+        reason: describeError(error),
+      });
+      captureError(error, { finance_source: "COLORADO_TRACER", finance_component: name });
+    }
+  }
+  return summaries;
 }
 
 export async function loadColoradoCandidateFinanceSummariesByCandidateElection(
