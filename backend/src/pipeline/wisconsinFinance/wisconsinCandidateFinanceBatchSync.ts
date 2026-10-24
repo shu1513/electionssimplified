@@ -1,3 +1,5 @@
+import { isWisconsinCampaignFinanceRawDataRefreshEnabled, isWisconsinReportedCommitteeCashEnabled } from "../../config/featureFlags.js";
+import { syncDueWisconsinCommitteeCash } from "./wisconsinCommitteeCashSync.js";
 import type { Pool, PoolClient } from "pg";
 
 import type { FinanceIndustryClassifier } from "../finance/financeIndustryClassificationService.js";
@@ -48,6 +50,13 @@ export type WisconsinCandidateFinanceBatchSyncInput = {
   aiClassificationMinAmount?: number;
   syncWisconsinCandidateFinanceFn?: typeof syncWisconsinCandidateFinance;
   resolveCandidateCommittee?: WisconsinCandidateCommitteeResolver;
+  candidateId?: string;
+  electionYear?: number;
+  committeeCashOnly?: boolean;
+  refreshCommitteeCash?: boolean;
+  rawDataCacheDir?: string;
+  refreshCache?: boolean;
+  syncDueWisconsinCommitteeCashFn?: typeof syncDueWisconsinCommitteeCash;
 };
 
 export type WisconsinCandidateFinanceBatchSyncItemResult = {
@@ -73,6 +82,7 @@ export type WisconsinCandidateFinanceBatchSyncResult = {
   autoLinkAttemptedCount: number;
   autoLinkLinkedCount: number;
   results: WisconsinCandidateFinanceBatchSyncItemResult[];
+  committeeCash?: Awaited<ReturnType<typeof syncDueWisconsinCommitteeCash>>;
 };
 
 const DEFAULT_MAX_CANDIDATES = 25;
@@ -125,6 +135,9 @@ export async function syncDueWisconsinCandidateFinance(
 ): Promise<WisconsinCandidateFinanceBatchSyncResult> {
   const now = input.now ?? new Date();
   assertValidDate(now, "now");
+  if ((input.candidateId || input.electionYear !== undefined) && !input.committeeCashOnly) {
+    throw new Error("Wisconsin candidate/year targeting requires committeeCashOnly");
+  }
 
   const maxCandidates = normalizePositiveInteger(input.maxCandidates, DEFAULT_MAX_CANDIDATES, "maxCandidates");
   const staleAfterDays = normalizePositiveInteger(input.staleAfterDays, DEFAULT_STALE_AFTER_DAYS, "staleAfterDays");
@@ -142,6 +155,25 @@ export async function syncDueWisconsinCandidateFinance(
   const syncFn = input.syncWisconsinCandidateFinanceFn ?? syncWisconsinCandidateFinance;
   let autoLinkAttemptedCount = 0;
   let autoLinkLinkedCount = 0;
+  let committeeCash: Awaited<ReturnType<typeof syncDueWisconsinCommitteeCash>> | undefined;
+  if (input.committeeCashOnly || input.refreshCommitteeCash || isWisconsinReportedCommitteeCashEnabled()) {
+    try {
+      committeeCash = await (input.syncDueWisconsinCommitteeCashFn ?? syncDueWisconsinCommitteeCash)({
+        db: input.db,now,maxCandidates,staleAfterDays,electionLookbackDays,electionLookaheadDays,
+        candidateId: input.candidateId,electionYear: input.electionYear,dryRun,
+        refreshCommitteeCash: input.refreshCommitteeCash,rawDataCacheDir: input.rawDataCacheDir,
+        refreshCache: input.refreshCache,allowNetwork: isWisconsinCampaignFinanceRawDataRefreshEnabled(),
+      });
+    } catch (e) {
+      if (input.committeeCashOnly) throw e;
+      // A component infrastructure failure must not stop the existing path.
+      committeeCash = { due: 0,selected: 0,accepted: 0,written: 0,held: 1,failures: ["component_unavailable"] };
+    }
+  }
+  if (input.committeeCashOnly) return {
+    dryRun,now: now.toISOString(),staleAfterDays,maxCandidates,dueCandidateCount: 0,selectedCandidateCount: 0,
+    syncedCandidateCount: 0,failedCandidateCount: 0,autoLinkAttemptedCount: 0,autoLinkLinkedCount: 0,results: [],committeeCash,
+  };
 
   if (!dryRun && input.autoLinkMissingLinks !== false) {
     try {
@@ -246,5 +278,6 @@ export async function syncDueWisconsinCandidateFinance(
     autoLinkAttemptedCount,
     autoLinkLinkedCount,
     results,
+    ...(committeeCash ? { committeeCash } : {}),
   };
 }

@@ -442,6 +442,12 @@ export const isVirginiaReportedRawRefreshEnabled = (): boolean => isCandidateFin
 const wisconsinFinance = defineStateFinanceFlagPair("WISCONSIN_CAMPAIGN_FINANCE");
 export const isWisconsinCampaignFinanceEnabled = wisconsinFinance.isEnabled;
 export const isWisconsinCampaignFinanceSyncEnabled = wisconsinFinance.isSyncEnabled;
+// New Wisconsin publication is held pending review. Force never grants either
+// publication or raw-source network permission; private acquisition is separate.
+export const isWisconsinReportedCommitteeCashEnabled = (): boolean =>
+  isWisconsinCampaignFinanceEnabled() && readBooleanEnv("WISCONSIN_REPORTED_COMMITTEE_CASH_ENABLED", false);
+export const isWisconsinCampaignFinanceRawDataRefreshEnabled = (): boolean =>
+  isWisconsinCampaignFinanceEnabled() && readBooleanEnv("WISCONSIN_CAMPAIGN_FINANCE_RAW_DATA_REFRESH_ENABLED", false);
 
 const utahFinance = defineStateFinanceFlagPair("UTAH_CAMPAIGN_FINANCE");
 export const isUtahCampaignFinanceEnabled = utahFinance.isEnabled;

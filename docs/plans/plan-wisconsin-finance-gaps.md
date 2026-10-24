@@ -1,6 +1,6 @@
 # Wisconsin reported finance gaps
 
-Status: implementation in progress. Source transport is verified; ordinary finance sync, API/card verification and PR remain pending. New Wisconsin publication remains disabled pending Ethics Commission/counsel clearance. Kansas contributor names and all new Missouri publication remain held.
+Status: reported committee cash implementation and private local verification complete. Candidate-specific IE remains unqualified. New Wisconsin publication remains disabled pending Ethics Commission/counsel clearance. Kansas contributor names and all new Missouri publication remain held.
 
 ## Source and existing path
 
@@ -30,7 +30,11 @@ First add a saved-first public-source reader with private whole originals, real 
 
 Then wire a separately due reported-cash component with protected atomic writes, independent attempt/source clocks, candidate/year CLI targeting and a publication gate defaulting off. New IE money requires its own qualified source contract. Applied migrations are immutable; allocate a new migration only after fresh ledger/schema preflight. No environment files, provider calls, production operations, merges or deployment.
 
-Before PR: ordinary real local sync, uncapped independent source/store reference, actual production HTTP API and hydrated candidate route. Verify disabled-publication behavior, idempotence and missing-source preservation. Current completed checks include source-contract tests, backend type-check, a real saved-first complete-ledger replay, a source-minted immutable cash packet, and independent uncapped source references. All real-data proof remains private. These checks are not the ordinary finance sync or card proof.
+Before PR: ordinary real local sync, uncapped independent source/store reference, actual production HTTP API and hydrated candidate route. Verify disabled-publication behavior, idempotence and missing-source preservation. Completed: source-contract and integration regression checks, backend type-check, genuine saved-first complete-ledger replay, ordinary CLI parser/runner with its real Pool and default source client, an independent Python/Decimal comparison of every uncapped stored identity/cent/count/evidence/link, the production HTTP finance endpoint and an actual hydrated candidate route. Repeat acquisition was idempotent; a missing source left all money and source clocks unchanged. All five legacy Wisconsin tables stayed unchanged. The default publication gate hid the new snapshot. A private loopback-only read gate was enabled temporarily for API/card proof, then both servers and the agent's proof tabs closed. No financial identities, selectors, row extracts or screenshots are included in this PR.
+
+Migration 382 adds isolated source, donor and attempt tables. Preflight checked actual schema and migration filenames/checksums; application through the normal migration runner preserved every prior ledger entry and timestamp exactly. Applied migration files remain immutable.
+
+Private acquisition uses both existing Wisconsin finance/sync flags and `--committee-cash-only`; targeted runs additionally take `--candidate-id`, `--election-year`, `--max-candidates` and `--raw-cache-dir`. `--refresh-committee-cash` rechecks a fresh snapshot; `--refresh-cache` requests new originals only if `WISCONSIN_CAMPAIGN_FINANCE_RAW_DATA_REFRESH_ENABLED=true`. Neither flag grants publication. `WISCONSIN_REPORTED_COMMITTEE_CASH_ENABLED` defaults false and must remain false pending clearance. Candidate/year targeting requires cash-only scope, so it cannot accidentally run unscoped legacy acquisition.
 
 ## Deadlines and reruns
 
