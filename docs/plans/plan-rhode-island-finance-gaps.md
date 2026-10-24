@@ -1,6 +1,6 @@
 # Rhode Island reported finance gaps
 
-Status: ordinary receiving acquisition and an independently checked cache packet pass; financial sync, card proof and PR remain pending. Wisconsin publication, Kansas contributor names and all new Missouri publication remain held.
+Status: real ordinary local receiving import, independent uncapped store comparison, idempotence and missing-source preservation pass; API/card proof, independent outside source qualification and PR remain pending. Wisconsin publication, Kansas contributor names and all new Missouri publication remain held.
 
 ## Source, current code and donor types
 
@@ -31,6 +31,8 @@ Ordinary raw acquisition now completes with default clients and the existing CF-
 Migration 383 adds the source and donor side tables; applied migration 382 and all prior migrations remain immutable. The writer uses the shared transaction hooks and locks the current canonical context and receiving ownership before any finance mutation. It retains original source clocks, rejects older/conflicting snapshots and treats an identical accepted clock/digest as a no-op. Direct and committee rows commit together; outside rows are omitted and preserved.
 
 The ordinary scoped command is `npm run rhode-island-candidates:finance:import -- --candidate-id <uuid> --election-id <uuid> --org-id <numeric> --organization-name <exact-native-name> --reviewed-mapping --cache-dir <directory> [--dry-run]`. Run from `backend/` after the existing raw refresh. Independently review the current ballot, office and registration before using `--reviewed-mapping`; the command does not establish that mapping from a name match. Both `RHODE_ISLAND_CAMPAIGN_FINANCE_ENABLED=true` and `RHODE_ISLAND_CAMPAIGN_FINANCE_SYNC_ENABLED=true` are required inline. The command reads verified cache only and logs aggregate counts, never source identities or line items.
+
+New committee publication is separately default-off under `RHODE_ISLAND_REPORTED_COMMITTEE_CASH_ENABLED`. The read path checks current canonical ownership and full stored source/group/count/cent closure before applying shared interest classification and display caps. Unknown interests remain “Not yet sorted.” Excluded positive interests do not become a false empty-result message. Existing direct and outside clocks/totals stay intact, and the existing small-amount display threshold remains unchanged.
 
 ## Reporting deadlines and manual reruns
 

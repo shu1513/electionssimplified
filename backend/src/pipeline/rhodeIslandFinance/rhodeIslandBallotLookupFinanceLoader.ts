@@ -1,14 +1,16 @@
 import type { Pool, PoolClient } from "pg";
 
-import { isRhodeIslandCampaignFinanceEnabled } from "../../config/featureFlags.js";
+import { isRhodeIslandCampaignFinanceEnabled, isRhodeIslandReportedCommitteeCashEnabled } from "../../config/featureFlags.js";
 import {
   officeInputFromElectionRow,
+  buildStateFinanceSummaryRequests,
   type BallotLookupFinanceSummary,
   type StateFinanceRequestCandidateRow,
   type StateFinanceRequestElectionRow,
 } from "../address/ballotLookupFinanceShared.js";
 import { loadStandardStateFinanceSummariesByCandidateElection } from "../finance/standardStateFinanceBallotLookupLoader.js";
 import { isRhodeIslandFinanceEligibleOffice } from "./rhodeIslandFinanceEligibleOffices.js";
+import { appendRhodeIslandCommitteeCashSummaries } from "./rhodeIslandCommitteeCashBallotSummary.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
@@ -43,7 +45,7 @@ export async function loadRhodeIslandCandidateFinanceSummariesByCandidateElectio
   candidateRows: readonly StateFinanceRequestCandidateRow[],
   electionRows: readonly StateFinanceRequestElectionRow[]
 ): Promise<Map<string, BallotLookupFinanceSummary>> {
-  return loadStandardStateFinanceSummariesByCandidateElection({
+  const summaries = await loadStandardStateFinanceSummariesByCandidateElection({
     db,
     candidateRows,
     electionRows,
@@ -66,4 +68,10 @@ export async function loadRhodeIslandCandidateFinanceSummariesByCandidateElectio
       outsideGroupBreakdowns: "ri_candidate_finance_outside_group_breakdowns",
     },
   });
+  if (isRhodeIslandReportedCommitteeCashEnabled()) {
+    const requests = buildStateFinanceSummaryRequests("RI", candidateRows, electionRows,
+      row => isRhodeIslandFinanceEligibleOffice(officeInputFromElectionRow(row)));
+    await appendRhodeIslandCommitteeCashSummaries(db, requests, summaries);
+  }
+  return summaries;
 }
