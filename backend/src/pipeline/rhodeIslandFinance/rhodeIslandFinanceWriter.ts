@@ -10,6 +10,7 @@ import {
   type StandardStateFinanceOutsideGroupBreakdownInput,
   type StandardStateFinanceOutsideGroupInput,
   type StandardStateFinanceSnapshotWriteResult,
+  type StandardStateFinanceSnapshotInput,
   type StandardStateFinanceSummaryInput,
   type StandardStateFinanceSupportOppose,
 } from "../finance/standardStateFinanceSnapshotWriter.js";
@@ -44,6 +45,8 @@ export type RhodeIslandFinanceSnapshotInput = {
   outsideGroups?: readonly RhodeIslandFinanceOutsideGroupInput[];
   outsideGroupBreakdowns?: readonly RhodeIslandFinanceOutsideGroupBreakdownInput[];
   classifications?: readonly FinanceLabelClassification[];
+  beforeSnapshotWrite?: StandardStateFinanceSnapshotInput["beforeSnapshotWrite"];
+  afterSnapshotWrite?: StandardStateFinanceSnapshotInput["afterSnapshotWrite"];
 };
 
 export type RhodeIslandFinanceSnapshotWriteResult = StandardStateFinanceSnapshotWriteResult;
