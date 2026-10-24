@@ -379,6 +379,7 @@ export function parseErtsOrganizationSearchRows(html: string): ErtsOrganizationS
 
 export type ErtsFilingRow = {
   reportType: string;
+  // Recognized CF-1 registration records have no reporting period.
   periodBegin: string;
   periodEnd: string;
   status: string;
@@ -402,20 +403,30 @@ export const ERTS_FILING_LIST_GRID_ID = "grdSearchResults";
  * original-filed timestamp, Amended Yes/No, View link. Unfiled rows are kept
  * (empty `filedAt`) so a caller can tell "not filed yet" from "absent".
  * Fail-closed: only the pinned header row may be skipped — a data-like row
- * whose period no longer parses throws, because a silently dropped filing
- * would silently drop its reporting period from the totals.
+ * whose financial period no longer parses throws, because a silently dropped
+ * filing would silently drop its reporting period from the totals. Known CF-1
+ * registration records have blank periods and remain in the inventory; the
+ * CF-2 selector excludes them by form type, rather than inventing dates.
  */
 export function parseErtsFilingListPage(html: string): ErtsFilingRow[] {
   const rows: ErtsFilingRow[] = [];
   for (const rowHtml of gridRowHtml(html, ERTS_FILING_LIST_GRID_ID)) {
     const cells = rowCells(rowHtml);
     if (cells.length === 0 || cells[0] === "Report Type") continue;
-    if (cells.length < 7 || !/^\d{2}\/\d{2}\/\d{4}$/.test(cells[1] ?? "") || !/^\d{2}\/\d{2}\/\d{4}$/.test(cells[2] ?? "")) {
+    const link = /href="([^"]*FilingAmendmentSelect\.aspx[^"]*)"/i.exec(decodeErtsHtml(rowHtml))?.[1] ?? null;
+    const filingId = link ? (/FilingID=(\d+)/.exec(link)?.[1] ?? null) : null;
+    const formName = link ? (/FormName=([A-Za-z0-9]+)/.exec(link)?.[1] ?? null) : null;
+    const hasPeriod = /^\d{2}\/\d{2}\/\d{4}$/.test(cells[1] ?? "")
+      && /^\d{2}\/\d{2}\/\d{4}$/.test(cells[2] ?? "");
+    const isKnownRegistration = ["Notice of Organization - (CF-1)", "Amendment of Organization"].includes(cells[0])
+      && cells[1] === "" && cells[2] === ""
+      && ((formName === "RICF1" && filingId !== null && cells[5] !== "")
+        || (link === null && cells[5] === ""));
+    if (cells.length < 7 || (!hasPeriod && !isKnownRegistration)) {
       throw new Error(
         `ERTS filing list row does not match the pinned shape (cells: ${JSON.stringify(cells.slice(0, 4))}…)`
       );
     }
-    const link = /href="([^"]*FilingAmendmentSelect\.aspx[^"]*)"/i.exec(decodeErtsHtml(rowHtml))?.[1] ?? null;
     rows.push({
       reportType: cells[0],
       periodBegin: cells[1],
@@ -423,8 +434,8 @@ export function parseErtsFilingListPage(html: string): ErtsFilingRow[] {
       status: cells[4] ?? "",
       filedAt: cells[5] ?? "",
       amended: /^yes$/i.test(cells[6] ?? ""),
-      filingId: link ? (/FilingID=(\d+)/.exec(link)?.[1] ?? null) : null,
-      formName: link ? (/FormName=([A-Za-z0-9]+)/.exec(link)?.[1] ?? null) : null,
+      filingId,
+      formName,
       amendmentSelectUrl: link,
     });
   }
