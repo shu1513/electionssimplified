@@ -84,6 +84,7 @@ export type UtahCandidateFinanceBatchSyncItemResult = {
 
 export type UtahCandidateFinanceBatchSyncResult = {
   committeeCash?: Awaited<ReturnType<typeof syncDueUtahCommitteeCash>>;
+  committeeCashError?: string;
   dryRun: boolean;
   now: string;
   staleAfterDays: number;
@@ -203,12 +204,21 @@ export async function syncDueUtahCandidateFinance(
 
   // Independently due: a fresh direct summary or a failed legacy CSV must not
   // prevent acquisition of the verified filed committee-cash component.
-  const committeeCash = await (input.syncDueUtahCommitteeCashFn ?? syncDueUtahCommitteeCash)({
-    db: input.db, now, maxCandidates, staleAfterDays, electionLookbackDays, electionLookaheadDays,
-    rawDataCacheDir: input.rawDataCacheDir, candidateId: input.candidateId, electionYear: input.electionYear,
-    dryRun, refreshCommitteeCash: input.refreshCommitteeCash, refreshCache: input.refreshCache,
-    committeeCashNetwork: input.committeeCashNetwork,
-  });
+  // The reverse holds too: a committee-cash failure must not stop the legacy sync.
+  let committeeCash: UtahCandidateFinanceBatchSyncResult["committeeCash"];
+  let committeeCashError: string | undefined;
+  try {
+    committeeCash = await (input.syncDueUtahCommitteeCashFn ?? syncDueUtahCommitteeCash)({
+      db: input.db, now, maxCandidates, staleAfterDays, electionLookbackDays, electionLookaheadDays,
+      rawDataCacheDir: input.rawDataCacheDir, candidateId: input.candidateId, electionYear: input.electionYear,
+      dryRun, refreshCommitteeCash: input.refreshCommitteeCash, refreshCache: input.refreshCache,
+      committeeCashNetwork: input.committeeCashNetwork,
+    });
+  } catch (error) {
+    if (input.committeeCashOnly) throw error;
+    committeeCashError = error instanceof Error ? error.message : String(error);
+    console.warn("Utah committee cash sync skipped; continuing with legacy direct sync:", committeeCashError);
+  }
   if (input.committeeCashOnly) return {
     dryRun, now: now.toISOString(), staleAfterDays, maxCandidates, dueCandidateCount: 0,
     selectedCandidateCount: 0, syncedCandidateCount: 0, failedCandidateCount: 0,
@@ -339,6 +349,7 @@ export async function syncDueUtahCandidateFinance(
   const syncedCandidateCount = results.filter((result) => result.ok).length;
   return {
     committeeCash,
+    ...(committeeCashError === undefined ? {} : { committeeCashError }),
     dryRun,
     now: now.toISOString(),
     staleAfterDays,
