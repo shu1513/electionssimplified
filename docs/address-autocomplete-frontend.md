@@ -91,7 +91,7 @@ of this section had the session rule wrong — see the correction below):
   Enterprise, or Enterprise + Atmosphere field bills that call at the
   Enterprise + Atmosphere rate ($25 per 1,000, 1,000 free per month) no
   matter which of those fields it asked for (Google's SKU details). That is
-  more than our ~7 suggest requests per entry cost (~$0.02), so a pricier
+  more than the ~7 billed suggest requests per retrieve cost (~$0.02), so a pricier
   terminating call never pays for itself; we stay on Essentials.
 - Abandoned entries, requests without a session token, and reused tokens
   bill every request under Autocomplete Requests — the same as above for any
@@ -107,8 +107,10 @@ Correction (2026-10-24): this section previously said a session that ends in
 a retrieve bills nothing for its autocomplete requests, making abandoned
 entries the cost driver. The October 2026 bill disproved it: 45,020 billed
 Autocomplete Requests, 6,486 Place Details retrieves, 4,263 Session Usage
-events — about 7 requests per completed entry, all billed, with Session
-Usage counting only the requests past the 12th. A "close the session on
+events — about 7 billed requests per retrieve. Read that as a billing
+ratio, not as requests per completed entry: the 45,020 also covers entries
+that were abandoned without a retrieve, and the 4,263 free requests (the
+ones past the 12th of long entries) sit on top of it. A "close the session on
 submit" change built on the old reading was reverted before merge
 (shu1513/electionssimplified#1640).
 
@@ -131,8 +133,8 @@ no-session.
   2026-10-24). Cost note: every suggest request is billed (see above). The
   average gap between keystrokes is ~230 ms on a keyboard and ~330 ms on a
   phone (Dhakal et al. 2018, Palin et al. 2019), so at 125 ms most letters
-  fired their own request — the October 2026 bill showed ~7 requests per
-  entry. 300 ms merges a typing burst into one request and still refreshes
+  fired their own request — the October 2026 bill showed ~7 billed requests per
+  retrieve. 300 ms merges a typing burst into one request and still refreshes
   the dropdown at every natural pause; aborting the browser request does not
   stop a backend→Google call already in flight. Watch the Autocomplete Requests SKU after changing the debounce.
 - On input focus, fire one throwaway invalid suggest request (empty `input`).
