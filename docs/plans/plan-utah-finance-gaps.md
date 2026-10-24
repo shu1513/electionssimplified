@@ -80,4 +80,10 @@ For manual reruns, enable the ordinary Utah read/sync flags inline, use `--commi
 
 Utah committee cash has a real sync/API/card proof. Candidate-specific IE remains a separate unresolved source gap; this PR must not be described as a completed IE integration. Kansas contributor-name publication and every new Missouri publication remain held.
 
-Final focused validation: 128 Utah pipeline/script regressions pass. The Utah address-reader regression was also updated for the independent component query and explicit outside coverage note.
+Final focused validation: 132 Utah pipeline/script regressions pass. The Utah address-reader regression was also updated for the independent component query and explicit outside coverage note.
+
+## Follow-up verification after review
+
+The reader retains signed committee cash subtotals, acquisition checks download completion against the actual wall clock, and a separate last-attempt table rotates held receivers without advancing their financial observation clock. Migration 381 creates that nonfinancial table idempotently. The normal local runner applied only 381 against a verified identical empty table; all 404 earlier migration checksums and applied timestamps remained unchanged. No applied migration was renumbered or rewritten.
+
+The updated code passed the ordinary scoped sync replay, a separate complete Python source/store comparison, the actual production HTTP endpoint and a hydrated candidate route. All five displayed reported names, amounts and official links match, totaling $11,500 from six filed cash contributions. The repeat is idempotent; a missing-original attempt records its hold while preserving every donor row, financial observation clock and legacy direct value. The React content expansion was verified and restored. The focused 132 tests and backend typecheck pass. Candidate-specific IE remains unknown; the October 28/29 post-deadline acquisition rerun remains required.
