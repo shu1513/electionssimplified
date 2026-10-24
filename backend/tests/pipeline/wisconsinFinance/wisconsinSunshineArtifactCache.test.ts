@@ -77,6 +77,12 @@ describe("Wisconsin native public-source acquisition", () => {
     expect(await load(new WisconsinPublicSourceReader({ cacheDir: await cache(), allowNetwork: true, fetchImpl }))).toEqual([]);
     expect(vi.mocked(fetchImpl)).toHaveBeenCalledTimes(4);
   });
+  it("rejects a counter belonging to a different public collection before any request", async () => {
+    const fetchImpl = vi.fn() as unknown as typeof fetch;
+    const reader = new WisconsinPublicSourceReader({ cacheDir: await cache(), allowNetwork: true, fetchImpl });
+    await expect(reader.closedRows(procedure, "publicFrontendApi.getReportsCount", filter, "ledger", "date")).rejects.toThrow("count_procedure");
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
   it("neither a miss nor refresh grants network access", async () => {
     const fetchImpl = vi.fn() as unknown as typeof fetch, cacheDir = await cache();
     await expect(load(new WisconsinPublicSourceReader({ cacheDir, fetchImpl }))).rejects.toThrow("saved_original_missing");

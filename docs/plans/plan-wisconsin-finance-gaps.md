@@ -14,17 +14,15 @@ The cross-source completion audit found 56 modules, excluding the shared efileCa
 
 ## Qualified receiving control
 
-One current receiver is bound through its sole candidate-role connection, native office and exact general-election date to a unique canonical context. Native registry counts and empty cursor terminal close. The complete report inventory has 14 certified submissions. Two full transaction scans agree on 745 unique rows, reconciling exactly to six selected parent submission counts and coverage periods.
+Private controls bind one receiver through its sole candidate-role connection, native office and exact general-election date to a unique canonical context. Canonical surname discovery works without a legacy finance link. Native registry counts and empty cursor terminals close. The complete current transaction ledger reconciles to all in-scope certified submissions, including a filed no-activity report.
 
-The independently checked reported-committee cash scope contains nine groups, ten monetary gifts and $27,195. Eight groups have exact native registry identities and committee classes; one additional source committee entity explicitly names a PAC and has a public profile marked Unregistered. Preserve that evidence distinction. Exclude in-kind gifts, loans and other income; subtract returned contributions from qualifying source recipient entities. This is reported committee cash, not all PAC money or a legal PAC census. No financial rows or record selectors belong in this plan, tests or PR text.
+Keep real source rows, identities, selectors and monetary proof private while publication is held. The supported cash scope recognizes exact native PAC, party and candidate-committee classes, plus a separate conservative tier for a source committee entity explicitly naming a PAC whose native public profile says Unregistered. Preserve that distinction. Exclude in-kind gifts, loans and other income; subtract returned contributions from qualifying source recipient entities, including refund-only recipients. This is reported committee cash, not a legal PAC census or complete multi-year campaign money.
 
-Regular reporting coverage begins January 1, 2025 and runs through September 23, 2026, with a later 72-hour notice containing October 21 activity. Four unavailable legacy templates are 2024 only and cover no selected transaction. Current selected receiving parents each have one submission. Future amendments must be qualified or held.
+Generic report-template bounds can overlap across schedule variants. Validate coverage as a date union and reconcile report memberships against globally unique native transaction IDs. Count each native transaction once; never add overlapping window totals or deduplicate distinct gifts by matching names, dates and amounts. Unsupported amendments and notice/regular-report overlap remain held. Regular reports currently end September 23, 2026, followed by later 72-hour notices; post-deadline reacquisition remains necessary.
 
 ## IE qualification still open
 
-One fresh registry-qualified outside spender has two identical complete scans of 1,343 transactions. Of 99 paid IE occurrences, six name the verified current Treasurer target, totaling $277.27. Eight paid occurrences have incomplete allocation fields, including two payments of incurred IE. Their original incurred obligations carry allocation fields, but neither the public grid nor the independently closed 61-column native CSV exposes the payment-to-obligation identifier. The source inventory has 70 reports and 73 submissions, including amendments. Six relevant genuine filed PDFs have been acquired and fully text-read privately; allocation, refund and current-version verification remains unfinished.
-
-Do not publish this positive subset as complete IE or infer zero. Continue the single-filer qualification before another filer. IE acquisition must operate independently of receiving finance; an unresolved source must preserve prior amounts and source clocks.
+One fresh registry-qualified spender's full native ledger, CSV and report inventory are privately acquired. Paid occurrences with incomplete allocation fields, incurred-payment linkage, refunds and amendments still need qualification. Genuine filed PDFs have also been inspected privately. No new IE amount is accepted from a positive subset, and no zero is inferred. Continue the single-filer source pass before another filer. IE acquisition must operate independently of receiving finance; an unresolved source preserves prior amounts and source clocks.
 
 ## Implementation and proof gates
 
@@ -32,7 +30,7 @@ First add a saved-first public-source reader with private whole originals, real 
 
 Then wire a separately due reported-cash component with protected atomic writes, independent attempt/source clocks, candidate/year CLI targeting and a publication gate defaulting off. New IE money requires its own qualified source contract. Applied migrations are immutable; allocate a new migration only after fresh ledger/schema preflight. No environment files, provider calls, production operations, merges or deployment.
 
-Before PR: ordinary real local sync, uncapped independent source/store reference, actual production HTTP API and hydrated candidate route. Verify disabled-publication behavior, idempotence and missing-source preservation. Current completed checks: 16 source-contract tests, backend type-check, and a real saved-first replay of all 745 receiver rows with zero network calls. This replay is not the finance sync or card proof.
+Before PR: ordinary real local sync, uncapped independent source/store reference, actual production HTTP API and hydrated candidate route. Verify disabled-publication behavior, idempotence and missing-source preservation. Current completed checks include source-contract tests, backend type-check, a real saved-first complete-ledger replay, a source-minted immutable cash packet, and independent uncapped source references. All real-data proof remains private. These checks are not the ordinary finance sync or card proof.
 
 ## Deadlines and reruns
 

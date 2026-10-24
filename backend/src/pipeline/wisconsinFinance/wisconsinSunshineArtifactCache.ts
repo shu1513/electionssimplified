@@ -11,6 +11,11 @@ const PUBLIC_READS = new Set([
   "publicFrontendApi.getReportSubmissionsData", "transactionMeta.getTransactionCategories",
   "reportMeta.getReportTemplates",
 ]);
+const COUNTS: Readonly<Record<string, string>> = {
+  "publicFrontendApi.getCommittees": "publicFrontendApi.getCommitteesCount",
+  "publicFrontendApi.getReports": "publicFrontendApi.getReportsCount",
+  "publicFrontendApi.getTransactions": "publicFrontendApi.getTransactionsTotalCount",
+};
 const MAX_BODY_BYTES = 8 * 1024 * 1024;
 const MAX_AGE_MS = 7 * 86_400_000;
 export type WisconsinPublicSourceOptions = {
@@ -137,6 +142,7 @@ export class WisconsinPublicSourceReader {
   /** Two full scans, exact source counts and an empty terminal; display limits never enter acquisition. */
   async closedRows(procedure: string, countProcedure: string, filter: RecordValue, phase: string,
     sortBy: string): Promise<RecordValue[]> {
+    wisconsinSourceCheck(COUNTS[procedure] === countProcedure, "count_procedure");
     wisconsinSourceCheck(!["take", "skip", "cursor", "sortBy", "sortDirection"].some(k => k in filter), "paging_filter");
     const maxPages = this.options.maxPages ?? 1_000;
     wisconsinSourceCheck(Number.isInteger(maxPages) && maxPages > 0 && maxPages <= 10_000, "max_pages");
