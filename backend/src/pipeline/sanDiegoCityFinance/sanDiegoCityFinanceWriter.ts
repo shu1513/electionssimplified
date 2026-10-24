@@ -15,6 +15,7 @@
 // data → the caller passes zero totals and empty arrays and the
 // delete-and-insert clears the stale detail rows.
 
+import { sanDiegoCommitteeKey, type SanDiegoCityCommitteeCash } from "./sanDiegoCityCommitteeCash.js";
 import type { Pool, PoolClient } from "pg";
 import type { FinanceLabelClassification } from "../finance/financeLabelClassifier.js";
 import { upsertFinanceLabelClassification } from "../finance/financeIndustryClassificationService.js";
@@ -225,11 +226,31 @@ export async function replaceSanDiegoCityCandidateFinanceSnapshot(input: {
   directBreakdowns: readonly SanDiegoCityDirectBreakdownInput[];
   outsideGroups: readonly SanDiegoCityOutsideGroupInput[];
   classifications?: readonly FinanceLabelClassification[];
+  committeeCash?: SanDiegoCityCommitteeCash;
   syncedAt?: Date;
 }): Promise<{ linkId: string }> {
   if (typeof input.db.connect !== "function")
     throw new Error("San Diego finance snapshot writes require a Pool");
   const syncedAt = (input.syncedAt ?? new Date()).toISOString();
+  const cash = input.committeeCash;
+  if (cash) {
+    if (!(cash.officeName === "Mayor" && cash.seatNumber === null || cash.officeName === "City Council Member" &&
+      Number.isInteger(cash.seatNumber) && cash.seatNumber! >= 1 && cash.seatNumber! <= 9)) throw new Error("Invalid San Diego cash office/seat scope");
+    if (cash.receivingFppcId !== input.link.fppcId || !Number.isSafeInteger(cash.canonicalFilingCount) || cash.canonicalFilingCount < 0 ||
+      cash.reportedThrough !== input.summary.reportedThrough || cash.donors.length && (!cash.canonicalFilingCount || !cash.reportedThrough))
+      throw new Error("San Diego committee cash scope or report date does not match the snapshot");
+    if (cash.reportedThrough !== null && (!/^\d{4}-\d{2}-\d{2}$/.test(cash.reportedThrough) || !Number.isFinite(Date.parse(cash.reportedThrough)) ||
+      new Date(cash.reportedThrough).toISOString().slice(0,10) !== cash.reportedThrough)) throw new Error("Invalid San Diego cash report date");
+    const keys = new Set<string>(); let total = 0, gifts = 0;
+    for (const donor of cash.donors) {
+      if (donor.committeeKey !== sanDiegoCommitteeKey(donor.committeeId,donor.committeeName) || keys.has(donor.committeeKey) ||
+        !["COM","PTY","SCC"].includes(donor.contributorType) || !Number.isSafeInteger(donor.amountCents) || donor.amountCents <= 0 ||
+        !Number.isSafeInteger(donor.contributionCount) || donor.contributionCount <= 0) throw new Error("Invalid San Diego committee cash group");
+      keys.add(donor.committeeKey); total += donor.amountCents; gifts += donor.contributionCount;
+    }
+    if (!Number.isSafeInteger(total) || !Number.isSafeInteger(gifts) || total !== cash.amountCents || gifts !== cash.contributionCount)
+      throw new Error("San Diego committee cash counts and cents do not close");
+  }
   const client = await input.db.connect();
   try {
     await client.query("BEGIN");
@@ -238,6 +259,12 @@ export async function replaceSanDiegoCityCandidateFinanceSnapshot(input: {
       link: input.link,
     });
     const year = input.link.electionYear;
+    if (cash) {
+      await client.query(`SELECT id FROM public.sdcity_candidate_finance_links WHERE id=$1::uuid FOR UPDATE`,[linkId]);
+      const prior = await client.query<{newer:boolean}>(`SELECT observed_at > $3::timestamptz newer
+        FROM public.sdcity_candidate_finance_pac_sources WHERE link_id=$1::uuid AND election_year=$2 FOR UPDATE`,[linkId,year,syncedAt]);
+      if (prior.rows.some(row=>row.newer)) throw new Error("Older San Diego committee cash observation cannot replace a newer snapshot");
+    }
     await client.query(
       `INSERT INTO public.sdcity_candidate_finance_summaries (link_id,election_year,total_raised,total_spent,cash_on_hand,debts_owed,loans_received,outside_support_total,outside_oppose_total,direct_coverage_note,outside_coverage_note,methodology_version,source_url,reported_through,last_synced_at) VALUES ($1::uuid,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14::date,$15::timestamptz) ON CONFLICT (link_id,election_year) DO UPDATE SET total_raised=EXCLUDED.total_raised,total_spent=EXCLUDED.total_spent,cash_on_hand=EXCLUDED.cash_on_hand,debts_owed=EXCLUDED.debts_owed,loans_received=EXCLUDED.loans_received,outside_support_total=EXCLUDED.outside_support_total,outside_oppose_total=EXCLUDED.outside_oppose_total,direct_coverage_note=EXCLUDED.direct_coverage_note,outside_coverage_note=EXCLUDED.outside_coverage_note,methodology_version=EXCLUDED.methodology_version,source_url=EXCLUDED.source_url,reported_through=EXCLUDED.reported_through,last_synced_at=EXCLUDED.last_synced_at`,
       [
@@ -300,6 +327,20 @@ export async function replaceSanDiegoCityCandidateFinanceSnapshot(input: {
           syncedAt,
         ],
       );
+    if (cash) {
+      await client.query(`INSERT INTO public.sdcity_candidate_finance_pac_sources
+        (link_id,election_year,receiving_fppc_id,canonical_filing_count,amount_cents,contribution_count,group_count,reported_through,observed_at,office_name,seat_number)
+        VALUES ($1::uuid,$2,$3,$4,$5::bigint,$6,$7,$8::date,$9::timestamptz,$10,$11)
+        ON CONFLICT (link_id,election_year) DO UPDATE SET receiving_fppc_id=EXCLUDED.receiving_fppc_id,office_name=EXCLUDED.office_name,seat_number=EXCLUDED.seat_number,
+        canonical_filing_count=EXCLUDED.canonical_filing_count,amount_cents=EXCLUDED.amount_cents,contribution_count=EXCLUDED.contribution_count,
+        group_count=EXCLUDED.group_count,reported_through=EXCLUDED.reported_through,observed_at=EXCLUDED.observed_at`,
+      [linkId,year,cash.receivingFppcId,cash.canonicalFilingCount,String(cash.amountCents),cash.contributionCount,cash.donors.length,cash.reportedThrough,syncedAt,cash.officeName,cash.seatNumber]);
+      await client.query(`DELETE FROM public.sdcity_candidate_finance_pac_donors WHERE link_id=$1::uuid AND election_year=$2`,[linkId,year]);
+      for (const donor of cash.donors) await client.query(`INSERT INTO public.sdcity_candidate_finance_pac_donors
+        (link_id,election_year,committee_key,committee_id,committee_name,contributor_type,amount_cents,contribution_count)
+        VALUES ($1::uuid,$2,$3,$4,$5,$6,$7::bigint,$8)`,
+      [linkId,year,donor.committeeKey,donor.committeeId,donor.committeeName,donor.contributorType,String(donor.amountCents),donor.contributionCount]);
+    }
     for (const classification of input.classifications ?? [])
       await upsertFinanceLabelClassification({ db: client, classification });
     await client.query("COMMIT");

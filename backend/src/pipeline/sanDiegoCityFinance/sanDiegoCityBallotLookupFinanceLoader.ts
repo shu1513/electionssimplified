@@ -6,8 +6,9 @@
 // expenditure counts on outside groups. San Diego additionally selects and
 // emits outside_coverage_note (always set by sync — the e-filed-union basis
 // plus any per-candidate veto disclosure).
+import { appendSanDiegoCityCommitteeCash } from "./sanDiegoCityCommitteeCashBallotSummary.js";
 import type { Pool, PoolClient } from "pg";
-import { isSanDiegoCampaignFinanceEnabled } from "../../config/featureFlags.js";
+import { isSanDiegoCampaignFinanceEnabled, isSanDiegoCommitteeCashEnabled } from "../../config/featureFlags.js";
 import {
   buildStateFinanceSummaryRequests,
   candidateElectionKey,
@@ -221,7 +222,7 @@ export async function loadSanDiegoCityCandidateFinanceSummariesByCandidateElecti
     });
     groups.set(key, list);
   }
-  return new Map(
+  const result = new Map(
     summaries.rows.map((row) => {
       const key = candidateElectionKey(row.candidate_id, row.election_id);
       const byType = maps.get(key) ?? new Map();
@@ -273,4 +274,6 @@ export async function loadSanDiegoCityCandidateFinanceSummariesByCandidateElecti
       ] as const;
     }),
   );
+  if (isSanDiegoCommitteeCashEnabled()) await appendSanDiegoCityCommitteeCash(db,result);
+  return result;
 }
