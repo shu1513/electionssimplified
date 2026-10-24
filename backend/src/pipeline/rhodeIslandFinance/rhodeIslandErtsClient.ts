@@ -74,42 +74,61 @@ export type ErtsTransport = {
 export function isErtsPortalUrl(url: string): boolean {
   try {
     const parsed = new URL(url);
-    return parsed.protocol === "https:" && /^(www\.|secure\.)?ricampaignfinance\.com$/i.test(parsed.hostname);
+    return parsed.protocol === "https:" && /^(www\.|secure\.)?ricampaignfinance\.com$/i.test(parsed.hostname) &&
+      !parsed.username && !parsed.password && !parsed.port;
   } catch {
     return false;
   }
 }
 
-function defaultErtsFetch(userAgent: string, timeoutMs: number): ErtsFetchFn {
+function defaultErtsFetch(userAgent: string, timeoutMs: number, beforeRedirect: () => Promise<void>): ErtsFetchFn {
   const cookies = new Map<string, string>();
   return async (url: string, body?: URLSearchParams) => {
-    const sendCookies = isErtsPortalUrl(url);
-    const cookieHeader = sendCookies ? [...cookies].map(([name, value]) => `${name}=${value}`).join("; ") : "";
-    const response = await fetch(url, {
-      method: body ? "POST" : "GET",
-      headers: {
-        "User-Agent": userAgent,
-        Accept: "*/*",
-        ...(cookieHeader ? { Cookie: cookieHeader } : {}),
-        ...(body ? { "Content-Type": "application/x-www-form-urlencoded" } : {}),
-      },
-      body,
-      redirect: "follow",
-      signal: AbortSignal.timeout(timeoutMs),
-    });
-    if (sendCookies) {
+    let currentUrl = url;
+    let currentBody = body;
+    for (let hop = 0; hop < 6; hop += 1) {
+      if (!isErtsPortalUrl(currentUrl)) throw new Error("ERTS request URL is outside the HTTPS portal");
+      const cookieHeader = [...cookies].map(([name, value]) => `${name}=${value}`).join("; ");
+      const response = await fetch(currentUrl, {
+        method: currentBody ? "POST" : "GET",
+        headers: {
+          "User-Agent": userAgent,
+          Accept: "*/*",
+          ...(cookieHeader ? { Cookie: cookieHeader } : {}),
+          ...(currentBody ? { "Content-Type": "application/x-www-form-urlencoded" } : {}),
+        },
+        body: currentBody,
+        redirect: "manual",
+        signal: AbortSignal.timeout(timeoutMs),
+      });
       for (const setCookie of response.headers.getSetCookie?.() ?? []) {
         const pair = setCookie.split(";", 1)[0];
         const separator = pair.indexOf("=");
         if (separator > 0) cookies.set(pair.slice(0, separator).trim(), pair.slice(separator + 1).trim());
       }
+      const bytes = new Uint8Array(await response.arrayBuffer());
+      if ([301, 302, 303, 307, 308].includes(response.status)) {
+        const location = response.headers.get("location");
+        if (!location) throw new Error("ERTS redirect has no location");
+        const next = new URL(location, currentUrl);
+        // Empty windows redirect to a published HTTP search URL. Upgrade
+        // before any request; never follow a downgrade or send the session
+        // outside the pinned portal hosts.
+        if (next.protocol === "http:") next.protocol = "https:";
+        if (!isErtsPortalUrl(next.href)) throw new Error("ERTS redirect is outside the HTTPS portal");
+        currentUrl = next.href;
+        if (![307, 308].includes(response.status)) currentBody = undefined;
+        if (hop < 5) await beforeRedirect();
+        continue;
+      }
+      return {
+        status: response.status,
+        finalUrl: response.url,
+        contentType: response.headers.get("content-type") ?? "",
+        body: bytes,
+      };
     }
-    return {
-      status: response.status,
-      finalUrl: response.url,
-      contentType: response.headers.get("content-type") ?? "",
-      body: new Uint8Array(await response.arrayBuffer()),
-    };
+    throw new Error("ERTS redirect limit exceeded");
   };
 }
 
@@ -138,7 +157,8 @@ export function createErtsTransport(
     options.fetch ??
     defaultErtsFetch(
       options.userAgent ?? DEFAULT_ERTS_USER_AGENT,
-      options.timeoutMs ?? DEFAULT_ERTS_REQUEST_TIMEOUT_MS
+      options.timeoutMs ?? DEFAULT_ERTS_REQUEST_TIMEOUT_MS,
+      () => sleep(spacingMs)
     );
 
   let queue: Promise<unknown> = Promise.resolve();

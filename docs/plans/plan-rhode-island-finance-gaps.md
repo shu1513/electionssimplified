@@ -18,6 +18,8 @@ One receiving unit is tied to the current official general ballot and a sole act
 
 The first concrete acquisition gap is a filing-list parser that rejects genuine CF-1 registration rows with blank periods. Preserve only the verified registration titles and source form identity, including a recognized unfiled registration with no source link. Keep malformed/unknown financial periods rejected. The existing CF-2 selector then excludes registration records by form type. No dates or financial zeros are invented.
 
+The ordinary acquisition also follows a native empty-window redirect to an HTTP search URL, which times out. The browser upgrades that URL to HTTPS. Handle redirects explicitly, upgrade only the pinned portal hosts before sending, validate every hop and preserve pacing and standard redirect method behavior. A generic empty search page alone does not establish a financial zero; the full ledger and current CF-2 reconciliation remain required.
+
 ## Proof and implementation gates
 
 Make source-specific changes in small tested steps. Use the ordinary committed acquisition script/default clients after the parser checkpoint; custom research replay is not sync proof. Before any financial write, run actual schema/ledger preflight, keep applied migrations immutable and identifiers at most 63 characters. Before PR, complete a real scoped local import/sync, independent uncapped source/store comparison, production HTTP API and hydrated candidate route. Verify missing-source preservation and idempotence. Preserve the existing small-amount display policy; use a separate fully researched receiving control if the initial valid committee detail is below that threshold. No environment files, provider calls, production operations, merge or deployment.
