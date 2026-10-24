@@ -6,7 +6,7 @@ import { loadProjectEnv } from "../config/env.js";
 import { isColoradoCampaignFinanceSyncEnabled } from "../config/featureFlags.js";
 import {
   syncDueColoradoCandidateFinance,
-  type ColoradoCandidateFinanceBatchSyncResult,
+  type ColoradoCandidateFinanceBatchSyncResult
 } from "../pipeline/coloradoFinance/coloradoCandidateFinanceBatchSync.js";
 import { readStrictFlagValue, readStrictPositiveIntegerFlag } from "../utils/cliFlags.js";
 import { assertKnownCliFlags } from "./financeCliFlagGuard.js";
@@ -20,9 +20,17 @@ export type SyncDueColoradoCandidateFinanceScriptOptions = {
   electionLookaheadDays?: number;
   rawCacheDir?: string;
   rawZipPath?: string;
+  ieOnly?: boolean;
+  ieCacheDir?: string;
+  ieLinkId?: string;
+  refreshIe?: boolean;
+  receiptsOnly?: boolean;
+  receiptsCacheDir?: string;
+  receiptsLinkId?: string;
+  refreshReceipts?: boolean;
 };
 
-const KNOWN_BOOLEAN_FLAGS = new Set(["--dry-run", "--force"]);
+const KNOWN_BOOLEAN_FLAGS = new Set(["--dry-run", "--force", "--ie-only", "--refresh-ie", "--receipts-only", "--refresh-receipts"]);
 const KNOWN_VALUE_FLAGS = new Set([
   "--max-candidates",
   "--stale-after-days",
@@ -30,6 +38,10 @@ const KNOWN_VALUE_FLAGS = new Set([
   "--lookahead-days",
   "--raw-cache-dir",
   "--raw-zip",
+  "--ie-cache-dir",
+  "--ie-link-id",
+  "--receipts-cache-dir",
+  "--receipts-link-id"
 ]);
 
 function assertNoUnknownColoradoCandidateFinanceArgs(args: readonly string[]): void {
@@ -40,7 +52,20 @@ export function parseSyncDueColoradoCandidateFinanceScriptArgs(
   args: readonly string[]
 ): SyncDueColoradoCandidateFinanceScriptOptions {
   assertNoUnknownColoradoCandidateFinanceArgs(args);
+  if (args.includes("--ie-only") && args.includes("--receipts-only")) throw new Error("Select only one Colorado finance component");
+  const ieCacheDir = readStrictFlagValue(args, "--ie-cache-dir") || undefined;
+  const ieLinkId = readStrictFlagValue(args, "--ie-link-id") || undefined;
+  const receiptsCacheDir = readStrictFlagValue(args, "--receipts-cache-dir") || undefined;
+  const receiptsLinkId = readStrictFlagValue(args, "--receipts-link-id") || undefined;
   return {
+    ...(args.includes("--ie-only") ? { ieOnly: true } : {}),
+    ...(args.includes("--refresh-ie") ? { refreshIe: true } : {}),
+    ...(ieCacheDir ? { ieCacheDir } : {}),
+    ...(ieLinkId ? { ieLinkId } : {}),
+    ...(args.includes("--receipts-only") ? {receiptsOnly:true} : {}),
+    ...(args.includes("--refresh-receipts") ? {refreshReceipts:true} : {}),
+    ...(receiptsCacheDir ? {receiptsCacheDir} : {}),
+    ...(receiptsLinkId ? {receiptsLinkId} : {}),
     dryRun: args.includes("--dry-run"),
     force: args.includes("--force"),
     maxCandidates: readStrictPositiveIntegerFlag(args, "--max-candidates"),
@@ -48,7 +73,7 @@ export function parseSyncDueColoradoCandidateFinanceScriptArgs(
     electionLookbackDays: readStrictPositiveIntegerFlag(args, "--lookback-days"),
     electionLookaheadDays: readStrictPositiveIntegerFlag(args, "--lookahead-days"),
     rawCacheDir: readStrictFlagValue(args, "--raw-cache-dir") || undefined,
-    rawZipPath: readStrictFlagValue(args, "--raw-zip") || undefined,
+    rawZipPath: readStrictFlagValue(args, "--raw-zip") || undefined
   };
 }
 
@@ -71,7 +96,7 @@ export function toSyncDueColoradoCandidateFinanceScriptOutput(input: {
     started_at: input.startedAt.toISOString(),
     dry_run: input.options.dryRun,
     force: input.options.force,
-    result: input.result,
+    result: input.result
   };
 }
 
@@ -98,9 +123,27 @@ async function main(): Promise<void> {
       electionLookaheadDays: options.electionLookaheadDays,
       rawDataCacheDir: options.rawCacheDir,
       rawDataZipPath: options.rawZipPath,
+      ieOnly: options.ieOnly,
+      ieCacheDir: options.ieCacheDir,
+      ieLinkId: options.ieLinkId,
+      refreshIe: options.refreshIe,
+      receiptsOnly: options.receiptsOnly,
+      receiptsCacheDir: options.receiptsCacheDir,
+      receiptsLinkId: options.receiptsLinkId,
+      refreshReceipts: options.refreshReceipts
     });
 
-    console.log(JSON.stringify(toSyncDueColoradoCandidateFinanceScriptOutput({ startedAt, options, result }), null, 2));
+    console.log(
+      JSON.stringify(
+        toSyncDueColoradoCandidateFinanceScriptOutput({
+          startedAt,
+          options,
+          result
+        }),
+        null,
+        2
+      )
+    );
   } finally {
     await pool.end();
   }

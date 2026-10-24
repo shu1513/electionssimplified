@@ -1,6 +1,10 @@
+import {overlayColoradoNativeReceipts} from "./coloradoNativeReceiptReader.js";
+import { overlayColoradoReportedIe } from "./coloradoReportedIeReader.js";
 import type { Pool, PoolClient } from "pg";
 
 import { isColoradoCampaignFinanceEnabled } from "../../config/featureFlags.js";
+import { captureError } from "../../observability/sentry.js";
+import { describeError } from "../../observability/scrubText.js";
 import {
   addFinanceBreakdown,
   buildStateFinanceSummaryRequests,
@@ -10,7 +14,7 @@ import {
   type BallotLookupFinanceBreakdown,
   type BallotLookupFinanceSummary,
   type StateFinanceRequestCandidateRow,
-  type StateFinanceRequestElectionRow,
+  type StateFinanceRequestElectionRow
 } from "../address/ballotLookupFinanceShared.js";
 
 const GENERIC_COLORADO_TRACER_SOURCE_URL = "https://tracer.sos.colorado.gov/PublicSite/";
@@ -42,6 +46,35 @@ type ColoradoFinanceDirectBreakdownRow = {
   contributor_count: string | number | null;
   source_url: string | null;
 };
+
+// Each component overlay is fault-isolated: the direct summaries above are
+// already built, so a failing component query (transient DB error, missing
+// migration, lock timeout) must degrade to "no component money" instead of
+// dropping the whole Colorado adapter for this lookup. The overlays mutate
+// `summaries` in place, so returning it keeps every overlay already applied.
+async function overlayColoradoFinanceComponents(
+  db: Queryable,
+  summaries: Map<string, BallotLookupFinanceSummary>,
+  candidates: readonly CandidateRow[],
+  elections: readonly ElectionRow[]
+): Promise<Map<string, BallotLookupFinanceSummary>> {
+  const overlays = [
+    { name: "reported_ie", overlay: overlayColoradoReportedIe },
+    { name: "native_receipts", overlay: overlayColoradoNativeReceipts },
+  ] as const;
+  for (const { name, overlay } of overlays) {
+    try {
+      summaries = await overlay(db, summaries, candidates, elections);
+    } catch (error) {
+      console.warn("Colorado finance component overlay skipped; keeping direct summaries:", {
+        component: name,
+        reason: describeError(error),
+      });
+      captureError(error, { finance_source: "COLORADO_TRACER", finance_component: name });
+    }
+  }
+  return summaries;
+}
 
 export async function loadColoradoCandidateFinanceSummariesByCandidateElection(
   db: Queryable,
@@ -93,12 +126,12 @@ export async function loadColoradoCandidateFinanceSummariesByCandidateElection(
   );
 
   if (summaryResult.rows.length === 0) {
-    return new Map();
+    return overlayColoradoFinanceComponents(db, new Map(), candidateRows, electionRows);
   }
 
   const selectedRequests = summaryResult.rows.map((row) => ({
     candidate_id: row.candidate_id,
-    election_id: row.election_id,
+    election_id: row.election_id
   }));
 
   const directBreakdownResult = await db.query<ColoradoFinanceDirectBreakdownRow>(
@@ -167,41 +200,46 @@ export async function loadColoradoCandidateFinanceSummariesByCandidateElection(
     }
   }
 
-  return new Map(
-    summaryResult.rows.map((row) => {
-      const key = candidateElectionKey(row.candidate_id, row.election_id);
-      const topDirectDonorOccupations = directOccupationsByCandidateElection.get(key) ?? [];
-      return [
-        key,
-        {
-          source: "COLORADO_TRACER",
-          cycle: row.election_year,
-          fec_candidate_id: null,
-          controlled_committee_id: row.committee_id,
-          last_synced_at: row.last_synced_at,
-          direct_campaign: {
-            total_raised: parseFinanceAmount(row.total_receipts),
-            total_spent: null,
-            cash_on_hand: null,
-            debts_owed: null,
-            top_occupations: topDirectDonorOccupations,
-            top_employers: [],
-            top_industries: directIndustriesByCandidateElection.get(key) ?? [],
-          },
-          outside_spending: {
-            support_total: null,
-            oppose_total: null,
-            top_supporting_groups: [],
-            top_opposing_groups: [],
-            top_supporting_industries: [],
-            top_opposing_industries: [],
-          },
-          backing_summary: {
-            top_direct_donor_occupations: topDirectDonorOccupations,
-            top_outside_supporting_industries: [],
-          },
-        } satisfies BallotLookupFinanceSummary,
-      ];
-    })
+  return overlayColoradoFinanceComponents(
+    db,
+    new Map(
+      summaryResult.rows.map((row) => {
+        const key = candidateElectionKey(row.candidate_id, row.election_id);
+        const topDirectDonorOccupations = directOccupationsByCandidateElection.get(key) ?? [];
+        return [
+          key,
+          {
+            source: "COLORADO_TRACER",
+            cycle: row.election_year,
+            fec_candidate_id: null,
+            controlled_committee_id: row.committee_id,
+            last_synced_at: row.last_synced_at,
+            direct_campaign: {
+              total_raised: parseFinanceAmount(row.total_receipts),
+              total_spent: null,
+              cash_on_hand: null,
+              debts_owed: null,
+              top_occupations: topDirectDonorOccupations,
+              top_employers: [],
+              top_industries: directIndustriesByCandidateElection.get(key) ?? []
+            },
+            outside_spending: {
+              support_total: null,
+              oppose_total: null,
+              top_supporting_groups: [],
+              top_opposing_groups: [],
+              top_supporting_industries: [],
+              top_opposing_industries: []
+            },
+            backing_summary: {
+              top_direct_donor_occupations: topDirectDonorOccupations,
+              top_outside_supporting_industries: []
+            }
+          } satisfies BallotLookupFinanceSummary
+        ];
+      })
+    ),
+    candidateRows,
+    electionRows
   );
 }
