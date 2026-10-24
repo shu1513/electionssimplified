@@ -1,5 +1,5 @@
-import { mkdtemp, readFile, rm, writeFile, chmod } from "node:fs/promises";
-import { join } from "node:path";
+import { mkdtemp, readdir, readFile, rm, stat, writeFile, chmod } from "node:fs/promises";
+import { basename, join } from "node:path";
 import { tmpdir } from "node:os";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { WisconsinPublicSourceReader, wisconsinOriginalPath, wisconsinPublicTrpcUrl } from "../../../src/pipeline/wisconsinFinance/wisconsinSunshineArtifactCache.js";
@@ -97,6 +97,20 @@ describe("Wisconsin native public-source acquisition", () => {
     const failed = vi.fn(async () => new Response("Unavailable", { status: 503 })) as unknown as typeof fetch;
     await expect(new WisconsinPublicSourceReader({ cacheDir, allowNetwork: true, refresh: true, fetchImpl: failed }).trpc(countProcedure, filter, "count")).rejects.toThrow("source_status");
     expect(await readFile(wisconsinOriginalPath(cacheDir, "count", url), "utf8")).toBe(before);
+    expect(await new WisconsinPublicSourceReader({ cacheDir }).trpc(countProcedure, filter, "count")).toBe(147);
+  });
+  it("never saves an accepted-status page that is not the API, on a miss or over a usable original", async () => {
+    const cacheDir = await cache(), url = wisconsinPublicTrpcUrl(countProcedure, filter), path = wisconsinOriginalPath(cacheDir, "count", url);
+    const challenge = vi.fn(async () => new Response("<html>Checking your browser</html>", { headers: { "content-type": "text/html" } })) as unknown as typeof fetch;
+    await expect(new WisconsinPublicSourceReader({ cacheDir, allowNetwork: true, fetchImpl: challenge }).trpc(countProcedure, filter, "count")).rejects.toThrow("source_json");
+    await expect(stat(path)).rejects.toMatchObject({ code: "ENOENT" });
+    expect(await new WisconsinPublicSourceReader({ cacheDir, allowNetwork: true, fetchImpl: nativeApi() }).trpc(countProcedure, filter, "count")).toBe(147);
+    const before = await readFile(path, "utf8");
+    await expect(new WisconsinPublicSourceReader({ cacheDir, allowNetwork: true, refresh: true, fetchImpl: challenge }).trpc(countProcedure, filter, "count")).rejects.toThrow("source_json");
+    const apiError = vi.fn(async () => new Response(JSON.stringify([{ error: { json: { message: "UNAUTHORIZED" } } }]), { headers: { "content-type": "application/json" } })) as unknown as typeof fetch;
+    await expect(new WisconsinPublicSourceReader({ cacheDir, allowNetwork: true, refresh: true, fetchImpl: apiError }).trpc(countProcedure, filter, "count")).rejects.toThrow("source_api_error");
+    expect(await readFile(path, "utf8")).toBe(before);
+    expect(await readdir(cacheDir)).toEqual([basename(path)]);
     expect(await new WisconsinPublicSourceReader({ cacheDir }).trpc(countProcedure, filter, "count")).toBe(147);
   });
   it("rejects edited body hashes and future cache clocks", async () => {

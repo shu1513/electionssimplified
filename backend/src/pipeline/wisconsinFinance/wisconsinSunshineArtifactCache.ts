@@ -80,7 +80,17 @@ function validateOriginal(value: unknown, url: string, phase: string): Original 
     "original_headers");
   return value as Original;
 }
-/** Cached bodies remain exact UTF-8 HTTP originals. A refresh never grants network access. */
+function trpcResult(body: string): unknown {
+  const payload = json(body);
+  wisconsinSourceCheck(Array.isArray(payload) && payload.length === 1 && record(payload[0]) && !payload[0].error, "source_api_error");
+  const result = payload[0].result;
+  wisconsinSourceCheck(record(result) && record(result.data) && "json" in result.data, "source_api_shape");
+  return result.data.json;
+}
+/**
+ * Cached bodies remain exact UTF-8 HTTP originals. A refresh never grants network access.
+ * Only a body that `accept` admits is saved, so a challenge page or malformed response never replaces a usable original.
+ */
 export class WisconsinPublicSourceReader {
   private observed: string[] = [];
   constructor(private readonly options: WisconsinPublicSourceOptions) {}
@@ -88,56 +98,52 @@ export class WisconsinPublicSourceReader {
     wisconsinSourceCheck(this.observed.length > 0, "missing_observation");
     return [...this.observed].sort()[0]!;
   }
-  async read(rawUrl: string, phase: string): Promise<string> {
+  /** `accept` parses a body; it runs before a fetched body can replace the saved original. */
+  async read<T>(rawUrl: string, phase: string, accept: (body: string) => T): Promise<T> {
     const url = sourceUrl(rawUrl), path = wisconsinOriginalPath(this.options.cacheDir, phase, url);
-    let original: Original | undefined;
     if (!this.options.refresh) {
       try {
         wisconsinSourceCheck(((await stat(path)).mode & 0o077) === 0, "original_permissions");
-        original = validateOriginal(json(await readFile(path, "utf8")), url, phase);
+        const original = validateOriginal(json(await readFile(path, "utf8")), url, phase), value = accept(original.body);
+        this.observed.push(original.observedAt); return value;
       } catch (e) { if ((e as NodeJS.ErrnoException).code !== "ENOENT") throw e; }
     }
-    if (!original) {
-      wisconsinSourceCheck(this.options.allowNetwork === true, this.options.refresh ? "network_refresh_not_allowed" : "saved_original_missing");
-      const startedAt = new Date().toISOString(), controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), this.options.timeoutMs ?? 30_000);
+    wisconsinSourceCheck(this.options.allowNetwork === true, this.options.refresh ? "network_refresh_not_allowed" : "saved_original_missing");
+    const startedAt = new Date().toISOString(), controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), this.options.timeoutMs ?? 30_000);
+    try {
+      const response = await (this.options.fetchImpl ?? fetch)(url, {
+        redirect: "error", credentials: "omit", headers: { accept: "application/json,text/html;q=0.9" }, signal: controller.signal,
+      });
+      if (response.status !== 200) { await response.body?.cancel(); wisconsinSourceCheck(false, "source_status"); }
+      wisconsinSourceCheck(response.body, "source_body_missing");
+      const reader = response.body.getReader(), chunks: Uint8Array[] = []; let bytes = 0;
       try {
-        const response = await (this.options.fetchImpl ?? fetch)(url, {
-          redirect: "error", credentials: "omit", headers: { accept: "application/json,text/html;q=0.9" }, signal: controller.signal,
-        });
-        if (response.status !== 200) { await response.body?.cancel(); wisconsinSourceCheck(false, "source_status"); }
-        wisconsinSourceCheck(response.body, "source_body_missing");
-        const reader = response.body.getReader(), chunks: Uint8Array[] = []; let bytes = 0;
-        try {
-          for (;;) {
-            const part = await reader.read(); if (part.done) break;
-            bytes += part.value.byteLength;
-            wisconsinSourceCheck(bytes <= MAX_BODY_BYTES, "source_body_bound"); chunks.push(part.value);
-          }
-        } catch (e) { await reader.cancel().catch(() => {}); throw e; }
-        finally { reader.releaseLock(); }
-        const body = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(Buffer.concat(chunks));
-        original = validateOriginal({ url, phase, httpStatus: response.status, eof: true, startedAt,
-          observedAt: new Date().toISOString(), serverDate: response.headers.get("date"),
-          contentType: response.headers.get("content-type") ?? "", body, sha256: hash(body) }, url, phase);
-        await mkdir(this.options.cacheDir, { recursive: true, mode: 0o700 });
-        wisconsinSourceCheck(((await stat(this.options.cacheDir)).mode & 0o077) === 0, "cache_permissions");
-        const temporary = `${path}.${randomUUID()}.tmp`;
-        await writeFile(temporary, `${JSON.stringify(original)}\n`, { mode: 0o600, flag: "wx" });
-        await rename(temporary, path);
-      } catch (e) {
-        if (e instanceof Error && /^Wisconsin reported finance held: [a-z_]+$/.test(e.message)) throw e;
-        throw new Error("Wisconsin reported finance held: source_read_failed");
-      } finally { clearTimeout(timer); }
-    }
-    this.observed.push(original.observedAt); return original.body;
+        for (;;) {
+          const part = await reader.read(); if (part.done) break;
+          bytes += part.value.byteLength;
+          wisconsinSourceCheck(bytes <= MAX_BODY_BYTES, "source_body_bound"); chunks.push(part.value);
+        }
+      } catch (e) { await reader.cancel().catch(() => {}); throw e; }
+      finally { reader.releaseLock(); }
+      const body = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(Buffer.concat(chunks));
+      const original = validateOriginal({ url, phase, httpStatus: response.status, eof: true, startedAt,
+        observedAt: new Date().toISOString(), serverDate: response.headers.get("date"),
+        contentType: response.headers.get("content-type") ?? "", body, sha256: hash(body) }, url, phase);
+      const value = accept(body);
+      await mkdir(this.options.cacheDir, { recursive: true, mode: 0o700 });
+      wisconsinSourceCheck(((await stat(this.options.cacheDir)).mode & 0o077) === 0, "cache_permissions");
+      const temporary = `${path}.${randomUUID()}.tmp`;
+      await writeFile(temporary, `${JSON.stringify(original)}\n`, { mode: 0o600, flag: "wx" });
+      await rename(temporary, path);
+      this.observed.push(original.observedAt); return value;
+    } catch (e) {
+      if (e instanceof Error && /^Wisconsin reported finance held: [a-z_]+$/.test(e.message)) throw e;
+      throw new Error("Wisconsin reported finance held: source_read_failed");
+    } finally { clearTimeout(timer); }
   }
   async trpc(procedure: string, input: RecordValue, phase: string): Promise<unknown> {
-    const body = await this.read(wisconsinPublicTrpcUrl(procedure, input), phase), payload: unknown = json(body);
-    wisconsinSourceCheck(Array.isArray(payload) && payload.length === 1 && record(payload[0]) && !payload[0].error, "source_api_error");
-    const result = payload[0].result;
-    wisconsinSourceCheck(record(result) && record(result.data) && "json" in result.data, "source_api_shape");
-    return result.data.json;
+    return this.read(wisconsinPublicTrpcUrl(procedure, input), phase, trpcResult);
   }
   /** Two full scans, exact source counts and an empty terminal; display limits never enter acquisition. */
   async closedRows(procedure: string, countProcedure: string, filter: RecordValue, phase: string,

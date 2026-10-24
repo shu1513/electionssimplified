@@ -187,7 +187,7 @@ export async function loadWisconsinCommitteeCashPacket(context: WisconsinCashCon
     else if (type === "COMMITTEE") {
       check(!hasOccupation && /\b(PAC|POLITICAL ACTION COMMITTEE|POLITICAL COMMITTEE)\b/i.test(payerName), "registrant_class_unqualified");
       const url = `${ORIGIN}/browse-data/registrant/${key}`;
-      profileConfirmsReportedPac(await reader.read(url, "donor-profile"), url, payerName); evidence = "reported_pac_name";
+      await reader.read(url, "donor-profile", body => profileConfirmsReportedPac(body, url, payerName)); evidence = "reported_pac_name";
     }
     classifications.set(key, evidence); return evidence;
   };
