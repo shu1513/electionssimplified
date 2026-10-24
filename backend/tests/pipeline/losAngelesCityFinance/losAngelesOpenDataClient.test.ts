@@ -15,6 +15,7 @@ describe("Los Angeles Open Data client", () => {
         new Response(
           JSON.stringify([
             {
+              source_row_id: "row-1",
               cmt_id: "1471359",
               cmt_nm: "Bass",
               schedule: "A",
@@ -47,14 +48,16 @@ describe("Los Angeles Open Data client", () => {
       new Response(
         JSON.stringify([
           {
-            cmt_id: "1471359",
+            source_row_id: "row-2",
+              cmt_id: "1471359",
             cmt_nm: "Committee",
             schedule: "A",
             con_amount: "10.00",
             election_date: "2026-06-02T00:00:00.000",
           },
           {
-            cmt_id: "1471359",
+            source_row_id: "row-3",
+              cmt_id: "1471359",
             cmt_nm: "Committee",
             schedule: "A",
             con_amount: "20.00",
@@ -78,7 +81,8 @@ describe("Los Angeles Open Data client", () => {
       new Response(
         JSON.stringify([
           {
-            cmt_id: "1471359",
+            source_row_id: "row-4",
+              cmt_id: "1471359",
             cmt_nm: "Committee",
             schedule: "A",
             con_amount: "10.00",
@@ -95,4 +99,16 @@ describe("Los Angeles Open Data client", () => {
       "returned contributions without a source election date in 2026",
     );
   });
+});
+
+it.each(["duplicate","foreign","missing id","malformed","invalid object"])("holds %s published ledger rows", async kind => {
+ const row={source_row_id:"row-one",cmt_id:"1471359",cmt_nm:"Example Committee",schedule:"A",con_amount:"10",election_date:"2026-06-02T00:00:00.000"};
+ let rows: unknown[]=[row];
+ if(kind==="duplicate")rows=[row,{...row}]; if(kind==="foreign")row.cmt_id="1480000"; if(kind==="missing id")row.source_row_id=""; if(kind==="malformed")row.con_amount=""; if(kind==="invalid object")rows=[null];
+ await expect(getLosAngelesCommitteeContributions({committeeId:"1471359",electionYear:2026},{fetchImpl:vi.fn().mockResolvedValue(new Response(JSON.stringify(rows)))})).rejects.toThrow();
+});
+
+it("does not turn a malformed disclosed repayment into zero", async () => {
+ const rows=[{source_row_id:"row-one",cmt_id:"1471359",cmt_nm:"Example Committee",schedule:"B",con_amount:"100",con_amount_pd_forgiven:"invalid",election_date:"2026-06-02T00:00:00.000"}];
+ await expect(getLosAngelesCommitteeContributions({committeeId:"1471359",electionYear:2026},{fetchImpl:vi.fn().mockResolvedValue(new Response(JSON.stringify(rows)))})).rejects.toThrow(/invalid/);
 });

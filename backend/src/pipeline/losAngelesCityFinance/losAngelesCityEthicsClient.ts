@@ -22,6 +22,9 @@ export type LosAngelesEthicsCandidateTotal = {
   officeName: string;
   reportedThrough: string | null;
   fppcCommitteeId: string;
+  /** Complete source-controlled scope; singular id remains a stable link anchor. */
+  fppcCommitteeIds?: readonly string[];
+  sourceElectionDates?: readonly string[];
   committeeName: string;
   internalCommitteePersonId: string | null;
   totalContributions: number;
@@ -244,6 +247,16 @@ export function parseLosAngelesEthicsCandidateTotals(input: {
     throw new Error(
       `Los Angeles Ethics ${input.officeName} section contains no candidates`,
     );
+  const calendarText = decodeHtml(input.html);
+  const sourceElectionDates = ["Primary", "General"].flatMap(phase => {
+    const match = new RegExp(`${phase} Election:\\s*([A-Za-z]+)\\s+(\\d{1,2}),\\s*(20\\d{2})`, "i").exec(calendarText);
+    if (!match) return [];
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const month = months.findIndex(value => value.toLowerCase() === match[1]!.toLowerCase()) + 1;
+    if (!month) return [];
+    const date = `${match[3]}-${String(month).padStart(2,"0")}-${match[2]!.padStart(2,"0")}`;
+    return Number.isFinite(Date.parse(date)) && new Date(date).toISOString().slice(0,10) === date ? [date] : [];
+  });
   const results: LosAngelesEthicsCandidateTotal[] = [];
   for (let index = 0; index < anchors.length; index += 1) {
     const anchor = anchors[index]!;
@@ -268,11 +281,21 @@ export function parseLosAngelesEthicsCandidateTotals(input: {
         ),
       ),
     ];
+    const detailRows = [...block.matchAll(new RegExp(
+      `<tr\\b[^>]*\\bclass=["']C${anchor[1]}_detail\\b[^"']*["'][^>]*>[\\s\\S]*?<\\/tr>`, "gi",
+    ))].map(match => match[0]);
+    const targetIds = new Set([...block.matchAll(/elec_seat_cand_id=(\d+)/gi)].map(match => match[1]!));
+    // Current runoff pages combine explicitly labeled Primary and General
+    // accounts. Accept only this verified pair under the same candidate and
+    // one native IE target; other multi-committee shapes stay unresolved.
+    const verifiedPair = committeeIds.length === 2 && sourceElectionDates.length === 2 && sourceElectionDates[0]! < sourceElectionDates[1]! &&
+      sourceElectionDates[0]!.slice(0,4) === sourceElectionDates[1]!.slice(0,4) &&
+      targetIds.size === 1 && committeeIds.every(id => detailRows.some(row => new RegExp(`(?:^|>)\\s*${id}\\s*-`, "m").test(row)));
     if (
       !candidateName ||
       !seatCandidateId ||
       !committee ||
-      committeeIds.length !== 1
+      (committeeIds.length !== 1 && !verifiedPair)
     )
       continue;
     let totals: CandidateMetricTotals;
@@ -291,6 +314,9 @@ export function parseLosAngelesEthicsCandidateTotals(input: {
         main,
       )?.[1] ?? "",
     );
+    committeeIds.sort();
+    const anchorCommittee = new RegExp(`(?:^|>)\\s*${committeeIds[0]}\\s*-\\s*([^<\\r\\n]+)`, "im").exec(block);
+    if (!anchorCommittee) continue;
     results.push({
       electionId: input.electionId,
       electionSeatId: officeAnchor[1],
@@ -300,8 +326,10 @@ export function parseLosAngelesEthicsCandidateTotals(input: {
       officeName: input.officeName,
       reportedThrough: reported,
       fppcCommitteeId: committeeIds[0]!,
-      committeeName: decodeHtml(committee[2] ?? ""),
-      internalCommitteePersonId: /\bcmt_per_id=(\d+)/i.exec(block)?.[1] ?? null,
+      fppcCommitteeIds: committeeIds,
+      sourceElectionDates: sourceElectionDates.length === 2 ? sourceElectionDates : undefined,
+      committeeName: decodeHtml(anchorCommittee[1] ?? ""),
+      internalCommitteePersonId: committee[1] === committeeIds[0] ? /\bcmt_per_id=(\d+)/i.exec(block)?.[1] ?? null : null,
       totalContributions: totals[0],
       totalExpenditures: totals[1],
       cashOnHand: totals[2],

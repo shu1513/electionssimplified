@@ -156,3 +156,24 @@ describe("Los Angeles Ethics parsers", () => {
     });
   });
 });
+
+const sourceCalendar = '<table><tr><td><strong>Primary Election:</strong></td><td>June 02, 2026</td></tr><tr><td><strong>General Election:</strong></td><td>November 03, 2026</td></tr></table>';
+const pairedFixture = sourceCalendar + fixture.replace("1471359 - Re-Elect", "<span>Primary</span>1471359 - Re-Elect").replace("</tbody>", '<tr class="C172_detail"><td><span>General</span>1480000 - Example General Committee</td></tr></tbody>');
+it("retains an explicitly paired receiving scope under one source candidate and target", () => {
+ const [row] = parseLosAngelesEthicsCandidateTotals({html:pairedFixture,electionId:"76",officeName:"Mayor"});
+ expect(row?.fppcCommitteeIds).toEqual(["1471359","1480000"]); expect(row?.fppcCommitteeId).toBe("1471359");
+});
+it.each(["phase","target","ownership","third"])("holds an unqualified multiple-committee %s shape", kind => {
+ let html=pairedFixture;
+ if(kind==="phase")html=html.replace("General Election:","Other Election:");
+ if(kind==="target")html=html.replace("<span>General",'<a href="?elec_seat_cand_id=1510">other</a><span>General');
+ if(kind==="ownership")html=html.replace('<tr class="C172_detail"><td><span>General','<tr class="C999_detail"><td><span>General');
+ if(kind==="third")html=html.replace("</tbody>",'<tr class="C172_detail"><td>1490000 - Third Committee</td></tr></tbody>');
+ expect(parseLosAngelesEthicsCandidateTotals({html,electionId:"76",officeName:"Mayor"})).toEqual([]);
+});
+
+it("keeps a stable sorted anchor without attributing another account's internal contact id", () => {
+ const html=pairedFixture.replace("1471359 - Re-Elect","1490000 - Re-Elect");
+ const [row]=parseLosAngelesEthicsCandidateTotals({html,electionId:"76",officeName:"Mayor"});
+ expect(row?.fppcCommitteeIds).toEqual(["1480000","1490000"]);expect(row?.committeeName).toBe("Example General Committee");expect(row?.internalCommitteePersonId).toBeNull();
+});

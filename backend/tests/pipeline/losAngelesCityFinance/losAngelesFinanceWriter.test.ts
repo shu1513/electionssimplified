@@ -375,3 +375,24 @@ describe("Los Angeles finance writer", () => {
     }
   });
 });
+
+const cash = { donors:[{committeeKey:"EXAMPLE PAC",committeeName:"Example PAC",amountCents:10001,contributionCount:1}],amountCents:10001,contributionCount:1,reportedThrough:"2026-10-17",receivingCommitteeIds:["1471359"] };
+const cashInput = {link:AUTOMATIC_LINK,summary:{totalReceipts:100.01,totalDisbursements:0,cashOnHand:100.01,matchingFunds:0,outsideSupportTotal:0,outsideOpposeTotal:0,membershipSupportTotal:0,membershipOpposeTotal:0,sourceUrl:null,reportedThrough:"2026-10-17"},directBreakdowns:[],outsideGroups:[]};
+describe("Los Angeles atomic committee cash", () => {
+ it("commits exact cents, source scope and all donor groups in one transaction", async () => {
+  const query=queryMock(),db={connect:vi.fn().mockResolvedValue({query,release:vi.fn()})};await replaceLosAngelesCandidateFinanceSnapshot({...cashInput,db:db as never,reportedCommitteeCash:cash});
+  expect(query.mock.calls.at(-1)?.[0]).toBe("COMMIT");const linkCall=query.mock.calls.find(c=>String(c[0]).startsWith("INSERT INTO public.lacity_candidate_finance_links"));expect(linkCall?.[1]).toHaveLength(17);expect(String(linkCall?.[0])).toContain("$17::text[]");expect(linkCall?.[1]?.at(-1)).toEqual(["1471359"]);
+  expect(query.mock.calls.find(c=>String(c[0]).startsWith("INSERT INTO public.lacity_candidate_finance_pac_donors"))?.[1]).toContain("10001");
+ });
+ it("omission leaves prior donor evidence untouched", async () => {
+  const query=queryMock(),db={connect:vi.fn().mockResolvedValue({query,release:vi.fn()})};await replaceLosAngelesCandidateFinanceSnapshot({...cashInput,db:db as never});expect(query.mock.calls.some(c=>String(c[0]).includes("finance_pac_"))).toBe(false);
+ });
+ it.each(["amount","count","duplicate","scope","date"])("rejects invalid %s evidence before connecting", async kind => {
+  const value=structuredClone(cash);if(kind==="amount")value.amountCents++;if(kind==="count")value.contributionCount++;if(kind==="duplicate")value.donors.push({...value.donors[0]!});if(kind==="scope")value.receivingCommitteeIds=["1480000"];if(kind==="date")value.reportedThrough="2026-02-30";
+  const db={connect:vi.fn()};await expect(replaceLosAngelesCandidateFinanceSnapshot({...cashInput,db:db as never,reportedCommitteeCash:value})).rejects.toThrow();expect(db.connect).not.toHaveBeenCalled();
+ });
+ it("serializes the link and rejects a newer stored clock before money writes", async () => {
+  const query=queryMock(sql=>sql.includes("observed_at >")?{rows:[{newer:true}]}:null),db={connect:vi.fn().mockResolvedValue({query,release:vi.fn()})};await expect(replaceLosAngelesCandidateFinanceSnapshot({...cashInput,db:db as never,reportedCommitteeCash:cash})).rejects.toThrow(/older/);
+  const calls=query.mock.calls.map(c=>String(c[0]));expect(calls.at(-1)).toBe("ROLLBACK");expect(calls.findIndex(c=>c.includes("links WHERE id=$1::uuid FOR UPDATE"))).toBeLessThan(calls.findIndex(c=>c.includes("observed_at >")));expect(calls.some(c=>c.startsWith("INSERT INTO public.lacity_candidate_finance_summaries"))).toBe(false);
+ });
+});

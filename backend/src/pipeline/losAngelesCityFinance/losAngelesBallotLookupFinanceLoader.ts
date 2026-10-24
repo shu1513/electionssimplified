@@ -1,5 +1,6 @@
+import { appendLosAngelesReportedCommitteeCash } from "./losAngelesReportedCommitteeCashBallotSummary.js";
 import type { Pool, PoolClient } from "pg";
-import { isLosAngelesCityCampaignFinanceEnabled } from "../../config/featureFlags.js";
+import { isLosAngelesCityCampaignFinanceEnabled, isLosAngelesReportedCommitteeCashEnabled } from "../../config/featureFlags.js";
 import {
   buildStateFinanceSummaryRequests,
   candidateElectionKey,
@@ -27,6 +28,7 @@ type SummaryRow = {
   candidate_id: string;
   election_id: string;
   fppc_committee_id: string;
+  fppc_committee_ids?: string[] | null;
   election_year: number;
   total_receipts: string | number | null;
   total_disbursements: string | number | null;
@@ -67,6 +69,7 @@ export async function loadLosAngelesCandidateFinanceSummariesByCandidateElection
         requested.candidate_id::text candidate_id,
         requested.election_id::text election_id,
         link.fppc_committee_id,
+        link.fppc_committee_ids,
         summary.election_year,
         summary.total_receipts,
         summary.total_disbursements,
@@ -197,7 +200,7 @@ export async function loadLosAngelesCandidateFinanceSummariesByCandidateElection
     });
     groups.set(key, list);
   }
-  return new Map(
+  const result = new Map(
     summaries.rows.map((row) => {
       const key = candidateElectionKey(row.candidate_id, row.election_id);
       const byType = maps.get(key) ?? new Map();
@@ -212,6 +215,7 @@ export async function loadLosAngelesCandidateFinanceSummariesByCandidateElection
           last_synced_at: row.last_synced_at,
           direct_campaign: {
             total_raised: parseFinanceAmount(row.total_receipts),
+            direct_coverage_note: (row.fppc_committee_ids?.length ?? 1) > 1 ? "City Ethics totals combine the candidate’s primary and general controlled committees for this election year. Raised excludes public matching funds; membership communications are separate." : undefined,
             total_spent: parseFinanceAmount(row.total_disbursements),
             cash_on_hand: parseFinanceAmount(row.cash_on_hand),
             debts_owed: null,
@@ -239,4 +243,6 @@ export async function loadLosAngelesCandidateFinanceSummariesByCandidateElection
       ] as const;
     }),
   );
+  if (isLosAngelesReportedCommitteeCashEnabled()) await appendLosAngelesReportedCommitteeCash(db,result);
+  return result;
 }
