@@ -1,5 +1,4 @@
-import { useImperativeHandle, useRef } from "react";
-import type { Ref } from "react";
+import { useRef } from "react";
 import type { AddressLocation, AddressSuggestion } from "@voteapp/api-client";
 import { useAddressSuggestions } from "@voteapp/api-client";
 import { Pressable, Text, TextInput, View } from "react-native";
@@ -10,16 +9,7 @@ import { Pressable, Text, TextInput, View } from "react-native";
 // failing must never block the form: the input stays a plain controlled text
 // field and the suggestion list simply disappears.
 
-/** Imperative handle for the owning screen: call closeSession() when Search
- * or Save is pressed so a typed-then-submitted entry ends its Google session
- * (billing: one completed session instead of one charge per keystroke). A
- * no-op when nothing was typed or a suggestion was already picked. */
-export type AddressAutocompleteHandle = {
-  closeSession: () => void;
-};
-
 type AddressAutocompleteProps = {
-  ref?: Ref<AddressAutocompleteHandle>;
   value: string;
   /** location is set only when the value came from a completed dropdown
    * selection; every keystroke or fallback call passes it as undefined, so
@@ -44,16 +34,14 @@ type AddressAutocompleteProps = {
 };
 
 export function AddressAutocomplete({
-  ref,
   value,
   onChange,
   onRetrievePendingChange,
   placeholder,
   accessibilityLabel = "Your address",
 }: AddressAutocompleteProps) {
-  const { suggestions, enabled, onInputChanged, selectSuggestion, clearSuggestions, warmup, closeSession } =
+  const { suggestions, enabled, onInputChanged, selectSuggestion, clearSuggestions, warmup } =
     useAddressSuggestions();
-  useImperativeHandle(ref, () => ({ closeSession }), [closeSession]);
 
   // Overlapping selections each hold and release the pending flag; a count
   // keeps an earlier release from unfreezing Search while a later retrieve

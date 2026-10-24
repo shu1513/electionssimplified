@@ -2,10 +2,9 @@ import type { AddressLocation, AddressResolution } from "@voteapp/api-client";
 import { apiRequest, TERMS_VERSION, useMe } from "@voteapp/api-client";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from "react-native";
 import { AddressAutocomplete } from "../../components/AddressAutocomplete";
-import type { AddressAutocompleteHandle } from "../../components/AddressAutocomplete";
 import { FullAddressExplanation } from "../../components/FullAddressExplanation";
 import { ErrorNotice } from "../../components/Status";
 import { useLogout } from "../../lib/auth";
@@ -170,13 +169,7 @@ export default function HomeScreen() {
     !regionUnsupported &&
     !retrievePending;
 
-  // Lets Search end the Google autocomplete session (billing; see the handle).
-  const autocompleteRef = useRef<AddressAutocompleteHandle>(null);
-
   function onSearchPress() {
-    // Typed-then-searched entries: end the Google session so the keystrokes
-    // bill as one completed session, not one charge each. No-op after a pick.
-    autocompleteRef.current?.closeSession();
     if (!canSearch) {
       return;
     }
@@ -217,7 +210,6 @@ export default function HomeScreen() {
               ):
             </Text>
             <AddressAutocomplete
-              ref={autocompleteRef}
               value={address}
               onChange={(value, location, granularity, region) => {
                 setAddress(value);

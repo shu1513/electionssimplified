@@ -1,11 +1,10 @@
 import type { AddressLocation, BallotSummary } from "@voteapp/api-client";
 import { ADDRESS_FIELD_PRIVACY_NOTE, apiRequest } from "@voteapp/api-client";
 import { useIsMutating, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { registerForPushRequestingPermission } from "../lib/pushNotifications";
 import { AddressAutocomplete } from "./AddressAutocomplete";
-import type { AddressAutocompleteHandle } from "./AddressAutocomplete";
 import { ErrorNotice } from "./Status";
 
 type SavedBallot = BallotSummary & { matched_address?: string; address_match_count?: number };
@@ -25,8 +24,6 @@ export function SavedAddressForm({ label }: { label: string }) {
   // True while a picked suggestion's retrieve is in flight; Save holds so
   // the coordinates land before the bare string is submitted.
   const [retrievePending, setRetrievePending] = useState(false);
-  // Lets Save end the Google autocomplete session (billing; see the handle).
-  const autocompleteRef = useRef<AddressAutocompleteHandle>(null);
   const queryClient = useQueryClient();
 
   const update = useMutation({
@@ -81,7 +78,6 @@ export function SavedAddressForm({ label }: { label: string }) {
       <View>
         <Text className="text-sm font-medium text-ink">{label}</Text>
         <AddressAutocomplete
-          ref={autocompleteRef}
           value={address}
           onChange={onAddressChange}
           onRetrievePendingChange={setRetrievePending}
@@ -92,9 +88,6 @@ export function SavedAddressForm({ label }: { label: string }) {
       <Pressable
         disabled={!canSave}
         onPress={() => {
-          // Typed-then-saved entries: end the Google session so the
-          // keystrokes bill as one completed session. No-op after a pick.
-          autocompleteRef.current?.closeSession();
           // `saving` is from the last render; re-check the mutation cache so
           // a tap landing before the disabling re-render cannot start a
           // second overlapping PUT.

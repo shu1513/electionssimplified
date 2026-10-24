@@ -1,10 +1,9 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import { useIsMutating, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ADDRESS_FIELD_PRIVACY_NOTE, apiRequest } from "@voteapp/api-client";
 import type { AddressLocation, BallotSummary } from "@voteapp/api-client";
 import { AddressAutocomplete } from "./AddressAutocomplete";
-import type { AddressAutocompleteHandle } from "./AddressAutocomplete";
 import { ErrorNotice } from "./Status";
 
 type AddressSaveResult = BallotSummary & { matched_address?: string; address_match_count?: number };
@@ -89,16 +88,10 @@ export function SavedAddressForm({ inputId, label }: { inputId: string; label: s
     setAddressLocation(location ?? null);
   }
 
-  // Lets submit end the Google autocomplete session (billing; see the handle).
-  const autocompleteRef = useRef<AddressAutocompleteHandle>(null);
-
   return (
     <form
       onSubmit={(event) => {
         event.preventDefault();
-        // Typed-then-saved entries: end the Google session so the keystrokes
-        // bill as one completed session. No-op after a pick.
-        autocompleteRef.current?.closeSession();
         // `saving` is from the last render; re-check the mutation cache so a
         // submit landing before the disabling re-render cannot start a
         // second overlapping PUT.
@@ -114,7 +107,6 @@ export function SavedAddressForm({ inputId, label }: { inputId: string; label: s
           {label}
         </label>
         <AddressAutocomplete
-          ref={autocompleteRef}
           inputId={inputId}
           value={address}
           onChange={onAddressChange}

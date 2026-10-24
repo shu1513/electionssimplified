@@ -4,7 +4,6 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest, TERMS_VERSION, useMe } from "@voteapp/api-client";
 import type { AddressLocation, AddressResolution } from "@voteapp/api-client";
 import { AddressAutocomplete } from "./AddressAutocomplete";
-import type { AddressAutocompleteHandle } from "./AddressAutocomplete";
 import { FullAddressExplanation } from "./FullAddressExplanation";
 import { ErrorNotice } from "./Status";
 import { clearPendingDistrictIds, savePendingDistrictIds } from "../lib/pendingDistricts";
@@ -103,8 +102,6 @@ export function AddressSearchForm({
   // suggestion. Refs — none of it renders.
   const inputTracked = useRef(false);
   const lastGranularity = useRef<"address" | "zip" | "region" | "unsupported" | null>(null);
-  // Lets submit end the Google autocomplete session (billing; see the handle).
-  const autocompleteRef = useRef<AddressAutocompleteHandle>(null);
 
   // Google-style stray-typing catch: a click on empty page space moves focus
   // off the address box, and the next keystrokes would silently go nowhere.
@@ -266,9 +263,6 @@ export function AddressSearchForm({
 
   function onSubmit(event: React.FormEvent) {
     event.preventDefault();
-    // Typed-then-searched entries: end the Google session so the keystrokes
-    // bill as one completed session, not one charge each. No-op after a pick.
-    autocompleteRef.current?.closeSession();
     if (!canSearch) {
       return;
     }
@@ -309,7 +303,6 @@ export function AddressSearchForm({
               </span>
             </div>
             <AddressAutocomplete
-              ref={autocompleteRef}
               inputId="address"
               value={address}
               onChange={(value, location, granularity, region) => {
