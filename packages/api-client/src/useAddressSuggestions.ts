@@ -16,7 +16,13 @@ import type { AddressAutocompleteResponse, AddressLocation, AddressRetrieveRespo
 // - Any failure hides the dropdown and never blocks manual entry; the
 //   "not configured" 500 disables autocomplete for the session.
 
-export const SUGGEST_DEBOUNCE_MS = 125;
+// 300 ms, up from 125 on 2026-10-24: every suggest request is billed (see
+// docs/address-autocomplete-frontend.md), and 125 ms sat under the average
+// gap between keystrokes (~230 ms keyboard, ~330 ms phone), so most letters
+// fired their own request. 300 ms merges a burst into one request and still
+// updates the dropdown at every natural pause. The candidate search box has
+// used 275 ms without complaint.
+export const SUGGEST_DEBOUNCE_MS = 300;
 export const SUGGEST_MIN_CHARS = 3;
 
 export type SelectedSuggestion = {

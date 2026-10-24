@@ -73,27 +73,50 @@ Response `200`:
 ## Session token lifecycle (billing-relevant)
 
 How Google bills under the Maps Platform pricing in force since March 2025
-(checked against Google's price list on 2026-09-25):
+(checked against Google's SKU details page on 2026-10-24; the earlier version
+of this section had the session rule wrong — see the correction below):
 
-- A session that ends in a Place Details retrieve bills **nothing** for its
-  autocomplete requests. The Autocomplete Session Usage SKU is free with no
-  monthly limit. The terminating Place Details Essentials request is billed:
-  10,000 free per month, then $5 per 1,000. Our retrieve field mask
-  (`formattedAddress,location,types,addressComponents`) stays in the
-  Essentials tier; adding Pro or Enterprise fields would raise the price.
-- An abandoned entry (the user never picks a suggestion, so no retrieve
-  terminates the session) bills **every** suggest request under the
-  Autocomplete Requests SKU: 10,000 free per month, then $2.83 per 1,000.
-- Requests with no session token, or with a reused token, bill the same way
-  as an abandoned entry.
+- Every Autocomplete (New) request bills under the Autocomplete Requests SKU
+  (10,000 free per month, then $2.83 per 1,000) **unless** it is the 13th or
+  later request of a session that ends in a Place Details Essentials
+  retrieve. Only those later requests move to the free Autocomplete Session
+  Usage SKU. Google's wording: "If the session ends with a Place Details
+  Essentials request, the first 12 Autocomplete requests are billed at SKU:
+  Autocomplete Requests. All subsequent Autocomplete requests are billed at
+  SKU: Autocomplete Session Usage."
+- Our retrieve field mask (`formattedAddress,location,types,addressComponents`)
+  stays in the Place Details Essentials tier: 10,000 free per month, then $5
+  per 1,000.
+- Ending a session with a Place Details call that requests any Pro,
+  Enterprise, or Enterprise + Atmosphere field bills that call at the
+  Enterprise + Atmosphere rate ($25 per 1,000, 1,000 free per month) no
+  matter which of those fields it asked for (Google's SKU details). That is
+  more than the ~7 billed suggest requests per retrieve cost (~$0.02), so a pricier
+  terminating call never pays for itself; we stay on Essentials.
+- Abandoned entries, requests without a session token, and reused tokens
+  bill every request under Autocomplete Requests — the same as above for any
+  entry shorter than 13 requests.
 
-So a completed entry costs one Place Details call, and abandoned entries are
-the cost driver. Overage is pay-as-you-go on the linked Google Cloud billing
-account; service never stops at the free tier unless a daily cap is set under
-the project's Places API (New) quotas.
+So at a typical 5–12 keystrokes per entry, sessions change nothing: the bill
+is the number of suggest requests. The levers are fewer requests per entry
+(debounce, minimum characters) and traffic. Overage is pay-as-you-go on the
+linked Google Cloud billing account; service never stops at the free tier
+unless a daily cap is set under the project's Places API (New) quotas.
 
-Always send a session token: it is what makes the completed-entry keystrokes
-free, and reused tokens are treated as no-session.
+Correction (2026-10-24): this section previously said a session that ends in
+a retrieve bills nothing for its autocomplete requests, making abandoned
+entries the cost driver. The October 2026 bill disproved it: 45,020 billed
+Autocomplete Requests, 6,486 Place Details retrieves, 4,263 Session Usage
+events — about 7 billed requests per retrieve. Read that as a billing
+ratio, not as requests per completed entry: the 45,020 also covers entries
+that were abandoned without a retrieve, and the 4,263 free requests (the
+ones past the 12th of long entries) sit on top of it. A "close the session on
+submit" change built on the old reading was reverted before merge
+(shu1513/electionssimplified#1640).
+
+Still send a session token on every request: it costs nothing, it is what
+makes requests 13+ of a long entry free, and a reused token is treated as
+no-session.
 
 - Generate a fresh `crypto.randomUUID()` when the user **starts** an address
   entry (first keystroke that triggers a suggest call).
@@ -106,12 +129,14 @@ free, and reused tokens are treated as no-session.
 
 - Minimum 3 characters. Leading-edge fire: the first suggest of an entry (no
   live session token — also covers pasting) goes out immediately; subsequent
-  keystrokes debounce ~125 ms after the last keystroke, matching the latency
-  Google's own widget targets. Cost note: at average typing speed this fires
-  roughly one suggest per keystroke. Those are free when the entry ends in a
-  retrieve and billed per request when it is abandoned (see above), and
-  aborting the browser request does not stop a backend→Google call already
-  in flight. Watch the Autocomplete Requests SKU after changing the debounce.
+  keystrokes debounce 300 ms after the last keystroke (125 ms until
+  2026-10-24). Cost note: every suggest request is billed (see above). The
+  average gap between keystrokes is ~230 ms on a keyboard and ~330 ms on a
+  phone (Dhakal et al. 2018, Palin et al. 2019), so at 125 ms most letters
+  fired their own request — the October 2026 bill showed ~7 billed requests per
+  retrieve. 300 ms merges a typing burst into one request and still refreshes
+  the dropdown at every natural pause; aborting the browser request does not
+  stop a backend→Google call already in flight. Watch the Autocomplete Requests SKU after changing the debounce.
 - On input focus, fire one throwaway invalid suggest request (empty `input`).
   The server 400s it before touching Google, so it costs nothing, but it warms
   the TLS connection, the CORS preflight cache, and the backend before the
