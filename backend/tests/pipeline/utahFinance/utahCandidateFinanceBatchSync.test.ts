@@ -357,6 +357,20 @@ it("acquires independently due committee cash before a failing legacy direct exp
   expect(vi.mocked(syncDueUtahCommitteeCash).mock.invocationCallOrder.at(-1)).toBeLessThan(loader.mock.invocationCallOrder[0]);
 });
 
+it("keeps the legacy direct sync running when committee cash throws, but fails committee-cash-only runs", async () => {
+  const { syncDueUtahCommitteeCash } = await import("../../../src/pipeline/utahFinance/utahCommitteeCashSync.js");
+  vi.mocked(syncDueUtahCommitteeCash).mockRejectedValueOnce(new Error("relation does not exist"));
+  const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+  const result = await syncDueUtahCandidateFinance({db:{query:vi.fn(async()=>({rows:[dueRow()]}))},now:NOW,autoLinkMissingLinks:false,
+    loadGeneratedReportRowsFn:vi.fn(async()=>({rows:[],cachePath:"synthetic.csv",sourceUrl:SOURCE_URL,cacheHit:true})),syncUtahCandidateFinanceFn:vi.fn(async()=>syncResult())});
+  warn.mockRestore();
+  expect(result.committeeCash).toBeUndefined();
+  expect(result.committeeCashError).toBe("relation does not exist");
+  expect(result.syncedCandidateCount).toBe(1);
+  vi.mocked(syncDueUtahCommitteeCash).mockRejectedValueOnce(new Error("relation does not exist"));
+  await expect(syncDueUtahCandidateFinance({db:{query:vi.fn()},now:NOW,committeeCashOnly:true})).rejects.toThrow("relation does not exist");
+});
+
 it("runs committee cash alone without auto-linking or loading legacy direct transactions", async () => {
   const loader=vi.fn();
   const result=await syncDueUtahCandidateFinance({db:{query:vi.fn()},now:NOW,committeeCashOnly:true,loadGeneratedReportRowsFn:loader});
