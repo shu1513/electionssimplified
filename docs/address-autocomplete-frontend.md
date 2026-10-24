@@ -135,11 +135,14 @@ no-session.
 
 - Minimum 3 characters. Leading-edge fire: the first suggest of an entry (no
   live session token — also covers pasting) goes out immediately; subsequent
-  keystrokes debounce ~125 ms after the last keystroke, matching the latency
-  Google's own widget targets. Cost note: at average typing speed this fires
-  roughly one suggest per keystroke, and every one of them is billed (see
-  above); aborting the browser request does not stop a backend→Google call
-  already in flight. Watch the Autocomplete Requests SKU after changing the debounce.
+  keystrokes debounce 300 ms after the last keystroke (125 ms until
+  2026-10-24). Cost note: every suggest request is billed (see above). The
+  average gap between keystrokes is ~230 ms on a keyboard and ~330 ms on a
+  phone (Dhakal et al. 2018, Palin et al. 2019), so at 125 ms most letters
+  fired their own request — the October 2026 bill showed ~7 requests per
+  entry. 300 ms merges a typing burst into one request and still refreshes
+  the dropdown at every natural pause; aborting the browser request does not
+  stop a backend→Google call already in flight. Watch the Autocomplete Requests SKU after changing the debounce.
 - On input focus, fire one throwaway invalid suggest request (empty `input`).
   The server 400s it before touching Google, so it costs nothing, but it warms
   the TLS connection, the CORS preflight cache, and the backend before the
