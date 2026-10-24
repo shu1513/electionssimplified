@@ -79,6 +79,10 @@ export type WestVirginiaFinanceSnapshotInput = {
   pacDonors?: readonly WestVirginiaFinancePacDonorInput[];
   /** Electronic scope only; missing/unproven empty acquisition stays omitted. */
   outsideGroups?: readonly WestVirginiaFinanceOutsideGroupInput[];
+  /** True only when every previously published outside row was withdrawn by an
+   * explicit ledger review decision; lets `outsideGroups: []` clear the stored
+   * groups and set the published totals back to NULL (unavailable). */
+  outsideWithdrawnByReview?: boolean;
 };
 
 export type WestVirginiaFinanceSnapshotWriteResult = StandardStateFinanceSnapshotWriteResult & { pacDonorsWritten?: number };
@@ -167,8 +171,11 @@ export async function replaceWestVirginiaCandidateFinanceSnapshot(
   if (donors && new Set(donors.map((donor) => donor.committeeId)).size !== donors.length) {
     throw new Error("West Virginia committee donor snapshot contains duplicate ids");
   }
-  if (input.outsideGroups?.length === 0) {
+  if (input.outsideGroups?.length === 0 && !input.outsideWithdrawnByReview) {
     throw new Error("West Virginia empty IE snapshot requires independent current-report proof");
+  }
+  if (input.outsideWithdrawnByReview && input.outsideGroups?.length !== 0) {
+    throw new Error("West Virginia outside withdrawal must clear every group");
   }
   for (const group of input.outsideGroups ?? []) {
     if (!Array.isArray(group.sourceTransactions) || group.sourceTransactions.length === 0) {
@@ -239,6 +246,13 @@ export async function replaceWestVirginiaCandidateFinanceSnapshot(
               AND link_status = 'active' AND id <> $3::uuid
           ) AND election_year = $4
         `, [input.link.candidateId, input.link.electionId, linkId, electionYear]);
+      }
+      if (input.outsideWithdrawnByReview) {
+        await db.query(`
+          UPDATE public.wv_candidate_finance_summaries
+          SET outside_support_total = NULL, outside_oppose_total = NULL
+          WHERE link_id = $1::uuid AND election_year = $2
+        `, [linkId, electionYear]);
       }
       for (const group of input.outsideGroups ?? []) {
         await db.query(`

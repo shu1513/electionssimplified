@@ -62,6 +62,8 @@ export type WestVirginiaOutsideDocumentInventoryRefreshResult = {
   documentCount: number;
   downloaded: number;
   reused: number;
+  /** Cached files discarded because the remote object path changed. */
+  replaced: number;
   inventory: WestVirginiaOutsideDocumentInventory;
 };
 
@@ -172,9 +174,16 @@ export async function refreshWestVirginiaOutsideDocumentInventory(input: {
   const download = input.download ?? downloadWestVirginiaPresignedFile;
   const log = input.log ?? (() => {});
 
+  // A cached PDF is reused only when the previous inventory recorded the same
+  // remote object for that document; a changed s3DocName means re-download.
+  let previousByDocument = new Map<string, string>();
+  try {
+    const previous = parseWestVirginiaOutsideDocumentInventory(JSON.parse(await readFile(paths.inventoryPath, "utf8")));
+    previousByDocument = new Map(previous.documents.map((entry) => [`${entry.orgID}:${entry.documentID}`, entry.s3DocName]));
+  } catch { /* first run or unreadable inventory: nothing is reused */ }
   const documents: WestVirginiaOutsideDocumentEntry[] = [];
   const committeeSummaries: WestVirginiaOutsideDocumentInventory["committees"] = [];
-  let downloaded = 0, reused = 0;
+  let downloaded = 0, reused = 0, replaced = 0;
   for (const committee of committees) {
     const rows = await fetchDocuments({ orgID: committee.orgID, pageSize: PAGE_SIZE }, input.clientOptions);
     for (const row of rows) {
@@ -192,9 +201,14 @@ export async function refreshWestVirginiaOutsideDocumentInventory(input: {
     for (const row of inScope) {
       const relative = `outside-documents/${committee.orgID}/${row.documentID}.pdf`;
       const absolute = resolve(paths.cacheDir, relative);
-      let file = await existingFile(absolute);
+      const sameRemote = previousByDocument.get(`${committee.orgID}:${row.documentID}`) === row.s3DocName;
+      let file = sameRemote ? await existingFile(absolute) : null;
       if (file) reused += 1;
       else {
+        if (!sameRemote && previousByDocument.has(`${committee.orgID}:${row.documentID}`)) {
+          replaced += 1;
+          log(`remote object changed for ${relative}; re-downloading`);
+        }
         const url = await mintUrl(row.s3DocName, input.clientOptions);
         const tmp = `${absolute}.${process.pid}.part`;
         const result = await download({ url, outputPath: tmp }, input.clientOptions);
@@ -223,5 +237,5 @@ export async function refreshWestVirginiaOutsideDocumentInventory(input: {
   await writeFile(tmp, JSON.stringify(inventory, null, 2), { mode: 0o600 });
   await rename(tmp, paths.inventoryPath);
   return { cacheDir: paths.cacheDir, inventoryPath: paths.inventoryPath, committeeCount: committees.length,
-    documentCount: documents.length, downloaded, reused, inventory };
+    documentCount: documents.length, downloaded, reused, replaced, inventory };
 }

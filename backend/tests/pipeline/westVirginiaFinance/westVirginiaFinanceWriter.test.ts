@@ -82,3 +82,18 @@ describe("West Virginia finance writer supplemental snapshots", () => {
     expect(db.connect).not.toHaveBeenCalled();
   });
 });
+
+describe("West Virginia outside withdrawal by ledger review", () => {
+  it("clears stored groups and nulls the published totals only with the withdrawal flag", async () => {
+    const { db, client } = mockDb();
+    await expect(replaceWestVirginiaCandidateFinanceSnapshot({ db, link, summary, outsideGroups: [] })).rejects.toThrow("independent current-report proof");
+    await expect(replaceWestVirginiaCandidateFinanceSnapshot({ db, link, summary, outsideWithdrawnByReview: true,
+      outsideGroups: [{ committeeId: "1040003981", committeeName: "x", supportOppose: "oppose", amount: 1, sourceTransactions: [{ kind: "document" }] }] })).rejects.toThrow("must clear every group");
+    const result = await replaceWestVirginiaCandidateFinanceSnapshot({ db, link, summary: { ...summary, outsideSupportTotal: null, outsideOpposeTotal: null }, outsideGroups: [], outsideWithdrawnByReview: true });
+    expect(result.summaryWritten).toBe(true);
+    const sql = client.query.mock.calls.map(([statement]) => statement as string);
+    expect(sql.some((s) => s.includes("DELETE FROM public.wv_candidate_finance_outside_groups"))).toBe(true);
+    const nullify = client.query.mock.calls.find(([s, args]) => (s as string).includes("SET outside_support_total = NULL") && Array.isArray(args) && args.length === 2);
+    expect(nullify?.[1]).toEqual([LINK_ID, 2026]);
+  });
+});

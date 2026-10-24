@@ -71,6 +71,7 @@ export async function runRefreshWestVirginiaOutsideDocumentsScript(input: {
     document_count: result.documentCount,
     downloaded: result.downloaded,
     reused: result.reused,
+    replaced: result.replaced,
     by_committee: result.inventory.committees.filter((c) => c.ieDocumentCount > 0)
       .sort((a, b) => b.ieDocumentCount - a.ieDocumentCount)
       .map((c) => ({ orgID: c.orgID, name: c.orgName, type: c.orgTypeCode, ie_documents: c.ieDocumentCount })),

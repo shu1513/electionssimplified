@@ -390,8 +390,9 @@ export async function syncWestVirginiaCandidateFinance(input: {
   // An electronic-side failure that is not the benign "no rows" outcome must not
   // let a documents-only write drop stored electronic rows: the stored-evidence
   // guard below throws in that case and the whole outside write is skipped.
-  let outside: { supportTotal: number; opposeTotal: number; groups: WestVirginiaFinanceOutsideGroupInput[] } | undefined;
-  if ((electronicOk || documentsOk) && electronicProvenance.length + documentProvenance.length > 0) {
+  let outside: { supportTotal: number | null; opposeTotal: number | null; groups: WestVirginiaFinanceOutsideGroupInput[] } | undefined;
+  let outsideWithdrawnByReview = false;
+  if (electronicOk || documentsOk) {
     try {
       const previous = await input.db.query<WestVirginiaStoredOutsideEvidence>(
         `SELECT outside_group.committee_id, outside_group.support_oppose, outside_group.source_transactions
@@ -401,11 +402,20 @@ export async function syncWestVirginiaCandidateFinance(input: {
            AND link.link_status = 'active' AND outside_group.election_year = $3`,
         [input.candidateId, input.electionId, input.electionYear]
       );
+      const nothingCurrent = electronicProvenance.length + documentProvenance.length === 0;
+      if (nothingCurrent && previous.rows.length === 0) throw new Error("no_outside_evidence_for_candidate");
       validateWestVirginiaPreviouslyPublishedIe({
         previousGroups: previous.rows, currentProvenance: electronicProvenance, currentDocumentProvenance: documentProvenance,
         explicitlyUnpublishedDocumentIds: new Set((documentLedger?.entries ?? [])
           .filter((entry) => entry.reviewStatus !== "accepted").map((entry) => entry.documentID)),
       });
+      // The guard passed with nothing current: every stored row was a document
+      // row that the ledger now lists as review/rejected (electronic rows would
+      // have thrown). Clear the published spending and set totals to unavailable.
+      if (nothingCurrent) {
+        outsideWithdrawnByReview = true;
+        outsideDiagnostics.push("outside_spending_withdrawn_by_ledger_review");
+      }
       const merged = new Map<string, WestVirginiaFinanceOutsideGroupInput & { cents: number }>();
       const add = (group: { committeeId: string; committeeName: string; supportOppose: "support" | "oppose"; amount: number; sourceUrl: string | null },
         rows: readonly Record<string, unknown>[]) => {
@@ -425,7 +435,9 @@ export async function syncWestVirginiaCandidateFinance(input: {
       const groups = [...merged.values()].map(({ cents, ...group }) => ({ ...group, amount: cents / 100 }))
         .sort((left, right) => right.amount - left.amount || left.committeeId.localeCompare(right.committeeId) || left.supportOppose.localeCompare(right.supportOppose));
       const sum = (stance: "support" | "oppose") => groups.filter((g) => g.supportOppose === stance).reduce((total, g) => total + Math.round(g.amount * 100), 0) / 100;
-      outside = { supportTotal: sum("support"), opposeTotal: sum("oppose"), groups };
+      outside = nothingCurrent
+        ? { supportTotal: null, opposeTotal: null, groups: [] }
+        : { supportTotal: sum("support"), opposeTotal: sum("oppose"), groups };
       if (electronicOk) outsideSourceSha256 = electronicArtifactSha256;
     } catch (error) {
       outside = undefined;
@@ -458,6 +470,7 @@ export async function syncWestVirginiaCandidateFinance(input: {
       syncedAt: now,
       pacDonors,
       outsideGroups,
+      ...(outsideWithdrawnByReview ? { outsideWithdrawnByReview: true } : {}),
       summary: { totalReceipts, directContributionTotal, totalDisbursements, sourceUrl,
         outsideSupportTotal: outside?.supportTotal, outsideOpposeTotal: outside?.opposeTotal },
       directBreakdowns: breakdowns.map((breakdown) => ({
