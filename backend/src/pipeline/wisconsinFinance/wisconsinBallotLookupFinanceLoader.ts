@@ -1,8 +1,10 @@
+import { appendWisconsinCommitteeCashSummaries } from "./wisconsinCommitteeCashBallotSummary.js";
 import type { Pool, PoolClient } from "pg";
 
-import { isWisconsinCampaignFinanceEnabled } from "../../config/featureFlags.js";
+import { isWisconsinCampaignFinanceEnabled, isWisconsinReportedCommitteeCashEnabled } from "../../config/featureFlags.js";
 import {
   officeInputFromElectionRow,
+  buildStateFinanceSummaryRequests,
   type BallotLookupFinanceSummary,
   type StateFinanceRequestCandidateRow,
   type StateFinanceRequestElectionRow,
@@ -19,7 +21,7 @@ export async function loadWisconsinCandidateFinanceSummariesByCandidateElection(
   candidateRows: readonly StateFinanceRequestCandidateRow[],
   electionRows: readonly StateFinanceRequestElectionRow[]
 ): Promise<Map<string, BallotLookupFinanceSummary>> {
-  return loadStandardStateFinanceSummariesByCandidateElection({
+  const summaries = await loadStandardStateFinanceSummariesByCandidateElection({
     db,
     candidateRows,
     electionRows,
@@ -41,4 +43,10 @@ export async function loadWisconsinCandidateFinanceSummariesByCandidateElection(
       outsideGroupBreakdowns: "wi_candidate_finance_outside_group_breakdowns",
     },
   });
+  if (isWisconsinReportedCommitteeCashEnabled()) {
+    const requests = buildStateFinanceSummaryRequests("WI",candidateRows,electionRows,
+      row => isWisconsinFinanceEligibleOffice(officeInputFromElectionRow(row)));
+    await appendWisconsinCommitteeCashSummaries(db,requests,summaries);
+  }
+  return summaries;
 }

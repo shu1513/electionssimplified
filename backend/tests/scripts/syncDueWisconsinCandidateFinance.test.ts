@@ -64,6 +64,12 @@ describe("syncDueWisconsinCandidateFinance script", () => {
     );
   });
 
+  it("requires cash-only scope for candidate or year targeting", () => {
+    expect(()=>parseSyncDueWisconsinCandidateFinanceScriptArgs(["--election-year=2026"])).toThrow("requires --committee-cash-only");
+    expect(()=>parseSyncDueWisconsinCandidateFinanceScriptArgs(["--committee-cash-only","--candidate-id=bad"])).toThrow("UUID");
+    expect(()=>parseSyncDueWisconsinCandidateFinanceScriptArgs(["--committee-cash-only","--election-year=2200"])).toThrow("range");
+    expect(parseSyncDueWisconsinCandidateFinanceScriptArgs(["--committee-cash-only","--refresh-committee-cash","--refresh-cache","--election-year=2026","--raw-cache-dir=/private/cache"])).toMatchObject({committeeCashOnly:true,refreshCommitteeCash:true,refreshCache:true,electionYear:2026,rawDataCacheDir:"/private/cache"});
+  });
   it("formats script output", () => {
     const output = toSyncDueWisconsinCandidateFinanceScriptOutput({
       startedAt: new Date("2026-01-02T03:04:05.000Z"),

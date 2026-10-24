@@ -46,6 +46,20 @@ function matchedResolution(): Extract<WisconsinCandidateCommitteeResolution, { s
 }
 
 describe("wisconsinCandidateFinanceBatchSync", () => {
+  it("runs targeted cash independently without any legacy DB selection or sync", async()=>{
+    const db={query:vi.fn(),connect:vi.fn()},legacy=vi.fn(),cash=vi.fn(async()=>({due:1,selected:1,accepted:1,written:1,held:0,failures:[]}));
+    const result=await syncDueWisconsinCandidateFinance({db,now:NOW,committeeCashOnly:true,candidateId:CANDIDATE_ID,electionYear:2026,syncDueWisconsinCommitteeCashFn:cash,syncWisconsinCandidateFinanceFn:legacy});
+    expect(result.committeeCash?.written).toBe(1);expect(result.results).toEqual([]);expect(db.query).not.toHaveBeenCalled();expect(legacy).not.toHaveBeenCalled();
+    expect(cash).toHaveBeenCalledWith(expect.objectContaining({candidateId:CANDIDATE_ID,electionYear:2026,allowNetwork:false}));
+  });
+  it("continues legacy selection when optional cash infrastructure fails",async()=>{
+    const db={query:vi.fn(async()=>({rows:[],rowCount:0})),connect:vi.fn()};
+    const result=await syncDueWisconsinCandidateFinance({db,now:NOW,autoLinkMissingLinks:false,refreshCommitteeCash:true,syncDueWisconsinCommitteeCashFn:vi.fn(async()=>{throw Error("unavailable")})});
+    expect(result.committeeCash?.failures).toEqual(["component_unavailable"]);expect(db.query).toHaveBeenCalledTimes(1);
+  });
+  it("rejects targeting that could otherwise leave legacy work unscoped",async()=>{
+    await expect(syncDueWisconsinCandidateFinance({db:{query:vi.fn(),connect:vi.fn()},candidateId:CANDIDATE_ID})).rejects.toThrow("requires committeeCashOnly");
+  });
   it("lists active Wisconsin finance links that are due for sync", async () => {
     const db = {
       query: vi.fn(async () => ({
