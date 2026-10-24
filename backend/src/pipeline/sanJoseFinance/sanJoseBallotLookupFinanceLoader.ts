@@ -4,8 +4,9 @@
 // outside-group industry breakdowns, its coverage note is PER CANDIDATE (a
 // summary column the sync derives from aggregator violations), and its
 // outside groups carry real expenditure counts.
+import { appendSanJoseCommitteeCash } from "./sanJoseCommitteeCashBallotSummary.js";
 import type { Pool, PoolClient } from "pg";
-import { isSanJoseCampaignFinanceEnabled } from "../../config/featureFlags.js";
+import { isSanJoseCampaignFinanceEnabled, isSanJoseCommitteeCashEnabled } from "../../config/featureFlags.js";
 import {
   buildStateFinanceSummaryRequests,
   candidateElectionKey,
@@ -217,7 +218,7 @@ export async function loadSanJoseCandidateFinanceSummariesByCandidateElection(
     });
     groups.set(key, list);
   }
-  return new Map(
+  const result = new Map(
     summaries.rows.map((row) => {
       const key = candidateElectionKey(row.candidate_id, row.election_id);
       const byType = maps.get(key) ?? new Map();
@@ -264,4 +265,6 @@ export async function loadSanJoseCandidateFinanceSummariesByCandidateElection(
       ] as const;
     }),
   );
+  if (isSanJoseCommitteeCashEnabled()) await appendSanJoseCommitteeCash(db,result);
+  return result;
 }

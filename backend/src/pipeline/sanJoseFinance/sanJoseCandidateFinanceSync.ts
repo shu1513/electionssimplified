@@ -25,6 +25,7 @@
 // one of these and still reconcile cent-exact against the Phase 0 manual
 // audit (the canonical-selection and Amount_A-only rules are the fix).
 
+import { aggregateSanJoseCommitteeCash } from "./sanJoseCommitteeCash.js";
 import { readFile } from "node:fs/promises";
 import type { Pool, PoolClient } from "pg";
 import {
@@ -369,6 +370,9 @@ export async function syncSanJoseCandidateFinance(input: {
     ).filter((entry) => entry.electionYear === input.electionYear),
   });
 
+  const committeeCash = aggregateSanJoseCommitteeCash({ officeName:input.officeName,seatNumber:input.seatNumber,filerId:fppcId,
+    filings:direct.filings,scheduleA:workbook.scheduleA,reportedThrough:direct.reportedThrough });
+
   // --- Previous-vs-new anomaly bounds (baseline = THIS committee's active
   // link only; a relink legitimately starts with no baseline). ---
   const stored = await input.db.query<{
@@ -496,6 +500,7 @@ export async function syncSanJoseCandidateFinance(input: {
         reportedThrough: direct.reportedThrough,
       },
       directBreakdowns,
+      committeeCash,
       outsideGroups: outside.groups.map((group) => ({
         spenderFilerId: group.spenderFilerId,
         spenderName: group.spenderName,
