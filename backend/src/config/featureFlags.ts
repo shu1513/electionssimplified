@@ -404,6 +404,7 @@ export const isSanDiegoCampaignFinanceRawDataRefreshEnabled = sanDiegoFinance.ga
 );
 
 const sanJoseFinance = defineStateFinanceFlagPair("SAN_JOSE_CAMPAIGN_FINANCE");
+export const isSanJoseCommitteeCashEnabled = sanJoseFinance.gate("SAN_JOSE_REPORTED_COMMITTEE_CASH_ENABLED");
 export const isSanJoseCampaignFinanceEnabled = sanJoseFinance.isEnabled;
 export const isSanJoseCampaignFinanceSyncEnabled = sanJoseFinance.isSyncEnabled;
 export const isSanJoseCampaignFinanceRawDataRefreshEnabled = sanJoseFinance.gate(
