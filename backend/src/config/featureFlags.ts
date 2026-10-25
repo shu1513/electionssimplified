@@ -396,6 +396,7 @@ export const isSanFranciscoCampaignFinanceEnabled = sanFranciscoFinance.isEnable
 export const isSanFranciscoCampaignFinanceSyncEnabled = sanFranciscoFinance.isSyncEnabled;
 
 const sanDiegoFinance = defineStateFinanceFlagPair("SAN_DIEGO_CAMPAIGN_FINANCE");
+export const isSanDiegoCommitteeCashEnabled = sanDiegoFinance.gate("SAN_DIEGO_REPORTED_COMMITTEE_CASH_ENABLED");
 export const isSanDiegoCampaignFinanceEnabled = sanDiegoFinance.isEnabled;
 export const isSanDiegoCampaignFinanceSyncEnabled = sanDiegoFinance.isSyncEnabled;
 export const isSanDiegoCampaignFinanceRawDataRefreshEnabled = sanDiegoFinance.gate(

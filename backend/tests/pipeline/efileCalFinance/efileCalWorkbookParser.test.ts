@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  EFILE_CAL_REQUIRED_COLUMNS_BY_SHEET,
   EFILE_CAL_SCHEDULE_A_SHEET,
   EFILE_CAL_SCHEDULE_B1_SHEET,
   EFILE_CAL_SCHEDULE_C_SHEET,
@@ -441,3 +442,5 @@ describe("efileCalWorkbookParser", () => {
     });
   });
 });
+
+it("retains optional native giving committee ID without making it a required column",()=>{const book=buildEfileCalExportWorkbook({headersBySheet:{[EFILE_CAL_SCHEDULE_A_SHEET]:[...EFILE_CAL_REQUIRED_COLUMNS_BY_SHEET[EFILE_CAL_SCHEDULE_A_SHEET]!,"Cmte_ID"]},rowsBySheet:{[EFILE_CAL_SCHEDULE_A_SHEET]:[{...EFILE_CAL_FIXTURE_BASE,Form_Type:"A",Tran_ID:"A1",Entity_Cd:"PTY",Ctrib_NamL:"Example Party",Cmte_ID:"2222222",Ctrib_Self:false,Amount:"100.01",Memo_Code:false}]}});expect(parseEfileCalWorkbook(book).scheduleA[0]).toMatchObject({entityCd:"PTY",contributorCommitteeId:"2222222",amountCents:10001});});

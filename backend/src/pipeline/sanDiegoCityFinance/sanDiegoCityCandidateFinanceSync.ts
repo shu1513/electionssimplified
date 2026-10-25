@@ -36,6 +36,7 @@
 // lacks). Everything else — duplicate_period_filings, line_arithmetic,
 // period_overlap, period_gap, cash_chain — is diagnostics only.
 
+import { aggregateSanDiegoCityCommitteeCash } from "./sanDiegoCityCommitteeCash.js";
 import { readFile } from "node:fs/promises";
 import type { Pool, PoolClient } from "pg";
 import {
@@ -450,6 +451,9 @@ export async function syncSanDiegoCityCandidateFinance(input: {
     ).filter((entry) => entry.electionYear === input.electionYear),
   });
 
+  const committeeCash = aggregateSanDiegoCityCommitteeCash({ officeName:input.officeName,seatNumber:input.seatNumber,filerId:fppcId,filings:direct.filings,
+    scheduleA:workbook.scheduleA,reportedThrough:direct.reportedThrough });
+
   // --- Outside coverage note: the union basis always, plus the per-candidate
   // veto disclosure when name-matched rows were excluded (the sdcity_ column
   // shipped for exactly this — the live Crosby Dist_No=6 case). Rows that
@@ -599,6 +603,7 @@ export async function syncSanDiegoCityCandidateFinance(input: {
         reportedThrough: direct.reportedThrough,
       },
       directBreakdowns,
+      committeeCash,
       outsideGroups: outside.groups.map((group) => ({
         spenderFilerId: group.spenderFilerId,
         spenderName: group.spenderName,
