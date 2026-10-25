@@ -14,7 +14,7 @@ import { pageMeta } from "../lib/pageMeta";
 // not the pitch a third time.
 export const meta: MetaFunction = () =>
   pageMeta({
-    title: `Find what's on your ballot · ${APP_NAME}`,
+    title: `Know your candidates by their track records · ${APP_NAME}`,
     shareTitle: `What did these candidates actually do? · ${APP_NAME}`,
     shareDescription: TAGLINE,
     path: "/",
@@ -22,7 +22,7 @@ export const meta: MetaFunction = () =>
 import { useDocumentTitle } from "../lib/useDocumentTitle";
 
 export function HomePage() {
-  useDocumentTitle("Find what's on your ballot");
+  useDocumentTitle("Know your candidates by their track records");
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { me } = useMe();
