@@ -7,6 +7,10 @@ import {
 import type { UtahCandidateFinanceSyncResult } from "../../../src/pipeline/utahFinance/utahCandidateFinanceSync.js";
 import type { UtahDisclosuresTransactionRow } from "../../../src/pipeline/utahFinance/utahDisclosuresClient.js";
 
+vi.mock("../../../src/pipeline/utahFinance/utahReportedIeSync.js", () => ({
+  syncDueUtahReportedIe: vi.fn(async () => ({selected:0,accepted:0,written:0,held:0,unallocated:0,failures:[]})),
+}));
+
 vi.mock("../../../src/pipeline/utahFinance/utahCommitteeCashSync.js", () => ({
   syncDueUtahCommitteeCash: vi.fn(async () => ({due:0,selected:0,accepted:0,written:0,held:0,failures:[]})),
 }));
@@ -384,4 +388,23 @@ it("keeps explicit candidate scope from triggering unrelated auto-link writes", 
     loadGeneratedReportRowsFn:vi.fn(async()=>({rows:[],cachePath:"synthetic.csv",sourceUrl:SOURCE_URL,cacheHit:true})),
     syncUtahCandidateFinanceFn:vi.fn(async()=>syncResult())});
   expect(db.query).toHaveBeenCalledOnce();
+});
+
+it("runs IE acquisition before a failed direct source and preserves donor execution", async () => {
+  const order:string[]=[];
+  const ie=vi.fn(async()=>{order.push("ie");return {selected:1,accepted:1,written:1,held:0,unallocated:0,failures:[]};});
+  const cash=vi.fn(async()=>{order.push("cash");return {due:0,selected:0,accepted:0,written:0,held:0,failures:[]};});
+  const result=await syncDueUtahCandidateFinance({db:{query:vi.fn(async()=>({rows:[dueRow()]}))},now:NOW,autoLinkMissingLinks:false,
+    syncDueUtahReportedIeFn:ie,syncDueUtahCommitteeCashFn:cash,loadGeneratedReportRowsFn:vi.fn(async()=>{order.push("direct");throw Error("synthetic_direct_failure");})});
+  expect(order).toEqual(["ie","cash","direct"]);expect(result.reportedIe?.written).toBe(1);expect(result.failedCandidateCount).toBe(1);
+});
+it("runs targeted IE alone and contains its failure during ordinary direct sync", async () => {
+  const db={query:vi.fn(async()=>({rows:[]}))},cash=vi.fn(),loader=vi.fn();
+  const options={db,now:NOW,candidateId:CANDIDATE_ID,electionYear:2026,refreshIe:true,ieNetwork:false,syncDueUtahCommitteeCashFn:cash,loadGeneratedReportRowsFn:loader};
+  const ie=vi.fn(async()=>({selected:1,accepted:1,written:0,held:0,unallocated:0,failures:[]}));
+  const result=await syncDueUtahCandidateFinance({...options,ieOnly:true,syncDueUtahReportedIeFn:ie});
+  expect(result.reportedIe?.accepted).toBe(1);expect(db.query).not.toHaveBeenCalled();expect(cash).not.toHaveBeenCalled();expect(loader).not.toHaveBeenCalled();
+  expect(ie).toHaveBeenCalledWith(expect.objectContaining({candidateId:CANDIDATE_ID,electionYear:2026,refreshIe:true,ieNetwork:false}));
+  const failed=await syncDueUtahCandidateFinance({db,now:NOW,autoLinkMissingLinks:false,syncDueUtahReportedIeFn:vi.fn(async()=>{throw Error("synthetic");})});
+  expect(failed.reportedIeError).toBe("component_failed");expect(db.query).toHaveBeenCalled();
 });

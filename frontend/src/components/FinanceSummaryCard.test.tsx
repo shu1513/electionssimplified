@@ -885,3 +885,17 @@ describe("FinanceSummaryCard", () => {
     });
   });
 });
+
+it("labels reported estimates without claiming paid spending or a known total", () => {
+  const summary = emptyFinanceSummary();
+  summary.source = "UTAH_DISCLOSURES";
+  summary.outside_spending.spending_basis = "reported_estimates";
+  summary.outside_spending.outside_coverage_note = "Filer estimates only; candidate-wide totals unknown.";
+  summary.outside_spending.top_supporting_groups = [{committee_id:"INDEXP:123",committee_name:"Example Estimate Filer",support_oppose:"support",amount:6000,source_url:"https://disclosures.utah.gov/Search/PublicSearch/Report/456"}];
+  render(<FinanceSummaryCard summary={summary} />);
+  expect(screen.getByText("Outside groups reported estimates to support this candidate.")).toBeInTheDocument();
+  expect(screen.getByText(/Groups reporting estimates supporting this candidate/)).toBeInTheDocument();
+  expect(screen.queryByText(/Outside groups spent/)).not.toBeInTheDocument();
+  expect(screen.getByText("Example Estimate Filer")).toBeInTheDocument();
+  expect(screen.getByText("Filer estimates only; candidate-wide totals unknown.")).toBeInTheDocument();
+});

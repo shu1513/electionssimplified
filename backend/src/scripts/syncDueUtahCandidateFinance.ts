@@ -12,6 +12,9 @@ import { readStrictFlagValue, readStrictPositiveIntegerFlag } from "../utils/cli
 import { assertKnownCliFlags } from "./financeCliFlagGuard.js";
 
 export type SyncDueUtahCandidateFinanceScriptOptions = {
+  ieOnly?: boolean;
+  refreshIe?: boolean;
+  ieNetwork?: boolean;
   committeeCashOnly?: boolean;
   candidateId?: string;
   electionYear?: number;
@@ -27,7 +30,7 @@ export type SyncDueUtahCandidateFinanceScriptOptions = {
   refreshCache: boolean;
 };
 
-const KNOWN_BOOLEAN_FLAGS = new Set(["--dry-run", "--force", "--refresh-cache", "--committee-cash-only", "--refresh-committee-cash", "--committee-cash-network"]);
+const KNOWN_BOOLEAN_FLAGS = new Set(["--ie-only", "--refresh-ie", "--ie-network", "--dry-run", "--force", "--refresh-cache", "--committee-cash-only", "--refresh-committee-cash", "--committee-cash-network"]);
 const KNOWN_VALUE_FLAGS = new Set(["--lookahead-days", "--lookback-days", "--max-candidates", "--raw-cache-dir", "--stale-after-days", "--candidate-id", "--year"]);
 
 export function parseSyncDueUtahCandidateFinanceScriptArgs(
@@ -38,7 +41,11 @@ export function parseSyncDueUtahCandidateFinanceScriptArgs(
   if (candidateId && !/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/i.test(candidateId)) throw new Error("Invalid --candidate-id");
   const electionYear = readStrictPositiveIntegerFlag(args, "--year");
   if (electionYear !== undefined && (electionYear < 1998 || electionYear > 2100)) throw new Error("Invalid --year");
+  if (args.includes("--ie-only") && args.includes("--committee-cash-only")) throw new Error("Component-only flags are mutually exclusive");
   return {
+    ...(args.includes("--ie-only") ? {ieOnly:true} : {}),
+    ...(args.includes("--refresh-ie") ? {refreshIe:true} : {}),
+    ...(args.includes("--ie-network") ? {ieNetwork:true} : {}),
     ...(args.includes("--committee-cash-only") ? {committeeCashOnly:true} : {}),
     ...(args.includes("--refresh-committee-cash") ? {refreshCommitteeCash:true} : {}),
     ...(args.includes("--committee-cash-network") ? {committeeCashNetwork:true} : {}),
@@ -90,6 +97,7 @@ export async function runSyncDueUtahCandidateFinanceScript(input: {
   try {
     const result = await syncDueUtahCandidateFinance({
       db: pool,
+      ieOnly:input.options.ieOnly,refreshIe:input.options.refreshIe,ieNetwork:input.options.ieNetwork,
       committeeCashOnly: input.options.committeeCashOnly, candidateId: input.options.candidateId,
       electionYear: input.options.electionYear, refreshCommitteeCash: input.options.refreshCommitteeCash,
       committeeCashNetwork: input.options.committeeCashNetwork,

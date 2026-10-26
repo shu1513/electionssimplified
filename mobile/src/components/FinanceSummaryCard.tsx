@@ -269,7 +269,9 @@ function OutsideSection({
   total,
   groups,
   industries,
+  reportedEstimates = false,
 }: {
+  reportedEstimates?: boolean;
   direction: "support" | "opposition";
   total: number | null;
   groups: FinanceOutsideGroup[];
@@ -295,8 +297,11 @@ function OutsideSection({
   return (
     <View className="mt-2 rounded border border-line p-2">
       <Text className="text-sm font-medium text-ink">
-        Outside groups spent {shownTotal !== null ? formatMoney(shownTotal) : "money"} to {verb}{" "}
-        this candidate.
+        {reportedEstimates ? (
+          <>Outside groups reported estimates to {verb} this candidate.</>
+        ) : (
+          <>Outside groups spent {shownTotal !== null ? formatMoney(shownTotal) : "money"} to {verb} this candidate.</>
+        )}
       </Text>
       {industries.length > 0 ? (
         <View className="mt-2">
@@ -321,7 +326,7 @@ function OutsideSection({
             accessibilityState={{ expanded: groupsExpanded }}
           >
             <Text className="text-xs text-ink-soft underline">
-              Outside groups reporting {direction} ({groups.length})
+              Outside groups reporting {direction}{reportedEstimates ? " estimates" : ""} ({groups.length})
             </Text>
           </Pressable>
           {groupsExpanded ? (
@@ -520,12 +525,14 @@ export function FinanceSummaryCard({ summary }: { summary: FinanceSummary }) {
           ) : null}
           <OutsideSection
             direction="support"
+            reportedEstimates={outside.spending_basis === "reported_estimates"}
             total={outside.support_total}
             groups={outside.top_supporting_groups}
             industries={supportingIndustries}
           />
           <OutsideSection
             direction="opposition"
+            reportedEstimates={outside.spending_basis === "reported_estimates"}
             total={outside.oppose_total}
             groups={outside.top_opposing_groups}
             industries={outside.top_opposing_industries}

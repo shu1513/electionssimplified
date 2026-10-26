@@ -275,7 +275,9 @@ function OutsideSection({
   total,
   groups,
   industries,
+  reportedEstimates = false,
 }: {
+  reportedEstimates?: boolean;
   direction: "support" | "opposition";
   total: number | null;
   groups: FinanceOutsideGroup[];
@@ -307,8 +309,11 @@ function OutsideSection({
       }`}
     >
       <p className={`text-base font-medium ${isSupport ? "text-green-900" : "text-red-900"}`}>
-        Outside groups spent {shownTotal !== null ? formatMoney(shownTotal) : "money"} to {verb}{" "}
-        this candidate.
+        {reportedEstimates ? (
+          <>Outside groups reported estimates to {verb} this candidate.</>
+        ) : (
+          <>Outside groups spent {shownTotal !== null ? formatMoney(shownTotal) : "money"} to {verb} this candidate.</>
+        )}
       </p>
       {industries.length > 0 ? (
         <div className="mt-4">
@@ -331,7 +336,7 @@ function OutsideSection({
         // collapse a long list out of the way.
         <details className="mt-5" open>
           <summary className="cursor-pointer select-none text-sm font-medium text-ink hover:underline">
-            Groups that spent money {directionLabel} this candidate ({groups.length})
+            {reportedEstimates ? "Groups reporting estimates" : "Groups that spent money"} {directionLabel} this candidate ({groups.length})
           </summary>
           <ul className="mt-3 space-y-4">
             {groups.map((row) => (
@@ -582,12 +587,14 @@ export function FinanceSummaryCard({ summary }: { summary: FinanceSummary }) {
           ) : null}
           <OutsideSection
             direction="support"
+            reportedEstimates={outside.spending_basis === "reported_estimates"}
             total={outside.support_total}
             groups={outside.top_supporting_groups}
             industries={supportingIndustries}
           />
           <OutsideSection
             direction="opposition"
+            reportedEstimates={outside.spending_basis === "reported_estimates"}
             total={outside.oppose_total}
             groups={outside.top_opposing_groups}
             industries={outside.top_opposing_industries}
