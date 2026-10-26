@@ -148,12 +148,25 @@ export function decodeMarylandPublicCommitteePage(
   for (const row of d.items) {
     if (
       !record(row) ||
-      ![row.filerRegistrationGuid, row.registrationDocumentGuid].every(guid) ||
+      !guid(row.filerRegistrationGuid) ||
+      !(
+        row.registrationDocumentGuid === null ||
+        guid(row.registrationDocumentGuid)
+      ) ||
       !integer(row.filingEntityId) ||
       (Object.hasOwn(scope, "filingEntityId") &&
         row.filingEntityId !== scope.filingEntityId) ||
-      !integer(row.officeSoughtId) ||
-      !integer(row.jurisdictionId) ||
+      // All-status searches include historical registrations whose context was
+      // never supplied. Retain literal nulls; eligibility belongs to the binder.
+      // Missing fields, zero IDs and half-populated identity pairs still fail.
+      !(row.officeSoughtId === null
+        ? row.officeSought === null
+        : integer(row.officeSoughtId) &&
+          typeof row.officeSought === "string") ||
+      !(row.jurisdictionId === null
+        ? row.jurisdiction === null
+        : integer(row.jurisdictionId) &&
+          typeof row.jurisdiction === "string") ||
       !integer(row.registrationYear) ||
       (row.registrationYear as number) > 9999 ||
       typeof row.isActive !== "boolean" ||
@@ -162,16 +175,15 @@ export function decodeMarylandPublicCommitteePage(
         "candidateName",
         "committeeType",
         "committeeTypeCode",
-        "officeSought",
-        "jurisdiction",
-        "partyAffiliation",
         "accountStatus",
         "accountStatusCode",
         "electionYears",
-        "electionCycleID",
         "electionTypeCodes",
         "elections",
       ].every((k) => typeof row[k] === "string") ||
+      !["partyAffiliation", "electionCycleID"].every(
+        (k) => row[k] === null || typeof row[k] === "string",
+      ) ||
       !(row.committeeName as string).trim() ||
       !(row.committeeTypeCode as string).trim() ||
       ![
