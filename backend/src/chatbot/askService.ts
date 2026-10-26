@@ -1233,6 +1233,19 @@ export function createAskService(options: CreateAskServiceOptions): AskService {
           retrievalText = question;
           carriedPrevious = null;
           cacheQuestionNorm = normalizeQuestionForCacheKey(question);
+          // The pre-retrieval lookup used the carried key; the answer this
+          // path produces is cached under the bare one, so a repeat of the
+          // same two turns must look there or pay the model again.
+          if (llm && userId) {
+            const cached = await getCachedAskResponse(llm, {
+              questionNorm: cacheQuestionNorm,
+              scopeKey,
+              generationId: generation.id,
+            });
+            if (cached) {
+              return finish(cached, "cache", scopeState);
+            }
+          }
         }
       }
 

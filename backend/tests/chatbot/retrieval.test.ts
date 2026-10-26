@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { classifyRaceQuestion, expandOfficeAliases, RACE_COLLECTIVE_RE, RACE_OTHERS_RE } from "../../src/chatbot/retrieval.js";
+import {
+  classifyRaceQuestion,
+  districtNumberPattern,
+  expandOfficeAliases,
+  RACE_COLLECTIVE_RE,
+  RACE_OTHERS_RE,
+} from "../../src/chatbot/retrieval.js";
 
 describe("expandOfficeAliases", () => {
   it("appends the corpus office phrase for common federal Senate phrasings", () => {
@@ -107,5 +113,35 @@ describe("RACE_OTHERS_RE", () => {
     expect(RACE_OTHERS_RE.test("How do Ossoff and Collins compare against each other?")).toBe(false);
     expect(RACE_OTHERS_RE.test("Compare Jon Ossoff and Mike Collins.")).toBe(false);
     expect(RACE_OTHERS_RE.test("Who has raised the most money in this race?")).toBe(false);
+  });
+});
+
+describe("districtNumberPattern", () => {
+  it("builds a whole-word alternation of the numbers attached to office words", () => {
+    expect(districtNumberPattern("which candidate is in state assembly district 48")).toBe("\\m(48)\\M");
+    expect(districtNumberPattern("Council Member Ward 3, Position 2")).toBe("\\m(3|2)\\M");
+    expect(districtNumberPattern("what does Prop 33 do?")).toBe("\\m(33)\\M");
+    expect(districtNumberPattern("Position No. 5 candidates")).toBe("\\m(5)\\M");
+  });
+
+  it("accepts the number before the office word, ordinals, and glued abbreviations", () => {
+    expect(districtNumberPattern("who represents the 48th district?")).toBe("\\m(48)\\M");
+    expect(districtNumberPattern("HD41 candidates")).toBe("\\m(41)\\M");
+  });
+
+  it("dedupes repeats", () => {
+    expect(districtNumberPattern("district 5 or district 5?")).toBe("\\m(5)\\M");
+  });
+
+  it("ignores dates, counts, years, and numbers with no office word", () => {
+    expect(districtNumberPattern("Who is running for the State Assembly on November 3, 2026?")).toBeNull();
+    expect(districtNumberPattern("Who are the 2 candidates for District 48?")).toBe("\\m(48)\\M");
+    expect(districtNumberPattern("who is running for the 3 seats on the school board?")).toBeNull();
+    expect(districtNumberPattern("top 5 donors to Jon Ossoff")).toBeNull();
+    expect(districtNumberPattern("who is running in 2026?")).toBeNull();
+  });
+
+  it("is null when the question names no number", () => {
+    expect(districtNumberPattern("who is running for governor in Georgia?")).toBeNull();
   });
 });

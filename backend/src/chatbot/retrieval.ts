@@ -148,20 +148,34 @@ export function expandOfficeAliases(question: string): string {
   return expansions.length > 0 ? `${question} ${expansions.join(" ")}` : question;
 }
 
-/** Postgres regex matching any 1–3 digit number the question names as a
- * standalone token ("district 48", "Ward 3", "Place 2"), or null when it
- * names none. The title branch scores the office phrase with trigram
- * word_similarity, which is nearly blind to the digits: "State Assembly
- * District 11" scored 0.889 against "which candidate is in state assembly
- * district 48" and outranked "Member of the State Assembly, District 48"
- * (0.675), so the wrong district's members came back as the answer
- * (observed 2026-10-25). A numbered title must carry one of the question's
- * numbers; titles with no number of their own ("Governor") are unaffected.
- * Years are never district numbers, so 4-digit runs are ignored on both
- * sides (titles end in "(November 3, 2026)" and some carry "(2024)"). */
+// The office words a district/seat number attaches to, in either order:
+// "District 48", "Ward 3", "Position No. 5", "Prop 33", "HD41", "the 48th
+// district". Singular on purpose — "the 3 seats on the board" is a count.
+const NUMBERED_OFFICE_WORD =
+  "(?:district|ward|place|position|seat|precinct|division|zone|area|post|proposition|prop|measure|question|amendment|hd|sd|ad|cd)";
+const DISTRICT_NUMBER_RE = new RegExp(
+  String.raw`\b${NUMBERED_OFFICE_WORD}\s*(?:no\.?\s*|#\s*)?(\d{1,3})\b|\b(\d{1,3})(?:st|nd|rd|th)?\s+${NUMBERED_OFFICE_WORD}\b`,
+  "gi"
+);
+
+/** Postgres regex matching the district/seat numbers the question names
+ * ("district 48", "Ward 3", "Place 2"), or null when it names none. The
+ * title branch scores the office phrase with trigram word_similarity, which
+ * is nearly blind to the digits: "State Assembly District 11" scored 0.889
+ * against "which candidate is in state assembly district 48" and outranked
+ * "Member of the State Assembly, District 48" (0.675), so the wrong
+ * district's members came back as the answer (observed 2026-10-25). A
+ * numbered title must carry one of the question's numbers; titles with no
+ * number of their own ("Governor") are unaffected. Only numbers attached to
+ * an office word count: a date ("on November 3"), a count ("the 2
+ * candidates"), or a year is never a district number, and a question with
+ * no attached number gets no filter at all. */
 export function districtNumberPattern(question: string): string | null {
-  const numbers = [...new Set(question.match(/\b\d{1,3}\b/g) ?? [])];
-  return numbers.length > 0 ? `\\m(${numbers.join("|")})\\M` : null;
+  const numbers = new Set<string>();
+  for (const match of question.matchAll(DISTRICT_NUMBER_RE)) {
+    numbers.add((match[1] ?? match[2]) as string);
+  }
+  return numbers.size > 0 ? `\\m(${[...numbers].join("|")})\\M` : null;
 }
 
 // Title text the district-number rule inspects: the trailing election-date
