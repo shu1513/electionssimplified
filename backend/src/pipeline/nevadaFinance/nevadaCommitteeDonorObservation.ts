@@ -5,6 +5,7 @@ import {
   parseNevadaCurrencyCents,
   parseNevadaCsvDate,
 } from "./nevadaAuroraCsv.js";
+import { validateNevadaGroupRegistryObservations } from "./nevadaGroupRegistryObservation.js";
 import { nevadaCandidateNamesMatch } from "./nevadaCandidateFilerResolver.js";
 import type { NevadaFinancePacDonorSource } from "./nevadaFinanceWriter.js";
 import {
@@ -455,8 +456,12 @@ export function validateNevadaCommitteeDonorObservation(
       .toISOString()
       .slice(0, 10);
   }
+  const registry = validateNevadaGroupRegistryObservations(
+    root.groupRegistryObservations,
+    { firstManifestAt: first, lastManifestAt: last, now },
+  );
   const pacDonorSource: NevadaFinancePacDonorSource = {
-    observedAt: new Date(last),
+    observedAt: new Date(registry.observedAt),
     periodStart,
     periodEnd,
     captureDigest: options.captureDigest,
@@ -470,11 +475,14 @@ export function validateNevadaCommitteeDonorObservation(
     cashCents,
     reportCount: observed.length,
     pacDonorSource,
-    // Current safe query publishes no numeric count. Retain its positive
-    // research witness without promoting it into a complete registry match.
-    pacDonors: aggregateNevadaObservedPacDonors({ cashRows, groupQueries: [] }),
+    pacDonors: aggregateNevadaObservedPacDonors({
+      cashRows,
+      groupQueries: registry.queries,
+    }),
     warnings: [
-      "Only literal reported PAC names are identified; registry-name acceptance requires complete query authority.",
+      registry.queries.length
+        ? "Exact all-class registry PAC names and literal reported PAC names are identified; other donor classes remain unclassified."
+        : "Only literal reported PAC names are identified; registry-name acceptance requires complete query authority.",
     ],
   };
 }

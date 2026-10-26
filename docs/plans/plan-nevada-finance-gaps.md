@@ -20,8 +20,9 @@ complete statewide coverage.
    reader. Outside inputs are already omitted, preserving stored data.
 3. Contribution CSV `Type` identifies monetary, in-kind or commitment
    transactions, rather than donor class. The typed group registry displays an
-   exact Keystone Corporation PAC witness, but publishes no verified result
-   count for that query. Its $2,500 gift remains excluded. A narrow literal PAC/P.A.C. name
+   exact Keystone Corporation witness under the PAC class, but the narrow
+   query published no verified result count. That query alone cannot establish
+   complete registry authority. A narrow literal PAC/P.A.C. name
    rule can also retain honestly reported committee names without inventing
    legal identities or aliases. Generic companies, associations and acronyms
    are insufficient.
@@ -129,3 +130,50 @@ Catchups do not manufacture October/November coverage when no newer report
 exists. Re-reading an old observation is not a fresh post-deadline acquisition.
 Record actual acquisition times and latest covered periods. No automation or
 production operation is included.
+
+## October 25 registry follow-up
+
+The fresh independent-expenditure source check covered all 110 registered
+independent-expenditure filer references. Of those, 108 report inventories were
+readable, 64 explicitly reported no submitted reports, and two returned portal
+errors on both the initial read and one retry. Eight readable filers had 15
+report references with grid year 2026. Full registry and current report-list
+closing observations agreed. The actual expenditure CSV still has only Payee,
+Date, Amount, Type, Payer and Report columns; its positive control matched a
+native statement. This bounded scope does not establish candidate allocations
+or absence in other reporting channels. Outside spending stays unknown.
+
+For donor recognition, a broader all-class group-name query can publish a
+complete native pager even when the narrower query omits it. The fresh
+"Corp" query contains 42 rows on two pages, including the exact reported donor
+name under the PAC class. Opening and closing rows agreed. The receiving
+candidate's fresh 40-report manifest selects four cycle reports through
+September 30; both financial readings contain 35 cash occurrences and agree
+with the native cash controls. These are source observations; they are not
+yet a claim of a completed local import or candidate-card proof.
+
+The optional groupRegistryObservations field supplies each query's opening
+and closing observations. Each contains sourceSearchPath, nameQuery,
+groupTypeBlank: true, otherFiltersBlank: true, and every page's
+observedAt, native pager strings, and complete four-cell rows.
+Only the public Nevada search path is accepted. Native totals must close over
+contiguous 25-row pages, including the final page. Names must lie within the
+observed query; unknown classes, repeated physical rows, restrictive filters,
+changed controls/content, missing counts and invalid time order fail before
+the writer runs.
+
+Registry opening pages must precede the receiving manifest opening; registry
+closing pages must follow its closing. The complete capture spans at most two
+hours and must be no more than 36 hours old. The donor component observation
+time includes the last verified registry closing. Full reported-name PAC
+matches feed the existing aggregator; exact non-PAC classes and cross-class
+conflicts retain their veto. No legal committee ID or alias is inferred.
+Packets without registry observations retain literal-name recognition.
+
+Before opening the follow-up PR, retain the complete approved donor-source
+originals, independently reproduce all source and stored positions, run the
+ordinary local import, verify repeat/failure preservation and every component
+clock, and prove the production HTTP response and hydrated candidate card.
+Direct amounts, direct freshness and outside data must remain unchanged.
+No new migration is needed. Kansas contributor names, all new Missouri
+publication and all new Wisconsin publication remain held.
