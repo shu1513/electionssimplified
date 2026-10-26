@@ -960,7 +960,8 @@ direction amounts, coverage note and source link, then repeated after a fresh
 reload. A real React dialog opened and closed on both loads; no report was sent.
 No financial screenshots or extracted financial artifacts were saved.
 
-Validation: 49 Maryland pipeline/CLI/scheduler files, 1,155 tests; complete
+Validation: 50 Maryland pipeline/CLI/scheduler and ballot-lookup API files,
+1,240 tests; complete
 backend typecheck and migration-file check pass. Migration 389 was applied only
 to the local database. No production writes, deployment or merge occurred.
 

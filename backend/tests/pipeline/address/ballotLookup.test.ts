@@ -8333,6 +8333,9 @@ describe("lookupElectionDetailById", () => {
       })
       .mockResolvedValueOnce({ rows: [] });
 
+    // No independent native IE snapshot: retain the legacy outside component.
+    query.mockResolvedValueOnce({ rows: [] });
+
     // Trailing committee-labels lookup (applyFinanceCommitteeLabels):
     // none researched, so the groups stay unlabeled.
     query.mockResolvedValueOnce({ rows: [] });
@@ -8424,7 +8427,7 @@ describe("lookupElectionDetailById", () => {
         ],
       },
     });
-    expect(query).toHaveBeenCalledTimes(16);
+    expect(query).toHaveBeenCalledTimes(17);
     const marylandQueries = query.mock.calls.map(([sql]) => String(sql)).filter((sql) => sql.includes("public.md_candidate_finance_"));
     expect(marylandQueries.some((sql) => sql.includes("public.md_candidate_finance_summaries"))).toBe(true);
     expect(marylandQueries.some((sql) => sql.includes("public.md_candidate_finance_direct_breakdowns"))).toBe(true);
@@ -8435,6 +8438,10 @@ describe("lookupElectionDetailById", () => {
     expect(marylandQueries.some((sql) => sql.includes("public.md_candidate_finance_outside_group_breakdowns"))).toBe(
       true
     );
+    const nativeIeQuery = marylandQueries.find(sql => sql.includes("public.md_candidate_finance_ie_sources"));
+    expect(nativeIeQuery).toContain("public.md_candidate_finance_ie_groups");
+    expect(nativeIeQuery).toContain("public.candidate_elections");
+    expect(nativeIeQuery).not.toContain("public.md_candidate_finance_links");
     const supportingEvidenceQuery = marylandQueries.find((sql) => sql.includes("top_industries_per_group"));
     expect(supportingEvidenceQuery).toContain("public.finance_label_classifications");
     expect(supportingEvidenceQuery).toContain("classification.normalized_label");
