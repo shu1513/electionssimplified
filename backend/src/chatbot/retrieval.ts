@@ -148,6 +148,27 @@ export function expandOfficeAliases(question: string): string {
   return expansions.length > 0 ? `${question} ${expansions.join(" ")}` : question;
 }
 
+/** Postgres regex matching any 1–3 digit number the question names as a
+ * standalone token ("district 48", "Ward 3", "Place 2"), or null when it
+ * names none. The title branch scores the office phrase with trigram
+ * word_similarity, which is nearly blind to the digits: "State Assembly
+ * District 11" scored 0.889 against "which candidate is in state assembly
+ * district 48" and outranked "Member of the State Assembly, District 48"
+ * (0.675), so the wrong district's members came back as the answer
+ * (observed 2026-10-25). A numbered title must carry one of the question's
+ * numbers; titles with no number of their own ("Governor") are unaffected.
+ * Years are never district numbers, so 4-digit runs are ignored on both
+ * sides (titles end in "(November 3, 2026)" and some carry "(2024)"). */
+export function districtNumberPattern(question: string): string | null {
+  const numbers = [...new Set(question.match(/\b\d{1,3}\b/g) ?? [])];
+  return numbers.length > 0 ? `\\m(${numbers.join("|")})\\M` : null;
+}
+
+// Title text the district-number rule inspects: the trailing election-date
+// parenthetical dropped, then every 4-digit year.
+const TITLE_WITHOUT_DATES_SQL =
+  String.raw`regexp_replace(regexp_replace(chunk.title, '\s\([^()]*\)$', ''), '\m\d{4}\M', '', 'g')`;
+
 // Entity matches at/above this are candidates for scope/boost resolution.
 const ENTITY_MATCH_MIN_SIMILARITY = 0.45;
 // Same-name variants ("Michael Smith" / "Michael L. Smith") score lower than
@@ -605,6 +626,11 @@ export async function retrieveChunks(options: RetrieveOptions): Promise<Retrieva
   // Scope clarification is unaffected — it only runs with NO scope state.
   // Seq scan over the generation's election chunks (~6k), a few ms.
   const titleQuestion = expandOfficeAliases(question);
+  // District-number rule (districtNumberPattern): a numbered title must
+  // share a number with the question. In SQL, not after the fact — the
+  // 10-row window would otherwise fill with lookalike districts before the
+  // right one is reached.
+  const numberPattern = districtNumberPattern(question);
   const titleResult = await db.query<ChunkRow>(
     `
       SELECT
@@ -625,6 +651,11 @@ export async function retrieveChunks(options: RetrieveOptions): Promise<Retrieva
       WHERE chunk.generation_id = $1::uuid
         AND chunk.source_type = 'election'
         AND ($3::text IS NULL OR chunk.state = $3)
+        AND (
+          $4::text IS NULL
+          OR ${TITLE_WITHOUT_DATES_SQL} !~ '\\m\\d{1,3}\\M'
+          OR ${TITLE_WITHOUT_DATES_SQL} ~ $4
+        )
         AND GREATEST(
           word_similarity(split_part(chunk.title, ' — ', 1), $2),
           similarity(chunk.title, $2)
@@ -637,7 +668,7 @@ export async function retrieveChunks(options: RetrieveOptions): Promise<Retrieva
         chunk.id ASC
       LIMIT 10
     `,
-    [generationId, titleQuestion, scopeState]
+    [generationId, titleQuestion, scopeState, numberPattern]
   );
 
   // Branch E: race members — when the title branch resolves the question to
