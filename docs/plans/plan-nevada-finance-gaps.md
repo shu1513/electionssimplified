@@ -149,8 +149,7 @@ complete native pager even when the narrower query omits it. The fresh
 name under the PAC class. Opening and closing rows agreed. The receiving
 candidate's fresh 40-report manifest selects four cycle reports through
 September 30; both financial readings contain 35 cash occurrences and agree
-with the native cash controls. These are source observations; they are not
-yet a claim of a completed local import or candidate-card proof.
+with the native cash controls. The completed local import and candidate-card checks are recorded below.
 
 The optional groupRegistryObservations field supplies each query's opening
 and closing observations. Each contains sourceSearchPath, nameQuery,
@@ -177,3 +176,44 @@ clock, and prove the production HTTP response and hydrated candidate card.
 Direct amounts, direct freshness and outside data must remain unchanged.
 No new migration is needed. Kansas contributor names, all new Missouri
 publication and all new Wisconsin publication remain held.
+
+### Observed October 25 follow-up proof
+
+After explicit approval, all 25 complete donor-source DOM originals were
+retained privately and verified by whole-original hashes and file modes.
+An independent BeautifulSoup reference reproduced every native registry and
+manifest row, all four effective reports, all 35 cash occurrences, signed
+positions, loan-column evidence, report controls and quarterly cumulative
+controls. A source-derived observation was then written to the registered
+application cache and independently compared against those originals.
+
+The ordinary local Nevada import, with feature flags inline and AI denied,
+replaced four stored donor positions with six, including one exact registry
+PAC name without a literal PAC suffix. Independent reconciliation compared
+every uncapped stored name, reported-name key, signed amount, count,
+recognition method and source watermark against the original source.
+
+Dry-run made no changes. All direct summaries and breakdowns, outside
+components, their timestamps, link business fields and verification clocks
+were preserved. Only the receiving link's update metadata and donor sync
+timestamps may advance. Repeating the import preserved all donor business
+fields and the source observation watermark; sync timestamps remained
+monotonic. Truncated-registry and missing-source failures preserved every
+audited field and clock. All 412 applied migration ledger entries remained
+unchanged.
+
+The real production HTTP response matched the actual reader and stored
+direct amounts and freshness. The actual React Router candidate page was
+hydrated, with client state changes observed before and after a fresh reload.
+Its card showed five donor names under the normal display cap, the full
+six-PAC count and “and 1 more.” Every displayed name, amount and source link,
+plus the full interest totals and counts, matched the source and HTTP
+response. The newly recognized registry donor was visible under “Not yet
+sorted.” Outside amounts remained unknown and the filing-period limitation
+remained visible. No financial screenshot or source extract was saved.
+
+Focused validation passed 226 tests in 12 Nevada finance files; backend
+typecheck and diff checks passed. Proof services used read-only local
+Postgres and private loopback listeners, with environment files, providers
+and remote traffic denied. The initial preview needed the normal explicit
+SSR API URL; the successful fresh-load proof used that configuration.
