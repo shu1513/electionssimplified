@@ -430,6 +430,28 @@ export function captureMarylandPublicOutsideReturnedChildrenPost(
     { ...options, timeoutMs: options.timeoutMs ?? 30_000 }, MAX_LOOKUP_BYTES, MAX_LOOKUP_BYTES);
 }
 
+export function buildMarylandPublicOutsideAllocationChildrenRequest(input: { transactionGuid: string; pageNumber: number }) {
+  if (!input || typeof input !== "object" || Array.isArray(input) || Reflect.ownKeys(input).length !== 2 ||
+    Reflect.ownKeys(input).some(k => k !== "transactionGuid" && k !== "pageNumber") ||
+    !Number.isSafeInteger(input.pageNumber) || input.pageNumber < 1)
+    throw new MarylandCurrentCycleExportError("invalid_request");
+  const parent = buildMarylandPublicOutsideDetailRequest(input.transactionGuid);
+  return Object.freeze({ pageNumber: input.pageNumber, pageSize: 10 as const, transactionGuid: parent.transactionGuid });
+}
+export type MarylandPublicOutsideAllocationChildrenRequest = ReturnType<typeof buildMarylandPublicOutsideAllocationChildrenRequest>;
+export function captureMarylandPublicOutsideAllocationChildrenPost(
+  request: MarylandPublicOutsideAllocationChildrenRequest,
+  options: Options<MarylandPublicOutsideAllocationChildrenRequest>,
+) {
+  if (!request || typeof request !== "object" || Array.isArray(request))
+    throw new MarylandCurrentCycleExportError("invalid_request");
+  const detached = buildMarylandPublicOutsideAllocationChildrenRequest({ transactionGuid: request.transactionGuid, pageNumber: request.pageNumber });
+  if (!sameOutsideRequest(request, detached) || (options.timeoutMs ?? 30_000) > 30_000)
+    throw new MarylandCurrentCycleExportError("invalid_request");
+  return capturePost(`${API}PublicTransactionDetails/GetPublicCandidateMeasureList`, detached,
+    { ...options, timeoutMs: options.timeoutMs ?? 30_000 }, MAX_LOOKUP_BYTES, MAX_LOOKUP_BYTES);
+}
+
 export function captureMarylandPublicReportInventoryPost(
   request: MarylandPublicReportInventoryRequest,
   options: Options<MarylandPublicReportInventoryRequest>,

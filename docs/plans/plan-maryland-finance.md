@@ -919,3 +919,64 @@ Amended download selection follows parent/child GUID and version equality,
 not maximum version or array order. Independent monetary packet qualification,
 writer/reader integration, ordinary local sync, card proof and PR remain
 unfinished.
+
+## Independent native IE local proof — October 26, 2026
+
+The ordinary batch now runs a separate canonical-candidate IE pass before
+receiving-finance work. It covers qualified 2026 General legislative contexts,
+including candidates without receiving links. The existing reported-committee
+component and its previously verified donor groups remain unchanged.
+
+The new pass reopens complete saved originals first, obtains fresh native,
+registry, official-roster and payer-report closings, and binds exact current
+report editions and all parent allocation children. Every observed target
+committee label is queried so a historical rename cannot make transport order
+choose account ownership. Explicit IE subtypes and support/opposition roles
+control candidate allocations; parent totals are never substituted or prorated.
+Electioneering communications are excluded. A nonempty return family without
+proved allocation semantics, unexplained disappearance, changed context,
+incomplete scope or source failure preserves the whole candidate component.
+
+Migration 389 adds independent source, group and operational retry tables.
+Financial source clocks are separate from retry attempts and direct/donor
+freshness. The writer locks and rechecks canonical context, rejects older
+snapshots, and replaces all groups atomically. The reader validates all stored
+groups and totals before its display cap and can attach IE-only finance with
+unknown direct totals and no fabricated receiving link.
+
+Real normal CLI dry-run and live sync passed against the official public
+sources and local database. The first live write changed independent sources
+from 0 to 1, storing 1 group from 5 qualified allocations in the complete
+1,109-allocation cycle census. An independent RAM comparison matched every
+uncapped group identity, stance and cent total to source. All prior Maryland
+direct, donor and outside rows and timestamps stayed exactly unchanged. A
+second normal sync reused 108 saved opening queries and kept monetary groups
+identical. A forced transport failure preserved all groups and financial clocks.
+
+The actual production HTTP endpoint matches stored groups, totals and source
+clock, including the unlinked candidate and master-feature gate. Isolated Chrome
+verified the actual hydrated React Router candidate page, visible group and
+direction amounts, coverage note and source link, then repeated after a fresh
+reload. A real React dialog opened and closed on both loads; no report was sent.
+No financial screenshots or extracted financial artifacts were saved.
+
+Validation: 49 Maryland pipeline/CLI/scheduler files, 1,155 tests; complete
+backend typecheck and migration-file check pass. Migration 389 was applied only
+to the local database. No production writes, deployment or merge occurred.
+
+Normal targeted verification uses `syncDueMarylandCandidateFinance.ts
+--outside-only --candidate-id <canonical UUID> --election-year 2026
+--max-candidates 1 --raw-cache-dir <private raw cache> --force`, first with
+`--dry-run`. Candidate/year selectors require `--outside-only`; flags and the
+explicit local database URL are supplied inline, never through environment files.
+
+Deadline reruns remain required: October 24/26 after the October 23 pre-General
+report; November 18/20 after November 17; January 28/29, 2027 after January 27.
+Independent due selection includes these milestones and a 90-day lookback.
+After the public default rolls forward, annual-report acquisition selects the
+unique published cycle covering the 2026 election rather than relabeling 2027
+transactions. Unproved offices or election contexts remain held.
+
+Kansas contributor names, all new Missouri publication and all new Wisconsin
+publication remain held. Finish this Maryland PR and its CI, then pause before
+another state.

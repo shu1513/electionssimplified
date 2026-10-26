@@ -698,3 +698,19 @@ describe(
     });
   },
 );
+
+describe("independent native IE monetary batch pass", () => {
+  it("runs outside-only without touching receiving due rows, links or direct finance", async () => {
+    const db=createMockDb([]),direct=vi.fn(),outside=vi.fn().mockResolvedValue({attempted:1,qualified:1,written:1,preserved:0,groupsWritten:1,allocationsQualified:2,sourceCaptures:8,savedOpeningQueries:1,diagnostics:[],results:[{dueIndex:0,status:"written",diagnostics:[]}]});
+    const result=await syncDueMarylandCandidateFinance({db,outsideOnly:true,syncIndependentExpendituresFn:outside,syncMarylandCandidateFinanceFn:direct,force:true,candidateId:"11111111-1111-4111-8111-111111111111",electionYear:2026});
+    expect(outside).toHaveBeenCalledOnce();expect(outside.mock.calls[0]![0]).toMatchObject({force:true,electionYear:2026,candidateId:"11111111-1111-4111-8111-111111111111"});
+    expect(db.query).not.toHaveBeenCalled();expect(direct).not.toHaveBeenCalled();expect(result.independentExpenditures?.written).toBe(1);expect(result.results).toEqual([]);
+  });
+  it("keeps outside failure independent of a successful legacy direct pass", async () => {
+    const due=dueRow(),direct=vi.fn().mockResolvedValue(syncResult(due)),outside=vi.fn().mockRejectedValue(Error("synthetic_outside_failure"));
+    const result=await syncDueMarylandCandidateFinance({db:createMockDb([due]),autoLinkMissingLinks:false,dryRun:true,syncIndependentExpendituresFn:outside,syncMarylandCandidateFinanceFn:direct,
+      contributionDataByYear:new Map([[2026,{year:2026,filePath:"unused",sourceUrl:SOURCE_URL,rowsByCommitteeId:new Map()}]]),
+      expenditureDataByYear:new Map([[2026,{year:2026,filePath:"unused",sourceUrl:SOURCE_URL,rows:[]}]])});
+    expect(outside).toHaveBeenCalledOnce();expect(direct).toHaveBeenCalledOnce();expect(result.syncedCandidateCount).toBe(1);expect(result.independentExpenditures?.diagnostics).toContain("outside_component_unavailable");
+  });
+});
