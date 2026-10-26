@@ -1011,6 +1011,22 @@ export type CreateAskServiceOptions = {
   feedbackTokens?: { mint: (answeredBy: string) => string } | null;
 };
 
+/** Whether a previous turn's question may be appended to a scopeless
+ * follow-up. Only a retrieval-type question (no deterministic intent)
+ * carries district/candidate words worth matching; smalltalk ("hi"),
+ * logistics, results, and policy asks all answered from templates, and their
+ * words would only ADD terms the strict AND gate then requires ("hi" is not
+ * a stopword — the first real question after a greeting carried it). The
+ * widget already withholds refused turns; this covers template turns and
+ * older clients. The bare-state completion of a logistics clarification
+ * does not pass through here (it reads previousQuestion directly). */
+export function isCarryablePreviousQuestion(previousQuestion: string | null | undefined): previousQuestion is string {
+  if (!previousQuestion || previousQuestion.trim().length === 0) {
+    return false;
+  }
+  return detectIntent(previousQuestion) === null;
+}
+
 export function createAskService(options: CreateAskServiceOptions): AskService {
   const { db, embeddings } = options;
   const llm = options.llm ?? null;
@@ -1147,9 +1163,10 @@ export function createAskService(options: CreateAskServiceOptions): AskService {
       // invisible to it and would leave retrieval unscoped.
       let scopeState = detectStateInQuestion(question) ?? bareStateReply;
       let retrievalText = question;
-      if (previousQuestion && !resolvedContext && (!scopeState || bareStateReply)) {
-        scopeState = scopeState ?? detectStateInQuestion(previousQuestion);
-        retrievalText = `${question} ${previousQuestion}`;
+      const carryablePrevious = isCarryablePreviousQuestion(previousQuestion) ? previousQuestion : null;
+      if (carryablePrevious && !resolvedContext && (!scopeState || bareStateReply)) {
+        scopeState = scopeState ?? detectStateInQuestion(carryablePrevious);
+        retrievalText = `${question} ${carryablePrevious}`;
       }
       if (!scopeState && resolvedContext) {
         scopeState = resolvedContext.state;
@@ -1164,8 +1181,8 @@ export function createAskService(options: CreateAskServiceOptions): AskService {
       // questions that passed the gate ever get cached, and never
       // time-sensitive ones (those returned from the intent router above;
       // BEHAVIOR.md rule 6).
-      const carriedPrevious = retrievalText === question ? null : (previousQuestion ?? null);
-      const cacheQuestionNorm = normalizeQuestionForCacheKey(retrievalText);
+      let carriedPrevious = retrievalText === question ? null : carryablePrevious;
+      let cacheQuestionNorm = normalizeQuestionForCacheKey(retrievalText);
       const scopeKey = buildScopeKey(
         scopeState,
         resolvedContext ? { kind: resolvedContext.kind, id: resolvedContext.id } : null
@@ -1181,15 +1198,60 @@ export function createAskService(options: CreateAskServiceOptions): AskService {
         }
       }
 
-      const retrieval = await retrieveChunks({
+      const contextCandidateId = resolvedContext?.kind === "candidate" ? resolvedContext.id : null;
+      const contextElectionId = resolvedContext?.kind === "election" ? resolvedContext.id : null;
+      let retrieval = await retrieveChunks({
         db,
         embeddings,
         generationId: generation.id,
         question: retrievalText,
         scopeState,
-        contextCandidateId: resolvedContext?.kind === "candidate" ? resolvedContext.id : null,
-        contextElectionId: resolvedContext?.kind === "election" ? resolvedContext.id : null,
+        contextCandidateId,
+        contextElectionId,
       });
+
+      // Carry-over is append-only, so the previous turn's words can only ADD
+      // gate requirements: the strict AND lexical signal needs every term and
+      // the query embedding drifts toward the old topic. A follow-up that
+      // stands on its own ("which candidate is in state assembly district
+      // 48" after an unrelated turn) must not refuse over words it never
+      // said — gate the bare question too and keep that result when it
+      // clears. Scope state (possibly from the previous turn) is kept: it
+      // only narrows the state-filtered branches, never the lexical gate.
+      // Never for a bare-state reply: "California" alone is pure scope, and
+      // the single-term lexical rank of a state name clears the gate on any
+      // chunk that mentions the state — the retry would swap a refusal for
+      // unrelated California cards.
+      if (carriedPrevious && !bareStateReply && !retrieval.contextMatched && !isAnswerable(retrieval)) {
+        const bare = await retrieveChunks({
+          db,
+          embeddings,
+          generationId: generation.id,
+          question,
+          scopeState,
+          contextCandidateId,
+          contextElectionId,
+        });
+        if (isAnswerable(bare)) {
+          retrieval = bare;
+          retrievalText = question;
+          carriedPrevious = null;
+          cacheQuestionNorm = normalizeQuestionForCacheKey(question);
+          // The pre-retrieval lookup used the carried key; the answer this
+          // path produces is cached under the bare one, so a repeat of the
+          // same two turns must look there or pay the model again.
+          if (llm && userId) {
+            const cached = await getCachedAskResponse(llm, {
+              questionNorm: cacheQuestionNorm,
+              scopeKey,
+              generationId: generation.id,
+            });
+            if (cached) {
+              return finish(cached, "cache", scopeState);
+            }
+          }
+        }
+      }
 
       // 3. Same-name candidates → clarify, never silently pick (rule 7).
       if (retrieval.ambiguousEntities.length > 0) {

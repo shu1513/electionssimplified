@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { classifyRaceQuestion, expandOfficeAliases, RACE_COLLECTIVE_RE, RACE_OTHERS_RE } from "../../src/chatbot/retrieval.js";
+import {
+  classifyRaceQuestion,
+  districtNumbersInQuestion,
+  expandOfficeAliases,
+  RACE_COLLECTIVE_RE,
+  RACE_OTHERS_RE,
+} from "../../src/chatbot/retrieval.js";
 
 describe("expandOfficeAliases", () => {
   it("appends the corpus office phrase for common federal Senate phrasings", () => {
@@ -107,5 +113,31 @@ describe("RACE_OTHERS_RE", () => {
     expect(RACE_OTHERS_RE.test("How do Ossoff and Collins compare against each other?")).toBe(false);
     expect(RACE_OTHERS_RE.test("Compare Jon Ossoff and Mike Collins.")).toBe(false);
     expect(RACE_OTHERS_RE.test("Who has raised the most money in this race?")).toBe(false);
+  });
+});
+
+describe("districtNumbersInQuestion", () => {
+  it("collects the numbers attached to office words, deduplicated, in question order", () => {
+    expect(districtNumbersInQuestion("which candidate is in state assembly district 48")).toEqual(["48"]);
+    expect(districtNumbersInQuestion("Council Member Ward 3, Position 2")).toEqual(["3", "2"]);
+    expect(districtNumbersInQuestion("what does Prop 33 do?")).toEqual(["33"]);
+    expect(districtNumbersInQuestion("Position No. 5 candidates")).toEqual(["5"]);
+    expect(districtNumbersInQuestion("district 5 or district 5?")).toEqual(["5"]);
+  });
+
+  it("accepts the number before the office word, ordinals, and glued abbreviations", () => {
+    expect(districtNumbersInQuestion("who represents the 48th district?")).toEqual(["48"]);
+    expect(districtNumbersInQuestion("HD41 candidates")).toEqual(["41"]);
+    // "19th Judicial Circuit" has a word between number and office word — only Group 18 counts.
+    expect(districtNumbersInQuestion("19th Judicial Circuit, Group 18 judge")).toEqual(["18"]);
+  });
+
+  it("ignores dates, counts, years, and numbers with no office word", () => {
+    expect(districtNumbersInQuestion("Who is running for the State Assembly on November 3, 2026?")).toEqual([]);
+    expect(districtNumbersInQuestion("Who are the 2 candidates for District 48?")).toEqual(["48"]);
+    expect(districtNumbersInQuestion("who is running for the 3 seats on the school board?")).toEqual([]);
+    expect(districtNumbersInQuestion("top 5 donors to Jon Ossoff")).toEqual([]);
+    expect(districtNumbersInQuestion("who is running in 2026?")).toEqual([]);
+    expect(districtNumbersInQuestion("who is running for governor in Georgia?")).toEqual([]);
   });
 });

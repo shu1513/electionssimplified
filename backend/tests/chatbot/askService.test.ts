@@ -5,6 +5,7 @@ import {
   createAskService,
   electionCountdownAnswer,
   fallbackNotice,
+  isCarryablePreviousQuestion,
   myCloseRacesAnswer,
   myIssuesBallotAnswer,
   myMeasuresBallotAnswer,
@@ -19,6 +20,28 @@ import {
 //
 // All instants are explicit UTC (Date.UTC) and the function itself only uses
 // UTC accessors, so these tests pass identically on any machine timezone.
+
+describe("isCarryablePreviousQuestion", () => {
+  it("carries a retrieval-type previous question (no deterministic intent)", () => {
+    expect(isCarryablePreviousQuestion("Who is running for governor in Georgia?")).toBe(true);
+    expect(isCarryablePreviousQuestion("Tell me about the State Senate District 2 race")).toBe(true);
+  });
+
+  it("never carries smalltalk, logistics, results, or policy asks (template turns)", () => {
+    expect(isCarryablePreviousQuestion("hi")).toBe(false);
+    expect(isCarryablePreviousQuestion("thanks")).toBe(false);
+    expect(isCarryablePreviousQuestion("where do I vote?")).toBe(false);
+    expect(isCarryablePreviousQuestion("when is the election?")).toBe(false);
+    expect(isCarryablePreviousQuestion("who won the Georgia Senate race?")).toBe(false);
+    expect(isCarryablePreviousQuestion("who should I vote for?")).toBe(false);
+  });
+
+  it("treats a missing or blank previous question as nothing to carry", () => {
+    expect(isCarryablePreviousQuestion(null)).toBe(false);
+    expect(isCarryablePreviousQuestion(undefined)).toBe(false);
+    expect(isCarryablePreviousQuestion("   ")).toBe(false);
+  });
+});
 
 describe("nameTokens", () => {
   it("lowercases, strips diacritics, and splits on punctuation", () => {

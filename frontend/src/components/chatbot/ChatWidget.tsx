@@ -99,7 +99,26 @@ function formatDataCurrentAsOf(timestamp: string): string {
   return parsed.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 }
 
-type Turn = { question: string; response: ChatbotAskResponse };
+export type Turn = { question: string; response: ChatbotAskResponse };
+
+/** The previous turn's question to send for scope carry-over, or null. The
+ * server appends the previous question to a scopeless follow-up so its
+ * district/candidate words join the match — append-only, so a refused turn's
+ * words only ADD terms the next question must then match. Observed
+ * 2026-10-25: "which candidate is in state assembly district 48" refused
+ * because the preceding refused "highest vote power" question rode along.
+ * Refusals therefore carry nothing; answered and clarified turns still do
+ * (a clarification's "which state?" needs the question being scoped). */
+export function carriedPreviousQuestion(turns: ReadonlyArray<Turn>): string | null {
+  const last = turns[turns.length - 1];
+  if (!last) {
+    return null;
+  }
+  if (last.response.outcome === "refuse_no_data" || last.response.outcome === "refuse_policy") {
+    return null;
+  }
+  return last.question;
+}
 type ChatEntry = "typed" | "starter" | "followup";
 // Server answer kinds the usage catalog knows; anything newer is "other".
 const CHAT_ANSWER_KINDS: ReadonlySet<string> = new Set(["template", "retrieval", "clarify", "refuse_no_data", "refuse_policy"]);
@@ -435,7 +454,7 @@ function ChatWidgetSession() {
     }
     ask.mutate({
       question: trimmed,
-      previousQuestion: turns.length > 0 ? (turns[turns.length - 1] as Turn).question : null,
+      previousQuestion: carriedPreviousQuestion(turns),
       context: contextOverride ?? context,
       entry,
     });

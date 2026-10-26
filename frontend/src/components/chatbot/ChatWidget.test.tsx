@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { act, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import {
+  carriedPreviousQuestion,
   ChatWidget,
   citedElectionContext,
   contextFromPathname,
@@ -28,6 +29,13 @@ const RETRIEVAL_RESPONSE: ChatbotAskResponse = {
     },
   ],
   data_current_as_of: "2026-08-11T00:00:00Z",
+};
+
+const REFUSAL_RESPONSE: ChatbotAskResponse = {
+  outcome: "refuse_no_data",
+  answer: "I don't have that in my data.",
+  results: [],
+  data_current_as_of: null,
 };
 
 function renderWidgetAt(pathname: string, askRoute: ApiRoute = { body: RETRIEVAL_RESPONSE }) {
@@ -84,6 +92,31 @@ describe("contextFromPathname", () => {
     });
     expect(contextFromPathname("/ballot")).toBeNull();
     expect(contextFromPathname("/candidates/not-a-uuid")).toBeNull();
+  });
+});
+
+describe("carriedPreviousQuestion", () => {
+  it("carries the last answered or clarified question, never a refused one", () => {
+    expect(carriedPreviousQuestion([])).toBeNull();
+    expect(carriedPreviousQuestion([{ question: "Who is Jon Ossoff?", response: RETRIEVAL_RESPONSE }])).toBe(
+      "Who is Jon Ossoff?"
+    );
+    expect(
+      carriedPreviousQuestion([
+        { question: "Who is the sheriff candidate?", response: { ...RETRIEVAL_RESPONSE, outcome: "clarify" } },
+      ])
+    ).toBe("Who is the sheriff candidate?");
+    expect(carriedPreviousQuestion([{ question: "highest vote power?", response: REFUSAL_RESPONSE }])).toBeNull();
+    expect(
+      carriedPreviousQuestion([{ question: "who should I vote for?", response: { ...REFUSAL_RESPONSE, outcome: "refuse_policy" } }])
+    ).toBeNull();
+    // Only the LAST turn counts: an earlier refusal does not block a later answered turn.
+    expect(
+      carriedPreviousQuestion([
+        { question: "highest vote power?", response: REFUSAL_RESPONSE },
+        { question: "Who is Jon Ossoff?", response: RETRIEVAL_RESPONSE },
+      ])
+    ).toBe("Who is Jon Ossoff?");
   });
 });
 
@@ -532,6 +565,28 @@ describe("ChatWidget", () => {
     });
     // The just-asked follow-up must not come straight back as a chip.
     expect(screen.queryByRole("button", { name: "Who is funding their campaign?" })).not.toBeInTheDocument();
+  });
+
+  it("does not send a refused turn as the previous question", async () => {
+    const user = userEvent.setup();
+    let askCount = 0;
+    const { fetchMock } = renderWidgetAt("/ballot", () => {
+      askCount += 1;
+      return { body: askCount === 1 ? REFUSAL_RESPONSE : RETRIEVAL_RESPONSE };
+    });
+    await user.click(await screen.findByRole("button", { name: "Open Ask" }));
+    await user.type(screen.getByLabelText("Your question"), "which elections have the highest vote power");
+    await user.click(screen.getByRole("button", { name: "Ask" }));
+    await screen.findByText("I don't have that in my data.");
+
+    await user.type(screen.getByLabelText("Your question"), "which candidate is in state assembly district 48");
+    await user.click(screen.getByRole("button", { name: "Ask" }));
+    await waitFor(() => {
+      const askCalls = fetchMock.mock.calls.filter(([request]) => String(request).includes("/api/chatbot/ask"));
+      expect(askCalls).toHaveLength(2);
+      const body = JSON.parse((askCalls[1] as unknown as [string, RequestInit])[1].body as string);
+      expect(body).toEqual({ question: "which candidate is in state assembly district 48" });
+    });
   });
 
   it("sends the cited election as context when the roster chip is clicked off a detail page", async () => {
