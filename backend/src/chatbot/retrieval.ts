@@ -150,38 +150,46 @@ export function expandOfficeAliases(question: string): string {
 
 // The office words a district/seat number attaches to, in either order:
 // "District 48", "Ward 3", "Position No. 5", "Prop 33", "HD41", "the 48th
-// district". Singular on purpose — "the 3 seats on the board" is a count.
+// district", "19th Judicial Circuit, Group 18". Singular on purpose — "the 3
+// seats on the board" is a count.
 const NUMBERED_OFFICE_WORD =
-  "(?:district|ward|place|position|seat|precinct|division|zone|area|post|proposition|prop|measure|question|amendment|hd|sd|ad|cd)";
+  "(?:district|ward|place|position|seat|precinct|division|zone|area|post|circuit|group|proposition|prop|measure|question|amendment|hd|sd|ad|cd)";
 const DISTRICT_NUMBER_RE = new RegExp(
   String.raw`\b${NUMBERED_OFFICE_WORD}\s*(?:no\.?\s*|#\s*)?(\d{1,3})\b|\b(\d{1,3})(?:st|nd|rd|th)?\s+${NUMBERED_OFFICE_WORD}\b`,
   "gi"
 );
 
-/** Postgres regex matching the district/seat numbers the question names
- * ("district 48", "Ward 3", "Place 2"), or null when it names none. The
- * title branch scores the office phrase with trigram word_similarity, which
- * is nearly blind to the digits: "State Assembly District 11" scored 0.889
- * against "which candidate is in state assembly district 48" and outranked
- * "Member of the State Assembly, District 48" (0.675), so the wrong
- * district's members came back as the answer (observed 2026-10-25). A
- * numbered title must carry one of the question's numbers; titles with no
- * number of their own ("Governor") are unaffected. Only numbers attached to
- * an office word count: a date ("on November 3"), a count ("the 2
- * candidates"), or a year is never a district number, and a question with
+/** The district/seat numbers the question names ("district 48", "Ward 3,
+ * Position 2"), deduplicated and in question order; empty when it names
+ * none. The title branch scores the office phrase with trigram
+ * word_similarity, which is nearly blind to the digits: "State Assembly
+ * District 11" scored 0.889 against "which candidate is in state assembly
+ * district 48" and outranked "Member of the State Assembly, District 48"
+ * (0.675), so the wrong district's members came back as the answer
+ * (observed 2026-10-25). A numbered title must carry EVERY number the
+ * question names — "Ward 3, Position 2" names one seat, and "Ward 4,
+ * Position 2" sharing the 2 is still the wrong seat (review catch); titles
+ * with no number of their own ("Governor") are unaffected. Only numbers
+ * attached to an office word count: a date ("on November 3"), a count ("the
+ * 2 candidates"), or a year is never a district number, and a question with
  * no attached number gets no filter at all. */
-export function districtNumberPattern(question: string): string | null {
+export function districtNumbersInQuestion(question: string): string[] {
   const numbers = new Set<string>();
   for (const match of question.matchAll(DISTRICT_NUMBER_RE)) {
     numbers.add((match[1] ?? match[2]) as string);
   }
-  return numbers.size > 0 ? `\\m(${[...numbers].join("|")})\\M` : null;
+  return [...numbers];
 }
 
 // Title text the district-number rule inspects: the trailing election-date
 // parenthetical dropped, then every 4-digit year.
 const TITLE_WITHOUT_DATES_SQL =
   String.raw`regexp_replace(regexp_replace(chunk.title, '\s\([^()]*\)$', ''), '\m\d{4}\M', '', 'g')`;
+// A title number, ordinal or not: "District 48", "4th District", "3RD Ward"
+// (569 titles in the 2026-08 index write the number as an ordinal, where
+// \M alone fails after the digit). Used case-insensitively (~*).
+const TITLE_NUMBER_SQL = String.raw`'\m\d{1,3}(?:st|nd|rd|th)?\M'`;
+const TITLE_HAS_NUMBER_SQL = String.raw`('\m' || n || '(?:st|nd|rd|th)?\M')`;
 
 // Entity matches at/above this are candidates for scope/boost resolution.
 const ENTITY_MATCH_MIN_SIMILARITY = 0.45;
@@ -640,11 +648,11 @@ export async function retrieveChunks(options: RetrieveOptions): Promise<Retrieva
   // Scope clarification is unaffected — it only runs with NO scope state.
   // Seq scan over the generation's election chunks (~6k), a few ms.
   const titleQuestion = expandOfficeAliases(question);
-  // District-number rule (districtNumberPattern): a numbered title must
-  // share a number with the question. In SQL, not after the fact — the
+  // District-number rule (districtNumbersInQuestion): a numbered title must
+  // carry every number the question names. In SQL, not after the fact — the
   // 10-row window would otherwise fill with lookalike districts before the
   // right one is reached.
-  const numberPattern = districtNumberPattern(question);
+  const districtNumbers = districtNumbersInQuestion(question);
   const titleResult = await db.query<ChunkRow>(
     `
       SELECT
@@ -666,9 +674,12 @@ export async function retrieveChunks(options: RetrieveOptions): Promise<Retrieva
         AND chunk.source_type = 'election'
         AND ($3::text IS NULL OR chunk.state = $3)
         AND (
-          $4::text IS NULL
-          OR ${TITLE_WITHOUT_DATES_SQL} !~ '\\m\\d{1,3}\\M'
-          OR ${TITLE_WITHOUT_DATES_SQL} ~ $4
+          cardinality($4::text[]) = 0
+          OR ${TITLE_WITHOUT_DATES_SQL} !~* ${TITLE_NUMBER_SQL}
+          OR NOT EXISTS (
+            SELECT 1 FROM unnest($4::text[]) AS n
+            WHERE ${TITLE_WITHOUT_DATES_SQL} !~* ${TITLE_HAS_NUMBER_SQL}
+          )
         )
         AND GREATEST(
           word_similarity(split_part(chunk.title, ' — ', 1), $2),
@@ -682,7 +693,7 @@ export async function retrieveChunks(options: RetrieveOptions): Promise<Retrieva
         chunk.id ASC
       LIMIT 10
     `,
-    [generationId, titleQuestion, scopeState, numberPattern]
+    [generationId, titleQuestion, scopeState, districtNumbers]
   );
 
   // Branch E: race members — when the title branch resolves the question to

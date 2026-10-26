@@ -1218,7 +1218,11 @@ export function createAskService(options: CreateAskServiceOptions): AskService {
       // said — gate the bare question too and keep that result when it
       // clears. Scope state (possibly from the previous turn) is kept: it
       // only narrows the state-filtered branches, never the lexical gate.
-      if (carriedPrevious && !retrieval.contextMatched && !isAnswerable(retrieval)) {
+      // Never for a bare-state reply: "California" alone is pure scope, and
+      // the single-term lexical rank of a state name clears the gate on any
+      // chunk that mentions the state — the retry would swap a refusal for
+      // unrelated California cards.
+      if (carriedPrevious && !bareStateReply && !retrieval.contextMatched && !isAnswerable(retrieval)) {
         const bare = await retrieveChunks({
           db,
           embeddings,
