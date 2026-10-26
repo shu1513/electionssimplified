@@ -900,3 +900,22 @@ conditional 48-hour IE requirement does not establish source completeness.
 Official authorities: [reporting schedule](https://elections.maryland.gov/campaign_finance/reporting_schedule.html),
 [IE reporting requirements](https://elections.maryland.gov/campaign_finance/independent_expenditures.html),
 [General state roster](https://elections.maryland.gov/elections/2026/general_candidates/2026_GG_statewide_candidatelist.html).
+
+The current public IE popup uses the combined `TIECOM` parent type; the
+returned `TIEXP` subtype establishes independent-expenditure role. Initial
+returned-child requests use page 1 / size 10 and omit unset sort fields.
+Closed production builders now preserve those exact roles, key casing and
+defaults. Fresh real-source controls match all five parent identities and
+amounts, return explicit IE subtypes, and yield no returned-child rows. Those
+empty child responses are scoped source controls, never a candidate-wide
+financial zero.
+
+The outside-payer inventory collector and saved-source reader now retain
+literal null payer office/jurisdiction fields without relaxing candidate
+receiving-account validation. Actual normal acquisition/replay closes 27
+reports and 28 history children; all five target allocations bind exact
+published current report editions, payer identities and civil coverage dates.
+Amended download selection follows parent/child GUID and version equality,
+not maximum version or array order. Independent monetary packet qualification,
+writer/reader integration, ordinary local sync, card proof and PR remain
+unfinished.

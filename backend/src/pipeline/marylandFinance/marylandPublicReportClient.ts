@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdir, readFile, stat, lstat, readdir } from "node:fs/promises";
+import { appendFile, mkdir, readFile, stat, lstat, readdir } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import {
   captureMarylandPublicReportInventoryPost,
@@ -54,19 +54,32 @@ export type MarylandPublishedReport = Readonly<{
   childResults: readonly MarylandPublishedReportChild[] | null;
 }>;
 
-export function decodeMarylandPublishedReport(raw: unknown, request: MarylandPublicReportInventoryRequest): MarylandPublishedReport {
+/** Outside payers may have no candidate office or jurisdiction. These literal
+ * nulls are source facts, not substitute target identity or financial authority. */
+export type MarylandPublishedOutsideReport = Omit<MarylandPublishedReport,
+  "officeSought" | "officeSoughtId" | "jurisdiction" | "jurisdictionId"> & {
+    officeSought: string | null; officeSoughtId: number | null;
+    jurisdiction: string | null; jurisdictionId: number | null; isActive: boolean;
+  };
+function decodeMarylandPublishedReportFacts(raw: unknown, request: MarylandPublicReportInventoryRequest,
+  context: "candidate" | "outside"): MarylandPublishedReport | MarylandPublishedOutsideReport {
   if (!record(raw)) return fail();
   const r = raw;
+  const contextPair = (name: string, id: string) =>
+    (context === "outside" && r[name] === null && r[id] === null) ||
+    (text(r[name]) && positiveInteger(r[id]));
+  if (context === "outside" &&
+    (!["IEC", "SPAC", "ECC"].includes(String(r.committeeTypeCode)) || typeof r.isActive !== "boolean")) return fail();
   if (!guid(r.reportGuid) || !positiveInteger(r.reportVersionId) || !text(r.reportName) ||
     !((r.reportVersion === "Original" && r.reportVersionCode === "RPTFLD") ||
       (r.reportVersion === "Amended" && r.reportVersionCode === "RPTAMD")) ||
     !positiveInteger(r.filingEntityId) || !guid(r.filerRegistrationGuid) ||
     r.filerRegistrationGuid.toLowerCase() !== request.filerRegistrationGuid.toLowerCase() ||
     !positiveInteger(r.reportingCycleId) || String(r.reportingCycleId) !== request.electionCycleId ||
-    !positiveInteger(r.officeSoughtId) || !positiveInteger(r.jurisdictionId) ||
+    !contextPair("officeSought", "officeSoughtId") || !contextPair("jurisdiction", "jurisdictionId") ||
     !positiveInteger(r.reportingYear) || r.reportingYear > 9999 ||
     ![r.reportType, r.reportTypeCode, r.committeeType, r.committeeTypeCode,
-      r.officeSought, r.jurisdiction, r.reportingCycle].every(text) ||
+      r.reportingCycle].every(text) ||
     !localDateTime(r.startDate, true) || !localDateTime(r.endDate, true) ||
     r.startDate > r.endDate || !localDateTime(r.dueDate, true) || !localDateTime(r.filedDate) ||
     typeof r.zeroActivity !== "boolean" || typeof r.hasChild !== "boolean") return fail();
@@ -105,14 +118,23 @@ export function decodeMarylandPublishedReport(raw: unknown, request: MarylandPub
       current.filedDate !== r.filedDate) return fail();
   }
   // Explicit projection excludes creator, IP, file path and unknown extras.
-  return Object.freeze({ reportGuid: r.reportGuid, reportVersionId: r.reportVersionId, reportName: r.reportName,
+  const projected = Object.freeze({ reportGuid: r.reportGuid, reportVersionId: r.reportVersionId, reportName: r.reportName,
     reportVersion: r.reportVersion as "Original" | "Amended", reportVersionCode: r.reportVersionCode as "RPTFLD" | "RPTAMD",
     reportType: r.reportType as string, reportTypeCode: r.reportTypeCode as string, filingEntityId: r.filingEntityId,
     filerRegistrationGuid: r.filerRegistrationGuid, committeeType: r.committeeType as string, committeeTypeCode: r.committeeTypeCode as string,
-    officeSought: r.officeSought as string, officeSoughtId: r.officeSoughtId, jurisdiction: r.jurisdiction as string,
-    jurisdictionId: r.jurisdictionId, reportingCycle: r.reportingCycle as string, reportingCycleId: r.reportingCycleId,
+    officeSought: r.officeSought as string | null, officeSoughtId: r.officeSoughtId as number | null,
+    jurisdiction: r.jurisdiction as string | null, jurisdictionId: r.jurisdictionId as number | null, reportingCycle: r.reportingCycle as string, reportingCycleId: r.reportingCycleId,
     reportingYear: r.reportingYear, startDate: r.startDate, endDate: r.endDate, dueDate: r.dueDate, filedDate: r.filedDate,
     zeroActivity: r.zeroActivity, hasChild: r.hasChild, childResults: children });
+  if (context === "outside") return Object.freeze({ ...projected, isActive: r.isActive as boolean });
+  // Candidate mode has independently required positive IDs and literal text.
+  return projected as MarylandPublishedReport;
+}
+export function decodeMarylandPublishedReport(raw: unknown, request: MarylandPublicReportInventoryRequest): MarylandPublishedReport {
+  return decodeMarylandPublishedReportFacts(raw, request, "candidate") as MarylandPublishedReport;
+}
+export function decodeMarylandPublishedOutsideReport(raw: unknown, request: MarylandPublicReportInventoryRequest): MarylandPublishedOutsideReport {
+  return decodeMarylandPublishedReportFacts(raw, request, "outside") as MarylandPublishedOutsideReport;
 }
 
 /** Structural acquisition only; no money, currentness or canonical authority. */
@@ -123,6 +145,21 @@ export function decodeMarylandPublicReportInventory(value: unknown, request: Mar
   const offset = (request.pageNumber - 1) * request.pageSize;
   if (!Number.isSafeInteger(offset) || data.items.length !== Math.min(request.pageSize, Math.max(0, (data.totalItems as number) - offset))) return fail();
   const reports = Object.freeze(data.items.map(raw => decodeMarylandPublishedReport(raw, request)));
+  if (new Set(reports.map(r => r.reportGuid.toLowerCase())).size !== reports.length) return fail();
+  return Object.freeze({ reports, totalItems: data.totalItems as number });
+}
+
+/** Complete current-profile page structure, with payer context kept distinct
+ * from a candidate receiving account. No edition is selected by maximum. */
+export function decodeMarylandPublicOutsideReportInventory(value: unknown, request: MarylandPublicReportInventoryRequest) {
+  if (!record(value) || value.succeeded !== true || value.error !== null || !record(value.data)) return fail();
+  const data = value.data;
+  if (!Number.isSafeInteger(data.totalItems) || (data.totalItems as number) < 0 || !Array.isArray(data.items) ||
+    !((data.pageNumber === 0 && data.pageSize === 0) ||
+      (data.pageNumber === request.pageNumber && data.pageSize === request.pageSize))) return fail();
+  const offset = (request.pageNumber - 1) * request.pageSize;
+  if (!Number.isSafeInteger(offset) || data.items.length !== Math.min(request.pageSize, Math.max(0, (data.totalItems as number) - offset))) return fail();
+  const reports = Object.freeze(data.items.map(raw => decodeMarylandPublishedOutsideReport(raw, request)));
   if (new Set(reports.map(r => r.reportGuid.toLowerCase())).size !== reports.length) return fail();
   return Object.freeze({ reports, totalItems: data.totalItems as number });
 }
@@ -139,6 +176,16 @@ export function buildMarylandPublishedReportPdfRequest(report: MarylandPublished
     c.filerReportVersionID === parent.reportVersionId);
   // The observed Original parent lacks filerReportVersionID; its literal public
   // handler sends Vundefined. This is presentation, not a version assertion.
+  return validateMarylandPublishedReportPdfRequest({ documentGuid: child?.filerReportGuid ?? parent.reportGuid,
+    fileName: `${parent.reportName} V${child?.filerReportVersionID ?? "undefined"}`, openInNewTab: true });
+}
+export function buildMarylandPublishedOutsideReportPdfRequest(report: MarylandPublishedOutsideReport): MarylandPublishedReportPdfRequest {
+  if (!record(report)) return fail();
+  const request = buildMarylandPublicReportInventoryRequest({ filerRegistrationGuid: report.filerRegistrationGuid,
+    electionCycleId: String(report.reportingCycleId), pageNumber: 1 });
+  const parent = decodeMarylandPublishedOutsideReport(report, request);
+  const child = parent.childResults?.find(c => c.filerReportGuid.toLowerCase() === parent.reportGuid.toLowerCase() &&
+    c.filerReportVersionID === parent.reportVersionId);
   return validateMarylandPublishedReportPdfRequest({ documentGuid: child?.filerReportGuid ?? parent.reportGuid,
     fileName: `${parent.reportName} V${child?.filerReportVersionID ?? "undefined"}`, openInNewTab: true });
 }
@@ -162,8 +209,24 @@ async function verifiedOriginal(capture: MarylandCurrentCycleCapture<unknown>) {
 }
 
 /** Complete requested paging; result exposes aggregate facts and raw refs only. */
-export async function fetchMarylandCurrentReportInventory(input: Omit<Scope, "pageNumber"> &
-  Omit<CaptureOptions<MarylandPublicReportInventoryRequest>, "outputPath"> & { outputDirectory: string; maxPages?: number }) {
+type ReportInventoryFetchInput = Omit<Scope, "pageNumber"> &
+  Omit<CaptureOptions<MarylandPublicReportInventoryRequest>, "outputPath"> & { outputDirectory: string; maxPages?: number };
+export function fetchMarylandCurrentReportInventory(input: ReportInventoryFetchInput) {
+  return fetchMarylandReportInventory(input, "candidate");
+}
+/** New outside generations retain the exact private journal needed by the
+ * normal saved-source reader. The caller observer receives genuine captures. */
+export function fetchMarylandCurrentOutsideReportInventory(input: ReportInventoryFetchInput) {
+  if (typeof input.outputDirectory !== "string" || !input.outputDirectory.trim())
+    throw new MarylandCurrentCycleExportError("invalid_request");
+  const directory = resolve(input.outputDirectory), observer = input.onCapture;
+  return fetchMarylandReportInventory({ ...input, outputDirectory: directory,
+    onCapture: async capture => {
+      await appendFile(join(directory, "captures.private.jsonl"), JSON.stringify(capture) + "\n", { mode: 0o600 });
+      await observer?.(capture);
+    } }, "outside");
+}
+async function fetchMarylandReportInventory(input: ReportInventoryFetchInput, context: "candidate" | "outside") {
   const options = { ...input }, maxPages = options.maxPages ?? 100;
   const initial = buildMarylandPublicReportInventoryRequest({ ...options, pageNumber: 1 });
   if (!positiveInteger(maxPages) || maxPages > 100 || typeof options.outputDirectory !== "string" || !options.outputDirectory.trim())
@@ -179,7 +242,9 @@ export async function fetchMarylandCurrentReportInventory(input: Omit<Scope, "pa
       { ...options, outputPath: join(options.outputDirectory, `page-${String(pageNumber).padStart(3, "0")}.original.json`) });
     try {
       const raw = await verifiedOriginal(capture);
-      const page = decodeMarylandPublicReportInventory(JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(raw)), request);
+      const value = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(raw));
+      const page = context === "outside" ? decodeMarylandPublicOutsideReportInventory(value, request)
+        : decodeMarylandPublicReportInventory(value, request);
       if (totalItems !== undefined && totalItems !== page.totalItems) return fail();
       totalItems = page.totalItems;
       if (Math.ceil(totalItems / initial.pageSize) > maxPages) return fail();
@@ -206,9 +271,16 @@ export async function fetchMarylandCurrentReportInventory(input: Omit<Scope, "pa
 /** Reopens the complete original inventory journal without making a request.
  * Private report metadata establishes source structure, not currentness or
  * financial authority. Do not serialize privateReports into ordinary logs. */
-export async function readMarylandCurrentReportInventory(input: Omit<Scope,"pageNumber"> & {
-  outputDirectory:string;
-}) {
+type ReportInventoryReadInput = Omit<Scope, "pageNumber"> & { outputDirectory: string };
+export async function readMarylandCurrentReportInventory(input: ReportInventoryReadInput) {
+  const result = await readMarylandReportInventory(input, "candidate");
+  return Object.freeze({ ...result, privateReports: result.privateReports as readonly MarylandPublishedReport[] });
+}
+export async function readMarylandCurrentOutsideReportInventory(input: ReportInventoryReadInput) {
+  const result = await readMarylandReportInventory(input, "outside");
+  return Object.freeze({ ...result, privateReports: result.privateReports as readonly MarylandPublishedOutsideReport[] });
+}
+async function readMarylandReportInventory(input: ReportInventoryReadInput, context: "candidate" | "outside") {
   try {
   const initial=buildMarylandPublicReportInventoryRequest({...input,pageNumber:1});
   if(typeof input.outputDirectory!=="string" || !input.outputDirectory.trim()) return fail();
@@ -225,7 +297,7 @@ export async function readMarylandCurrentReportInventory(input: Omit<Scope,"page
   const entries=lines.slice(0,-1).split("\n");
   if(entries.length<1 || entries.length>100 || entries.some(line=>!line)) return fail();
   const expectedFiles=new Set(["captures.private.jsonl"]),seen=new Set<string>(),lineage=new Set<string>();
-  const reports:MarylandPublishedReport[]=[],captures:Omit<InventoryCapture,"requestBody">[]=[];
+  const reports:(MarylandPublishedReport | MarylandPublishedOutsideReport)[]=[],captures:Omit<InventoryCapture,"requestBody">[]=[];
   const keys=["url","method","requestBody","outputPath","startedAt","completedAt","httpStatus","byteCount","sha256","bodyComplete","errorCode"];
   const timestamp=(value:unknown):value is string=>typeof value==="string" &&
     /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value) &&
@@ -248,7 +320,9 @@ export async function readMarylandCurrentReportInventory(input: Omit<Scope,"page
       !positiveInteger(entry.byteCount) || entry.byteCount>4*1024*1024 || typeof entry.sha256!=="string" || !/^[a-f0-9]{64}$/.test(entry.sha256)) return fail();
     const raw=await privateFile(path,4*1024*1024);
     if(raw.byteLength!==entry.byteCount || createHash("sha256").update(raw).digest("hex")!==entry.sha256) return fail();
-    const page=decodeMarylandPublicReportInventory(json(new TextDecoder("utf-8",{fatal:true}).decode(raw)),request);
+    const value=json(new TextDecoder("utf-8",{fatal:true}).decode(raw));
+    const page=context === "outside" ? decodeMarylandPublicOutsideReportInventory(value,request)
+      : decodeMarylandPublicReportInventory(value,request);
     if(totalItems!==undefined && page.totalItems!==totalItems) return fail();
     totalItems=page.totalItems;
     if(entries.length!==Math.max(1,Math.ceil(totalItems/initial.pageSize))) return fail();
