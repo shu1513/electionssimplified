@@ -864,3 +864,39 @@ Malformed or unlabeled blocks still hold. This resolves the earlier research
 ambiguity through printed source roles; native ownership, complete multiplicity,
 committee arithmetic and the actual local money/card milestone remain separate
 requirements.
+
+
+## Native IE target identity, October 26, 2026 — implementation underway
+
+A fresh saved-opening-first production observation closes all 1,109 native
+allocations in the published 2023–2026 cycle. This remains an observation, not
+a financial snapshot. Exact current target-account discovery covers 107
+source target GUIDs. Their complete public registration queries contain 116
+physical rows; historical rows can have explicitly null office, jurisdiction,
+party, cycle or registration-document fields. The structural decoder now
+retains those literal nulls while financial context binding still requires
+complete selected-account evidence. Missing keys, malformed IDs and incomplete
+paging remain errors.
+
+The legislative target binder parses both complete official General roster
+sections, retaining non-active candidates and absent committee labels as source
+facts. It requires an exact native account/committee-label association, current
+General membership, a unique official owner across all seats of that office,
+compatible middle-name evidence, party, office and canonical district, plus the
+separate official election-date authority. It does not create a direct-finance
+link or qualify money. The actual source replay binds one eligible State Senator
+without a direct-finance link; five current IE allocations belong to that
+account. Current report editions and complete parent/child/return controls
+have been acquired for those five allocations; monetary qualification, the
+independent ordinary writer/reader, real local sync and candidate-card proof
+still precede the PR.
+
+Re-run after the October 23 pre-General deadline, including publication lag.
+The fresh October 26 census is part of that check. The post-General report is
+due November 17 (recheck November 18 and 20); the annual report is due January
+27, 2027 (recheck January 28 and 29 with adequate election lookback). Preserve
+source periods and keep 2027 transactions out of a 2026 election snapshot. The
+conditional 48-hour IE requirement does not establish source completeness.
+Official authorities: [reporting schedule](https://elections.maryland.gov/campaign_finance/reporting_schedule.html),
+[IE reporting requirements](https://elections.maryland.gov/campaign_finance/independent_expenditures.html),
+[General state roster](https://elections.maryland.gov/elections/2026/general_candidates/2026_GG_statewide_candidatelist.html).
