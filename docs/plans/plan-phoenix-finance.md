@@ -54,8 +54,21 @@ Operator workflow:
 Migration 392 adds only the reviewed family and single-expense report tables.
 Applied migrations are not copied or renumbered. The prior full local ledger
 has 415 entries; existing present-file checksums match and inherited missing
-historical entries remain unchanged. Complete local money/card verification
-and exact-head CI are still required before declaring this increment delivered.
+historical entries remain unchanged. The normal stdin operator sync wrote one
+family and four reports locally. Every uncapped stored report, direction, source
+field and exact cent matched a separate whole-page reference. Saved-original
+replay returned unchanged without advancing clocks. All six legacy Phoenix
+tables and all 416 migration entries remained exactly unchanged by the sync.
+
+The ordinary production HTTP finance endpoint matched the reader exactly;
+disabling the new read gate hid the component. The actual React Router candidate
+page displayed the reported payer and normally formatted amount, EFD limitations
+and unknown overall totals after a fresh reload and hydrated React interaction.
+No financial UI screenshot or extract was saved. Private proof listeners were
+closed afterward. Local validation passed 390 Phoenix/feature-flag tests and
+backend typecheck. Exact-head CI remains required before delivery. The bespoke
+city module remains the appropriate capability-matrix path; see the Phoenix row
+in `docs/finance-module-capability-matrix.md`.
 
 Repeat after deadlines and for late filings: PAC pre-election report due October
 19, covering October 1–17; manual late checks October 27/29 and November 4/6.
@@ -215,7 +228,7 @@ Genuinely new (Phase 0/1 work):
 
 ## Flags & labels (checklist items, do not skip)
 
-- `PHOENIX_CAMPAIGN_FINANCE_ENABLED` + `PHOENIX_CAMPAIGN_FINANCE_SYNC_ENABLED` (+ `PHOENIX_CAMPAIGN_FINANCE_RAW_DATA_REFRESH_ENABLED` if the artifact-refresh split is kept): code defaults `false` in `featureFlags.ts`; set `true` in `backend/.env` (alphabetical); add to `backend/.env.example`; read flag added to `render.yaml`.
+- `PHOENIX_CAMPAIGN_FINANCE_ENABLED` + `PHOENIX_CAMPAIGN_FINANCE_SYNC_ENABLED` (+ `PHOENIX_CAMPAIGN_FINANCE_RAW_DATA_REFRESH_ENABLED` if the artifact-refresh split is kept): use explicit inline flags for local verification; never read or write `.env`. New reviewed EFD publication gates stay false pending clearance; do not change deployment flags in this increment.
 - Source enum `PHOENIX_CITY_CLERK` in `ballotLookupFinanceShared.ts` (union + `FINANCE_SUMMARY_SOURCES`); display label "City of Phoenix City Clerk Department" in `FINANCE_SOURCE_LABELS` (`packages/api-client/src/format.ts`, alphabetical) + `format.test.ts` case.
 - Capability-matrix row (`docs/finance-module-capability-matrix.md`) cited in every PR.
 
