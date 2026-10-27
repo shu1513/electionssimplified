@@ -176,6 +176,7 @@
     "phoenix-candidates:finance:sync-due": "tsx src/scripts/syncDuePhoenixCandidateFinance.ts",
     "rhode-island-candidates:finance:probe": "tsx src/scripts/probeRhodeIslandCandidateFinance.ts",
     "rhode-island-candidates:finance:raw:refresh": "tsx src/scripts/refreshRhodeIslandErtsCampaignFinanceRawData.ts",
+    "rhode-island-candidates:finance:cf8:refresh": "tsx src/scripts/refreshRhodeIslandCf8Filer.ts",
     "rhode-island-candidates:finance:import": "tsx src/scripts/importRhodeIslandCommitteeCash.ts",
     "san-diego-candidates:finance:probe": "tsx src/scripts/probeSanDiegoCandidateFinance.ts",
     "san-francisco-candidates:finance:probe": "tsx src/scripts/probeSanFranciscoCandidateFinance.ts",
