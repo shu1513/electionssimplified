@@ -52,6 +52,8 @@ describe("cache-backed manually reviewed IE packets", () => {
       {lineNumber:1,disbursementDate:"2026-10-10",amountCents:100}];
     const first=await loadRhodeIslandReviewedIePacket(input);
     input.reports[0]!.lines.reverse();
+    input.reports[0] = Object.fromEntries(Object.entries(input.reports[0]!).reverse()) as typeof input.reports[0];
+    input.reports[0]!.review = Object.fromEntries(Object.entries(input.reports[0]!.review).reverse()) as typeof input.reports[0]["review"];
     const second=await loadRhodeIslandReviewedIePacket(input);
     expect(second.sourceDigest).toBe(first.sourceDigest);
     expect(first.reports[0]!.lines.map(l=>l.lineNumber)).toEqual([1,2]);

@@ -54,7 +54,7 @@ export async function loadRhodeIslandReviewedIePacket(input: {
   check(uuid.test(input.candidateId) && uuid.test(input.electionId), "canonical_identity");
   const actual = await loadRhodeIslandCanonicalCashContext(input.db, input.candidateId, input.electionId);
   check(actual, "current_canonical_context");
-  const context: RhodeIslandReviewedIeContext = { candidateId: input.candidateId, electionId: input.electionId,
+  const context: RhodeIslandReviewedIeContext = { candidateId: input.candidateId.toLowerCase(), electionId: input.electionId.toLowerCase(),
     candidateName: actual.candidate_name, electionYear: actual.election_year, officeScope: actual.office_scope,
     officeName: actual.office_name, district: actual.district };
   check(context.electionYear === input.electionYear && rhodeIslandReviewedIeContextMatches(actual, context), "canonical_context_or_district");
@@ -62,8 +62,15 @@ export async function loadRhodeIslandReviewedIePacket(input: {
   check(Date.now() - Date.parse(cache.completedAt) <= 48 * 60 * 60 * 1000, "mutable_source_refresh_required");
   const checked = validateRhodeIslandReviewedCf8({ electionYear: input.electionYear, spenderName: input.spenderName,
     asOfDate: cache.indexObservedAt.slice(0, 10), family: cache.family, reports: input.reports });
-  const draft = { ...checked, reports: checked.reports.map(report => ({ ...report,
+  const draft = { ...checked, reports: checked.reports.map(report => ({
+    filingGuid: report.filingGuid, sourceUrl: report.sourceUrl, sourceSha256: report.sourceSha256, filedDate: report.filedDate,
+    reportedSpenderName: report.reportedSpenderName, reportedCandidateName: report.reportedCandidateName,
+    supportOppose: report.supportOppose,
+    review: { purpose: report.review.purpose, candidateCount: report.review.candidateCount, referendumCount: report.review.referendumCount,
+      wholeReportRead: report.review.wholeReportRead, completeDisbursements: report.review.completeDisbursements,
+      payerIdentityVerified: report.review.payerIdentityVerified, candidateElectionVerified: report.review.candidateElectionVerified },
     lines: [...report.lines].sort((a, b) => a.lineNumber - b.lineNumber),
+    reportedYearToDateCents: report.reportedYearToDateCents,
   })).sort((a, b) => a.filingGuid.localeCompare(b.filingGuid)) };
   check(Array.isArray(input.reviewedSpenderNames) && input.reviewedSpenderNames.length > 0 && input.reviewedSpenderNames.length <= 20 &&
     input.reviewedSpenderNames.every(n => typeof n === "string" && n.trim() && n.length <= 500 && !/[\x00-\x1f\x7f]/u.test(n)), "explicit_reviewed_payer_names");
