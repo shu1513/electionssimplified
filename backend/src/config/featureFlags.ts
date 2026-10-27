@@ -390,6 +390,12 @@ const phoenixFinance = defineStateFinanceFlagPair("PHOENIX_CAMPAIGN_FINANCE");
 export const isPhoenixCampaignFinanceEnabled = phoenixFinance.isEnabled;
 export const isPhoenixCampaignFinanceSyncEnabled = phoenixFinance.isSyncEnabled;
 export const isPhoenixCommitteeCashSyncEnabled = phoenixFinance.gate("PHOENIX_COMMITTEE_CASH_SYNC_ENABLED");
+// Publication hold: explicit private reviewed-paper proof only until clearance.
+export const isPhoenixReviewedEfdEnabled = phoenixFinance.gate("PHOENIX_REVIEWED_EFD_ENABLED");
+export const isPhoenixReviewedEfdSyncEnabled = (): boolean =>
+  isPhoenixReviewedEfdEnabled() && readBooleanEnv("PHOENIX_REVIEWED_EFD_SYNC_ENABLED", false);
+export const isPhoenixReviewedEfdRawRefreshEnabled = (): boolean =>
+  isPhoenixReviewedEfdEnabled() && readBooleanEnv("PHOENIX_REVIEWED_EFD_RAW_REFRESH_ENABLED", false);
 
 const sanFranciscoFinance = defineStateFinanceFlagPair("SAN_FRANCISCO_CAMPAIGN_FINANCE");
 export const isSanFranciscoCampaignFinanceEnabled = sanFranciscoFinance.isEnabled;

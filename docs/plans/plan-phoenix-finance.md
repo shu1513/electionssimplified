@@ -1,5 +1,69 @@
 # Phoenix City Campaign Finance Plan
 
+## Reviewed Election Funding Disclosures — 2026-10-26
+
+The current city CMS publication list contains four 2026 EFD reports from one
+reported filer. All twenty whole PDF pages were read, and the complete list and
+all four PDF editions were acquired twice unchanged. Each report identifies one
+council candidate, a direction and a distinct expenditure. The official candidate
+register and canonical context establish the contest; finance filings do not
+establish ballot inclusion. Historical web-cache copies of the list omit these
+new reports. The standing-PAC global IE grid also omits some published name-only
+transactions, so its result count cannot establish all-channel absence.
+
+This increment adds an explicit operator-reviewed paper sync and independent
+read component. It leaves existing city B6 acquisition and PAC monetary donor
+work intact. EFD amounts are **reported election-funding expenditures**, not a
+determination of statutory independence, cash payment or complete outside
+totals. Overall support/opposition totals stay unknown. Blank original-funder
+sections never create donor attribution. Potentially overlapping legacy payer
+names are withheld from combination until resolved.
+
+**Publication hold:** the user confirmed no Phoenix commercial-use clearance;
+code and private local proof only. The new read, sync and raw-refresh gates
+default false. Do not enable them for publication without clearance. Kansas
+contributor names and new Missouri/Wisconsin publication also remain held.
+The inspected current reports are direct public city-CMS documents; the
+public-records archive was not searched and its agreement was not accepted.
+
+Operator workflow:
+
+1. Read every whole report in the current literal filer family. Reject amendments
+   without established lineage, indistinguishable expenses, ambiguous candidates,
+   split amounts or unchecked direction. The current implementation binds the
+   November 3, 2026 council ballot; it does not extrapolate future ballot URLs.
+   Late filings of pre-election expenses are eligible; post-election expenses
+   require a separately qualified contest.
+2. Supply the typed `PhoenixReviewedEfdReport` contract in memory, including whole
+   scan hashes and reviewed page counts. Never save a transcription/payload file.
+3. Provide the reviewed JSON on stdin to
+   `npm run phoenix-candidates:finance:efd:sync-reviewed -- --cache-dir=/absolute/private/cache`.
+   Set `DATABASE_URL` explicitly and pass `PHOENIX_CAMPAIGN_FINANCE_ENABLED`,
+   `PHOENIX_REVIEWED_EFD_ENABLED`, `PHOENIX_REVIEWED_EFD_SYNC_ENABLED`, and
+   `PHOENIX_REVIEWED_EFD_RAW_REFRESH_ENABLED` inline for private verification.
+   Keep `AI_API_CALLS_ALLOWED=false`; the command does not load `.env`.
+4. The source loader checks the whole public index, exact published CMS links,
+   complete PDF editions and certified ballot before sealing a packet. Only the
+   production writer can persist it. Cached replay keeps original observation
+   clocks; changed content cannot hide behind fallback. Writes are atomic and
+   globally owned single-candidate document references cannot move families.
+5. Verify every stored report and cent before display caps, preserve legacy six
+   tables/clocks, then verify the ordinary HTTP reader and hydrated candidate
+   card/reload. The EFD-only reader does not require a direct-finance link.
+
+Migration 392 adds only the reviewed family and single-expense report tables.
+Applied migrations are not copied or renumbered. The prior full local ledger
+has 415 entries; existing present-file checksums match and inherited missing
+historical entries remain unchanged. Complete local money/card verification
+and exact-head CI are still required before declaring this increment delivered.
+
+Repeat after deadlines and for late filings: PAC pre-election report due October
+19, covering October 1–17; manual late checks October 27/29 and November 4/6.
+Candidate post-first-election report due November 18; recheck November 19/23.
+PAC year-end report due January 15, 2027; recheck January 16/19. An EFD expenditure
+date may follow a PAC cutoff; filing and observation dates never substitute for
+transaction dates or overall reporting coverage. No automation is created.
+
 ## Finance-gap continuation — 2026-10-12
 
 The refreshed source/code audit and ranked work order are recorded in `~/.claude/tmp/voteapp-finance-gaps-2026-10/phoenix-finance-gap-source-code-audit-2026-10-12.md`, `phoenix-finance-gap-next-step-2026-10-12.md`, and `plan.md`. The local cohort has 16 active linked council candidates across four November 3 contests; stored summaries date from August 13. City Schedule B(6) acquisition already runs through the normal batch context. Standing-PAC state filings, noncommittee IE, and expenditure-funded communications remain separate acquisition gaps; an unavailable channel must not establish zero outside spending.

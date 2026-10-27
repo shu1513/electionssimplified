@@ -24,6 +24,7 @@ import {
   pacInterestDisplayName,
 } from "../finance/pacInterestClassifier.js";
 import { isPhoenixCityFinanceEligibleElection } from "./phoenixFinanceEligibleOffices.js";
+import { appendPhoenixReviewedEfdSummaries } from "./phoenixReviewedEfdBallotSummary.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 type Candidate = { candidate_id: string; election_id: string };
@@ -108,7 +109,11 @@ export async function loadPhoenixCandidateFinanceSummariesByCandidateElection(
     `,
     [JSON.stringify(requests)],
   );
-  if (!summaries.rows.length) return new Map();
+  if (!summaries.rows.length) {
+    const efdOnly = new Map<string, BallotLookupFinanceSummary>();
+    await appendPhoenixReviewedEfdSummaries(db, requests, efdOnly);
+    return efdOnly;
+  }
   const selected = summaries.rows.map((row) => ({
     candidate_id: row.candidate_id,
     election_id: row.election_id,
@@ -326,7 +331,7 @@ export async function loadPhoenixCandidateFinanceSummariesByCandidateElection(
     });
     groups.set(key, list);
   }
-  return new Map(
+  const result = new Map(
     summaries.rows.map((row) => {
       const key = candidateElectionKey(row.candidate_id, row.election_id);
       const byType = maps.get(key) ?? new Map();
@@ -405,6 +410,8 @@ export async function loadPhoenixCandidateFinanceSummariesByCandidateElection(
       ] as const;
     }),
   );
+  await appendPhoenixReviewedEfdSummaries(db, requests, result);
+  return result;
 }
 
 type PhoenixPacDonorRow = {
