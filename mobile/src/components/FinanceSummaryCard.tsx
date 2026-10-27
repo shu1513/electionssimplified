@@ -269,11 +269,13 @@ function OutsideSection({
   total,
   groups,
   industries,
+  reportedDisbursements = false,
 }: {
   direction: "support" | "opposition";
   total: number | null;
   groups: FinanceOutsideGroup[];
   industries: (FinanceBreakdown | FinanceOutsideIndustrySupport)[];
+  reportedDisbursements?: boolean;
 }) {
   const [groupsExpanded, setGroupsExpanded] = useState(false);
   // A direction under the small-amount threshold renders nothing rather than
@@ -295,7 +297,7 @@ function OutsideSection({
   return (
     <View className="mt-2 rounded border border-line p-2">
       <Text className="text-sm font-medium text-ink">
-        Outside groups spent {shownTotal !== null ? formatMoney(shownTotal) : "money"} to {verb}{" "}
+        {reportedDisbursements ? "Outside groups reported IE disbursements" : `Outside groups spent ${shownTotal !== null ? formatMoney(shownTotal) : "money"}`} to {verb}{" "}
         this candidate.
       </Text>
       {industries.length > 0 ? (
@@ -503,11 +505,12 @@ export function FinanceSummaryCard({ summary }: { summary: FinanceSummary }) {
       {hasOutsideFinanceContent(summary) ? (
         <View className="mt-3">
           <Text className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
-            Spending by outside groups
+            {outside.amount_basis === "reported_ie_disbursements" ? "Reported outside disbursements" : "Spending by outside groups"}
           </Text>
           <Text className="mt-1 text-xs text-ink-soft">
-            Outside groups, such as PACs and super PACs, spend this money on the race. The
-            candidate&apos;s campaign does not spend it, and none of it goes to the candidate.
+            {outside.amount_basis === "reported_ie_disbursements"
+              ? "Outside groups reported independent communications about this candidate. These amounts are separate from the candidate’s campaign finances."
+              : "Outside groups, such as PACs and super PACs, spend this money on the race. The candidate's campaign does not spend it, and none of it goes to the candidate."}
           </Text>
           {/* Stated with the outside evidence, not in the footnote: a reader
               needs the source's known coverage gap beside the claim it
@@ -520,12 +523,14 @@ export function FinanceSummaryCard({ summary }: { summary: FinanceSummary }) {
           ) : null}
           <OutsideSection
             direction="support"
+            reportedDisbursements={outside.amount_basis === "reported_ie_disbursements"}
             total={outside.support_total}
             groups={outside.top_supporting_groups}
             industries={supportingIndustries}
           />
           <OutsideSection
             direction="opposition"
+            reportedDisbursements={outside.amount_basis === "reported_ie_disbursements"}
             total={outside.oppose_total}
             groups={outside.top_opposing_groups}
             industries={outside.top_opposing_industries}

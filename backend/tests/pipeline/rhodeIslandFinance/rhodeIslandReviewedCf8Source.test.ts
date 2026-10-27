@@ -46,6 +46,16 @@ describe("cache-backed manually reviewed IE packets", () => {
     const input = await fixture(); input.reports[0]!.sourceSha256 = "b".repeat(64);
     await expect(loadRhodeIslandReviewedIePacket(input)).rejects.toThrow("reviewed_original_changed");
   });
+  it("canonicalizes equivalent line ordering before computing the accepted digest", async () => {
+    const input = await fixture();
+    input.reports[0]!.lines = [{lineNumber:2,disbursementDate:"2026-10-10",amountCents:100},
+      {lineNumber:1,disbursementDate:"2026-10-10",amountCents:100}];
+    const first=await loadRhodeIslandReviewedIePacket(input);
+    input.reports[0]!.lines.reverse();
+    const second=await loadRhodeIslandReviewedIePacket(input);
+    expect(second.sourceDigest).toBe(first.sourceDigest);
+    expect(first.reports[0]!.lines.map(l=>l.lineNumber)).toEqual([1,2]);
+  });
   it("requires explicit payer-body alias review instead of fuzzy label merging", async () => {
     const input = await fixture(); input.reports[0]!.reportedSpenderName = "Explicitly Reviewed Alternate Name";
     await expect(loadRhodeIslandReviewedIePacket(input)).rejects.toThrow("unreviewed_payer_body_name");

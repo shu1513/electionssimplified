@@ -60,8 +60,11 @@ export async function loadRhodeIslandReviewedIePacket(input: {
   check(context.electionYear === input.electionYear && rhodeIslandReviewedIeContextMatches(actual, context), "canonical_context_or_district");
   const cache = await readRhodeIslandCf8FilerCache(input);
   check(Date.now() - Date.parse(cache.completedAt) <= 48 * 60 * 60 * 1000, "mutable_source_refresh_required");
-  const draft = validateRhodeIslandReviewedCf8({ electionYear: input.electionYear, spenderName: input.spenderName,
+  const checked = validateRhodeIslandReviewedCf8({ electionYear: input.electionYear, spenderName: input.spenderName,
     asOfDate: cache.indexObservedAt.slice(0, 10), family: cache.family, reports: input.reports });
+  const draft = { ...checked, reports: checked.reports.map(report => ({ ...report,
+    lines: [...report.lines].sort((a, b) => a.lineNumber - b.lineNumber),
+  })).sort((a, b) => a.filingGuid.localeCompare(b.filingGuid)) };
   check(Array.isArray(input.reviewedSpenderNames) && input.reviewedSpenderNames.length > 0 && input.reviewedSpenderNames.length <= 20 &&
     input.reviewedSpenderNames.every(n => typeof n === "string" && n.trim() && n.length <= 500 && !/[\x00-\x1f\x7f]/u.test(n)), "explicit_reviewed_payer_names");
   const aliases = new Set(input.reviewedSpenderNames.map(key));
@@ -73,8 +76,9 @@ export async function loadRhodeIslandReviewedIePacket(input: {
     check(aliases.has(key(report.reportedSpenderName)), "unreviewed_payer_body_name");
     check(rhodeIslandOrganizationNameMatchesCandidate(report.reportedCandidateName, context.candidateName), "reviewed_target_conflict");
   }
+  const latest = [...draft.reports].sort((a, b) => b.filedDate.localeCompare(a.filedDate) || a.filingGuid.localeCompare(b.filingGuid))[0]!;
   const value = { ...draft, context, observedAt: cache.observedAt, completedAt: cache.completedAt,
-    sourceReportCount: cache.scans.length, sourceUrl: draft.reports[0]!.sourceUrl,
+    sourceReportCount: cache.scans.length, sourceUrl: latest.sourceUrl,
     sourceDigest: createHash("sha256").update(JSON.stringify({ source: cache.sourceDigest, context, draft })).digest("hex") };
   const packet = freeze(value); packets.add(packet); return packet;
 }
