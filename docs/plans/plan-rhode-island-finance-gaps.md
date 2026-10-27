@@ -1,6 +1,6 @@
 # Rhode Island reported finance gaps
 
-Status: receiving repair and positive committee-detail proof were delivered in [PR 1637](https://github.com/shu1513/electionssimplified/pull/1637). One additional current CF-8 filer family now passes complete manual source review, ordinary acquisition and real local financial import. Independent uncapped source/store comparison, exact no-op repeat, missing-source preservation, production HTTP and hydrated candidate card/fresh reload all pass. Outside PR and exact-head CI are pending. Wisconsin publication, Kansas contributor names and all new Missouri publication remain held.
+Status: receiving repair and positive committee-detail proof were delivered in [PR 1637](https://github.com/shu1513/electionssimplified/pull/1637). One additional current CF-8 filer family now passes complete manual source review, ordinary acquisition and real local financial import. Independent uncapped source/store comparison, exact no-op repeat, missing-source preservation, production HTTP and hydrated candidate card/fresh reload all pass. [Outside PR 1649](https://github.com/shu1513/electionssimplified/pull/1649) is open; exact-head CI is tracked there. Wisconsin publication, Kansas contributor names and all new Missouri publication remain held.
 
 ## Source, current code and donor types
 
