@@ -134,3 +134,17 @@ Three defects the live run exposed, all fixed in this phase (see findings doc, P
 12. `Returned (Cash Only)` rows carry POSITIVE amounts; one genuinely negative cash row also exists — handle signed amounts, exclude returned rows from buckets, characterize their effect on `MONETARYCONTRIB` in Phase 0.
 13. Malformed-row amounts poison naive sums (they inflated a statewide spend estimate 8×) — quarantine before any aggregation, including in diagnostics.
 14. Race rows have no district column — district for legislature/districted courts comes only from the committee-search join (`jurisdiction`); a race query returns all districts of an office flat.
+
+## PAC verification: purchase refunds (2026-10-28)
+
+The public receipt ledger uses literal `Refund` for a purchase refund reported under Other Receipts. Treat that category as non-contribution money when reconciling PAC cash. The [SOS Other Receipts guide](https://sos.alabama.gov/sites/default/files/fcpa/Other%20Receipts%20Quick%20Reference.pdf) distinguishes purchase refunds from contributions; the [EDI specification](https://fcpa.alabamavotes.gov/page.request.do?page=getResource&resource=ediSpecification) separately defines `Refund`, `Return Contribution/Check`, and `Returned (Cash Only)`. The latter two remain unresolved return gates. Unknown aliases remain held. Refund rows still participate in the complete native opening/closing edition comparison.
+
+Local production sync proof: one existing eligible receiver gained 37 donor groups from 40 accepted PAC cash occurrences. Independent full-file traversal and uncapped source/store comparison checked all 98 current cash rows against the native ledger and 23 filed covers. Six unrelated malformed bulk records were quarantined; none belonged to the receiver. Ordinary HTTP and the hydrated candidate card, including a fresh reload, matched displayed names, money and source links. Unrelated Alabama rows, outside components and the migration ledger stayed unchanged. Native Other Receipts detail totals do not reconcile to filed covers; that separate discrepancy remains unresolved. Summary authority remains the filed covers, and Other Receipts do not enter contribution cash or PAC totals. This proof does not establish outside-spending coverage.
+
+Late filings require another refresh and sync after the applicable deadline. The [official 2026 filing calendar](https://www.sos.alabama.gov/sites/default/files/fcpa/2026FCPAFilingCalendar.pdf) lists:
+
+- Third general weekly report: October 26, covering through October 23. The local reread and sync above occurred October 28.
+- Fourth general weekly report: November 2, covering through October 30, with the calendar's exception for daily filers. Conditional daily reporting runs October 26–November 2; the final daily report is due by 12:01 p.m. November 2. Manually refresh and re-sync November 3–4, then check late filings again November 6.
+- Annual report: January 31, 2027. Manually refresh and re-sync February 1 and check again February 3.
+
+These are manual follow-up checkpoints; no scheduled automation or production run is part of this change.

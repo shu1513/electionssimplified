@@ -23,7 +23,9 @@ export type AlabamaPacCashSourceInput = {
 const CASH = new Set(["Cash (Itemized)", "Cash (Non-Itemized)", "Non-Itemized Employee Payroll Contribution"]);
 const IN_KIND = new Set(["In-Kind (Itemized)", "In-Kind (Non-Itemized)"]);
 // Literal native labels independently observed in complete saved public ledgers.
-const NON_CASH = new Set(["Interest", "Loan", "Other (Itemized)", "Other (Non-Itemized)"]);
+// The FCPA Other Receipts guide classifies a refund for a committee purchase
+// separately from contributions. This is not a Returned (Cash Only) donation.
+const NON_CASH = new Set(["Interest", "Loan", "Other (Itemized)", "Other (Non-Itemized)", "Refund"]);
 const name = (value: string): string => value.normalize("NFKC").trim().replace(/\s+/g, " ").toUpperCase();
 const organizationName = (value: string): string => value.normalize("NFKC").toUpperCase()
   .replace(/[^\p{L}\p{N}]+/gu, " ").trim();
