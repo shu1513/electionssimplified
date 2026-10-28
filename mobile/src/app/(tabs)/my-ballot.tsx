@@ -3,6 +3,7 @@ import {
   ApiError,
   apiRequest,
   BALLOT_SORT_DESCRIPTIONS,
+  ballotListOrder,
   DEFAULT_BALLOT_SORT,
   BALLOT_SORTS,
   deriveBallotFilters,
@@ -301,7 +302,11 @@ function SavedBallotBody({ email }: { email: string }) {
         // An active filter can empty this list; the "N elections hidden ·
         // Show all" line above explains the empty view.
         <View className="mt-4 gap-3">
-          {filtersView.visibleElections.map((election) => (
+          {/* Flat list: ballotListOrder restores date order and the
+              empty-race sink that the positional ballot-order payload leaves
+              out (a no-op under every other sort). The list is in the saved
+              sort — this screen sends no override. */}
+          {ballotListOrder(filtersView.visibleElections, savedPrefs.data?.sort ?? DEFAULT_BALLOT_SORT).map((election) => (
             <ElectionCard
               key={election.id}
               election={election}
