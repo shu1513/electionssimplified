@@ -96,6 +96,52 @@ describe("Michigan current filing period policy", () => {
   it("rejects multiple amendments even if exported expenses are identical or empty", () => {
     expect(() => select([expense("one")], [], [filing(), amendment(), amendment({ sequenceNumber: "26-next" })])).toThrow(/ambiguous/);
   });
+  describe("separate elections sharing a pre-election label", () => {
+    const primary = filing({ documentName: "Pre-Election CS", coverageBegin: "2026-01-01", coverageEnd: "2026-07-20" });
+    const general = filing({ documentName: "Pre-Election CS", sequenceNumber: "26-general", coverageBegin: "2026-08-25",
+      coverageEnd: "2026-10-18", receivedDate: "2026-10-19" });
+    const amendedGeneral = amendment({ documentName: "Pre-Election CS", refersToSequenceNumber: general.sequenceNumber,
+      coverageBegin: general.coverageBegin, coverageEnd: general.coverageEnd, receivedDate: "2026-10-20" });
+    const records = () => [primary, general, amendedGeneral];
+    const row = () => expense("one", "100", "Pre-Election CS");
+    it("accepts identical economics and resolves the explicit reference rather than the first original", () => {
+      const first = row(), second = expense("two", "200", "Pre-Election CS");
+      expect(select([first, second, first, second], [second, first], records())).toEqual([header, second, first]);
+      expect(select([first], [first], records().reverse())).toEqual([header, first]);
+    });
+    it("ignores only the already-ignored filing completion metadata", () => {
+      const original = row(), amended = row(); amended[2] = "I";
+      expect(select([original], [amended], records())).toEqual([header, amended]);
+    });
+    it.each(Array.from({ length: 29 }, (_, i) => i).filter((i) => ![2, 3, 4].includes(i)))(
+      "holds a changed economic field at column %i", (column) => {
+        const changed = row(); changed[column] = column === 23 ? "101" : `${changed[column]} changed`;
+        expect(() => select([row()], [changed], records())).toThrow();
+      }
+    );
+    it("holds an extra original expense, amendment addition, or empty amendment", () => {
+      const extra = expense("extra", "200", "Pre-Election CS");
+      expect(() => select([row(), extra], [row()], records())).toThrow(/ambiguous original filing coverage/);
+      expect(() => select([row()], [row(), extra], records())).toThrow(/ambiguous original filing coverage/);
+      expect(() => select([row()], [], records())).toThrow(/ambiguous original filing coverage/);
+    });
+    it.each([
+      { coverageBegin: general.coverageBegin, coverageEnd: general.coverageEnd },
+      { coverageEnd: general.coverageBegin },
+      { coverageBegin: "" },
+      { coverageEnd: "2026-02-30" },
+      { coverageBegin: "2026-07-21", coverageEnd: "2026-07-20" },
+      { documentType: "Immediate Disclosure Reports" },
+    ])("holds invalid, overlapping or unsupported other original coverage %o", (change) => {
+      expect(() => select([row()], [row()], [{ ...primary, ...change }, general, amendedGeneral])).toThrow(/ambiguous original filing coverage/);
+    });
+    it("still requires one amendment and a unique matching reference and coverage", () => {
+      expect(() => select([row()], [row()], [...records(), { ...amendedGeneral, sequenceNumber: "26-next" }])).toThrow(/ambiguous/);
+      expect(() => select([row()], [row()], [primary, general, { ...amendedGeneral, refersToSequenceNumber: "26-unknown" }])).toThrow(/reference/);
+      expect(() => select([row()], [row()], [primary, general, { ...amendedGeneral, coverageBegin: "2026-08-26" }])).toThrow(/coverage/);
+      expect(() => select([row()], [row()], [primary, general, { ...amendedGeneral, receivedDate: "2026-10-18" }])).toThrow(/coverage/);
+    });
+  });
   it.each([
     ["missing original", [amendment()]],
     ["amendment with two originals", [filing(), filing({ sequenceNumber: "26-other" }), amendment()]],
@@ -127,6 +173,22 @@ describe("Michigan current filing period policy", () => {
 });
 
 describe("Michigan public filing manifest", () => {
+  it("qualifies and reuses a coherent cache for equivalent IE across separate pre-election periods", async () => {
+    const rawCacheDir = await directory();
+    const primary = filing({ documentName: "Pre-Election CS", coverageBegin: "2026-01-01", coverageEnd: "2026-07-20" });
+    const general = filing({ documentName: "Pre-Election CS", sequenceNumber: "26-general", coverageBegin: "2026-08-25",
+      coverageEnd: "2026-10-18", receivedDate: "2026-10-19" });
+    const amended = amendment({ documentName: "Pre-Election CS", refersToSequenceNumber: general.sequenceNumber,
+      coverageBegin: general.coverageBegin, coverageEnd: general.coverageEnd, receivedDate: "2026-10-20" });
+    const row = expense("one", "100", "Pre-Election CS"); row[22] = "09/01/2026";
+    const fetchFn = vi.fn<MichiganMitnFetchFn>(async (url) => response(url.includes("action=search") ? registry : page([primary, general, amended])));
+    const input = { statementYears: [2026], rawRows: [header, row, row], amendedRows: [header, row], rawCacheDir, fetchFn };
+    const result = await fetchMichiganMitnCurrentExpenditureRows({ ...input, refresh: true });
+    expect(result).toHaveLength(1); expect(result[0]).toMatchObject({ doc_seq_no: "one", amount: "100" });
+    fetchFn.mockClear();
+    expect(await fetchMichiganMitnCurrentExpenditureRows({ ...input, refresh: false })).toEqual(result);
+    expect(fetchFn).not.toHaveBeenCalled();
+  });
   it("parses source labels, sequence references and dates once", () => {
     expect(parseMichiganMitnFilingsHtml(page([filing(), amendment()]))).toEqual({ filings: [filing(), amendment()], first: 1, last: 2, total: 2 });
   });

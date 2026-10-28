@@ -10,6 +10,7 @@ import {
 import type { MichiganMitnLegacyExpenditureRow } from "./michiganMitnLegacyRowTypes.js";
 import {
   MICHIGAN_MITN_IE_EXPORT_HEADER,
+  dedupeMichiganMitnIndependentExpenditureExportRows,
   michiganMitnIndependentExpenditureExportRowsToLegacy,
 } from "./michiganMitnSupplementalData.js";
 
@@ -98,6 +99,25 @@ function validateTable(rows: readonly (readonly string[])[]): void {
   }
 }
 
+/** Shared labels can cover separate elections; only identical economics are interchangeable. */
+function equivalentOriginalPeriods(
+  originals: readonly MichiganMitnFiling[], full: string[][], amended: string[][]
+): boolean {
+  const validDate = (value: string) => {
+    const date = new Date(`${value}T00:00:00Z`);
+    return /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
+  };
+  const periods = [...originals].sort((a, b) => a.coverageBegin.localeCompare(b.coverageBegin));
+  if (periods.some((filing, i) => filing.documentType !== "Campaign Statements" ||
+      !validDate(filing.coverageBegin) || !validDate(filing.coverageEnd) || filing.coverageBegin > filing.coverageEnd ||
+      (i > 0 && periods[i - 1]!.coverageEnd >= filing.coverageBegin))) return false;
+  const economicRows = (rows: string[][]) => dedupeMichiganMitnIndependentExpenditureExportRows([
+    [...MICHIGAN_MITN_IE_EXPORT_HEADER], ...rows,
+  ]).slice(1).map((row) => JSON.stringify(row.filter((_, i) => ![2, 3, 4].includes(i)))).sort();
+  const left = economicRows(full), right = economicRows(amended);
+  return left.length > 0 && left.length === right.length && left.every((row, i) => row === right[i]);
+}
+
 /** Whole-period replacement removes expenses deleted from the original statement. */
 export function selectMichiganMitnCurrentExpenditureRows(input: {
   statementYears: readonly number[];
@@ -138,16 +158,15 @@ export function selectMichiganMitnCurrentExpenditureRows(input: {
     if (!originals.length || amendments.length > 1) {
       throw new Error(`Michigan MiTN period ${key} has ambiguous original or amendment versions`);
     }
-    const original = originals[0]!;
     const amendment = amendments[0];
     if (!amendment) {
       if (amended.has(key)) throw new Error(`Michigan MiTN period ${key} has unverified amended expenses`);
       selected.push(...(full.get(key) ?? []));
       continue;
     }
-    if (originals.length !== 1) {
-      throw new Error(`Michigan MiTN period ${key} has ambiguous original filing coverage for amendment replacement`);
-    }
+    const referenced = originals.filter((filing) => filing.sequenceNumber === amendment.refersToSequenceNumber);
+    if (referenced.length !== 1) throw new Error(`Michigan MiTN period ${key} has an unresolved amendment reference or coverage`);
+    const original = referenced[0]!;
     if (amendment.documentType !== "Amended Campaign Statements" || original.documentType !== "Campaign Statements") {
       throw new Error(`Michigan MiTN period ${key} has an unsupported amended immediate report`);
     }
@@ -156,6 +175,12 @@ export function selectMichiganMitnCurrentExpenditureRows(input: {
         amendment.coverageBegin !== original.coverageBegin || amendment.coverageEnd !== original.coverageEnd ||
         amendment.receivedDate < original.receivedDate) {
       throw new Error(`Michigan MiTN period ${key} has an unresolved amendment reference or coverage`);
+    }
+    // Pre-primary and pre-general can both be named "Pre-Election CS". A
+    // whole-label replacement is safe only when it cannot remove or change
+    // any eligible economic record from the other original coverage periods.
+    if (originals.length !== 1 && !equivalentOriginalPeriods(originals, full.get(key) ?? [], amended.get(key) ?? [])) {
+      throw new Error(`Michigan MiTN period ${key} has ambiguous original filing coverage for amendment replacement`);
     }
     // The manifest proves amendment existence even when its IE schedule is empty.
     selected.push(...(amended.get(key) ?? []));
