@@ -108,20 +108,19 @@ function queryObservation(value: unknown) {
 export function validateNevadaGroupRegistryObservations(
   value: unknown,
   context: { firstManifestAt: number; lastManifestAt: number; now: number },
-): { queries: NevadaObservedGroupNameQuery[]; observedAt: number } {
+): { queries: NevadaObservedGroupNameQuery[] } {
   if (
     !Object.values(context).every(Number.isFinite) ||
     context.firstManifestAt > context.lastManifestAt ||
     context.lastManifestAt > context.now
   )
     throw new Error("Nevada registry context time order is invalid");
-  if (value === undefined)
-    return { queries: [], observedAt: context.lastManifestAt };
+  if (value === undefined) return { queries: [] };
   const entries = array(value);
   if (entries.length > 50)
     throw new Error("Nevada registry query scope is invalid");
   const queries: NevadaObservedGroupNameQuery[] = [];
-  let observedAt = context.lastManifestAt;
+  let lastObservedAt = context.lastManifestAt;
   let firstObservedAt = context.firstManifestAt;
   for (const entry of entries) {
     const source = object(entry);
@@ -142,7 +141,7 @@ export function validateNevadaGroupRegistryObservations(
       last - first > 2 * 60 * 60 * 1000
     )
       throw new Error("Nevada registry observations do not bracket current source");
-    observedAt = Math.max(observedAt, last);
+    lastObservedAt = Math.max(lastObservedAt, last);
     firstObservedAt = Math.min(firstObservedAt, first);
     queries.push({
       nameQuery: opening.nameQuery,
@@ -151,7 +150,7 @@ export function validateNevadaGroupRegistryObservations(
       rows: opening.rows.map(([name, type]) => ({ name: name!, type: type! })),
     });
   }
-  if (observedAt - firstObservedAt > 2 * 60 * 60 * 1000)
+  if (lastObservedAt - firstObservedAt > 2 * 60 * 60 * 1000)
     throw new Error("Nevada registry whole capture exceeds the time limit");
-  return { queries, observedAt };
+  return { queries };
 }

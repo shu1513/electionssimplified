@@ -611,7 +611,7 @@ describe("Nevada registry evidence through the complete cash source validator", 
       groupRegistryObservations: [{ opening: observation(false), closing: observation(true) }],
     };
   }
-  it("admits an exact typed PAC without a literal suffix and preserves cash controls", () => {
+  it("admits an exact typed PAC without a literal suffix and preserves cash controls and the financial watermark", () => {
     const value = registryFixture();
     expect(validate({ ...value, groupRegistryObservations: undefined }).pacDonors).toHaveLength(2);
     const result = validate(value);
@@ -622,7 +622,8 @@ describe("Nevada registry evidence through the complete cash source validator", 
       contributionCount: 1,
     });
     expect(result.cashCents).toBe(230000);
-    expect(result.pacDonorSource.observedAt.toISOString()).toBe("2026-10-12T09:30:01.000Z");
+    // Registry pages close at 09:30; the watermark stays at the manifest closing.
+    expect(result.pacDonorSource.observedAt.toISOString()).toBe("2026-10-12T09:20:00.000Z");
   });
   it("rejects incomplete registry evidence before it can replace the existing donor component", () => {
     const value = registryFixture();

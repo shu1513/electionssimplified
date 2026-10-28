@@ -34,14 +34,13 @@ function validate(value: unknown) {
   return validateNevadaGroupRegistryObservations(value, context);
 }
 describe("Nevada complete all-class registry observations", () => {
-  it("accepts every native page including the tail and uses the last closing observation", () => {
+  it("accepts every native page including the tail", () => {
     const result = validate(fixture());
     expect(result.queries[0]).toMatchObject({ nameQuery: "Corp", groupTypeBlank: true, resultCount: 26 });
     expect(result.queries[0]!.rows).toHaveLength(26);
-    expect(result.observedAt).toBe(Date.parse("2026-10-25T10:20:01.000Z"));
   });
   it("keeps old literal-only packets compatible without asserting registry authority", () => {
-    expect(validate(undefined)).toEqual({ queries: [], observedAt: context.lastManifestAt });
+    expect(validate(undefined)).toEqual({ queries: [] });
   });
   it("bounds the whole graph even when each individual query brackets the manifest within two hours", () => {
     const early = fixture()[0]!;

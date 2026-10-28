@@ -163,8 +163,9 @@ the writer runs.
 
 Registry opening pages must precede the receiving manifest opening; registry
 closing pages must follow its closing. The complete capture spans at most two
-hours and must be no more than 36 hours old. The donor component observation
-time includes the last verified registry closing. Full reported-name PAC
+hours and must be no more than 36 hours old. The donor source watermark stays
+at the financial manifest closing time; registry closings never advance it, so
+an older financial snapshot cannot replace a newer one. Full reported-name PAC
 matches feed the existing aggregator; exact non-PAC classes and cross-class
 conflicts retain their veto. No legal committee ID or alias is inferred.
 Packets without registry observations retain literal-name recognition.

@@ -460,8 +460,11 @@ export function validateNevadaCommitteeDonorObservation(
     root.groupRegistryObservations,
     { firstManifestAt: first, lastManifestAt: last, now },
   );
+  // The watermark is the financial manifest's closing time. Registry pages
+  // close later by construction, so using them would let an older financial
+  // snapshot with a later registry read replace a newer one.
   const pacDonorSource: NevadaFinancePacDonorSource = {
-    observedAt: new Date(registry.observedAt),
+    observedAt: new Date(last),
     periodStart,
     periodEnd,
     captureDigest: options.captureDigest,
