@@ -48,7 +48,7 @@ describe("FinanceSummaryCard", () => {
     summary.outside_spending.top_supporting_groups=[{committee_id:"synthetic",committee_name:"Example Spender",support_oppose:"support",amount:10000,source_url:null}];
     render(<FinanceSummaryCard summary={summary}/>);
     expect(screen.getByText("Reported outside disbursements")).toBeInTheDocument();
-    expect(screen.getByText(/Outside groups reported IE disbursements to support/)).toBeInTheDocument();
+    expect(screen.getByText(/Outside groups reported spending to support/)).toBeInTheDocument();
     expect(screen.queryByText(/Outside groups spent/)).not.toBeInTheDocument();
     expect(screen.getByText(summary.outside_spending.outside_coverage_note)).toBeInTheDocument();
   });

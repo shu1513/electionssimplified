@@ -28,6 +28,9 @@ describe("reviewed RI IE read closure", () => {
       top_supporting_groups:[expect.objectContaining({amount:10000,expenditure_count:2})],top_opposing_groups:[]});
     expect(summaries.get(key)!.outside_spending.outside_coverage_note).toContain("cash payment is not established");
     expect(database.query.mock.calls[0][0]).not.toContain("ri_candidate_finance_links");
+    // Read side keeps accepted data while a past ballot is still visible; only writers take the election date window.
+    const canonicalSql=database.query.mock.calls.map((c:[string])=>c[0]).find((sql:string)=>sql.includes("FROM public.candidates candidate"));
+    expect(canonicalSql).not.toContain("CURRENT_DATE");
   });
   it.each(["familyCount","lineCount","lineMoney","ytd","sourceUrl","sourceHash","target","duplicateLine","unsafe","payerKey"])("holds corrupt %s before display", async kind => {
     const f=row(); if(kind==="familyCount") f.ie_report_count=2; if(kind==="lineCount") f.reports[0]!.occurrenceCount=3;

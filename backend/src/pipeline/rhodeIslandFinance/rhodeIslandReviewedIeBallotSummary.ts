@@ -48,7 +48,7 @@ export async function appendRhodeIslandReviewedIeSummaries(db: Pick<Pool | PoolC
     if (outside && (outside.support_total !== null || outside.oppose_total !== null || outside.top_supporting_groups.length ||
       outside.top_opposing_groups.length || outside.top_supporting_industries.length || outside.top_opposing_industries.length ||
       outside.unallocated_candidate_edges?.length)) continue;
-    const actual = await loadRhodeIslandCanonicalCashContext(db, first.candidate_id,first.election_id);
+    const actual = await loadRhodeIslandCanonicalCashContext(db, first.candidate_id,first.election_id, { anyElectionDate: true });
     const groups: BallotLookupFinanceOutsideGroup[] = [], seen = new Set<string>();
     let earliest = Infinity, latest = -Infinity;
     try {

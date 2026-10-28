@@ -14,6 +14,9 @@ export const rhodeIslandReviewedIeSpenderKey = (name: string) =>
  * Only loader-minted packets may enter. Accepted original clocks are monotone;
  * an identical packet is a no-op. All report/line replacement is atomic and
  * globally owned single-target GUIDs cannot move to another candidate/family.
+ * A packet always carries the complete current IE set of its bracketed index,
+ * so a stored report absent from a newer packet has left the state's index;
+ * the newer complete index is the authority and the report is dropped.
  */
 export async function writeRhodeIslandReviewedIePacket(input: {
   db: Db; packet: RhodeIslandReviewedIePacket; reviewedMapping: true;
@@ -28,7 +31,7 @@ export async function writeRhodeIslandReviewedIePacket(input: {
     const locks = [`ri-ie:context:${c.candidateId}:${c.electionId}`, `ri-ie:filer:${spenderKey}:${c.electionYear}`,
       ...p.reports.map(r => `ri-ie:guid:${r.filingGuid}`)].sort();
     for (const value of locks) await tx.query("SELECT pg_advisory_xact_lock(hashtextextended($1::text,0))", [value]);
-    const actual = await loadRhodeIslandCanonicalCashContext(tx, c.candidateId, c.electionId, true);
+    const actual = await loadRhodeIslandCanonicalCashContext(tx, c.candidateId, c.electionId, { lock: true });
     check(rhodeIslandReviewedIeContextMatches(actual, c), "canonical_context_changed");
     const previous = await tx.query<{ id: string; newer: boolean; equal: boolean; source_digest: string }>(`
       SELECT id::text,observed_at>$5::timestamptz newer,observed_at=$5::timestamptz equal,source_digest

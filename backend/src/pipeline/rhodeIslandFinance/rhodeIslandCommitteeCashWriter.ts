@@ -39,7 +39,7 @@ export async function writeRhodeIslandCashPacket(input: {
         for (const key of [`ri-cash:context:${c.candidateId}:${c.electionId}`, `ri-cash:account:${c.committeeId}:${c.electionYear}`].sort()) {
           await tx.query("SELECT pg_advisory_xact_lock(hashtextextended($1::text, 0))", [key]);
         }
-        const actual = await loadRhodeIslandCanonicalCashContext(tx, c.candidateId, c.electionId, true);
+        const actual = await loadRhodeIslandCanonicalCashContext(tx, c.candidateId, c.electionId, { lock: true });
         check(actual && actual.candidate_name === c.candidateName && actual.last_name === c.searchLastName && actual.election_year === c.electionYear &&
           actual.office_scope === c.officeScope && actual.office_name === c.officeName && actual.district === c.district, "canonical_context_changed");
         const seat = Number(actual.geoid_compact.slice(2));

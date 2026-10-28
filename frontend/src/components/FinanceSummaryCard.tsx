@@ -309,7 +309,7 @@ function OutsideSection({
       }`}
     >
       <p className={`text-base font-medium ${isSupport ? "text-green-900" : "text-red-900"}`}>
-        {reportedDisbursements ? "Outside groups reported IE disbursements" : `Outside groups spent ${shownTotal !== null ? formatMoney(shownTotal) : "money"}`} to {verb}{" "}
+        {reportedDisbursements ? "Outside groups reported spending" : `Outside groups spent ${shownTotal !== null ? formatMoney(shownTotal) : "money"}`} to {verb}{" "}
         this candidate.
       </p>
       {industries.length > 0 ? (
@@ -333,7 +333,7 @@ function OutsideSection({
         // collapse a long list out of the way.
         <details className="mt-5" open>
           <summary className="cursor-pointer select-none text-sm font-medium text-ink hover:underline">
-            {reportedDisbursements ? "Groups reporting IE disbursements" : "Groups that spent money"} {directionLabel} this candidate ({groups.length})
+            {reportedDisbursements ? "Groups that reported spending" : "Groups that spent money"} {directionLabel} this candidate ({groups.length})
           </summary>
           <ul className="mt-3 space-y-4">
             {groups.map((row) => (

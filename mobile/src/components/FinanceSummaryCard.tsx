@@ -297,7 +297,7 @@ function OutsideSection({
   return (
     <View className="mt-2 rounded border border-line p-2">
       <Text className="text-sm font-medium text-ink">
-        {reportedDisbursements ? "Outside groups reported IE disbursements" : `Outside groups spent ${shownTotal !== null ? formatMoney(shownTotal) : "money"}`} to {verb}{" "}
+        {reportedDisbursements ? "Outside groups reported spending" : `Outside groups spent ${shownTotal !== null ? formatMoney(shownTotal) : "money"}`} to {verb}{" "}
         this candidate.
       </Text>
       {industries.length > 0 ? (

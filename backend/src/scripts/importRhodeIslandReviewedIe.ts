@@ -61,5 +61,9 @@ async function main() {
   console.log(JSON.stringify(await runRhodeIslandReviewedIeImport({ options, payload })));
 }
 if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) {
-  main().catch(() => { console.error(JSON.stringify({ type: "rhode_island_reviewed_ie_import", held: true, code: "source_or_import_failed" })); process.exitCode = 1; });
+  main().catch((error: unknown) => {
+    console.error(JSON.stringify({ type: "rhode_island_reviewed_ie_import", held: true, code: "source_or_import_failed",
+      reason: error instanceof Error ? error.message : String(error) }));
+    process.exitCode = 1;
+  });
 }
