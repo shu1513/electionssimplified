@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { APP_NAME, apiRequest, useMe } from "@voteapp/api-client";
 import {
   BALLOT_SORTS,
+  DEFAULT_BALLOT_SORT,
   PUBLIC_BALLOT_SORTS,
   type BallotSort,
   type BallotSummary,
@@ -42,8 +43,8 @@ import { useTrackBallotResult, track } from "../lib/usage";
 // top of them to signed-in visitors with saved research areas, honored by a
 // CLIENT-side re-sort (sortRailEntries — the same mirror of the backend
 // comparator the detail rail uses), because /api/ballot has no user to score
-// against. For anonymous visitors a my_areas URL value falls back to
-// vote_power so the UI never claims an ordering nobody computed.
+// against. For anonymous visitors a my_areas URL value falls back to the
+// default sort so the UI never claims an ordering nobody computed.
 const SORT_VALUES: readonly string[] = PUBLIC_BALLOT_SORTS.map((option) => option.value);
 
 export function BallotPage() {
@@ -96,15 +97,16 @@ export function BallotPage() {
     .split(",")
     .map((id) => id.trim())
     .filter((id) => id.length > 0);
-  // Inside the newsroom box the list starts with the biggest districts first
-  // (president, governor, U.S. Senate), the order a reader expects from a
-  // ballot; a sort the reader picks still wins, as on the site.
+  // The site default is ballot order (DEFAULT_BALLOT_SORT: races as they
+  // print on the paper ballot). Inside the newsroom box the list starts
+  // with the biggest districts first (president, governor, U.S. Senate)
+  // instead; a sort the reader picks still wins, as on the site.
   const embedSession = useEmbedSession();
-  const defaultSort: BallotSort = embedSession ? "district_size" : "vote_power";
+  const defaultSort: BallotSort = embedSession ? "district_size" : DEFAULT_BALLOT_SORT;
   const rawSort = searchParams.get("sort") ?? "";
   // my_areas is only real once the viewer's saved areas confirm (hasSaved);
   // until then — and for anonymous visitors forever — it degrades to the
-  // vote_power default. The list is withheld while that's still unsettled
+  // default sort. The list is withheld while that's still unsettled
   // (awaitingSavedAreas below) so the degraded order never flashes.
   const myAreasRequested = rawSort === "my_areas";
   const sort: BallotSort = myAreasRequested
@@ -114,9 +116,15 @@ export function BallotPage() {
     : SORT_VALUES.includes(rawSort)
       ? (rawSort as BallotSort)
       : defaultSort;
+  // A my_areas URL is unresolved until the saved-areas flag settles (see the
+  // sort derivation above): the list is withheld meanwhile (below), but the
+  // fetch is not — a ballot error must still surface during the wait.
+  const awaitingSavedAreas = myAreasRequested && savedAreasLoading;
   // What the anonymous endpoint is asked for: my_areas is client-side here,
-  // so its fetch requests (and caches under) the plain vote_power payload.
-  const fetchSort: BallotSort = sort === "my_areas" ? "vote_power" : sort;
+  // so its fetch requests (and caches under) the plain vote_power payload —
+  // already while the saved areas load, since a my_areas link is most often
+  // a viewer who has them; the anonymous degrade refetches the default.
+  const fetchSort: BallotSort = sort === "my_areas" || awaitingSavedAreas ? "vote_power" : sort;
 
   const ballot = useQuery({
     queryKey: ["ballot", districtIds.join(","), fetchSort],
@@ -178,10 +186,8 @@ export function BallotPage() {
   // areas are still unknown (the ballot is one request; the saved areas are
   // two chained ones, so the ballot usually lands first). Withhold the list
   // until the flag settles — it settles on failure too, falling open to the
-  // vote_power order: a ballot app errs toward showing races, and the select
+  // default order: a ballot app errs toward showing races, and the select
   // admits the fallback rather than claiming an issue ordering.
-  const awaitingSavedAreas = myAreasRequested && savedAreasLoading;
-
   // The my_areas re-sort. Runs over the full list; the
   // awaiting-candidates tail needs no special handling because ElectionList
   // splits it into its own closing section regardless of input order (the

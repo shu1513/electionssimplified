@@ -3,6 +3,7 @@ import {
   ApiError,
   apiRequest,
   BALLOT_SORT_DESCRIPTIONS,
+  DEFAULT_BALLOT_SORT,
   BALLOT_SORTS,
   deriveBallotFilters,
   myDraftLabel,
@@ -272,7 +273,7 @@ function SavedBallotBody({ email }: { email: string }) {
       <Text className="mt-1 text-sm text-ink-soft">
         {data.elections.length} election{data.elections.length === 1 ? "" : "s"} across{" "}
         {data.districts.length} district{data.districts.length === 1 ? "" : "s"},{" "}
-        {BALLOT_SORT_DESCRIPTIONS[savedPrefs.data?.sort ?? "vote_power"]}
+        {BALLOT_SORT_DESCRIPTIONS[savedPrefs.data?.sort ?? DEFAULT_BALLOT_SORT]}
       </Text>
       <BallotSortPreference />
       {/* The Order section makes the disclosure always available here —

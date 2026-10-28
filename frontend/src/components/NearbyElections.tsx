@@ -3,6 +3,7 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import {
   apiRequest,
   formatElectionDate,
+  DEFAULT_BALLOT_SORT,
   PUBLIC_BALLOT_SORTS,
   railSortForBallotSort,
   useElectionChoices,
@@ -125,7 +126,7 @@ export function NearbyElections() {
   // just holds one copy per sort. An unknown value reads as the default.
   const [searchParams, setSearchParams] = useSearchParams();
   const rawSort = searchParams.get("sort") ?? "";
-  const sort: BallotSort = PUBLIC_SORT_VALUES.includes(rawSort) ? (rawSort as BallotSort) : "vote_power";
+  const sort: BallotSort = PUBLIC_SORT_VALUES.includes(rawSort) ? (rawSort as BallotSort) : DEFAULT_BALLOT_SORT;
   function onSortChange(next: BallotSort) {
     track("list_control", { control: "sort", value: next });
     setSearchParams(

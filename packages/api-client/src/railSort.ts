@@ -14,8 +14,14 @@ import { NO_MATCH_BEST_RANK } from "./researchAreaScoring";
 // grouping is deliberately not applied either: the rail is an organizing
 // view, and the authoritative order returns from the backend the moment
 // the reader navigates back to the list.
+//
+// ballot_order (the list's state_baseline, "Ballot order") cannot be
+// computed here either — the per-state rules live in the backend — so the
+// rail honors it only from a snapshot that ARRIVED in that order, by keeping
+// the snapshot's own order within each date (railSortsOffered's
+// ballotOrdered flag; the list pages stamp listSort).
 
-export type RailSortKey = "my_areas" | "vote_power" | "district_smallest" | "district_biggest";
+export type RailSortKey = "ballot_order" | "my_areas" | "vote_power" | "district_smallest" | "district_biggest";
 
 /** The two district sorts: the list's district-size sorts, which the rail
  * mirrors from the snapshot's section headings (it cannot size districts
@@ -46,6 +52,7 @@ export type RailSortEntry = {
 /** Rail order, matching the list pages' labels where the sort is the same
  * one. alphabetical is rail-only (the list has no A–Z sort). */
 export const RAIL_SORTS: readonly { value: RailSortKey; label: string }[] = [
+  { value: "ballot_order", label: "Ballot order" },
   { value: "my_areas", label: "My issues" },
   { value: "vote_power", label: "My vote power" },
   { value: "district_smallest", label: "Smallest districts" },
@@ -58,14 +65,14 @@ export const RAIL_SORTS: readonly { value: RailSortKey; label: string }[] = [
 const TITLE_COLLATOR = new Intl.Collator("en", { numeric: true });
 
 /**
- * The rail sort a ballot list's engaged sort seeds. The two shared sorts
- * map to themselves; the district-size sorts fall back to vote_power — the
- * rail cannot honor them (district population never reaches the client),
- * and "My vote power" is the ballot's own default order. So does anything
- * unknown, such as the retired `soonest` value in an old link.
+ * The rail sort a ballot list's engaged sort seeds. The shared sorts map to
+ * their rail names. Anything unknown, such as the retired `soonest` value in
+ * an old link, falls back to vote_power: the one order the rail can always
+ * compute from the snapshot's own keys.
  */
 export function railSortForBallotSort(sort: string): RailSortKey {
   if (sort === "my_areas") return sort;
+  if (sort === "state_baseline") return "ballot_order";
   if (sort === "district_size_smallest") return "district_smallest";
   if (sort === "district_size") return "district_biggest";
   return "vote_power";
@@ -74,6 +81,7 @@ export function railSortForBallotSort(sort: string): RailSortKey {
 /** The inverse: the list's ?sort= value for a rail sort (every rail sort is
  * one of the list's). */
 export function ballotSortForRailSort(sort: RailSortKey): string {
+  if (sort === "ballot_order") return "state_baseline";
   if (sort === "district_smallest") return "district_size_smallest";
   if (sort === "district_biggest") return "district_size";
   return sort;
@@ -90,11 +98,15 @@ export function railSortsOffered(
   hasSavedAreas: boolean,
   {
     snapshotOrdered = false,
+    ballotOrdered = false,
   }: {
     /** The snapshot's own order is a district-size order (it came from a
      * district-size list): the district sorts then need only the headings,
      * not the levels — an older such snapshot carries no levels. */
     snapshotOrdered?: boolean;
+    /** The snapshot's own order is the list's ballot order (it came from a
+     * ballot-order list): the only way the rail can offer that sort. */
+    ballotOrdered?: boolean;
   } = {}
 ): RailSortKey[] {
   if (entries.length < 2) {
@@ -115,7 +127,10 @@ export function railSortsOffered(
     (entry) => entry.group !== undefined && (snapshotOrdered || entry.level !== undefined)
   );
   return RAIL_SORTS.map((option) => option.value).filter(
-    (value) => (value !== "my_areas" || myAreas) && (!isRailDistrictSort(value) || grouped)
+    (value) =>
+      (value !== "ballot_order" || ballotOrdered) &&
+      (value !== "my_areas" || myAreas) &&
+      (!isRailDistrictSort(value) || grouped)
   );
 }
 
@@ -268,6 +283,11 @@ export function sortRailEntries<Entry extends RailSortEntry>(
         return byPower;
       }
       return compareTail(a, b);
+    }
+    if (sort === "ballot_order") {
+      // The snapshot arrived in ballot order: within a date the input order
+      // IS the sort (stable sort keeps it).
+      return 0;
     }
     if (sort === "vote_power") {
       const byPower = compareVotePower(a, b);

@@ -113,14 +113,30 @@ function makeOrderingQuery(fixtures: {
 }
 
 describe("applyBallotElectionOrdering", () => {
-  it("orders by vote_power score descending by default", async () => {
+  it("defaults to state_baseline (ballot order) when no sort is given", async () => {
+    const result = await applyBallotElectionOrdering(
+      { query: makeFollowsQuery([]) },
+      makeSummary([
+        // Vote power set against the ballot order so a vote_power default
+        // would flip the result.
+        { id: electionA, race_type: "ballot_measure", contest_family: "ballot_measure", vote_power_score: 100 },
+        { id: electionB, office_scope: "place", vote_power_score: 90 },
+        { id: electionC, office_scope: "us_house", vote_power_score: 1 },
+      ])
+    );
+
+    expect(result.elections.map((e) => e.id)).toEqual([electionC, electionB, electionA]);
+  });
+
+  it("orders by vote_power score descending under sort=vote_power", async () => {
     const query = makeFollowsQuery([]);
     const result = await applyBallotElectionOrdering(
       { query },
       makeSummary([
         { id: electionA, vote_power_score: 20 },
         { id: electionB, vote_power_score: 95 },
-      ])
+      ]),
+      { sort: "vote_power" }
     );
 
     expect(result.elections.map((e) => e.id)).toEqual([electionB, electionA]);
@@ -134,7 +150,8 @@ describe("applyBallotElectionOrdering", () => {
       makeSummary([
         { id: electionA, vote_power_score: null },
         { id: electionB, vote_power_score: 5 },
-      ])
+      ]),
+      { sort: "vote_power" }
     );
 
     expect(result.elections.map((e) => e.id)).toEqual([electionB, electionA]);
@@ -147,7 +164,8 @@ describe("applyBallotElectionOrdering", () => {
         { id: electionA, election_date: "2026-11-03", vote_power_score: 95 },
         { id: electionB, election_date: "2026-08-26", vote_power_score: 10 },
         { id: electionC, election_date: "2026-08-26", vote_power_score: 40 },
-      ])
+      ]),
+      { sort: "vote_power" }
     );
 
     // August before November despite November's higher score; within August
@@ -163,7 +181,7 @@ describe("applyBallotElectionOrdering", () => {
         { id: electionB, election_date: "2026-11-03", vote_power_score: 95 },
         { id: electionC, election_date: "2026-08-26", vote_power_score: 5 },
       ]),
-      { userId }
+      { userId, sort: "vote_power" }
     );
 
     // The followed November race leads November, but never jumps above August.
@@ -177,7 +195,8 @@ describe("applyBallotElectionOrdering", () => {
         { id: electionA, official_ballot_title: "Proposition 33", vote_power_score: 50 },
         { id: electionB, official_ballot_title: "Proposition 4", vote_power_score: 50 },
         { id: electionC, official_ballot_title: "Proposition 12", vote_power_score: 50 },
-      ])
+      ]),
+      { sort: "vote_power" }
     );
 
     expect(result.elections.map((e) => e.official_ballot_title)).toEqual([
@@ -310,7 +329,7 @@ describe("applyBallotElectionOrdering", () => {
         { id: electionA, vote_power_score: 10 },
         { id: electionB, vote_power_score: 95 },
       ]),
-      { userId }
+      { userId, sort: "vote_power" }
     );
 
     expect(result.elections.map((e) => e.id)).toEqual([electionA, electionB]);
@@ -328,7 +347,7 @@ describe("applyBallotElectionOrdering", () => {
         { id: electionA, vote_power_score: 10 },
         { id: electionB, vote_power_score: 95 },
       ]),
-      { userId, followedFirst: false }
+      { userId, followedFirst: false, sort: "vote_power" }
     );
 
     expect(result.elections.map((e) => e.id)).toEqual([electionB, electionA]);
@@ -345,7 +364,8 @@ describe("applyBallotElectionOrdering", () => {
         // not final" placeholder, so it must not lead the ballot.
         { id: electionA, vote_power_score: 99, candidate_count: 0 },
         { id: electionB, vote_power_score: 10 },
-      ])
+      ]),
+      { sort: "vote_power" }
     );
 
     expect(result.elections.map((e) => e.id)).toEqual([electionB, electionA]);
@@ -361,7 +381,8 @@ describe("applyBallotElectionOrdering", () => {
         // sorts on vote power like any other.
         { id: electionA, vote_power_score: 99, candidate_count: 0, has_results: true },
         { id: electionB, vote_power_score: 10 },
-      ])
+      ]),
+      { sort: "vote_power" }
     );
 
     expect(result.elections.map((e) => e.id)).toEqual([electionA, electionB]);
@@ -375,13 +396,14 @@ describe("applyBallotElectionOrdering", () => {
         // content, so it sorts on vote power like any other readable race.
         { id: electionA, vote_power_score: 99, candidate_count: 0, race_type: "ballot_measure" },
         { id: electionB, vote_power_score: 10 },
-      ])
+      ]),
+      { sort: "vote_power" }
     );
 
     expect(result.elections.map((e) => e.id)).toEqual([electionA, electionB]);
   });
 
-  it("sinks candidate-less races under every sort, not just the default", async () => {
+  it("sinks candidate-less races under every list sort, not just vote_power", async () => {
     const result = await applyBallotElectionOrdering(
       { query: makeFollowsQuery([]) },
       makeSummary([

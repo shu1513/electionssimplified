@@ -10,31 +10,23 @@ import {
 const userId = "99999999-9999-4999-8999-999999999999";
 
 describe("getUserBallotPreferences", () => {
-  it("returns application defaults when the user has no saved row and no research areas", async () => {
+  it("returns application defaults (ballot order) when the user has no saved row", async () => {
     const query = vi.fn().mockResolvedValue({
-      rows: [{ user_exists: true, sort: null, followed_first: null, has_research_areas: false }],
+      rows: [{ user_exists: true, sort: null, followed_first: null }],
     });
 
     const result = await getUserBallotPreferences({ query }, userId);
 
     expect(result).toEqual(DEFAULT_BALLOT_PREFERENCES);
-    expect(result).toEqual({ sort: "vote_power", followed_first: true });
-  });
-
-  it("defaults the sort to my_areas when the user saved research areas but no ballot preferences", async () => {
-    const query = vi.fn().mockResolvedValue({
-      rows: [{ user_exists: true, sort: null, followed_first: null, has_research_areas: true }],
-    });
-
-    await expect(getUserBallotPreferences({ query }, userId)).resolves.toEqual({
-      sort: "my_areas",
-      followed_first: true,
-    });
+    expect(result).toEqual({ sort: "state_baseline", followed_first: true });
+    // No personalized default any more: saved research areas are not even
+    // consulted — "My issues" is a choice the user saves.
+    expect(String(query.mock.calls[0]?.[0])).not.toContain("user_research_area_preferences");
   });
 
   it("returns the saved preferences", async () => {
     const query = vi.fn().mockResolvedValue({
-      rows: [{ user_exists: true, sort: "district_size", followed_first: false, has_research_areas: false }],
+      rows: [{ user_exists: true, sort: "district_size", followed_first: false }],
     });
 
     await expect(getUserBallotPreferences({ query }, userId)).resolves.toEqual({
@@ -43,9 +35,9 @@ describe("getUserBallotPreferences", () => {
     });
   });
 
-  it("lets an explicitly saved sort beat the my_areas personalized default", async () => {
+  it("returns a saved vote_power sort as-is", async () => {
     const query = vi.fn().mockResolvedValue({
-      rows: [{ user_exists: true, sort: "vote_power", followed_first: true, has_research_areas: true }],
+      rows: [{ user_exists: true, sort: "vote_power", followed_first: true }],
     });
 
     await expect(getUserBallotPreferences({ query }, userId)).resolves.toEqual({
@@ -97,16 +89,14 @@ describe("setUserBallotPreferences", () => {
     expect(query).not.toHaveBeenCalled();
   });
 
-  it("rejects the request-only state_baseline sort as invalid_preferences, not a DB error", async () => {
-    // state_baseline is a valid BallotSummarySort but not saveable — the
-    // user_ballot_preferences CHECK constraint (migration 152) predates it,
-    // so letting it through would surface as a constraint failure.
-    const query = vi.fn();
+  it("saves the state_baseline (ballot order) sort", async () => {
+    // Saveable since migration 393 widened the CHECK constraint.
+    const query = vi.fn().mockResolvedValue({ rows: [{ sort: "state_baseline", followed_first: true }] });
 
     await expect(
       setUserBallotPreferences({ query }, userId, { sort: "state_baseline", followed_first: true })
-    ).rejects.toMatchObject({ code: "invalid_preferences" });
-    expect(query).not.toHaveBeenCalled();
+    ).resolves.toEqual({ sort: "state_baseline", followed_first: true });
+    expect(query.mock.calls[0]?.[1]).toEqual([userId, "state_baseline", true]);
   });
 
   it("throws user_not_found when the insert selects no user row", async () => {

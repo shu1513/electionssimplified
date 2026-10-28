@@ -164,6 +164,7 @@ const CATALOG: Record<string, { required: Record<string, PropRule>; optional?: R
         "district_size_smallest",
         "my_areas",
         "state_baseline",
+        "ballot_order",
         // booleans and thresholds
         "on",
         "off",

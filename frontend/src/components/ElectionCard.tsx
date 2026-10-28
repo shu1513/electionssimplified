@@ -450,6 +450,9 @@ export function ElectionList({
     }
   }
   const votePowerDates = new Set([...nonRetentionCounts].filter(([, count]) => count >= 10).map(([date]) => date));
+  // The awaiting tail applies under every sort, ballot order included: the
+  // backend skips its sink for state_baseline (the preview needs the raw
+  // slot), but the list never surfaces a race with nothing to read.
   const { groups, awaiting: awaitingCandidates } = groupListElections(elections, votePowerDates);
   // Navigation uses the same qualifying dates as the displayed list,
   // even when its pool includes races hidden by the active tab.

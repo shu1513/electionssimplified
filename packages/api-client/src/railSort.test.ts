@@ -30,6 +30,8 @@ describe("railSortsOffered", () => {
   it("offers everything but my_areas without saved areas", () => {
     expect(railSortsOffered(KEYED, false)).toEqual(["vote_power"]);
     expect(railSortsOffered(KEYED, true)).toEqual(["my_areas", "vote_power"]);
+    // Ballot order only from a snapshot that arrived in it.
+    expect(railSortsOffered(KEYED, false, { ballotOrdered: true })).toEqual(["ballot_order", "vote_power"]);
   });
 
   it("offers nothing on an unkeyed (pre-deploy) snapshot or a single entry", () => {
@@ -287,5 +289,23 @@ describe("retention rail order", () => {
       entry("later", { election_date: "2027-01-01" }),
     ];
     expect(sortRailEntries(entries, sort).map((e) => e.id)).toEqual(["contest", "later", "awaiting", "retention"]);
+  });
+});
+
+describe("ballot_order rail sort", () => {
+  it("maps to and from the list's state_baseline sort", () => {
+    expect(railSortForBallotSort("state_baseline")).toBe("ballot_order");
+    expect(ballotSortForRailSort("ballot_order")).toBe("state_baseline");
+  });
+
+  it("keeps the snapshot's own order within a date, tails still sunk", () => {
+    const entries = [
+      { id: "b", title: "Proposition 1", vote_power_score: 1, election_date: "2026-11-03" },
+      { id: "r", title: "Retain Judge", vote_power_score: null, election_date: "2026-11-03", retention: true },
+      { id: "a", title: "Mayor", vote_power_score: 99, election_date: "2026-11-03", awaiting_candidates: true },
+      { id: "c", title: "Sheriff", vote_power_score: 50, election_date: "2026-11-03" },
+      { id: "d", title: "Earlier", vote_power_score: 5, election_date: "2026-06-02" },
+    ];
+    expect(sortRailEntries(entries, "ballot_order").map((entry) => entry.id)).toEqual(["d", "b", "c", "a", "r"]);
   });
 });

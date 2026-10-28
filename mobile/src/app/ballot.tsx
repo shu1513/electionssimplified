@@ -2,6 +2,7 @@ import type { BallotSort, BallotSummary, VoteImpactThreshold } from "@voteapp/ap
 import {
   apiRequest,
   BALLOT_SORT_DESCRIPTIONS,
+  DEFAULT_BALLOT_SORT,
   deriveBallotFilters,
   formatDistrictName,
   formatDistrictType,
@@ -36,7 +37,7 @@ export default function BallotScreen() {
   // as the web's partial=1 URL param.
   const isPartialBallot = params.partial === "1";
   const { savedAreaIds, weights, hasSaved } = useMyResearchAreas();
-  const [sort, setSort] = useState<BallotSort>("vote_power");
+  const [sort, setSort] = useState<BallotSort>(DEFAULT_BALLOT_SORT);
   // Filters: local state like sort — the screen stays mounted under a stack
   // push, so the choices survive navigating into an election and back (the
   // web reflects them into the URL for the same reason).

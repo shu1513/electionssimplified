@@ -432,9 +432,16 @@ export function ElectionPage() {
     );
     return isRailDistrictSort(fromUrl) ? fromUrl : null;
   })();
+  // Ballot order is offered only from a snapshot that arrived in it (the
+  // rail cannot compute the paper-ballot order itself); listSort, never
+  // railSort, for the same reason as above.
+  const snapshotBallotOrdered = navState?.listSort === "ballot_order";
   const offeredRailSorts = savedAreasLoading
     ? []
-    : railSortsOffered(contests ?? [], hasSaved, { snapshotOrdered: snapshotDistrictSort !== null });
+    : railSortsOffered(contests ?? [], hasSaved, {
+        snapshotOrdered: snapshotDistrictSort !== null,
+        ballotOrdered: snapshotBallotOrdered,
+      });
   const [railSortOverride, setRailSortState] = useState<RailSortKey | null>(null);
   const railSortState =
     railSortOverride ??
