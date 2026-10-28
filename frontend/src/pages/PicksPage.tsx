@@ -11,7 +11,7 @@ import {
   useMyPickCardShares,
 } from "@voteapp/api-client";
 import type { AutoPickElectionResult, BallotSummary, ElectionChoice, ElectionSummary } from "@voteapp/api-client";
-import { AutoPickFillControl, reasonLabel } from "../components/AutoPickFillControl";
+import { AutoPickFillControl, autoFillSummary } from "../components/AutoPickFillControl";
 import { RemoveStrandedPickButton } from "../components/ElectionChoiceControls";
 import { BallotPreviewSheets, BallotViewToggle } from "../components/BallotPreview";
 import { RetentionGroup } from "../components/ElectionCard";
@@ -303,34 +303,6 @@ function ShareCardControl({ electionDate, canMint }: { electionDate: string; can
       ) : null}
     </span>
   );
-}
-
-// One line for the whole fill run, instead of "auto pick: …" on every row the
-// engine left open (34 races → 30 identical notes was clutter). Counts what
-// landed and groups the open rows by reason; skipped_existing rows (already
-// decided by hand) are not the run's story. Per-race detail stays on each
-// election page's panel.
-function autoFillSummary(results: Map<string, AutoPickElectionResult>): string | null {
-  const all = [...results.values()];
-  const picked = all.filter((result) => result.outcome === "picked").length;
-  const open = all.filter((result) => result.outcome === "no_pick");
-  if (picked === 0 && open.length === 0) {
-    return null;
-  }
-  const byReason = new Map<string, number>();
-  for (const result of open) {
-    const label = reasonLabel(result.reason);
-    byReason.set(label, (byReason.get(label) ?? 0) + 1);
-  }
-  const reasons = [...byReason.entries()]
-    .sort((a, b) => b[1] - a[1])
-    .map(([label, count]) => (byReason.size > 1 ? `${label} (${count})` : label))
-    .join(", ");
-  const parts = [`Auto-fill picked ${picked} race${picked === 1 ? "" : "s"}`];
-  if (open.length > 0) {
-    parts.push(`${open.length} left open: ${reasons}`);
-  }
-  return parts.join(" · ");
 }
 
 // Exported for the guest /draft page, which renders the same card from the

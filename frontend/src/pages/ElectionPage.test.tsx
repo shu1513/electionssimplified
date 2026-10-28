@@ -2459,20 +2459,20 @@ describe("ElectionPage ballot rail", () => {
     expect(within(rail).getByText("Judge Kim — retain?").closest("li")).toHaveAttribute("aria-current", "page");
   });
 
-  it("offers no race-type tabs on an untyped (pre-deploy) snapshot", async () => {
+  it("offers no race-type switch of its own", async () => {
     stubApiRoutes({ ...ANONYMOUS });
     renderElection(perIdLoader, "e-2", ARRIVAL);
 
     const rail = await screen.findByRole("navigation", { name: "Ballot" });
-    expect(within(rail).queryByRole("button", { name: "Ballot Measures" })).not.toBeInTheDocument();
+    expect(within(rail).queryByRole("group", { name: "Race type" })).not.toBeInTheDocument();
   });
 });
 
-// The rail's own race-type tabs: available only when the snapshot types
-// every contest and holds both types. The tab starts on the list's engaged
-// tab (raceType), re-slices the rail in place, and travels with sibling
-// walks and the back link.
-describe("ElectionPage ballot rail race-type tabs", () => {
+// The rail mirrors the list's engaged tab (raceType): sliced to that race
+// type when the snapshot types every contest and holds both types, with
+// no switch of its own. The slice travels with sibling walks and the back
+// link keeps the list's ?type=.
+describe("ElectionPage ballot rail race-type slice", () => {
   // A guest draft left by earlier tests' pick clicks would mark rail rows
   // decided and suffix their accessible names. Reset through the module so
   // its in-memory snapshot clears too, not just localStorage.
@@ -2494,15 +2494,13 @@ describe("ElectionPage ballot rail race-type tabs", () => {
   const perIdLoader = ({ params }: { params: { electionId?: string } }) =>
     electionDetail({ id: params.electionId });
 
-  it("starts on the arrival tab: rail sliced, tab pressed, back link untouched", async () => {
+  it("slices to the arrival tab with no switch shown, back link untouched", async () => {
     stubApiRoutes({ ...ANONYMOUS });
     renderElection(perIdLoader, "q-1", ARRIVAL_ON_MEASURES);
 
     const rail = await screen.findByRole("navigation", { name: "Ballot" });
-    expect(within(rail).getByRole("button", { name: "Ballot Measures" })).toHaveAttribute(
-      "aria-pressed",
-      "true"
-    );
+    expect(within(rail).queryByRole("group", { name: "Race type" })).not.toBeInTheDocument();
+    expect(within(rail).queryByRole("button", { name: "Ballot Measures" })).not.toBeInTheDocument();
     expect(within(rail).getByText("Measure A").closest("li")).toHaveAttribute("aria-current", "page");
     expect(within(rail).getByRole("link", { name: "Measure B" })).toBeInTheDocument();
     expect(within(rail).queryByText("Governor")).not.toBeInTheDocument();
@@ -2527,81 +2525,49 @@ describe("ElectionPage ballot rail race-type tabs", () => {
     expect(within(pager).queryByRole("link", { name: /^Previous:/ })).not.toBeInTheDocument();
   });
 
-  it("switching to All restores every contest and rewrites the back link", async () => {
-    stubApiRoutes({ ...ANONYMOUS });
-    const user = userEvent.setup();
-    renderElection(perIdLoader, "q-1", ARRIVAL_ON_MEASURES);
-
-    const rail = await screen.findByRole("navigation", { name: "Ballot" });
-    await user.click(within(rail).getByRole("button", { name: "All" }));
-
-    expect(within(rail).getByRole("link", { name: "Governor" })).toBeInTheDocument();
-    expect(within(rail).getByRole("link", { name: "Mayor" })).toBeInTheDocument();
-    expect(within(rail).getByText("Measure A").closest("li")).toHaveAttribute("aria-current", "page");
-    // Leaving the split view must land on the tab the rail is showing.
-    expect(within(rail).getByRole("link", { name: "Back to All elections" })).toHaveAttribute(
-      "href",
-      "/ballot?d=d-1"
-    );
-  });
-
-  it("forwards the switched tab to sibling walks", async () => {
+  it("forwards the arrival slice unchanged to sibling walks", async () => {
     stubApiRoutes({ ...ANONYMOUS });
     const user = userEvent.setup();
     const { router } = renderElection(perIdLoader, "q-1", ARRIVAL_ON_MEASURES);
 
     const rail = await screen.findByRole("navigation", { name: "Ballot" });
-    await user.click(within(rail).getByRole("button", { name: "Offices" }));
-    await user.click(within(rail).getByRole("link", { name: "Governor" }));
+    await user.click(within(rail).getByRole("link", { name: "Measure B" }));
 
-    expect(router.state.location.pathname).toBe("/elections/e-1");
-    // Forwarded state: the switched tab, but the ORIGINAL back destination —
-    // the rewrite happens at render time so "All" can always restore it.
-    expect(router.state.location.state).toEqual({
-      ...ARRIVAL_ON_MEASURES,
-      raceType: "office",
-    });
-    // Wait for the DESTINATION page's render, not just any rail: the
-    // pre-navigation DOM also has a Ballot rail with Candidates pressed
-    // (the click set it), so asserting immediately races the loader — the
-    // aria-current flip below is the first signal unique to the new page.
+    expect(router.state.location.pathname).toBe("/elections/q-2");
+    expect(router.state.location.state).toEqual(ARRIVAL_ON_MEASURES);
     await waitFor(() => {
       expect(
-        within(screen.getByRole("navigation", { name: "Ballot" })).getByText("Governor").closest("li")
+        within(screen.getByRole("navigation", { name: "Ballot" })).getByText("Measure B").closest("li")
       ).toHaveAttribute("aria-current", "page");
     });
     const nextRail = screen.getByRole("navigation", { name: "Ballot" });
-    expect(within(nextRail).getByRole("button", { name: "Offices" })).toHaveAttribute(
-      "aria-pressed",
-      "true"
-    );
-    expect(within(nextRail).queryByText("Measure B")).not.toBeInTheDocument();
-    // The rendered back link still lands on the switched tab — recomputed
-    // from the forwarded original, not baked into it.
+    expect(within(nextRail).queryByText("Governor")).not.toBeInTheDocument();
     expect(within(nextRail).getByRole("link", { name: "Back to All elections" })).toHaveAttribute(
       "href",
-      "/ballot?d=d-1&type=office"
+      "/ballot?d=d-1&type=ballot_measure"
     );
   });
 
-  it("keeps the rail up when the current race is on the other tab", async () => {
+  it("shows every contest when the list arrived on All", async () => {
     stubApiRoutes({ ...ANONYMOUS });
-    const user = userEvent.setup();
-    renderElection(perIdLoader, "q-1", ARRIVAL_ON_MEASURES);
+    renderElection(perIdLoader, "q-1", {
+      ...ARRIVAL_ON_MEASURES,
+      backTo: { path: "/ballot?d=d-1", label: "All elections" },
+      raceType: null,
+    });
 
-    // Viewing Measure A, switch to Candidates: the current row leaves the
-    // slice (the detail page itself marks the reader's place) but the rail
-    // must not tear down.
     const rail = await screen.findByRole("navigation", { name: "Ballot" });
-    await user.click(within(rail).getByRole("button", { name: "Offices" }));
-
-    expect(within(rail).queryByText("Measure A")).not.toBeInTheDocument();
     expect(within(rail).getByRole("link", { name: "Governor" })).toBeInTheDocument();
     expect(within(rail).getByRole("link", { name: "Mayor" })).toBeInTheDocument();
+    expect(within(rail).getByText("Measure A").closest("li")).toHaveAttribute("aria-current", "page");
+    expect(within(rail).getByRole("link", { name: "Back to All elections" })).toHaveAttribute(
+      "href",
+      "/ballot?d=d-1"
+    );
   });
 });
 
-// The rail's sort control (under the tabs) and its pick checks. Sort keys
+// The rail's sort control and its pick checks. Sort keys
 // ride the snapshot; the sort is offered only when every entry carries them.
 describe("ElectionPage ballot rail sort and pick checks", () => {
   beforeEach(() => {
@@ -2676,6 +2642,63 @@ describe("ElectionPage ballot rail sort and pick checks", () => {
     expect(within(select).getAllByRole("option").map((option) => option.textContent)).toEqual([
       "My vote power",
     ]);
+  });
+
+  it("offers My Draft's auto-fill under the sort, signed in, and reports the run", async () => {
+    // Same control as the My Draft date card, over the nearest-day races
+    // the progress bar counts; the one-line run summary lands under it.
+    const user = userEvent.setup();
+    stubApiRoutes({
+      ...SAVED_AREAS,
+      "/api/me/research-area-preferences": {
+        body: {
+          preferences: [1, 2, 3].map((rank) => ({
+            research_area_id: `a-${rank}`,
+            slug: `issue-${rank}`,
+            name: `Issue ${rank}`,
+            description: null,
+            rank,
+          })),
+        },
+      },
+      "/api/me/auto-picks": {
+        body: {
+          results: [
+            {
+              election_id: "e-2",
+              race_type: "ballot_measure",
+              outcome: "no_pick",
+              reason: "insufficient_evidence",
+              picked_candidate_ids: [],
+              measure_position: null,
+              shortlist_candidate_ids: [],
+              candidates: [],
+              measure_per_issue: [],
+              unresearched: [],
+            },
+          ],
+        },
+      },
+    });
+    renderElection(perIdLoader, "e-1", ARRIVAL);
+
+    const rail = await screen.findByRole("navigation", { name: "Ballot" });
+    const button = await within(rail).findByRole("button", { name: "Auto-fill empty picks by my issues" });
+    await waitFor(() => expect(button).toBeEnabled());
+    await user.click(button);
+
+    expect(
+      await within(rail).findByText("Auto-fill picked 0 races · 1 left open: not enough evidence")
+    ).toBeInTheDocument();
+  });
+
+  it("offers no auto-fill to a guest", async () => {
+    stubApiRoutes({ ...ANONYMOUS });
+    renderElection(perIdLoader, "e-1", ARRIVAL);
+
+    const rail = await screen.findByRole("navigation", { name: "Ballot" });
+    await within(rail).findByRole("combobox");
+    expect(within(rail).queryByRole("button", { name: /Auto-fill empty picks/ })).not.toBeInTheDocument();
   });
 
   it("starts on the seeded list sort and preserves a district-size back URL", async () => {

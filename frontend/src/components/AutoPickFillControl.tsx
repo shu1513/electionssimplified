@@ -11,7 +11,7 @@ import {
   useElectionChoiceSaving,
   useMyResearchAreas,
 } from "@voteapp/api-client";
-import type { AutoPickElectionResult, ElectionChoice, ElectionSummary } from "@voteapp/api-client";
+import type { AutoPickElectionResult, ElectionChoice } from "@voteapp/api-client";
 import { ISSUES_SETTINGS_PATH } from "../lib/issuesSettingsLink";
 import { countBucket, currentAttribution, errorCategoryOf, track } from "../lib/usage";
 import { HowItWorksPopover } from "./HowItWorksPopover";
@@ -36,6 +36,35 @@ import { HowItWorksPopover } from "./HowItWorksPopover";
 // Kept for the existing import sites (PicksPage, BallotPreview).
 export { reasonLabel };
 
+// One line for the whole fill run, instead of "auto pick: …" on every row the
+// engine left open (34 races → 30 identical notes was clutter). Counts what
+// landed and groups the open rows by reason; skipped_existing rows (already
+// decided by hand) are not the run's story. Per-race detail stays on each
+// election page's panel. Shared by the My Draft cards and the election
+// page's ballot rail.
+export function autoFillSummary(results: Map<string, AutoPickElectionResult>): string | null {
+  const all = [...results.values()];
+  const picked = all.filter((result) => result.outcome === "picked").length;
+  const open = all.filter((result) => result.outcome === "no_pick");
+  if (picked === 0 && open.length === 0) {
+    return null;
+  }
+  const byReason = new Map<string, number>();
+  for (const result of open) {
+    const label = reasonLabel(result.reason);
+    byReason.set(label, (byReason.get(label) ?? 0) + 1);
+  }
+  const reasons = [...byReason.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .map(([label, count]) => (byReason.size > 1 ? `${label} (${count})` : label))
+    .join(", ");
+  const parts = [`Auto-fill picked ${picked} race${picked === 1 ? "" : "s"}`];
+  if (open.length > 0) {
+    parts.push(`${open.length} left open: ${reasons}`);
+  }
+  return parts.join(" · ");
+}
+
 // Plain-English note behind the (i) beside the fill button. Says the two
 // things the label can't: it covers every undecided race on this date, and
 // it never touches a pick the user made themselves.
@@ -48,17 +77,20 @@ export function AutoPickFillControl({
   choices,
   choiceByElectionId,
   onResults,
+  compact = false,
 }: {
   /** The election date this control owns. */
   date: string;
-  /** This date's carded races only. */
-  elections: ElectionSummary[];
+  /** This date's carded races only (ids are all the control reads). */
+  elections: { id: string }[];
   /** Every stored choice, for the date-scoped Clear gating. */
   choices: ElectionChoice[];
   choiceByElectionId: Map<string, ElectionChoice> | undefined;
   /** Fill results for this date, keyed by election id — null after a clear.
    * The caller annotates its race rows from this; nothing renders here. */
   onResults?: (byElectionId: Map<string, AutoPickElectionResult> | null) => void;
+  /** Tighter type and padding for narrow homes (the 18rem detail rail). */
+  compact?: boolean;
 }) {
   const { preferences, isLoading: preferencesLoading, isError: preferencesError } = useMyResearchAreas();
   const saving = useElectionChoiceSaving();
@@ -106,27 +138,37 @@ export function AutoPickFillControl({
     return null;
   }
 
+  // Compact (the rail): the (i) never drops to its own line — the row
+  // stays nowrap and the button shrinks instead, its label wrapping
+  // inside the pill while the (i) keeps its width beside it.
+  const buttonSize = compact
+    ? "min-w-0 flex-1 whitespace-normal px-2.5 py-1 text-xs leading-tight"
+    : "px-3 py-1.5 text-sm";
   return (
-    <div className="mt-2 print:hidden">
+    <div className={`${compact ? "" : "mt-2"} print:hidden`}>
       {/* relative: HowItWorksPopover anchors its panel to this row. */}
-      <div className="relative flex flex-wrap items-center gap-x-1 gap-y-2">
+      <div className={`relative flex items-center gap-x-1 gap-y-2 ${compact ? "flex-nowrap" : "flex-wrap"}`}>
         {fillable ? (
           <button
             type="button"
             disabled={saving || preferencesLoading}
             onClick={onFill}
-            className="rounded-full border border-autopick-border bg-autopick px-3 py-1.5 text-sm font-semibold text-autopick-ink transition hover:bg-autopick-dark disabled:opacity-50"
+            className={`rounded-full border border-autopick-border bg-autopick font-semibold text-autopick-ink transition hover:bg-autopick-dark disabled:opacity-50 ${buttonSize}`}
           >
             {fill.isPending ? "Picking…" : "Auto-fill empty picks by my issues"}
           </button>
         ) : null}
-        {fillable ? <HowItWorksPopover text={HOW_FILL_WORKS} /> : null}
+        {fillable ? (
+          <span className="shrink-0">
+            <HowItWorksPopover text={HOW_FILL_WORKS} compact={compact} />
+          </span>
+        ) : null}
         {clearable ? (
           <button
             type="button"
             disabled={saving}
             onClick={() => clear.mutate(date)}
-            className="rounded-lg border border-line bg-white px-3 py-1.5 text-sm font-medium text-ink transition hover:border-ink disabled:opacity-50"
+            className={`rounded-lg border border-line bg-white font-medium text-ink transition hover:border-ink disabled:opacity-50 ${buttonSize}`}
           >
             {clear.isPending ? "Clearing…" : "Clear auto picks"}
           </button>
