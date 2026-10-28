@@ -152,8 +152,7 @@ describe("BallotPage", () => {
 
     // The roster status renders in the card's title row where the candidate
     // count would sit, so match it as a substring.
-    // The waiting section starts collapsed — under the ballot-order default
-    // too: the backend skips its sink for that sort, the list does not.
+    // The waiting section starts collapsed.
     await userEvent.click(await screen.findByRole("button", { name: /^Elections awaiting candidate information/ }));
     expect(await screen.findByText(/Candidate list not final/)).toBeInTheDocument();
     expect(screen.queryByText(/0 candidates/)).not.toBeInTheDocument();
@@ -486,16 +485,16 @@ describe("BallotPage my_areas sort", () => {
     expect(ballotCalls).toEqual([expect.stringContaining("sort=vote_power")]);
   });
 
-  it("degrades a my_areas URL to the ballot-order default for an anonymous visitor", async () => {
+  it("degrades a my_areas URL to vote_power for an anonymous visitor", async () => {
     stubApiRoutes({ ...ANONYMOUS, "/api/ballot": BALLOT });
     renderBallot("/ballot?d=d-1&sort=my_areas");
 
     await screen.findByText("Housing Board");
-    // Nothing to score against: payload (default) order, no My issues
+    // Nothing to score against: payload (vote_power) order, no My issues
     // option, and the select admits the fallback rather than claiming an
     // issue ordering.
     expect(cardOrder()).toEqual(["Governor", "Housing Board"]);
-    expect(screen.getByRole("combobox", { name: /Sort/ })).toHaveValue("state_baseline");
+    expect(screen.getByRole("combobox", { name: /Sort/ })).toHaveValue("vote_power");
     const options = screen.getAllByRole("option").map((option) => option.textContent);
     expect(options).not.toContain("My issues");
   });
@@ -555,7 +554,7 @@ describe("BallotPage my_areas sort", () => {
     // payload order shows and the select admits the fallback.
     await screen.findByText("Housing Board");
     expect(cardOrder()).toEqual(["Governor", "Housing Board"]);
-    expect(screen.getByRole("combobox", { name: /Sort/ })).toHaveValue("state_baseline");
+    expect(screen.getByRole("combobox", { name: /Sort/ })).toHaveValue("vote_power");
   });
 
   it("carries a chosen My issues sort into the URL and seeds the detail rail", async () => {

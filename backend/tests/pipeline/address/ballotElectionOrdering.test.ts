@@ -113,19 +113,19 @@ function makeOrderingQuery(fixtures: {
 }
 
 describe("applyBallotElectionOrdering", () => {
-  it("defaults to state_baseline (ballot order) when no sort is given", async () => {
+  it("defaults to vote_power when no sort is given", async () => {
     const result = await applyBallotElectionOrdering(
       { query: makeFollowsQuery([]) },
       makeSummary([
-        // Vote power set against the ballot order so a vote_power default
-        // would flip the result.
+        // Ballot order would put the US House race first; the default is
+        // vote power, so the measure leads.
         { id: electionA, race_type: "ballot_measure", contest_family: "ballot_measure", vote_power_score: 100 },
         { id: electionB, office_scope: "place", vote_power_score: 90 },
         { id: electionC, office_scope: "us_house", vote_power_score: 1 },
       ])
     );
 
-    expect(result.elections.map((e) => e.id)).toEqual([electionC, electionB, electionA]);
+    expect(result.elections.map((e) => e.id)).toEqual([electionA, electionB, electionC]);
   });
 
   it("orders by vote_power score descending under sort=vote_power", async () => {

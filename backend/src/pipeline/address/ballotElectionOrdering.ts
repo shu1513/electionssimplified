@@ -39,7 +39,7 @@ type Queryable = Pick<Pool | PoolClient, "query">;
 // Ordering the caller wants for the elections list. Election date is the
 // list's fixed outer structure under every sort below (earliest date first —
 // the list pages render one "Elections on {date}" section per date); the
-// chosen sort orders the races WITHIN each date. `vote_power`
+// chosen sort orders the races WITHIN each date. `vote_power` (the default)
 // sorts by the computed vote-power score descending; `district_size` sorts
 // by government level (presidential → federal → state → county → city →
 // special district, see
@@ -55,10 +55,10 @@ type Queryable = Pick<Pool | PoolClient, "query">;
 // research areas match the user's saved research-area preferences (summed
 // weights, see userResearchAreaScoring.ts) and degrades to `vote_power` for
 // anonymous callers and users with no saved areas.
-// `state_baseline` (the default, "Ballot order" in the UI) orders contests
-// the way they appear on a US paper ballot (ballotContestRank.ts generic
-// tiers + stateBallotOrderRules.ts per-state general-election overrides);
-// the ballot-preview render passes it explicitly. It is a POSITIONAL order:
+// `state_baseline` ("Ballot order" in the UI) orders contests the way they
+// appear on a US paper ballot (ballotContestRank.ts generic tiers +
+// stateBallotOrderRules.ts per-state general-election overrides); the
+// ballot-preview render passes it explicitly. It is a POSITIONAL order:
 // followed-first grouping and the empty-race sink are both skipped under it,
 // because moving a race breaks the copy-across promise (the list pages
 // still split the awaiting-candidates tail out themselves).
@@ -91,7 +91,7 @@ export const SAVEABLE_BALLOT_PREFERENCE_SORTS: readonly BallotSummarySort[] = [
 ];
 
 // The sort applied when a request names none and the user saved none.
-export const DEFAULT_BALLOT_SUMMARY_SORT: BallotSummarySort = "state_baseline";
+export const DEFAULT_BALLOT_SUMMARY_SORT: BallotSummarySort = "vote_power";
 
 export function isBallotSummarySort(value: unknown): value is BallotSummarySort {
   return typeof value === "string" && (BALLOT_SUMMARY_SORTS as readonly string[]).includes(value);

@@ -45,16 +45,17 @@ type BallotPreferencesRow = {
   user_exists: boolean;
   sort: string | null;
   followed_first: boolean | null;
+  has_research_areas: boolean;
 };
 
 // Returns the saved preferences, or the application defaults when the user has
 // never saved any. Throws user_not_found for unknown/deleted users so the API
 // keeps the same contract as the other /api/me preference readers.
 //
-// The default is ballot order for everyone, saved research areas or not: a
-// user who wants their issues to order the list picks "My issues" (saved
-// here). The earlier my_areas auto-default for users with saved areas is
-// gone — the list opens the way the paper ballot reads.
+// The default sort is personalized: a user who saved research areas but never
+// chose a ballot sort defaults to `my_areas` instead of `vote_power`, so the
+// areas they told us they care about order their ballot without further
+// setup. An explicitly saved sort always wins.
 export async function getUserBallotPreferences(db: Queryable, userId: string): Promise<UserBallotPreferences> {
   const normalizedUserId = normalizeUserId(userId);
 
@@ -63,7 +64,12 @@ export async function getUserBallotPreferences(db: Queryable, userId: string): P
       SELECT
         true AS user_exists,
         preference.sort,
-        preference.followed_first
+        preference.followed_first,
+        EXISTS (
+          SELECT 1
+          FROM public.user_research_area_preferences AS area_preference
+          WHERE area_preference.user_id = u.id
+        ) AS has_research_areas
       FROM public.users AS u
       LEFT JOIN public.user_ballot_preferences AS preference
         ON preference.user_id = u.id
@@ -78,7 +84,10 @@ export async function getUserBallotPreferences(db: Queryable, userId: string): P
     throw new UserBallotPreferencesError("user_not_found", "User not found");
   }
   if (row.sort === null || row.followed_first === null || !isSaveableBallotPreferenceSort(row.sort)) {
-    return { ...DEFAULT_BALLOT_PREFERENCES };
+    return {
+      ...DEFAULT_BALLOT_PREFERENCES,
+      ...(row.has_research_areas ? { sort: "my_areas" as const } : {}),
+    };
   }
   return { sort: row.sort, followed_first: row.followed_first };
 }

@@ -97,10 +97,9 @@ export function BallotPage() {
     .split(",")
     .map((id) => id.trim())
     .filter((id) => id.length > 0);
-  // The site default is ballot order (DEFAULT_BALLOT_SORT: races as they
-  // print on the paper ballot). Inside the newsroom box the list starts
-  // with the biggest districts first (president, governor, U.S. Senate)
-  // instead; a sort the reader picks still wins, as on the site.
+  // Inside the newsroom box the list starts with the biggest districts first
+  // (president, governor, U.S. Senate), the order a reader expects from a
+  // ballot; a sort the reader picks still wins, as on the site.
   const embedSession = useEmbedSession();
   const defaultSort: BallotSort = embedSession ? "district_size" : DEFAULT_BALLOT_SORT;
   const rawSort = searchParams.get("sort") ?? "";
@@ -116,15 +115,9 @@ export function BallotPage() {
     : SORT_VALUES.includes(rawSort)
       ? (rawSort as BallotSort)
       : defaultSort;
-  // A my_areas URL is unresolved until the saved-areas flag settles (see the
-  // sort derivation above): the list is withheld meanwhile (below), but the
-  // fetch is not — a ballot error must still surface during the wait.
-  const awaitingSavedAreas = myAreasRequested && savedAreasLoading;
   // What the anonymous endpoint is asked for: my_areas is client-side here,
-  // so its fetch requests (and caches under) the plain vote_power payload —
-  // already while the saved areas load, since a my_areas link is most often
-  // a viewer who has them; the anonymous degrade refetches the default.
-  const fetchSort: BallotSort = sort === "my_areas" || awaitingSavedAreas ? "vote_power" : sort;
+  // so its fetch requests (and caches under) the plain vote_power payload.
+  const fetchSort: BallotSort = sort === "my_areas" ? "vote_power" : sort;
 
   const ballot = useQuery({
     queryKey: ["ballot", districtIds.join(","), fetchSort],
@@ -188,6 +181,8 @@ export function BallotPage() {
   // until the flag settles — it settles on failure too, falling open to the
   // default order: a ballot app errs toward showing races, and the select
   // admits the fallback rather than claiming an issue ordering.
+  const awaitingSavedAreas = myAreasRequested && savedAreasLoading;
+
   // The my_areas re-sort. Runs over the full list; the
   // awaiting-candidates tail needs no special handling because ElectionList
   // splits it into its own closing section regardless of input order (the
