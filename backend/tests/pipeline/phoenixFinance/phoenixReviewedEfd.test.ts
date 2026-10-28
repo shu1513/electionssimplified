@@ -150,6 +150,13 @@ describe("Phoenix reviewed EFD qualification", () => {
     vi.setSystemTime(new Date("2026-10-27T12:00:00Z"));
     await expect(packet(dir, transport({ newFilingPdfUnavailable: true }))).rejects.toThrow("publication_census_changed");
     await expect(packet(undefined, transport({ newFilingPdfUnavailable: true }))).rejects.toThrow("source_unavailable");
+    vi.stubEnv("PHOENIX_REVIEWED_EFD_RAW_REFRESH_ENABLED", "false");
+    await expect(packet(dir)).rejects.toThrow("recent_whole_original_cache_required");
+    vi.stubEnv("PHOENIX_REVIEWED_EFD_RAW_REFRESH_ENABLED", "true");
+    vi.setSystemTime(new Date("2026-10-27T13:00:00Z"));
+    await packet(dir);
+    vi.stubEnv("PHOENIX_REVIEWED_EFD_RAW_REFRESH_ENABLED", "false");
+    expect((await packet(dir)).occurrenceCount).toBe(2);
   });
   it("lets a newer capture that proved a source change block older saved originals until a complete refresh", async () => {
     const dir = await cache(); await packet(dir);

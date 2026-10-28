@@ -125,7 +125,17 @@ export async function readPhoenixEfdOriginals(input: {
     } catch { /* Failed/partial originals cannot grant authority. */ }
   }
   captures.sort((a, b) => b.metas.at(-1)!.completedAt.localeCompare(a.metas.at(-1)!.completedAt));
+  // An incomplete refresh that saw the source change leaves a marker; it
+  // outranks every capture older than itself until a complete capture qualifies.
+  let changedAt = "";
+  for (const name of (await readdir(root)).filter(n => /^source-changed-[a-f0-9-]{36}\.json$/u.test(n))) {
+    try {
+      const marker = JSON.parse(html(await privateBytes(resolve(root, name), 4096)));
+      if (clock(marker.completedAt) && marker.completedAt > changedAt) changedAt = marker.completedAt;
+    } catch { /* Unreadable markers grant nothing either way. */ }
+  }
   for (const files of captures) {
+    if (changedAt > files.metas.at(-1)!.completedAt) return null;
     try { return await qualifyOriginals(files, input.spenderName, input.electionDate); }
     catch (error) { if (error instanceof PhoenixEfdHold && SOURCE_CHANGED.has(error.reason)) return null; }
   }
@@ -205,11 +215,18 @@ export async function refreshPhoenixEfdOriginals(input: {
     if (error instanceof PhoenixEfdHold && error.reason === "source_unavailable" && input.replay) {
       // An incomplete refresh may still have seen a new filing, a changed
       // ballot or a re-issued PDF. That knowledge outranks the saved edition.
-      for (const { raw, meta } of obtained) {
-        if (meta.url === PHOENIX_EFD_INDEX_URL) efdCheck(isDeepStrictEqual(selectPhoenixEfdFamily(parsePhoenixEfdIndex(html(raw)),
-          input.spenderName, input.electionDate, phoenixEfdObservationDay(meta.startedAt)), input.replay.family), "publication_census_changed");
-        else if (meta.url === PHOENIX_EFD_BALLOT_URL) efdCheck(isDeepStrictEqual(parsePhoenixCouncilBallot(html(raw)), input.replay.ballot), "certified_ballot_changed");
-        else efdCheck(input.replay.scans.some(s => s.row.sourceUrl === meta.url && s.sha256 === meta.sha256), "whole_pdf_edition_changed");
+      try {
+        for (const { raw, meta } of obtained) {
+          if (meta.url === PHOENIX_EFD_INDEX_URL) efdCheck(isDeepStrictEqual(selectPhoenixEfdFamily(parsePhoenixEfdIndex(html(raw)),
+            input.spenderName, input.electionDate, phoenixEfdObservationDay(meta.startedAt)), input.replay.family), "publication_census_changed");
+          else if (meta.url === PHOENIX_EFD_BALLOT_URL) efdCheck(isDeepStrictEqual(parsePhoenixCouncilBallot(html(raw)), input.replay.ballot), "certified_ballot_changed");
+          else efdCheck(input.replay.scans.some(s => s.row.sourceUrl === meta.url && s.sha256 === meta.sha256), "whole_pdf_edition_changed");
+        }
+      } catch (changed) {
+        // Durable: a later cache-only run must not replay the older edition.
+        await writeFile(resolve(root, `source-changed-${randomUUID()}.json`),
+          JSON.stringify({ completedAt: new Date().toISOString() }), { mode: 0o600, flag: "wx" });
+        throw changed;
       }
     }
     throw error;
