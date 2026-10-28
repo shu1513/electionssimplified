@@ -69,7 +69,7 @@ export function autoFillSummary(results: Map<string, AutoPickElectionResult>): s
 // things the label can't: it covers every undecided race on this date, and
 // it never touches a pick the user made themselves.
 const HOW_FILL_WORKS =
-  "You rank the issues you care about in Settings. For each race on this date you haven't decided, we compare the candidates' records on those issues and pick the best match. Picks you made yourself are not changed. If there isn't enough evidence in a race, we leave it.";
+  "For each race on this date you haven’t picked, we match candidates’ records to the issues you ranked in Settings and pick the best fit. Your own picks are never changed. If there is not enough evidence, race stays empty.";
 
 export function AutoPickFillControl({
   date,
