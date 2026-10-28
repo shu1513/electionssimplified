@@ -138,12 +138,10 @@ export function AutoPickFillControl({
     return null;
   }
 
-  // Compact (the rail): the (i) never drops to its own line — the row
-  // stays nowrap and the button shrinks instead, its label wrapping
-  // inside the pill while the (i) keeps its width beside it.
-  const buttonSize = compact
-    ? "min-w-0 flex-1 whitespace-normal px-2.5 py-1 text-xs leading-tight"
-    : "px-3 py-1.5 text-sm";
+  // Compact (the rail): one line, always — the (i) never drops below the
+  // button and the label never wraps inside the pill. Smaller type and
+  // tighter padding so pill + (i) fit the 18rem rail side by side.
+  const buttonSize = compact ? "whitespace-nowrap px-2 py-1 text-[11px]" : "px-3 py-1.5 text-sm";
   return (
     <div className={`${compact ? "" : "mt-2"} print:hidden`}>
       {/* relative: HowItWorksPopover anchors its panel to this row. */}
