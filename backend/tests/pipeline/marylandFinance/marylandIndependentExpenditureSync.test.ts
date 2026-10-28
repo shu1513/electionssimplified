@@ -86,13 +86,24 @@ describe("independent Maryland due sync", () => {
     expect(t.query).toHaveBeenCalledOnce();
   });
   it("force lifts only the recurring-sync flag; refresh alone widens the due set", async () => {
-    vi.stubEnv("MARYLAND_CAMPAIGN_FINANCE_SYNC_ENABLED", "false");
     const forced = setup();
-    await syncMarylandIndependentExpenditures({ ...forced, force: true });
+    vi.stubEnv("MARYLAND_CAMPAIGN_FINANCE_SYNC_ENABLED", "false");
+    const r = await syncMarylandIndependentExpenditures({ ...forced, force: true });
+    expect(r.diagnostics).not.toContain("outside_disabled");
+    expect(forced.query).toHaveBeenCalled();
+    expect(forced.query.mock.calls[0]![0]).toContain("WITH milestone");
     expect(forced.query.mock.calls[0]![1]![7]).toBe(false);
     const refreshed = setup();
     await syncMarylandIndependentExpenditures({ ...refreshed, refresh: true });
     expect(refreshed.query.mock.calls[0]![1]![7]).toBe(true);
+  });
+  it("refresh cannot lift the disabled recurring-sync flag without force", async () => {
+    const t = setup();
+    vi.stubEnv("MARYLAND_CAMPAIGN_FINANCE_SYNC_ENABLED", "false");
+    const result = await syncMarylandIndependentExpenditures({ ...t, refresh: true });
+    expect(result.diagnostics).toEqual(["outside_disabled"]);
+    expect(t.query).not.toHaveBeenCalled();
+    expect(t.loadSourceFn).not.toHaveBeenCalled();
   });
   it("force never bypasses the master source gate", async () => {
     const t = setup();
@@ -102,11 +113,11 @@ describe("independent Maryland due sync", () => {
     expect(t.query).not.toHaveBeenCalled();
     expect(t.loadSourceFn).not.toHaveBeenCalled();
   });
-  it("source failure preserves finance and records retry metadata separately", async () => {
+  it.each(["outside_source_unavailable", "outside_source_request_limit", "outside_source_budget"])("preserves finance on %s and records retry metadata separately", async (diagnostic) => {
     const t = setup();
     t.loadSourceFn.mockResolvedValue({
       snapshots: [],
-      results: [{ dueIndex: 0, diagnostics: ["outside_source_unavailable"] }],
+      results: [{ dueIndex: 0, diagnostics: [diagnostic] }],
       captures: 0,
       savedOpeningQueries: 0,
     });

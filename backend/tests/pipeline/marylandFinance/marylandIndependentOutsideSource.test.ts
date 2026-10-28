@@ -154,6 +154,57 @@ describe("normal Maryland composite outside source", () => {
     expect(names).toContain("Former committee label");
     expect(names).toContain(t.f.rows[0]!.candidateBallotIssueName);
   });
+  it.each([
+    { labels: 500, retry: false },
+    { labels: 350, retry: true },
+  ])("holds the entire generation at the shared request cap ($labels labels, retry=$retry)", async ({ labels, retry }) => {
+    const rawCacheDir = await mkdtemp(join(tmpdir(), "md-outside-budget-"));
+    dirs.push(rawCacheDir);
+    const t = transport();
+    const first = await loadMarylandIndependentOutsideSource({
+      contexts: [t.f.context], previousSources: new Map(), rawCacheDir, fetchImpl: t.fetchImpl,
+    });
+    expect(first.snapshots).toHaveLength(1);
+    const old = first.snapshots[0]!;
+    for (let i = new Set(t.rows.map(row => row.candidateBallotIssueName)).size; i < labels; i++) {
+      t.rows.push({
+        ...t.rows[0]!, candidateBallotIssueName: `Budget label ${i}`,
+        transactionGuid: id(2000 + i), candidateMeasureGuid: id(3000 + i), expenditureTypeCode: "TECOM",
+      });
+    }
+    const registryQueries = new Map<string, number>();
+    const fetchImpl = vi.fn<typeof fetch>(async (url, init) => {
+      const route = String(url), body = init?.body ? JSON.parse(String(init.body)) : null;
+      if (route.endsWith("GetIndependentExpenditureList")) {
+        const offset = (body.pageNumber - 1) * 100;
+        return response({ items: t.rows.slice(offset, offset + 100), totalItems: t.rows.length,
+          pageNumber: body.pageNumber, pageSize: 100 });
+      }
+      if (route.endsWith("GetCommitteeList")) {
+        const name = body.filerName as string;
+        const seen = (registryQueries.get(name) ?? 0) + 1;
+        registryQueries.set(name, seen);
+        // A registry change forces a second composite attempt, which must
+        // share the original cap even though it reuses opening captures.
+        if (name.startsWith("Budget label ") || (retry && name === t.rows[0]!.candidateBallotIssueName && seen >= 2))
+          return response(page([]));
+      }
+      return t.fetchImpl(url, init);
+    });
+    const result = await loadMarylandIndependentOutsideSource({
+      contexts: [t.f.context], rawCacheDir, refresh: true, fetchImpl,
+      previousSources: new Map([[`${old.context.candidateId}:${old.context.electionId}`, {
+        nativeDirectory: old.nativeDirectory, targetAccountGuids: old.targetAccountGuids,
+      }]]),
+    });
+    expect(fetchImpl).toHaveBeenCalledTimes(1024);
+    expect(result.snapshots).toEqual([]);
+    expect(result.results[0]!.diagnostics.length).toBeGreaterThan(0);
+    if (retry) {
+      expect(result.savedOpeningQueries).toBeGreaterThanOrEqual(labels);
+      expect([...registryQueries.values()].some(count => count === 3)).toBe(true);
+    }
+  }, 30_000);
   it("preserves when a parent source fails", async () => {
     const rawCacheDir = await mkdtemp(join(tmpdir(), "md-outside-source-"));
     dirs.push(rawCacheDir);

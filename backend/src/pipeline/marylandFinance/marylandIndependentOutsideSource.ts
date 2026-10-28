@@ -115,6 +115,10 @@ export async function loadMarylandIndependentOutsideSource(input: {
   const controller = new AbortController(),
     timer = setTimeout(() => controller.abort(), 360_000);
   timer.unref();
+  // These are independent safety ceilings, not a promise that every scope
+  // below 500 labels fits. Registry pages (up to four per label), report
+  // inventories, parent controls and a changed-source retry share this cap
+  // and the deadline. Exhaustion must hold snapshots, never truncate sources.
   const fetcher: typeof fetch = async (url, options) => {
     if (++requests > 1024) return fail("outside_source_request_limit");
     return (input.fetchImpl ?? fetch)(url, {

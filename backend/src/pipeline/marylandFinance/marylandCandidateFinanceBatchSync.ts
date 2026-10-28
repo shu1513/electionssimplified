@@ -462,7 +462,8 @@ export async function syncDueMarylandCandidateFinance(
       candidateId: input.candidateId, electionYear: input.electionYear, dryRun, refresh: input.refresh,
       force: input.force, fetchImpl: nativeOutsideSource?.fetchImpl, log: input.log,
     });
-  } catch {
+  } catch (error) {
+    input.log?.(`Maryland independent outside component failed: ${error instanceof Error ? error.message : String(error)}`);
     independentExpenditures = { attempted:0,qualified:0,written:0,preserved:0,groupsWritten:0,allocationsQualified:0,
       sourceCaptures:0,savedOpeningQueries:0,diagnostics:["outside_component_unavailable"],results:[] };
   }

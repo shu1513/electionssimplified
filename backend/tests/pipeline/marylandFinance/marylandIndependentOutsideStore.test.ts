@@ -28,12 +28,15 @@ function writer(
     contextChanged?: boolean;
     older?: boolean;
     insertFails?: boolean;
+    rollbackError?: unknown;
   } = {},
 ) {
   const s = snapshot(),
     c = s.context,
-    release = vi.fn();
+    release = vi.fn(),
+    insertError = Error("synthetic_insert_failure");
   const query = vi.fn(async (sql: string) => {
+    if (sql === "ROLLBACK" && "rollbackError" in options) throw options.rollbackError;
     if (sql.includes("SELECT c.display_name"))
       return {
         rows: [
@@ -54,13 +57,13 @@ function writer(
       options.insertFails &&
       sql.includes("INSERT INTO public.md_candidate_finance_ie_groups")
     )
-      throw Error("synthetic_insert_failure");
+      throw insertError;
     return { rows: [] };
   });
   const db = {
     connect: vi.fn(async () => ({ query, release })),
   } as unknown as Pick<Pool, "connect">;
-  return { s, db, query, release };
+  return { s, db, query, release, insertError };
 }
 function stored(n = 1) {
   const s = snapshot();
@@ -131,6 +134,30 @@ describe("Maryland independent outside store boundaries", () => {
       expect(t.release).toHaveBeenCalledOnce();
     },
   );
+  it.each([Error("synthetic_rollback_failure"), "synthetic_rollback_failure"])(
+    "keeps the original write error and discards the client when rollback fails (%s)",
+    async (rollbackError) => {
+      const t = writer({ insertFails: true, rollbackError });
+      await expect(replaceMarylandIndependentOutsideSnapshot({
+        db: t.db, snapshot: t.s, syncedAt: new Date("2026-10-26T00:01:00Z"),
+      })).rejects.toBe(t.insertError);
+      expect(t.query.mock.calls.at(-1)![0]).toBe("ROLLBACK");
+      expect(t.query.mock.calls.some(([sql]) => sql === "COMMIT")).toBe(false);
+      expect(t.release).toHaveBeenCalledOnce();
+      const releasedError = t.release.mock.calls[0]![0];
+      expect(releasedError).toBeInstanceOf(Error);
+      expect(releasedError.message).toBe("synthetic_rollback_failure");
+      if (rollbackError instanceof Error) expect(releasedError).toBe(rollbackError);
+    },
+  );
+  it("returns a successfully rolled-back client without marking it broken", async () => {
+    const t = writer({ insertFails: true });
+    await expect(replaceMarylandIndependentOutsideSnapshot({
+      db: t.db, snapshot: t.s, syncedAt: new Date("2026-10-26T00:01:00Z"),
+    })).rejects.toBe(t.insertError);
+    expect(t.release).toHaveBeenCalledOnce();
+    expect(t.release).toHaveBeenCalledWith(undefined);
+  });
   it("rejects mismatched uncapped sums before opening a transaction", async () => {
     const t = writer();
     t.s.supportCents++;
@@ -179,9 +206,47 @@ describe("Maryland independent outside store boundaries", () => {
     expect(result.get(key())!.last_synced_at).toBe(before.last_synced_at);
     expect(existing).toEqual(before);
   });
+  it.each([Error("synthetic_query_failure"), "synthetic_query_failure"])(
+    "logs query failures without replacing existing summaries (%s)",
+    async (error) => {
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+      const existing = { source: "MARYLAND_CFS", cycle: 2026 } as BallotLookupFinanceSummary;
+      const summaries = new Map([[key(), existing]]);
+      const db = { query: vi.fn().mockRejectedValue(error) } as unknown as Pick<Pool, "query">;
+      const result = await attachMarylandIndependentOutsideFinance({ db, summaries, requests: request() });
+      expect(result).toBe(summaries);
+      expect(result.get(key())).toBe(existing);
+      expect(warn).toHaveBeenCalledOnce();
+      expect(warn).toHaveBeenCalledWith(
+        "Maryland independent outside finance query failed; keeping existing summaries:",
+        "synthetic_query_failure",
+      );
+    },
+  );
+  it("logs a held candidate while continuing to attach other valid candidates", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const bad = stored();
+    bad[0]!.support_cents = "101";
+    const good = stored().map(row => ({ ...row, candidate_id: id(999) }));
+    const goodKey = candidateElectionKey(id(999), good[0]!.election_id);
+    const existing = { source: "MARYLAND_CFS", cycle: 2026 } as BallotLookupFinanceSummary;
+    const summaries = new Map([[key(), existing]]);
+    const db = { query: vi.fn().mockResolvedValue({ rows: [...bad, ...good] }) } as unknown as Pick<Pool, "query">;
+    const result = await attachMarylandIndependentOutsideFinance({
+      db, summaries, requests: [...request(), { candidate_id: id(999), election_id: good[0]!.election_id }],
+    });
+    expect(result.get(key())).toBe(existing);
+    expect(result.get(goodKey)!.outside_spending.support_total).toBe(1);
+    expect(summaries.has(goodKey)).toBe(false);
+    expect(warn).toHaveBeenCalledOnce();
+    expect(warn).toHaveBeenCalledWith(
+      `Maryland independent outside finance held for ${key()}:`, "outside_group_totals_mismatch",
+    );
+  });
   it.each(["bad_last_group", "bad_total", "wrong_basis", "future_clock"])(
     "holds malformed %s even outside display cap",
     async (kind) => {
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
       const rows = stored(60);
       if (kind === "bad_last_group") rows.at(-1)!.amount_cents = "-1";
       if (kind === "bad_total") rows[0]!.support_cents = "1";
@@ -206,6 +271,10 @@ describe("Maryland independent outside store boundaries", () => {
           })
         ).get(key()),
       ).toBe(existing);
+      expect(warn).toHaveBeenCalledOnce();
+      expect(warn).toHaveBeenCalledWith(
+        `Maryland independent outside finance held for ${key()}:`, expect.stringMatching(/\S/),
+      );
     },
   );
 });

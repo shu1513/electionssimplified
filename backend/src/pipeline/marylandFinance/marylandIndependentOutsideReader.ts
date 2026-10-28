@@ -96,7 +96,11 @@ export async function attachMarylandIndependentOutsideFinance(input: {
       [JSON.stringify(input.requests)],
     );
     rows = result.rows;
-  } catch {
+  } catch (error) {
+    console.warn(
+      "Maryland independent outside finance query failed; keeping existing summaries:",
+      error instanceof Error ? error.message : String(error),
+    );
     return input.summaries;
   }
   const candidates = new Map<string, Row[]>();
@@ -123,7 +127,7 @@ export async function attachMarylandIndependentOutsideFinance(input: {
         Date.parse(source.source_observed_at) >
           Date.parse(source.last_synced_at)
       )
-        throw Error();
+        throw Error("invalid_outside_source_metadata");
       const groups: BallotLookupFinanceOutsideGroup[] = [],
         ids = new Set<string>();
       let support = 0,
@@ -135,7 +139,7 @@ export async function attachMarylandIndependentOutsideFinance(input: {
             source.group_count !== 0 ||
             row.amount_cents !== null
           )
-            throw Error();
+            throw Error("invalid_outside_empty_group");
           continue;
         }
         const identity = `${row.payer_guid}:${row.stance}`;
@@ -146,14 +150,14 @@ export async function attachMarylandIndependentOutsideFinance(input: {
           !/^[1-9]\d*$/.test(row.filing_entity_id) ||
           !["support", "oppose"].includes(row.stance ?? "")
         )
-          throw Error();
+          throw Error("invalid_outside_group_identity");
         ids.add(identity);
         const amount = cents(row.amount_cents);
-        if (!amount) throw Error();
+        if (!amount) throw Error("invalid_outside_group_amount");
         if (row.stance === "support") support += amount;
         else oppose += amount;
         if (!Number.isSafeInteger(support) || !Number.isSafeInteger(oppose))
-          throw Error();
+          throw Error("outside_total_overflow");
         groups.push({
           committee_id: row.filing_entity_id,
           committee_name: row.committee_name,
@@ -167,7 +171,7 @@ export async function attachMarylandIndependentOutsideFinance(input: {
         support !== cents(source.support_cents) ||
         oppose !== cents(source.oppose_cents)
       )
-        throw Error();
+        throw Error("outside_group_totals_mismatch");
       const existing = output.get(k),
         summary = existing ? structuredClone(existing) : empty(source);
       if (
@@ -205,7 +209,11 @@ export async function attachMarylandIndependentOutsideFinance(input: {
         top_outside_supporting_industries: [],
       };
       output.set(k, summary);
-    } catch {
+    } catch (error) {
+      console.warn(
+        `Maryland independent outside finance held for ${k}:`,
+        error instanceof Error ? error.message : String(error),
+      );
       /* malformed component cannot replace existing valid direct/donor finance */
     }
   return output;

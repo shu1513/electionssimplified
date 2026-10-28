@@ -67,6 +67,7 @@ export async function replaceMarylandIndependentOutsideSnapshot(input: {
   )
     return fail();
   const client: PoolClient = await input.db.connect();
+  let rollbackError: Error | undefined;
   try {
     await client.query("BEGIN");
     const current = await client.query(
@@ -153,9 +154,16 @@ export async function replaceMarylandIndependentOutsideSnapshot(input: {
       allocationsQualified: s.allocationCount,
     };
   } catch (error) {
-    await client.query("ROLLBACK");
+    try {
+      await client.query("ROLLBACK");
+    } catch (rollbackFailure) {
+      // Preserve the write failure and discard a client whose transaction
+      // state could not be reset. It must never return to the idle pool.
+      rollbackError = rollbackFailure instanceof Error
+        ? rollbackFailure : new Error(String(rollbackFailure));
+    }
     throw error;
   } finally {
-    client.release();
+    client.release(rollbackError);
   }
 }
