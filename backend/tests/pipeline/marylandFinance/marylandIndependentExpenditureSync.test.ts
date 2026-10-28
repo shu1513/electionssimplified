@@ -85,6 +85,15 @@ describe("independent Maryland due sync", () => {
     expect(t.writeSnapshotFn).not.toHaveBeenCalled();
     expect(t.query).toHaveBeenCalledOnce();
   });
+  it("force lifts only the recurring-sync flag; refresh alone widens the due set", async () => {
+    vi.stubEnv("MARYLAND_CAMPAIGN_FINANCE_SYNC_ENABLED", "false");
+    const forced = setup();
+    await syncMarylandIndependentExpenditures({ ...forced, force: true });
+    expect(forced.query.mock.calls[0]![1]![7]).toBe(false);
+    const refreshed = setup();
+    await syncMarylandIndependentExpenditures({ ...refreshed, refresh: true });
+    expect(refreshed.query.mock.calls[0]![1]![7]).toBe(true);
+  });
   it("force never bypasses the master source gate", async () => {
     const t = setup();
     vi.stubEnv("MARYLAND_CAMPAIGN_FINANCE_ENABLED", "false");

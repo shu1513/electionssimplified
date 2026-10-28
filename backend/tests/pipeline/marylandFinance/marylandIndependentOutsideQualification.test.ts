@@ -78,6 +78,35 @@ describe("complete Maryland independent outside financial qualification", () => 
       "outside_retained_parent_current_scope_missing",
     );
   });
+  it("does not let one current allocation vouch for two equal retained allocations", () => {
+    const f = fixture(),
+      c = f.controls.get(parent)!;
+    // Retained: two $30 allocations to the owner plus $40 to the other target.
+    f.rows[0]!.amountApplied = 30;
+    f.previousRows = [
+      structuredClone(f.rows[0]!),
+      { ...structuredClone(f.rows[0]!), candidateMeasureGuid: id(42) },
+      structuredClone(f.rows[1]!),
+    ];
+    // Current, same report and transaction version: one owner $30 vanished and
+    // its $30 moved to a ballot question. Only the parent's children changed.
+    f.rows.push({
+      ...structuredClone(f.rows[0]!),
+      candidateMeasureGuid: id(43),
+      candidateGuid: null as unknown as string,
+      candidateBallotIssueName: "Question 1",
+    });
+    c.allocations[0]!.amount = 30;
+    c.allocations.push({
+      filerRegistrationGuid: null as unknown as string,
+      candidateMeasureTitle: "Question 1",
+      isSupport: true,
+      amount: 30,
+    });
+    expect(() => qualifyMarylandIndependentOutside(f)).toThrow(
+      "outside_retained_allocation_unversioned_change",
+    );
+  });
   it("admits a zero only from a fully controlled amended retargeting of a retained parent", () => {
     const f = fixture();
     f.previousRows = structuredClone(f.rows);

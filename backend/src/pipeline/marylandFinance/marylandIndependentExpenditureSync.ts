@@ -130,7 +130,8 @@ export async function syncMarylandIndependentExpenditures(input: {
         ahead,
         input.candidateId ?? null,
         input.electionYear ?? null,
-        input.refresh === true || input.force === true,
+        // force only lifts the recurring-sync flag; refresh widens the due set.
+        input.refresh === true,
       ],
     );
     rows = due.rows;

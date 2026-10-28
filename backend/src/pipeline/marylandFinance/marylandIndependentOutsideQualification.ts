@@ -246,8 +246,12 @@ export function qualifyMarylandIndependentOutside(input: {
       )
         return fail("outside_retained_parent_authority_conflict");
     }
+    // Allocation identity, not value equality: two equal-looking allocations
+    // under one parent must each survive, so one current row cannot vouch for
+    // a retained sibling that disappeared without a new edition.
     const allocationValue = (r: MarylandOutsideRow) =>
       JSON.stringify([
+        marylandOutsideGuid(r.candidateMeasureGuid),
         r.candidateGuid,
         r.positionCode,
         r.amountApplied,

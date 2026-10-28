@@ -75,6 +75,7 @@ function book(payerGuid = payer, reportGuid = report, version = 1) {
 }
 function fixture() {
   const row = {
+    candidateMeasureGuid: id(40),
     candidateGuid: owner,
     candidateBallotIssueName: "Example, Jane For Senate",
     electionYear: 2026,
@@ -99,6 +100,7 @@ function fixture() {
   };
   const second = {
     ...row,
+    candidateMeasureGuid: id(41),
     candidateGuid: other,
     candidateBallotIssueName: "Other For House",
     amountApplied: 40,
