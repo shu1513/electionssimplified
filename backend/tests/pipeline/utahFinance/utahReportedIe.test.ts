@@ -95,7 +95,8 @@ const csv = (all: boolean) =>
   ]
     .map((r) => r.map((s) => `"${s.replaceAll('"', '""')}"`).join(","))
     .join("\r\n");
-const dirs: string[] = [];
+const dirs: string[] = [],
+  bodies = new Map<string, string>();
 afterEach(async () => {
   for (const d of dirs.splice(0)) await rm(d, { recursive: true, force: true });
 });
@@ -124,20 +125,23 @@ async function fixture() {
     ["annual-close", annual, csv(true)],
     ["ledger-open", ledger, csv(false)],
     ["ledger-close", ledger, csv(false)],
-  ])
+  ]) {
+    const wrapped = url!.includes("/GenerateReport")
+      ? body!
+      : `<html><body>${body}</body></html>`;
+    bodies.set(url!, wrapped);
     await writeFile(
       utahIeOriginalPath(dir, phase!, url!),
       JSON.stringify({
         url,
-        body: url!.includes("/GenerateReport")
-          ? body
-          : `<html><body>${body}</body></html>`,
+        body: wrapped,
         observedAt,
         kind: url!.includes("/GenerateReport")
           ? "saved-http-body"
           : "browser-dom",
       }),
     );
+  }
   return dir;
 }
 async function alter(
@@ -256,6 +260,19 @@ describe("Utah reported estimate source", () => {
       fetchImpl,
     });
     expect(fetchImpl).not.toHaveBeenCalled();
+  });
+  it("accepts downloads that finish after the job clock's first minute", async () => {
+    const d = await fixture(),
+      fetchImpl = vi.fn(async (url: string) => new Response(bodies.get(url)));
+    const p = await loadUtahIePacket(2026, [context], {
+      cacheDir: d,
+      now: new Date(Date.now() - 120_000),
+      refresh: true,
+      allowNetwork: true,
+      fetchImpl: fetchImpl as unknown as typeof fetch,
+    });
+    expect(fetchImpl).toHaveBeenCalledTimes(11);
+    expect(p.occurrenceCount).toBe(1);
   });
   it("holds missing originals without network approval", async () => {
     const d = await fixture();
@@ -482,7 +499,7 @@ it.each(["stale", "future", "truncated"])(
     if (mode === "truncated") o.body = o.body.replace("</html>", "");
     else
       o.observedAt =
-        mode === "stale" ? "2026-10-01T00:00:00Z" : "2026-10-28T00:00:00Z";
+        mode === "stale" ? "2026-10-01T00:00:00Z" : "2100-01-01T00:00:00Z";
     await writeFile(path, JSON.stringify(o));
     await expect(load(d)).rejects.toThrow();
   },

@@ -585,12 +585,14 @@ export async function loadUtahIePacket(
     }
     const time = Date.parse(o.observedAt);
     bytesRead += Buffer.byteLength(o.body ?? "");
+    // Future-dating is judged against the wall clock: `now` is the job clock,
+    // fixed at start, while downloads carry their own completion time.
     ieCheck(
       o.url === url &&
         ["http", "saved-http-body", "browser-dom"].includes(o.kind) &&
         typeof o.body === "string" &&
         Number.isFinite(time) &&
-        time <= now.getTime() + 60_000 &&
+        time <= Date.now() + 60_000 &&
         now.getTime() - time <= 86_400_000 &&
         bytesRead <= 64 * 1024 * 1024,
       "original_identity_age_or_budget",
