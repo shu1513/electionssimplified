@@ -7,7 +7,7 @@ import { clearBallotDraft, readBallotDraft, setDraftCandidateChoice } from "../l
 import { BallotPage } from "./BallotPage";
 import { renderRoutes } from "../test/render";
 import { apiError, stubApiRoutes } from "../test/mockApi";
-import { ballotSummary, electionSummary, retentionElection, ME_VERIFIED, VOTE_POWER } from "../test/fixtures";
+import { ballotSummary, electionSummary, retentionElection, DISTRICT, ME_VERIFIED, VOTE_POWER } from "../test/fixtures";
 
 const ANONYMOUS = { "/api/me": apiError(401, "unauthorized", "Not logged in") };
 
@@ -611,6 +611,7 @@ describe("BallotPage nav context", () => {
           vote_power_score: 42,
           election_date: "2026-11-03",
           research_area_ids: [],
+          district_id: DISTRICT.id,
           vote_power_band: "high",
           level: "other",
           group: "Other",
@@ -622,6 +623,7 @@ describe("BallotPage nav context", () => {
           vote_power_score: 42,
           election_date: "2026-11-03",
           research_area_ids: [],
+          district_id: DISTRICT.id,
           awaiting_candidates: true,
           level: "other",
           group: "Other",

@@ -498,6 +498,7 @@ export function ElectionList({
           vote_power_score: election.vote_power.score,
           election_date: election.election_date,
           research_area_ids: election.research_areas.map((area) => area.id),
+          district_id: election.district_id,
           ...(pool.retentionIds.has(election.id)
             ? { retention: true }
             : isAwaitingCandidates(election)

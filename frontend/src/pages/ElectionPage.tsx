@@ -316,18 +316,6 @@ export function ElectionPage() {
         )
       : null;
   const isPickedContest = (electionId: string): boolean => isDecidedChoice(railChoices?.get(electionId));
-  // The rail's "Auto-fill empty picks by my issues": the same per-date
-  // control as My Draft, over the same nearest-day races the progress bar
-  // counts (retention excluded). Signed-in only — the engine writes
-  // account choices (/api/me), and a guest's draft lives in localStorage.
-  // Its one-line run summary sits under it; per-race "why" stays on each
-  // election page's panel.
-  const [railAutoResults, setRailAutoResults] = useState<Map<string, AutoPickElectionResult> | null>(null);
-  const railAutoFill =
-    !isGuest && choices !== undefined && railProgress !== null && railProgress.election_date >= usLatestLocalDate()
-      ? { date: railProgress.election_date, elections: railProgress.election_ids.map((id) => ({ id })) }
-      : null;
-  const railAutoSummary = railAutoResults ? autoFillSummary(railAutoResults) : null;
   const choicesSettled = isGuest || (canChoose && choiceByElectionId !== undefined);
   const isUpcoming = data.election_date >= usLatestLocalDate();
   // District gate (docs/plans/pick-district-gate.md): controls only for a
@@ -335,6 +323,25 @@ export function ElectionPage() {
   // safety valve — an existing pick always keeps its controls, so an
   // imperfect geocode can never lock someone out of changing it.
   const { districtIds, isLoading: districtsLoading } = useMyDistricts();
+  // The rail's "Auto-fill empty picks by my issues": the same per-date
+  // control as My Draft, over the nearest-day races the progress bar
+  // counts (retention excluded) that pass the same district gate as the
+  // page's own pick controls — a snapshot taken from another address's
+  // ballot (/ballot?d=) must not fill races the viewer cannot vote in.
+  // Signed-in only — the engine writes account choices (/api/me), and a
+  // guest's draft lives in localStorage. Its one-line run summary sits
+  // under it; per-race "why" stays on each election page's panel.
+  const [railAutoResults, setRailAutoResults] = useState<Map<string, AutoPickElectionResult> | null>(null);
+  const railAutoFill = (() => {
+    if (isGuest || choices === undefined || districtsLoading || districtIds === undefined) return null;
+    if (railProgress === null || railProgress.election_date < usLatestLocalDate()) return null;
+    const own = new Set(railProgress.election_ids);
+    const elections = (navState?.contests ?? [])
+      .filter((contest) => own.has(contest.id) && contest.district_id !== undefined && districtIds.has(contest.district_id))
+      .map((contest) => ({ id: contest.id }));
+    return elections.length > 0 ? { date: railProgress.election_date, elections } : null;
+  })();
+  const railAutoSummary = railAutoResults ? autoFillSummary(railAutoResults) : null;
   const showChoiceControls =
     choicesSettled &&
     !districtsLoading &&

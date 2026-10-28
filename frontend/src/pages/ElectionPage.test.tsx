@@ -2582,6 +2582,7 @@ describe("ElectionPage ballot rail sort and pick checks", () => {
       vote_power_score: 10,
       election_date: "2026-11-03",
       research_area_ids: [],
+      district_id: DISTRICT.id,
     },
     {
       id: "e-2",
@@ -2590,6 +2591,7 @@ describe("ElectionPage ballot rail sort and pick checks", () => {
       vote_power_score: 50,
       election_date: "2026-11-03",
       research_area_ids: [],
+      district_id: DISTRICT.id,
     },
     {
       id: "e-3",
@@ -2598,6 +2600,7 @@ describe("ElectionPage ballot rail sort and pick checks", () => {
       vote_power_score: 30,
       election_date: "2026-11-03",
       research_area_ids: [],
+      district_id: DISTRICT.id,
     },
   ];
   const ARRIVAL = { backTo: { path: "/me/ballot", label: "My Elections" }, contests: KEYED_CONTESTS };
@@ -2690,6 +2693,49 @@ describe("ElectionPage ballot rail sort and pick checks", () => {
     expect(
       await within(rail).findByText("Auto-fill picked 0 races · 1 left open: not enough evidence")
     ).toBeInTheDocument();
+  });
+
+  it("fills only races in the viewer's own districts", async () => {
+    // A snapshot from another address's ballot (/ballot?d=) lists races
+    // the viewer cannot vote in: same gate as the page's pick controls,
+    // so those never reach the engine. A snapshot entry without a
+    // district id (an old history entry) is held back too.
+    const user = userEvent.setup();
+    const posts: { election_ids: string[] }[] = [];
+    stubApiRoutes({
+      ...SAVED_AREAS,
+      "/api/me/research-area-preferences": {
+        body: {
+          preferences: [1, 2, 3].map((rank) => ({
+            research_area_id: `a-${rank}`,
+            slug: `issue-${rank}`,
+            name: `Issue ${rank}`,
+            description: null,
+            rank,
+          })),
+        },
+      },
+      "/api/me/auto-picks": (_url: URL, init?: RequestInit) => {
+        posts.push(JSON.parse(String(init?.body)));
+        return { status: 200, body: { results: [] } };
+      },
+    });
+    renderElection(perIdLoader, "e-1", {
+      ...ARRIVAL,
+      contests: [
+        ...KEYED_CONTESTS,
+        { ...KEYED_CONTESTS[0], id: "x-1", title: "Foreign Mayor", district_id: "d-elsewhere" },
+        { ...KEYED_CONTESTS[0], id: "x-2", title: "Undated Mayor", district_id: undefined },
+      ],
+    });
+
+    const rail = await screen.findByRole("navigation", { name: "Ballot" });
+    const button = await within(rail).findByRole("button", { name: "Auto-fill empty picks by my issues" });
+    await waitFor(() => expect(button).toBeEnabled());
+    await user.click(button);
+
+    await waitFor(() => expect(posts).toHaveLength(1));
+    expect(posts[0]!.election_ids.sort()).toEqual(["e-1", "e-2", "e-3"]);
   });
 
   it("offers no auto-fill to a guest", async () => {
