@@ -29,9 +29,10 @@ export async function loadPhoenixReviewedEfdPacket(input: {
   const sourceInput = { cacheDir: input.cacheDir, spenderName: input.spenderName, electionDate: context.electionDate };
   let originals = await readPhoenixEfdOriginals(sourceInput);
   if (isPhoenixReviewedEfdRawRefreshEnabled()) {
-    try { originals = await refreshPhoenixEfdOriginals({ ...sourceInput, fetchImpl: input.fetchImpl, requestIntervalMs: input.requestIntervalMs }); }
+    try { originals = await refreshPhoenixEfdOriginals({ ...sourceInput, fetchImpl: input.fetchImpl, requestIntervalMs: input.requestIntervalMs, replay: originals }); }
     catch (error) {
-      // An unavailable fetch may replay a genuine recently observed edition.
+      // An unavailable fetch may replay a genuine recently observed edition,
+      // provided nothing the failed refresh did obtain contradicts it.
       // Changed content/census/ballot is never hidden behind cached evidence.
       if (!(error instanceof PhoenixEfdHold) || error.reason !== "source_unavailable" || !originals) throw error;
     }

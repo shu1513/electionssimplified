@@ -3,7 +3,7 @@ import { basename, resolve } from "node:path";
 import { createHash, randomUUID } from "node:crypto";
 import { isDeepStrictEqual } from "node:util";
 import { isPhoenixReviewedEfdRawRefreshEnabled } from "../../config/featureFlags.js";
-import { PHOENIX_EFD_BALLOT_URL, PHOENIX_EFD_INDEX_URL, assertPhoenixEfdCmsUrl, efdCheck,
+import { PHOENIX_EFD_BALLOT_URL, PHOENIX_EFD_INDEX_URL, PhoenixEfdHold, assertPhoenixEfdCmsUrl, efdCheck,
   parsePhoenixCouncilBallot, parsePhoenixEfdIndex, selectPhoenixEfdFamily, phoenixEfdObservationDay,
   type PhoenixCouncilBallotRow, type PhoenixEfdIndexRow } from "./phoenixReviewedEfd.js";
 
@@ -37,7 +37,10 @@ const rootPath = (cacheDir?: string) => {
   return path;
 };
 
-async function readBundle(path: string, spenderName: string, electionDate: string): Promise<PhoenixEfdOriginals> {
+type OriginalFiles = { metas: Original[]; bodies: Buffer[] };
+/** Integrity of a saved capture: every manifest row is a complete, whole 200
+ * response. Says nothing yet about which filer or edition it proves. */
+async function readOriginalFiles(path: string): Promise<OriginalFiles> {
   await directory(path);
   const metas: Original[] = html(await privateBytes(resolve(path, "manifest.ndjson"), 2 * 1024 * 1024))
     .trim().split("\n").map(line => JSON.parse(line));
@@ -62,6 +65,12 @@ async function readBundle(path: string, spenderName: string, electionDate: strin
     else efdCheck(meta.contentType?.toLowerCase().includes("text/html"), "whole_html_type");
     bodies.push(raw);
   }
+  return { metas, bodies };
+}
+/** Reasons proving the published source moved under a capture. A capture that
+ * fails this way is evidence of change, not noise, and blocks replay of older ones. */
+const SOURCE_CHANGED = new Set(["publication_census_changed", "certified_ballot_changed", "whole_pdf_edition_changed"]);
+async function qualifyOriginals({ metas, bodies }: OriginalFiles, spenderName: string, electionDate: string): Promise<PhoenixEfdOriginals> {
   const at = (role: string, url: string) => {
     const indexes = metas.flatMap((m, i) => m.role === role ? [i] : []);
     efdCheck(indexes.length === 1 && metas[indexes[0]!]!.url === url, "whole_original_role_or_url");
@@ -78,8 +87,8 @@ async function readBundle(path: string, spenderName: string, electionDate: strin
     ...family.map((_, i) => `closing_pdf_${i}`)]), "whole_original_phase_order");
   const firstBallot = at("opening_ballot", PHOENIX_EFD_BALLOT_URL), lastBallot = at("closing_ballot", PHOENIX_EFD_BALLOT_URL);
   const ballot = parsePhoenixCouncilBallot(html(firstBallot.raw));
-  efdCheck(isDeepStrictEqual(ballot, parsePhoenixCouncilBallot(html(lastBallot.raw))) &&
-    ballot.every(row => row.certifiedDate === null || row.certifiedDate <= asOfDay), "certified_ballot_changed_or_future");
+  efdCheck(isDeepStrictEqual(ballot, parsePhoenixCouncilBallot(html(lastBallot.raw))), "certified_ballot_changed");
+  efdCheck(ballot.every(row => row.certifiedDate === null || row.certifiedDate <= asOfDay), "certified_ballot_future");
   const scans: PhoenixEfdOriginals["scans"] = [];
   for (const [i, row] of family.entries()) {
     assertPhoenixEfdCmsUrl(row.sourceUrl);
@@ -95,22 +104,32 @@ async function readBundle(path: string, spenderName: string, electionDate: strin
   return { family, ballot, scans, observedAt: metas[0]!.startedAt, completedAt: metas.at(-1)!.completedAt,
     sourceDigest: hash(Buffer.from(JSON.stringify(metas))) };
 }
+const readBundle = async (path: string, spenderName: string, electionDate: string): Promise<PhoenixEfdOriginals> =>
+  qualifyOriginals(await readOriginalFiles(path), spenderName, electionDate);
 
 /** Saved genuine originals keep their own observation clocks. They are not
- * transcriptions and never receive a new source timestamp on replay. */
+ * transcriptions and never receive a new source timestamp on replay. Captures
+ * are read newest first: a newer complete capture that proves the source
+ * changed leaves nothing replayable, so an older edition is never certified
+ * over it. Failed, partial or unrelated captures are skipped. */
 export async function readPhoenixEfdOriginals(input: {
   cacheDir?: string; spenderName: string; electionDate: string;
 }): Promise<PhoenixEfdOriginals | null> {
   const root = rootPath(input.cacheDir);
   try { await directory(root); } catch { return null; }
-  const candidates: PhoenixEfdOriginals[] = [];
+  const captures: OriginalFiles[] = [];
   for (const name of (await readdir(root)).filter(n => /^source-originals-[a-f0-9-]{36}$/u.test(n))) {
     try {
-      const value = await readBundle(resolve(root, name), input.spenderName, input.electionDate);
-      if (Date.now() - Date.parse(value.completedAt) <= 48 * 60 * 60 * 1000) candidates.push(value);
-    } catch { /* Failed/partial/unrelated originals cannot grant authority. */ }
+      const files = await readOriginalFiles(resolve(root, name));
+      if (Date.now() - Date.parse(files.metas.at(-1)!.completedAt) <= 48 * 60 * 60 * 1000) captures.push(files);
+    } catch { /* Failed/partial originals cannot grant authority. */ }
   }
-  return candidates.sort((a, b) => b.completedAt.localeCompare(a.completedAt))[0] ?? null;
+  captures.sort((a, b) => b.metas.at(-1)!.completedAt.localeCompare(a.metas.at(-1)!.completedAt));
+  for (const files of captures) {
+    try { return await qualifyOriginals(files, input.spenderName, input.electionDate); }
+    catch (error) { if (error instanceof PhoenixEfdHold && SOURCE_CHANGED.has(error.reason)) return null; }
+  }
+  return null;
 }
 
 /** Fetch only published CMS links. Every attempted response is retained as a
@@ -120,6 +139,10 @@ export async function refreshPhoenixEfdOriginals(input: {
   cacheDir?: string; spenderName: string; electionDate: string; fetchImpl?: typeof fetch;
   /** Test/transport pacing seam; the operator CLI always uses one second. */
   requestIntervalMs?: number;
+  /** The saved edition the caller would replay if the source is unavailable.
+   * Every page this refresh did obtain must still match it; otherwise the
+   * source is known to have changed and no replay is permitted. */
+  replay?: PhoenixEfdOriginals | null;
 }): Promise<PhoenixEfdOriginals> {
   efdCheck(isPhoenixReviewedEfdRawRefreshEnabled(), "raw_refresh_disabled");
   const root = rootPath(input.cacheDir);
@@ -130,6 +153,7 @@ export async function refreshPhoenixEfdOriginals(input: {
   const started = Date.now();
   const interval = input.requestIntervalMs ?? 1000;
   efdCheck(Number.isSafeInteger(interval) && interval >= 0 && interval <= 5000, "request_interval");
+  const obtained: { raw: Buffer; meta: Original }[] = [];
   async function request(url: string, role: string, pdf = false): Promise<{ raw: Buffer; meta: Original }> {
     if (pdf) assertPhoenixEfdCmsUrl(url);
     else efdCheck([PHOENIX_EFD_INDEX_URL, PHOENIX_EFD_BALLOT_URL].includes(url), "public_html_scope");
@@ -164,15 +188,30 @@ export async function refreshPhoenixEfdOriginals(input: {
     efdCheck(response && response.status === 200 && eof && raw.length > 0 &&
       (meta.declaredLength === null || (Number.isSafeInteger(meta.declaredLength) && meta.declaredLength! >= 0 &&
         (Boolean(meta.contentEncoding) || meta.declaredLength === raw.length))), "source_unavailable");
+    obtained.push({ raw, meta });
     return { raw, meta };
   }
-  const opening = await request(PHOENIX_EFD_INDEX_URL, "opening_index");
-  const family = selectPhoenixEfdFamily(parsePhoenixEfdIndex(html(opening.raw)), input.spenderName,
-    input.electionDate, phoenixEfdObservationDay(opening.meta.startedAt));
-  await request(PHOENIX_EFD_BALLOT_URL, "opening_ballot");
-  for (const [i, row] of family.entries()) await request(row.sourceUrl, `opening_pdf_${i}`, true);
-  await request(PHOENIX_EFD_INDEX_URL, "closing_index");
-  await request(PHOENIX_EFD_BALLOT_URL, "closing_ballot");
-  for (const [i, row] of family.entries()) await request(row.sourceUrl, `closing_pdf_${i}`, true);
-  return readBundle(path, input.spenderName, input.electionDate);
+  try {
+    const opening = await request(PHOENIX_EFD_INDEX_URL, "opening_index");
+    const family = selectPhoenixEfdFamily(parsePhoenixEfdIndex(html(opening.raw)), input.spenderName,
+      input.electionDate, phoenixEfdObservationDay(opening.meta.startedAt));
+    await request(PHOENIX_EFD_BALLOT_URL, "opening_ballot");
+    for (const [i, row] of family.entries()) await request(row.sourceUrl, `opening_pdf_${i}`, true);
+    await request(PHOENIX_EFD_INDEX_URL, "closing_index");
+    await request(PHOENIX_EFD_BALLOT_URL, "closing_ballot");
+    for (const [i, row] of family.entries()) await request(row.sourceUrl, `closing_pdf_${i}`, true);
+    return await readBundle(path, input.spenderName, input.electionDate);
+  } catch (error) {
+    if (error instanceof PhoenixEfdHold && error.reason === "source_unavailable" && input.replay) {
+      // An incomplete refresh may still have seen a new filing, a changed
+      // ballot or a re-issued PDF. That knowledge outranks the saved edition.
+      for (const { raw, meta } of obtained) {
+        if (meta.url === PHOENIX_EFD_INDEX_URL) efdCheck(isDeepStrictEqual(selectPhoenixEfdFamily(parsePhoenixEfdIndex(html(raw)),
+          input.spenderName, input.electionDate, phoenixEfdObservationDay(meta.startedAt)), input.replay.family), "publication_census_changed");
+        else if (meta.url === PHOENIX_EFD_BALLOT_URL) efdCheck(isDeepStrictEqual(parsePhoenixCouncilBallot(html(raw)), input.replay.ballot), "certified_ballot_changed");
+        else efdCheck(input.replay.scans.some(s => s.row.sourceUrl === meta.url && s.sha256 === meta.sha256), "whole_pdf_edition_changed");
+      }
+    }
+    throw error;
+  }
 }

@@ -55,18 +55,19 @@ function ballot(targetCertified = true): string {
     <tr><th>Name</th><th>Certified to Ballot</th></tr><tr><td>${person}</td><td>${targetCertified ? "07/09/2026" : ""}</td></tr>
     <tr><td>Jordan Example</td><td>${targetCertified ? "" : "07/10/2026"}</td></tr></table>`;
 }
-function transport(options: { targetCertified?: boolean; changedClosingIndex?: boolean } = {}) {
+function transport(options: { targetCertified?: boolean; changedClosingIndex?: boolean; newFilingPdfUnavailable?: boolean } = {}) {
   let indexes = 0;
+  const newFiling = `<tr><td>10/20/2026</td><td>${payer}</td><td><a href="${url("900003")}">900003</a></td></tr>`;
   return vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
     expect(init).toMatchObject({ method: "GET", credentials: "omit", redirect: "error" });
     const href = String(input);
     if (href === PHOENIX_EFD_INDEX_URL) {
       indexes++;
-      const extra = options.changedClosingIndex && indexes === 2
-        ? `<tr><td>10/20/2026</td><td>${payer}</td><td><a href="${url("900003")}">900003</a></td></tr>` : "";
+      const extra = (options.changedClosingIndex && indexes === 2) || options.newFilingPdfUnavailable ? newFiling : "";
       return new Response(index(extra), { headers: { "Content-Type": "text/html" } });
     }
     if (href === PHOENIX_EFD_BALLOT_URL) return new Response(ballot(options.targetCertified), { headers: { "Content-Type": "text/html" } });
+    if (href === url("900003")) return new Response("unavailable", { status: 503 });
     const i = reviews().findIndex(r => r.sourceUrl === href);
     expect(i).toBeGreaterThanOrEqual(0);
     return new Response(new Uint8Array(pdfs[i]!), { headers: { "Content-Type": "application/pdf" } });
@@ -143,6 +144,26 @@ describe("Phoenix reviewed EFD qualification", () => {
   it("never hides a changed complete publication census behind saved originals", async () => {
     const dir = await cache(); await packet(dir);
     await expect(packet(dir, transport({ changedClosingIndex: true }))).rejects.toThrow("publication_census_changed");
+  });
+  it("refuses to replay saved originals once an incomplete refresh has seen a new filing", async () => {
+    const dir = await cache(); await packet(dir);
+    vi.setSystemTime(new Date("2026-10-27T12:00:00Z"));
+    await expect(packet(dir, transport({ newFilingPdfUnavailable: true }))).rejects.toThrow("publication_census_changed");
+    await expect(packet(undefined, transport({ newFilingPdfUnavailable: true }))).rejects.toThrow("source_unavailable");
+  });
+  it("lets a newer capture that proved a source change block older saved originals until a complete refresh", async () => {
+    const dir = await cache(); await packet(dir);
+    vi.setSystemTime(new Date("2026-10-27T12:00:00Z"));
+    await expect(packet(dir, transport({ changedClosingIndex: true }))).rejects.toThrow("publication_census_changed");
+    const unavailable = vi.fn(async () => new Response("unavailable", { status: 503 })) as unknown as typeof fetch;
+    await expect(packet(dir, unavailable)).rejects.toThrow("source_unavailable");
+    vi.stubEnv("PHOENIX_REVIEWED_EFD_RAW_REFRESH_ENABLED", "false");
+    await expect(packet(dir)).rejects.toThrow("recent_whole_original_cache_required");
+    vi.stubEnv("PHOENIX_REVIEWED_EFD_RAW_REFRESH_ENABLED", "true");
+    vi.setSystemTime(new Date("2026-10-27T13:00:00Z"));
+    const fresh = await packet(dir);
+    vi.stubEnv("PHOENIX_REVIEWED_EFD_RAW_REFRESH_ENABLED", "false");
+    expect((await packet(dir)).sourceDigest).toBe(fresh.sourceDigest);
   });
   it("rejects changed scan review hashes and missing review gates", async () => {
     await expect(loadPhoenixReviewedEfdPacket({ db: canonicalDb() as never, cacheDir: await cache(), candidateId, electionId,
