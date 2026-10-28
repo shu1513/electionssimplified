@@ -304,9 +304,10 @@ function SavedBallotBody({ email }: { email: string }) {
         <View className="mt-4 gap-3">
           {/* Flat list: ballotListOrder restores date order and the
               empty-race sink that the positional ballot-order payload leaves
-              out (a no-op under every other sort). The list is in the saved
-              sort — this screen sends no override. */}
-          {ballotListOrder(filtersView.visibleElections, savedPrefs.data?.sort ?? DEFAULT_BALLOT_SORT).map((election) => (
+              out (the identity for every other sort's payload). Unconditional
+              on purpose: the list arrives in the saved sort, which this
+              screen only learns once the preferences query resolves. */}
+          {ballotListOrder(filtersView.visibleElections).map((election) => (
             <ElectionCard
               key={election.id}
               election={election}

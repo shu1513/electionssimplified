@@ -9,22 +9,21 @@ function hasNothingToRead(election: Pick<ElectionSummary, "race_type" | "candida
 }
 
 /**
- * The order a flat list (the mobile ballot screens) should render a ballot
- * payload in. Under every list sort but state_baseline the payload already
- * reads earliest date first with the candidate-less races sunk to the end,
- * so it is returned as-is. state_baseline ("Ballot order") is positional —
- * ranked across dates, no sink — because the ballot preview needs the raw
- * slot; a list restores the date sections and the sink here and keeps the
- * ballot order within each date (sort() is stable). The web list pages do
- * the same regrouping in ElectionList.
+ * The order a flat list (the mobile ballot screens) renders a ballot payload
+ * in: readable races first, earliest election date first, the payload's own
+ * order within a date (sort() is stable). Under every list sort but
+ * state_baseline the payload already reads this way, so this is the identity
+ * for them. state_baseline ("Ballot order") is positional — ranked across
+ * dates, no empty-race sink — because the ballot preview needs the raw slot;
+ * this restores the date sections and the sink around it and keeps the
+ * ballot order within each date. Applied regardless of which sort produced
+ * the payload, so a list whose sort is not yet known (the saved ballot
+ * before its preferences load) still reads right. The web list pages do the
+ * same regrouping in ElectionList.
  */
-export function ballotListOrder<Election extends Pick<ElectionSummary, "election_date" | "race_type" | "candidate_count" | "has_results">>(
-  elections: readonly Election[],
-  sort: string
-): Election[] {
-  if (sort !== "state_baseline") {
-    return [...elections];
-  }
+export function ballotListOrder<
+  Election extends Pick<ElectionSummary, "election_date" | "race_type" | "candidate_count" | "has_results">,
+>(elections: readonly Election[]): Election[] {
   return [...elections].sort((a, b) => {
     const aEmpty = hasNothingToRead(a) ? 1 : 0;
     const bEmpty = hasNothingToRead(b) ? 1 : 0;

@@ -245,6 +245,10 @@ const CATALOG: Record<string, { required: Record<string, PropRule>; optional?: R
         "alphabetical",
         "vote_power",
         "soonest",
+        // rail_sort: the detail rail's own sort keys (api-client RAIL_SORTS)
+        "ballot_order",
+        "district_smallest",
+        "district_biggest",
         "office",
         "ballot_measure",
         "newest",

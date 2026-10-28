@@ -227,8 +227,8 @@ export default function BallotScreen() {
             <View className="mt-4 gap-3">
               {/* Flat list: ballotListOrder restores date order and the
                   empty-race sink that the positional ballot-order payload
-                  leaves out (a no-op under every other sort). */}
-              {ballotListOrder(filtersView.visibleElections, sort).map((election) => (
+                  leaves out (the identity for every other sort's payload). */}
+              {ballotListOrder(filtersView.visibleElections).map((election) => (
                 <ElectionCard key={election.id} election={election} savedAreaWeights={weights} />
               ))}
             </View>
