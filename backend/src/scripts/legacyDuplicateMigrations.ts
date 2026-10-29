@@ -85,6 +85,17 @@ export const LEGACY_DUPLICATE_MIGRATION_FILES_BY_PREFIX = new Map<string, string
       "336_add_limit_foreign_influence_research_area.sql",
     ],
   ],
+  // #1647 (Maryland outside finance) and #1655 (Florida IE acquisition
+  // attempts) independently used 389 and both were applied locally. Keep
+  // their filenames/checksums stable. They create unrelated state tables and
+  // are safe in either application order.
+  [
+    "389",
+    [
+      "389_add_florida_ie_acquisition_attempts.sql",
+      "389_add_maryland_independent_outside_finance.sql",
+    ],
+  ],
 ]);
 
 export function isLegacyDuplicateMigrationSet(
