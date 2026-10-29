@@ -360,3 +360,51 @@ and 11 auth-proxy checks. Complete frontend tests pass on installed Node 23:
 typecheck/lint and 98 Worker tests pass, with existing lint warnings. The filing
 deadline reruns above remain required; eligible outside positives, additional
 Purpose grammars, daily reconciliation and broader source coverage remain open.
+
+### Legislative IE acquisition independent of direct finance (October 28)
+
+New complete current native reports witness `DATA SUPPORTING Full Name (HD-N)`
+and `MAILER & PHONE BANKS SUPPORTING Full Name (HD-N)`, with corresponding
+`SD-N` Senate clauses. The parser accepts only these anchored single-target
+forms, exact full names and valid chamber seats. Pooled, truncated, unsupported
+or mismatched clauses remain excluded. An independent full-book reference found
+25 such clauses, 23 exact canonical target matches across 12 local races; two
+name mismatches and one other IEC purpose remain excluded. This is scoped source
+qualification, not statewide coverage.
+
+The ordinary due runner now selects legislative IE contexts independently of
+direct-summary freshness, missing receiving exports and direct/PAC failures.
+Candidate-specific discovery requests each witnessed prefix separately, with
+the existing strict UTF-8/2,000-row acquisition bound. Discovery is never money
+or absence authority. Every admitted component still requires exact all-status
+registry ownership enclosing both complete native financial snapshots, current
+EFS statuses, report counts, cover totals and generic/native occurrence equality.
+
+Migration 389 adds a separate scheduling-only acquisition-attempt table. Oldest
+attempts sort first and sibling receiving links deduplicate before the bound.
+Failures and empty discoveries back off at most one day; accepted financial
+freshness continues to use actual verified source times. No attempt stamps money,
+completeness or candidate-wide zero. Explicit `--stale-after-days 0` bypasses
+attempt backoff as well as accepted-source staleness for deadline reruns.
+
+The first October 28 normal local run acquired 149 whole responses and wrote one
+positive payer/target component while direct export was gated off by its separate
+raw-export flag. That is a live independence proof, not a fresh direct proof.
+A subsequent run with all three Florida flags enabled inline acquired 310 whole
+responses, refreshed direct finance and independently refreshed the positive IE
+component containing two allocated occurrences. The prior PAC component and all
+24 donor clocks remained held. Independent Decimal/count/identity audits verified
+the full 117-row receiving export, exact raised total and all 53 occupation/size
+buckets; both full 27-expense books, 13 current reports, every admitted allocation,
+stored source-metadata envelope and genuine closing clock also reconciled.
+Ordinary HTTP matched the production reader and every displayed IE/PAC row. The
+real hydrated candidate card displayed fresh direct data, the IE group, preserved
+PAC data and partial-coverage note; reload and interactive expansion preserved
+every visible finance text. Candidate-wide support/oppose totals remain unknown.
+No production writes, financial extracts, financial screenshots or publication
+hold changes. All 892 Florida tests, backend typecheck and migration checks pass.
+
+The current run precedes G6: due October 30 for activity through October 29.
+Fresh reruns remain required October 31/November 2 and late checks November 4/6.
+Q4 is due January 11, 2027; rerun January 12/15 with the historical lookback
+described above. No automation was created.

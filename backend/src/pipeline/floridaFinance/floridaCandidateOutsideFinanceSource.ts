@@ -4,7 +4,7 @@ import { createFloridaFinanceRawSourceClient } from "./floridaFinanceRawSourceCl
 import { createFloridaIndependentExpenditureDiscovery } from "./floridaIndependentExpenditureDiscovery.js";
 import { createFloridaOutsidePayerSource, selectFloridaOutsidePayerLeads, type FloridaOutsidePayerResult } from "./floridaOutsidePayerSource.js";
 import { createFloridaProcessedExpenseSourceLoader } from "./floridaProcessedExpenseSourceLoader.js";
-import { loadFloridaLocalFinanceContext, type FloridaLocalFinanceContext } from "./floridaLocalFinanceContext.js";
+import { loadFloridaLocalFinanceContext, isFloridaExplicitLegislativeContext, type FloridaLocalFinanceContext } from "./floridaLocalFinanceContext.js";
 import { buildFloridaVerifiedOutsideAllocations, type FloridaOutsideAllocationSource } from "./floridaVerifiedOutsideAllocations.js";
 
 type ResolvedPayer = Extract<FloridaOutsidePayerResult, { status: "resolved" }>;
@@ -37,7 +37,7 @@ export function createFloridaCandidateOutsideFinanceSource(options: {
         const local = await loadFloridaLocalFinanceContext({ db: options.db, ...input });
         if (local.status === "preserve") return { status: "preserve", diagnostics: [local.reason] };
         const context = local.context;
-        if (context.officeScope !== "state_lower") return { status: "preserve", diagnostics: ["No source-witnessed explicit Purpose grammar for this office."] };
+        if (!isFloridaExplicitLegislativeContext(context)) return { status: "preserve", diagnostics: ["No source-witnessed explicit Purpose grammar for this office."] };
         const raw = createFloridaFinanceRawSourceClient({
           cacheDir: resolve(options.cacheDir, "outside-source"),
           refresh: options.refresh, minIntervalMs: options.minIntervalMs, maxRequests: 1000
@@ -59,14 +59,18 @@ export function createFloridaCandidateOutsideFinanceSource(options: {
           const label = `${row.payer_name} (${row.payer_type})`;
           labels.set(exact(label), label);
         }
-        const found = await discovery.load({
-          electionSelector: "20261103-GEN",
-          purposePrefix: `TEXT MESSAGES; PRO-${context.candidateName}`
-        });
         const diagnostics: string[] = [];
-        if (found.status === "preserve") diagnostics.push(...found.diagnostics);
-        else for (const row of selectFloridaOutsidePayerLeads({ rows: found.rows, localContext: context }))
-          labels.set(exact(row.payerLabel), row.payerLabel);
+        const prefixes = [
+          ...(context.officeScope === "state_lower" ? [`TEXT MESSAGES; PRO-${context.candidateName}`] : []),
+          `DATA SUPPORTING ${context.candidateName}`,
+          `MAILER & PHONE BANKS SUPPORTING ${context.candidateName}`,
+        ];
+        for (const purposePrefix of prefixes) {
+          const found = await discovery.load({ electionSelector: "20261103-GEN", purposePrefix });
+          if (found.status === "preserve") diagnostics.push(...found.diagnostics);
+          else for (const row of selectFloridaOutsidePayerLeads({ rows: found.rows, localContext: context }))
+            labels.set(exact(row.payerLabel), row.payerLabel);
+        }
         if (labels.size > 20) return { status: "preserve", diagnostics: ["Relevant payer acquisition bound exceeded."] };
         const components: FloridaCandidateOutsideFinanceComponent[] = [];
         for (const label of labels.values()) {

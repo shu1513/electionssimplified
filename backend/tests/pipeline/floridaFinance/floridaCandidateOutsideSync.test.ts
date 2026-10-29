@@ -52,10 +52,33 @@ describe("Florida normal independent expenditure sync hook", () => {
     await syncDueFloridaCandidateFinance({ ...test.input, ...(mode === "dry" ? { dryRun: true } : mode === "disabled" ? { includeIndependentExpenditures: false } : { outsideDb: undefined }) });
     expect(test.load).not.toHaveBeenCalled(); expect(test.write).not.toHaveBeenCalled();
   });
-  it("ordinary finance failure does not acquire outside source", async () => {
+  it("ordinary finance failure still acquires independently due outside source", async () => {
     const test = setup(); test.direct.mockRejectedValue(new Error("direct failed"));
     const result = await syncDueFloridaCandidateFinance(test.input);
-    expect(result.failedCandidateCount).toBe(1); expect(test.load).not.toHaveBeenCalled();
+    expect(result.failedCandidateCount).toBe(1); expect(test.load).toHaveBeenCalledOnce();
+  });
+  it("a thrown committee-donor acquisition cannot prevent direct or IE sync", async () => {
+    const test = setup(), warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      const result = await syncDueFloridaCandidateFinance({ ...test.input, includeRegisteredCommitteeDonors: true,
+        committeeFinanceSource: { load: vi.fn().mockRejectedValue(new Error("committee source unavailable")) } });
+      expect(result.syncedCandidateCount).toBe(1);
+      expect(test.load).toHaveBeenCalledOnce();
+    } finally { warn.mockRestore(); }
+  });
+  it.each(["fresh", "missing"])('acquires IE when direct finance is %s', async mode => {
+    const test = setup();
+    const component = { payerIdentity: { payerLabel: "Example (PAC)", rawSource: [] }, source: {} } as unknown as FloridaCandidateOutsideFinanceComponent;
+    test.load.mockResolvedValue({ status: "loaded", localContext: {}, components: [component], diagnostics: [] });
+    if (mode === "fresh") test.input.db.query.mockResolvedValueOnce({ rows: [] });
+    else test.input.contributionDataByCommitteeId.clear();
+    const result = await syncDueFloridaCandidateFinance(test.input);
+    expect(test.direct).not.toHaveBeenCalled();
+    expect(test.load).toHaveBeenCalledWith({ candidateId: due.candidate_id, electionId: due.election_id, committeeId: due.committee_id });
+    expect(result.outsideSelectedCandidateCount).toBe(1);
+    expect(test.write).toHaveBeenCalledOnce();
+    expect(result.outsideResults[0].components).toMatchObject([{ status: "written" }]);
+    expect(test.input.db.query.mock.calls.at(-1)?.[0]).toContain('fl_candidate_finance_ie_attempts');
   });
   it("outside acquisition exception preserves ordinary sync result", async () => {
     const test = setup(), warn = vi.spyOn(console, "warn").mockImplementation(() => {});

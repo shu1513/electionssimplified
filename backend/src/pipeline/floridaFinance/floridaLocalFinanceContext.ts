@@ -25,6 +25,15 @@ type Row = {
 type Result = { status: "resolved"; context: FloridaLocalFinanceContext }
   | { status: "preserve"; reason: string };
 
+/** Exact offices/seats covered by witnessed single-target legislative grammar. */
+export function isFloridaExplicitLegislativeContext(context: FloridaLocalFinanceContext): boolean {
+  return context.electionYear === 2026 && context.electionDate === "2026-11-03" &&
+    ((context.officeScope === "state_lower" && context.officeCanonicalName === "State Lower Chamber Legislator" &&
+      /^(?:[1-9]\d?|1[01]\d|120)$/.test(context.district ?? "")) ||
+     (context.officeScope === "state_upper" && context.officeCanonicalName === "State Senator" &&
+      /^(?:[1-9]|[1-3]\d|40)$/.test(context.district ?? "")));
+}
+
 /** Source scope comes from the actual local race, never the stored link's
  * office/district label. A caller can recheck the same context under a lock.
  */
