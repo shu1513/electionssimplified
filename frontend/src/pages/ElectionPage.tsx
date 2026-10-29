@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useRef, useState } from "react";
 import { isRouteErrorResponse, Link, useLoaderData, useLocation, useRouteError } from "react-router";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
-import type { BallotRaceType, ElectionDetail, PartyBucket, RailSortKey } from "@voteapp/api-client";
+import type { AutoPickElectionResult, BallotRaceType, ElectionDetail, PartyBucket, RailSortKey } from "@voteapp/api-client";
 import { RankedChoiceNotice } from "../components/RankedChoiceNotice";
 import {
   RAIL_SORTS,
@@ -17,7 +17,6 @@ import {
 import { partyColorClass } from "@voteapp/api-client";
 import { DetailPager } from "../components/DetailPager";
 import { DetailRail } from "../components/DetailRail";
-import { RaceTypeTabs } from "../components/RaceTypeTabs";
 import {
   pagerNeighbors,
   readElectionNavState,
@@ -52,6 +51,7 @@ import { usLatestLocalDate } from "../lib/usLatestLocalDate";
 import { AREA_TEXT_CLASS, SAVED_AREA_TEXT_CLASS } from "../components/ElectionCard";
 import { CappedInlineList } from "../components/CappedInlineList";
 import { AutoPickControl } from "../components/AutoPickControl";
+import { AutoPickFillControl, autoFillSummary } from "../components/AutoPickFillControl";
 import { RetentionJudgeSection } from "../components/RetentionJudgeSection";
 import { CandidatePickButton, MeasureChoiceButtons, StrandedPicksNotice } from "../components/ElectionChoiceControls";
 import { PostPickActions } from "../components/PostPickActions";
@@ -91,18 +91,10 @@ type CandidateSort = "alphabetical" | "my_issues";
 // is a throwaway for relative parsing only.
 function rewriteBackPath(
   path: string,
-  tabs: { available: boolean; raceType: BallotRaceType | null },
   railSort: RailSortKey | null,
   { fallback, districtOffered }: { fallback: boolean; districtOffered: boolean }
 ): string {
   const url = new URL(path, "http://internal");
-  if (tabs.available) {
-    if (tabs.raceType) {
-      url.searchParams.set("type", tabs.raceType);
-    } else {
-      url.searchParams.delete("type");
-    }
-  }
   const honorable =
     railSort === "vote_power" ||
     isRailDistrictSort(railSort) ||
@@ -296,7 +288,7 @@ export function ElectionPage() {
   // into the local ballot draft, so the same buttons render with the draft
   // as their choice source. me is undefined while the session loads —
   // render nothing then to avoid a flash of the wrong state.
-  const { choiceByElectionId, canChoose } = useElectionChoices();
+  const { choices, choiceByElectionId, canChoose } = useElectionChoices();
   const draft = useBallotDraft();
   const isGuest = me === null;
   const myChoice = isGuest
@@ -331,6 +323,25 @@ export function ElectionPage() {
   // safety valve — an existing pick always keeps its controls, so an
   // imperfect geocode can never lock someone out of changing it.
   const { districtIds, isLoading: districtsLoading } = useMyDistricts();
+  // The rail's "Auto-fill empty picks by my issues": the same per-date
+  // control as My Draft, over the nearest-day races the progress bar
+  // counts (retention excluded) that pass the same district gate as the
+  // page's own pick controls — a snapshot taken from another address's
+  // ballot (/ballot?d=) must not fill races the viewer cannot vote in.
+  // Signed-in only — the engine writes account choices (/api/me), and a
+  // guest's draft lives in localStorage. Its one-line run summary sits
+  // under it; per-race "why" stays on each election page's panel.
+  const [railAutoResults, setRailAutoResults] = useState<Map<string, AutoPickElectionResult> | null>(null);
+  const railAutoFill = (() => {
+    if (isGuest || choices === undefined || districtsLoading || districtIds === undefined) return null;
+    if (railProgress === null || railProgress.election_date < usLatestLocalDate()) return null;
+    const own = new Set(railProgress.election_ids);
+    const elections = (navState?.contests ?? [])
+      .filter((contest) => own.has(contest.id) && contest.district_id !== undefined && districtIds.has(contest.district_id))
+      .map((contest) => ({ id: contest.id }));
+    return elections.length > 0 ? { date: railProgress.election_date, elections } : null;
+  })();
+  const railAutoSummary = railAutoResults ? autoFillSummary(railAutoResults) : null;
   const showChoiceControls =
     choicesSettled &&
     !districtsLoading &&
@@ -382,24 +393,18 @@ export function ElectionPage() {
   // The nav bar exists only for in-app arrivals: router state carries where
   // "back" goes and the ballot sequence. Deep links (shares, search
   // engines) have neither — they get no bar at all, by product choice.
-  // The rail's race-type tabs: offered only when the snapshot types every
-  // contest (an old history entry may not) and holds both types. The tab
-  // starts where the list's tab was (navState.raceType) and lives in
-  // component state — the route element stays mounted across sibling walks,
-  // which is exactly the persistence the choice needs; remounts (back out
-  // and in, candidate round trips) restore it from the nav state instead.
+  // The rail mirrors the list tab the reader arrived from (navState.raceType):
+  // it slices to that race type when the snapshot types every contest (an
+  // old history entry may not) and holds both types. No switch of its own —
+  // the list page's tabs are the one place the type is chosen, so the back
+  // link's ?type= is never rewritten here.
   const contests = navState?.contests;
   const railTabsAvailable =
     contests !== undefined &&
     contests.every((contest) => contest.race_type !== undefined) &&
     contests.some((contest) => contest.race_type === "office") &&
     contests.some((contest) => contest.race_type === "ballot_measure");
-  // undefined = untouched (follow the nav state's tab), null = an explicit
-  // "All" — the one control here whose cleared value is a real choice, so a
-  // plain ?? fallback would undo it.
-  const [railTabOverride, setRailTabState] = useState<BallotRaceType | null | undefined>(undefined);
-  const railTabState = railTabOverride !== undefined ? railTabOverride : (navState?.raceType ?? null);
-  const railTab = railTabsAvailable ? railTabState : null;
+  const railTab: BallotRaceType | null = railTabsAvailable ? (navState?.raceType ?? null) : null;
   // The rail's sort control: offered only for the sorts this snapshot can
   // honor faithfully (railSortsOffered — an old unkeyed snapshot offers
   // none), and withheld while the saved areas load so the default cannot
@@ -520,17 +525,12 @@ export function ElectionPage() {
     navState === null
       ? null
       : (() => {
-          if (!railTabsAvailable && offeredRailSorts.length === 0) {
+          if (offeredRailSorts.length === 0) {
             return { forwarded: navState, backTo: navState.backTo };
           }
           // Field removal only on this copy — the shared original must
           // never be mutated.
           const forwarded: ElectionNavState = { ...navState };
-          if (railTab) {
-            forwarded.raceType = railTab;
-          } else {
-            delete forwarded.raceType;
-          }
           if (railSort) {
             forwarded.railSort = railSort;
           } else {
@@ -540,12 +540,10 @@ export function ElectionPage() {
             forwarded,
             backTo: {
               ...navState.backTo,
-              path: rewriteBackPath(
-                navState.backTo.path,
-                { available: railTabsAvailable, raceType: railTab },
-                railSort,
-                { fallback: railSortFallback, districtOffered: railDistrictOffered }
-              ),
+              path: rewriteBackPath(navState.backTo.path, railSort, {
+                fallback: railSortFallback,
+                districtOffered: railDistrictOffered,
+              }),
             },
           };
         })();
@@ -678,16 +676,6 @@ export function ElectionPage() {
                 </div>
               ) : null}
               <div className="flex flex-col gap-2">
-                {railTabsAvailable ? (
-                  <RaceTypeTabs
-                    raceType={railTab}
-                    onChange={(next) => {
-                      track("detail_control", { control: "rail_tab", value: next ?? "all" });
-                      setRailTabState(next);
-                    }}
-                    compact
-                  />
-                ) : null}
                 {offeredRailSorts.length > 0 ? (
                   <label className="flex items-center gap-1.5 text-xs text-ink-soft">
                     Sort
@@ -708,6 +696,21 @@ export function ElectionPage() {
                       )}
                     </select>
                   </label>
+                ) : null}
+                {railAutoFill !== null ? (
+                  <AutoPickFillControl
+                    date={railAutoFill.date}
+                    elections={railAutoFill.elections}
+                    choices={choices ?? []}
+                    choiceByElectionId={choiceByElectionId}
+                    onResults={setRailAutoResults}
+                    compact
+                  />
+                ) : null}
+                {railAutoSummary !== null ? (
+                  <p role="status" className="text-xs text-ink-soft">
+                    {railAutoSummary}
+                  </p>
                 ) : null}
               </div>
             </div>

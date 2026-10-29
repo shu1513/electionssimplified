@@ -59,7 +59,11 @@ export function HowItWorksPopover({ text, compact = false }: { text: string; com
       {open ? (
         <div
           id={panelId}
-          className="absolute left-0 top-full z-20 mt-2 w-[28rem] max-w-[calc(100vw-2rem)] rounded-lg border border-line bg-white p-3 pr-9 text-sm leading-relaxed text-ink shadow-lg"
+          // Compact (the 18rem rail): span the anchoring row instead of a
+          // fixed 28rem, which the rail's scroll container would clip.
+          className={`absolute left-0 top-full z-20 mt-2 rounded-lg border border-line bg-white p-3 pr-9 text-sm leading-relaxed text-ink shadow-lg ${
+            compact ? "right-0" : "w-[28rem] max-w-[calc(100vw-2rem)]"
+          }`}
         >
           {/* Explicit close affordance — the glyph also toggles, but a panel
               with no visible way out reads as stuck. Focus returns to the

@@ -76,6 +76,10 @@ export type NavContest = {
   vote_power_score?: number | null;
   election_date?: string;
   research_area_ids?: string[];
+  /** The contest's district: the rail's auto-fill submits only races in
+   * the viewer's own districts (the page's district gate), and a snapshot
+   * entry without one (an old history entry) is never submitted. */
+  district_id?: string;
   awaiting_candidates?: boolean;
   retention?: boolean;
   /** The list's district section heading for this contest's level ("City:
@@ -233,6 +237,9 @@ export function readElectionNavState(state: unknown): ElectionNavState | null {
         raw.research_area_ids.every((areaId) => typeof areaId === "string" && areaId.trim() !== "")
       ) {
         entry.research_area_ids = raw.research_area_ids;
+      }
+      if (typeof raw.district_id === "string" && raw.district_id.trim() !== "") {
+        entry.district_id = raw.district_id;
       }
       if (raw.retention === true) {
         entry.retention = true;

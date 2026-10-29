@@ -5,7 +5,7 @@ import userEvent from "@testing-library/user-event";
 import { SavedBallotPage } from "./SavedBallotPage";
 import { renderRoutes } from "../test/render";
 import { apiError, stubApiRoutes } from "../test/mockApi";
-import { ballotSummary, electionSummary, ME_UNVERIFIED, ME_VERIFIED } from "../test/fixtures";
+import { ballotSummary, electionSummary, DISTRICT, ME_UNVERIFIED, ME_VERIFIED } from "../test/fixtures";
 import { readPendingDistrictIds, savePendingDistrictIds } from "../lib/pendingDistricts";
 import { resetDistrictHandoffForTests, useDistrictHandoffRunner } from "../lib/districtHandoff";
 
@@ -322,6 +322,7 @@ describe("SavedBallotPage nav context", () => {
           vote_power_score: 42,
           election_date: "2026-11-03",
           research_area_ids: [],
+          district_id: DISTRICT.id,
           vote_power_band: "high",
           level: "other",
           group: "Other",

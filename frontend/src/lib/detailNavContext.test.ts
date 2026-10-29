@@ -259,6 +259,13 @@ it("preserves a valid retention flag and discards malformed flags", () => {
   ] })?.contests).toEqual([{ id: "a", title: "Judge A", retention: true }, { id: "b", title: "Judge B" }]);
 });
 
+it("preserves a non-empty district id and discards blank ones", () => {
+  expect(readElectionNavState({ backTo: BACK_TO, contests: [
+    { id: "a", title: "Mayor", district_id: "d-1" },
+    { id: "b", title: "Sheriff", district_id: "" },
+  ] })?.contests).toEqual([{ id: "a", title: "Mayor", district_id: "d-1" }, { id: "b", title: "Sheriff" }]);
+});
+
 it("preserves a non-empty vote-power band and discards blank ones", () => {
   expect(readElectionNavState({ backTo: BACK_TO, contests: [
     { id: "a", title: "Mayor", vote_power_band: "high" },

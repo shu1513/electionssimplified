@@ -282,13 +282,13 @@ describe("AutoPickFillControl", () => {
     await screen.findByRole("button", { name: "Auto-fill empty picks by my issues" });
     const how = screen.getByRole("button", { name: "How does this work?" });
     expect(how).toHaveAttribute("aria-expanded", "false");
-    expect(screen.queryByText(/Picks you made yourself are not changed/)).toBeNull();
+    expect(screen.queryByText(/Your own picks are never changed/)).toBeNull();
     const user = userEvent.setup();
     await user.click(how);
     expect(how).toHaveAttribute("aria-expanded", "true");
-    expect(screen.getByText(/Picks you made yourself are not changed/)).toBeInTheDocument();
+    expect(screen.getByText(/Your own picks are never changed/)).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Close" }));
-    expect(screen.queryByText(/Picks you made yourself are not changed/)).toBeNull();
+    expect(screen.queryByText(/Your own picks are never changed/)).toBeNull();
     expect(how).toHaveFocus();
   });
 
