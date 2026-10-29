@@ -16,6 +16,20 @@ describe("verifyAlabamaPacCashSource", () => {
     expect(verifyAlabamaPacCashSource(fixture()).pacDonors?.[0]).toMatchObject({ committeeId: "24906", amount: 1500, contributionCount: 1 });
   });
 
+  it("keeps purchase-refund Other Receipts outside contribution cash and PAC totals", () => {
+    const refund = { ...native, TRANSACTIONID: 880000001, CONTRIBUTOR: "Fictional Office Supply Company",
+      CONTRIBUTIONTYPE: "Refund", DESCRIPTION: "Refund for a committee purchase", AMOUNT: 451.23 };
+    const input = sourceRows([native, refund], [cash], 150_000);
+    const result = verifyAlabamaPacCashSource(input);
+    expect(result.diagnostics).toEqual([]);
+    expect(result.pacDonors).toHaveLength(1);
+    expect(result.pacDonors?.[0]).toMatchObject({ amount: 1500, contributionCount: 1 });
+    preserve({ ...input, coversCashCents: 195_123 });
+    preserve({ ...input, cashRows: [cash, { ...cash, contributionId: String(refund.TRANSACTIONID),
+      lastName: refund.CONTRIBUTOR, contributorType: "Group/Business/Corporation", amountCents: 45_123 }] });
+    preserve({ ...input, nativeAllAfter: [native, { ...refund, DESCRIPTION: "Changed source edition" }] });
+  });
+
   it("allows observed historical null non-itemized donors outside the term while retaining their raw fingerprints", () => {
     const historical = { ...native, TRANSACTIONID: 826354, TRANSACTIONDATE: "06/22/2018", CONTRIBUTOR: null, CONTRIBUTIONTYPE: "Cash (Non-Itemized)" };
     const input = sourceRows([native, historical], [cash], 150_000);
@@ -127,7 +141,7 @@ describe("verifyAlabamaPacCashSource", () => {
     const personalCash = { ...cash, contributionId: "2", amountCents: 29, firstName: "Jane", lastName: "Doe", contributorType: "Individual", middleName: "", suffix: "" };
     expect(verifyAlabamaPacCashSource(sourceRows([native, person], [cash, personalCash], 150_029)).pacDonors?.[0]?.amount).toBe(1500);
   });
-  it.each(["Refund", "ReturnContribution/Check", "Return Contribution/Check", "Unknown", "Non-Itemized Employee Payroll Contribution (Cash)"])("preserves unresolved native category %s instead of guessing an alias", (category) => {
+  it.each(["Refund (Contribution)", "ReturnContribution/Check", "Return Contribution/Check", "Unknown", "Non-Itemized Employee Payroll Contribution (Cash)"])("preserves unresolved native category %s instead of guessing an alias", (category) => {
     const row = { ...native, TRANSACTIONID: 2, CONTRIBUTIONTYPE: category };
     preserve(sourceRows([native, row], [cash], 150_000));
   });
