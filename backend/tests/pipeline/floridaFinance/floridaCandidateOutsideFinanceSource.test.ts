@@ -1,3 +1,4 @@
+import { buildFloridaVerifiedOutsideAllocations } from "../../../src/pipeline/floridaFinance/floridaVerifiedOutsideAllocations.js";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -127,8 +128,8 @@ function fullProtocol(changeFinalRegistry = false, purpose = "TEXT MESSAGES; PRO
 }
 
 describe("Florida candidate outside nested acquisition", () => {
-  it("acquires witnessed Senate support through complete native report and registry checks", async () => {
-    const transport = fullProtocol(false, "DATA SUPPORTING JANE EXAMPLE (SD-39)");
+  it.each(["DATA", "MAILER & PHONE BANKS"])("allocates %s Senate support through complete native report and registry checks", async prefix => {
+    const transport = fullProtocol(false, `${prefix} SUPPORTING JANE EXAMPLE (SD-39)`);
     vi.stubGlobal("fetch", transport.fetch);
     const query = vi.fn().mockResolvedValueOnce({ rows: [{ ...row, candidate_name: "Jane Example",
       office_scope: "state_upper", office_canonical_name: "State Senator", district_type: "state_upper", geoid_compact: "12039" }] })
@@ -139,6 +140,13 @@ describe("Florida candidate outside nested acquisition", () => {
     expect(result.components).toHaveLength(1);
     expect(result.components[0].source.after.periodExports).toHaveLength(1);
     expect(transport.events.filter(event => event === "discovery")).toHaveLength(2);
+    const allocation = buildFloridaVerifiedOutsideAllocations({
+      localContext: result.localContext, source: result.components[0].source,
+    });
+    expect(allocation).toMatchObject({ status: "verified_payer_target", candidateWideZeroAuthority: false,
+      supportCents: 52500, unmatchedExpenseCount: 0,
+      allocations: [{ occurrence: 0, reportSequence: 2, amountCents: 52500, supportOppose: "support" }],
+    });
   });
   it("accepts default saved-first operation with genuinely fresh nested financial packets", async () => {
     const transport = fullProtocol(); vi.stubGlobal("fetch", transport.fetch);

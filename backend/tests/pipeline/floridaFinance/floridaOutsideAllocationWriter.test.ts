@@ -493,6 +493,49 @@ function twoPeriods(
 }
 
 describe("Florida scoped outside authority transaction", () => {
+  it.each(["DATA", "MAILER & PHONE BANKS"])("persists %s Senate amounts and can replace a prior false zero", async prefix => {
+    const d = database({ localChange: {
+      office_scope: "state_upper", office_canonical_name: "State Senator",
+      district_type: "state_upper", geoid_compact: "12039",
+    } });
+    const value = input(d.db);
+    value.localContext = { ...value.localContext, officeScope: "state_upper",
+      officeCanonicalName: "State Senator", district: "39" };
+    for (const packet of [value.source!.before, value.source!.after]) {
+      for (const evidence of [...packet.periodExports, packet.allDatesExport, packet.genericExport]) {
+        updateRaw(evidence, text => text.replaceAll(
+          "TEXT MESSAGES; PRO-JOHN EXAMPLE, HD-87", `${prefix} SUPPORTING JOHN EXAMPLE (SD-39)`,
+        ));
+      }
+    }
+    const before = d.state();
+    expect(await writeFloridaOutsideAllocations(value)).toMatchObject({ status: "written", supportCents: 105000 });
+    const key = `${local.candidateElectionId}/90001/2026`;
+    const stored = d.state().get(key) as any;
+    expect(stored).toMatchObject({ support_amount: "1050.00", expenditure_count: 2,
+      provenance: { candidateWideZeroAuthority: false, supportCents: 105000, unmatchedExpenseCount: 1,
+        allocations: [
+          { occurrence: 0, reportSequence: 41, amountCents: 52500 },
+          { occurrence: 1, reportSequence: 41, amountCents: 52500 },
+        ],
+      },
+    });
+    expect(d.query.mock.calls.at(-1)?.[0]).toBe("COMMIT");
+    expect(d.state().get(d.otherKey)).toEqual(before.get(d.otherKey));
+
+    // Reproduce the old House-only matcher: valid full-source authority but
+    // every Senate expense excluded from the stored allocation.
+    const falseZero = structuredClone(stored);
+    falseZero.support_amount = "0.00";
+    falseZero.expenditure_count = 0;
+    falseZero.provenance.supportCents = 0;
+    falseZero.provenance.allocations = [];
+    falseZero.provenance.unmatchedExpenseCount = 3;
+    d.setOld(falseZero);
+    expect(await writeFloridaOutsideAllocations(value)).toMatchObject({ status: "written", supportCents: 105000 });
+    expect(d.state().get(key)).toEqual(stored);
+    expect(d.state().get(d.otherKey)).toEqual(before.get(d.otherKey));
+  });
   it("stores duplicate explicit allocations and metadata atomically without legacy/global writes", async () => {
     const d = database();
     const result = await writeFloridaOutsideAllocations(input(d.db));

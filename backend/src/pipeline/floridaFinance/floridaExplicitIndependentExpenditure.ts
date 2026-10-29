@@ -306,7 +306,9 @@ export function matchFloridaExplicitIndependentExpenditure(input: {
   if (!target.candidateId || !target.electionId || !nameKey(target.candidateName)) {
     return reject("invalid_verified_target_identity");
   }
-  if (parsed.target.officeScope !== "state_lower") return reject("noneligible_source_target_office");
+  if (parsed.target.officeScope !== "state_lower" && parsed.target.officeScope !== "state_upper") {
+    return reject("noneligible_source_target_office");
+  }
   if (target.officeScope !== parsed.target.officeScope || target.officeName !== parsed.target.officeName ||
       target.district !== parsed.target.district) {
     return reject("source_target_office_or_seat_mismatch");

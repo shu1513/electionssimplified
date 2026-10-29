@@ -183,6 +183,26 @@ describe("independent EFS election context and exact verified target gate", () =
     expect(matchFloridaExplicitIndependentExpenditure(input)).toMatchObject({ status: "matched", amountCents: 52500, candidateId: "synthetic-candidate" });
     expect(matchFloridaExplicitIndependentExpenditure(input)).not.toHaveProperty("complete");
   });
+  it.each(["DATA", "MAILER & PHONE BANKS"])("matches %s Senate support only for the exact verified race", prefix => {
+    const input = syntheticInput();
+    input.row.purpose = `${prefix} SUPPORTING JOHN EXAMPLE (SD-39)`;
+    input.verifiedTarget = { ...input.verifiedTarget, officeScope: "state_upper", officeName: "State Senator", district: "39" };
+    expect(matchFloridaExplicitIndependentExpenditure(input)).toMatchObject({
+      status: "matched", amountCents: 52500,
+      target: { officeScope: "state_upper", officeName: "State Senator", district: "39" },
+    });
+    for (const [change, reason] of [
+      [{ candidateName: "John Other" }, "source_target_full_name_mismatch"],
+      [{ district: "38" }, "source_target_office_or_seat_mismatch"],
+      [{ officeScope: "state_lower", officeName: "State Lower Chamber Legislator" }, "source_target_office_or_seat_mismatch"],
+      [{ officeName: "School Board" }, "source_target_office_or_seat_mismatch"],
+      [{ electionType: "primary" }, "source_target_election_context_mismatch"],
+    ] as const) {
+      expect(matchFloridaExplicitIndependentExpenditure({ ...input,
+        verifiedTarget: { ...input.verifiedTarget, ...change },
+      })).toMatchObject({ status: "unmatched", reason });
+    }
+  });
   it("does not reject a currently processed amended context solely for missing expenseIDs", () => {
     const input = syntheticInput(); input.reportContext.amended = true;
     expect(matchFloridaExplicitIndependentExpenditure(input).status).toBe("matched");
