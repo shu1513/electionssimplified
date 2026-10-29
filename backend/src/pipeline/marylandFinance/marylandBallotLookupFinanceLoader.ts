@@ -1,3 +1,4 @@
+import { attachMarylandIndependentOutsideFinance } from "./marylandIndependentOutsideReader.js";
 import type { Pool, PoolClient } from "pg";
 
 import { isMarylandCampaignFinanceEnabled } from "../../config/featureFlags.js";
@@ -40,7 +41,8 @@ export async function loadMarylandCandidateFinanceSummariesByCandidateElection(
       outsideGroupBreakdowns: "md_candidate_finance_outside_group_breakdowns",
     },
   });
-  return attachMarylandCommitteeMonetaryFinance({db, summaries,
-    requests: buildStateFinanceSummaryRequests("MD", candidateRows, electionRows,
-      row => isMarylandFinanceEligibleOffice(officeInputFromElectionRow(row)))});
+  const requests = buildStateFinanceSummaryRequests("MD", candidateRows, electionRows,
+    row => isMarylandFinanceEligibleOffice(officeInputFromElectionRow(row)));
+  const withCommitteeMoney = await attachMarylandCommitteeMonetaryFinance({ db, summaries, requests });
+  return attachMarylandIndependentOutsideFinance({ db, summaries: withCommitteeMoney, requests });
 }

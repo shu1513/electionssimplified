@@ -15,6 +15,9 @@ import {readMarylandCommitteePacketConfiguration} from "../pipeline/marylandFina
 export type SyncDueMarylandCandidateFinanceScriptOptions = {
   dryRun: boolean;
   force: boolean;
+  outsideOnly: boolean;
+  candidateId?: string;
+  electionYear?: number;
   maxCandidates?: number;
   staleAfterDays?: number;
   electionLookbackDays?: number;
@@ -23,8 +26,10 @@ export type SyncDueMarylandCandidateFinanceScriptOptions = {
   committeePacketsFile?:string;
 };
 
-const KNOWN_BOOLEAN_FLAGS = new Set(["--dry-run", "--force"]);
+const KNOWN_BOOLEAN_FLAGS = new Set(["--dry-run", "--force", "--outside-only"]);
 const KNOWN_VALUE_FLAGS = new Set([
+  "--candidate-id",
+  "--election-year",
   "--max-candidates",
   "--stale-after-days",
   "--lookback-days",
@@ -41,9 +46,17 @@ export function parseSyncDueMarylandCandidateFinanceScriptArgs(
   args: readonly string[]
 ): SyncDueMarylandCandidateFinanceScriptOptions {
   validateKnownFlags(args);
+  const candidateId=readStrictFlagValue(args,"--candidate-id")||undefined;
+  if(candidateId&&!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(candidateId))throw Error("Invalid --candidate-id UUID");
+  const electionYear=readStrictPositiveIntegerFlag(args,"--election-year");
+  if(electionYear!==undefined&&(electionYear<2000||electionYear>2100))throw Error("Invalid --election-year");
+  if ((candidateId || electionYear !== undefined) && !args.includes("--outside-only")) {
+    throw new Error("Maryland --candidate-id and --election-year require --outside-only");
+  }
   return {
     dryRun: args.includes("--dry-run"),
     force: args.includes("--force"),
+    outsideOnly: args.includes("--outside-only"),candidateId,electionYear,
     maxCandidates: readStrictPositiveIntegerFlag(args, "--max-candidates"),
     staleAfterDays: readStrictPositiveIntegerFlag(args, "--stale-after-days"),
     electionLookbackDays: readStrictPositiveIntegerFlag(args, "--lookback-days"),
@@ -91,6 +104,8 @@ async function main(): Promise<void> {
     const result = await syncDueMarylandCandidateFinance({
       db: pool,
       now: startedAt,
+      outsideOnly:options.outsideOnly,candidateId:options.candidateId,electionYear:options.electionYear,
+      force:options.force,refresh:options.force,log:message=>console.log(message),
       dryRun: options.dryRun,
       maxCandidates: options.maxCandidates,
       staleAfterDays: options.staleAfterDays,

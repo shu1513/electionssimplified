@@ -147,6 +147,7 @@ describe("marylandCandidateFinanceSyncScheduler", () => {
       expect.objectContaining({
         db: pool,
         dryRun: true,
+        force: false,
         maxCandidates: 2,
         staleAfterDays: 3,
         electionLookbackDays: 14,
@@ -154,6 +155,37 @@ describe("marylandCandidateFinanceSyncScheduler", () => {
       })
     );
     expect(end).toHaveBeenCalledTimes(1);
+  });
+
+  it("forwards force to the batch sync so the independent component is not gated off", async () => {
+    process.env.MARYLAND_CAMPAIGN_FINANCE_ENABLED = "true";
+    process.env.MARYLAND_CAMPAIGN_FINANCE_SYNC_ENABLED = "false";
+
+    const pool = { query: vi.fn(), end: vi.fn().mockResolvedValue(undefined) };
+    const syncDueMarylandCandidateFinance = vi.fn().mockResolvedValue({
+      dryRun: false,
+      now: "2026-06-01T00:00:00.000Z",
+      staleAfterDays: 7,
+      maxCandidates: 20,
+      dueCandidateCount: 0,
+      selectedCandidateCount: 0,
+      syncedCandidateCount: 0,
+      failedCandidateCount: 0,
+      results: [],
+    });
+    vi.doMock("pg", () => ({ Pool: vi.fn(() => pool) }));
+    mockEnv();
+    vi.doMock("../../src/pipeline/marylandFinance/marylandCandidateFinanceBatchSync.js", () => ({
+      syncDueMarylandCandidateFinance,
+    }));
+
+    const { runMarylandCandidateFinanceSyncJob } = await import(
+      "../../src/scheduler/marylandCandidateFinanceSyncScheduler.js"
+    );
+    const result = await runMarylandCandidateFinanceSyncJob({ triggeredBy: "manual", force: true });
+
+    expect(result).toMatchObject({ enabled: true, force: true });
+    expect(syncDueMarylandCandidateFinance).toHaveBeenCalledWith(expect.objectContaining({ force: true }));
   });
 
   it("upserts recurring jobs with configured queue payload", async () => {

@@ -864,3 +864,120 @@ Malformed or unlabeled blocks still hold. This resolves the earlier research
 ambiguity through printed source roles; native ownership, complete multiplicity,
 committee arithmetic and the actual local money/card milestone remain separate
 requirements.
+
+
+## Native IE target identity, October 26, 2026 — implementation underway
+
+A fresh saved-opening-first production observation closes all 1,109 native
+allocations in the published 2023–2026 cycle. This remains an observation, not
+a financial snapshot. Exact current target-account discovery covers 107
+source target GUIDs. Their complete public registration queries contain 116
+physical rows; historical rows can have explicitly null office, jurisdiction,
+party, cycle or registration-document fields. The structural decoder now
+retains those literal nulls while financial context binding still requires
+complete selected-account evidence. Missing keys, malformed IDs and incomplete
+paging remain errors.
+
+The legislative target binder parses both complete official General roster
+sections, retaining non-active candidates and absent committee labels as source
+facts. It requires an exact native account/committee-label association, current
+General membership, a unique official owner across all seats of that office,
+compatible middle-name evidence, party, office and canonical district, plus the
+separate official election-date authority. It does not create a direct-finance
+link or qualify money. The actual source replay binds one eligible State Senator
+without a direct-finance link; five current IE allocations belong to that
+account. Current report editions and complete parent/child/return controls
+have been acquired for those five allocations; monetary qualification, the
+independent ordinary writer/reader, real local sync and candidate-card proof
+still precede the PR.
+
+Re-run after the October 23 pre-General deadline, including publication lag.
+The fresh October 26 census is part of that check. The post-General report is
+due November 17 (recheck November 18 and 20); the annual report is due January
+27, 2027 (recheck January 28 and 29 with adequate election lookback). Preserve
+source periods and keep 2027 transactions out of a 2026 election snapshot. The
+conditional 48-hour IE requirement does not establish source completeness.
+Official authorities: [reporting schedule](https://elections.maryland.gov/campaign_finance/reporting_schedule.html),
+[IE reporting requirements](https://elections.maryland.gov/campaign_finance/independent_expenditures.html),
+[General state roster](https://elections.maryland.gov/elections/2026/general_candidates/2026_GG_statewide_candidatelist.html).
+
+The current public IE popup uses the combined `TIECOM` parent type; the
+returned `TIEXP` subtype establishes independent-expenditure role. Initial
+returned-child requests use page 1 / size 10 and omit unset sort fields.
+Closed production builders now preserve those exact roles, key casing and
+defaults. Fresh real-source controls match all five parent identities and
+amounts, return explicit IE subtypes, and yield no returned-child rows. Those
+empty child responses are scoped source controls, never a candidate-wide
+financial zero.
+
+The outside-payer inventory collector and saved-source reader now retain
+literal null payer office/jurisdiction fields without relaxing candidate
+receiving-account validation. Actual normal acquisition/replay closes 27
+reports and 28 history children; all five target allocations bind exact
+published current report editions, payer identities and civil coverage dates.
+Amended download selection follows parent/child GUID and version equality,
+not maximum version or array order. Independent monetary packet qualification,
+writer/reader integration, ordinary local sync, card proof and PR remain
+unfinished.
+
+## Independent native IE local proof — October 26, 2026
+
+The ordinary batch now runs a separate canonical-candidate IE pass before
+receiving-finance work. It covers qualified 2026 General legislative contexts,
+including candidates without receiving links. The existing reported-committee
+component and its previously verified donor groups remain unchanged.
+
+The new pass reopens complete saved originals first, obtains fresh native,
+registry, official-roster and payer-report closings, and binds exact current
+report editions and all parent allocation children. Every observed target
+committee label is queried so a historical rename cannot make transport order
+choose account ownership. Explicit IE subtypes and support/opposition roles
+control candidate allocations; parent totals are never substituted or prorated.
+Electioneering communications are excluded. A nonempty return family without
+proved allocation semantics, unexplained disappearance, changed context,
+incomplete scope or source failure preserves the whole candidate component.
+
+Migration 389 adds independent source, group and operational retry tables.
+Financial source clocks are separate from retry attempts and direct/donor
+freshness. The writer locks and rechecks canonical context, rejects older
+snapshots, and replaces all groups atomically. The reader validates all stored
+groups and totals before its display cap and can attach IE-only finance with
+unknown direct totals and no fabricated receiving link.
+
+Real normal CLI dry-run and live sync passed against the official public
+sources and local database. The first live write changed independent sources
+from 0 to 1, storing 1 group from 5 qualified allocations in the complete
+1,109-allocation cycle census. An independent RAM comparison matched every
+uncapped group identity, stance and cent total to source. All prior Maryland
+direct, donor and outside rows and timestamps stayed exactly unchanged. A
+second normal sync reused 108 saved opening queries and kept monetary groups
+identical. A forced transport failure preserved all groups and financial clocks.
+
+The actual production HTTP endpoint matches stored groups, totals and source
+clock, including the unlinked candidate and master-feature gate. Isolated Chrome
+verified the actual hydrated React Router candidate page, visible group and
+direction amounts, coverage note and source link, then repeated after a fresh
+reload. A real React dialog opened and closed on both loads; no report was sent.
+No financial screenshots or extracted financial artifacts were saved.
+
+Validation: 50 Maryland pipeline/CLI/scheduler and ballot-lookup API files,
+1,240 tests; complete
+backend typecheck and migration-file check pass. Migration 389 was applied only
+to the local database. No production writes, deployment or merge occurred.
+
+Normal targeted verification uses `syncDueMarylandCandidateFinance.ts
+--outside-only --candidate-id <canonical UUID> --election-year 2026
+--max-candidates 1 --raw-cache-dir <private raw cache> --force`, first with
+`--dry-run`. Candidate/year selectors require `--outside-only`; flags and the
+explicit local database URL are supplied inline, never through environment files.
+
+Deadline reruns remain required: October 24/26 after the October 23 pre-General
+report; November 18/20 after November 17; January 28/29, 2027 after January 27.
+Independent due selection includes these milestones and a 90-day lookback.
+After the public default rolls forward, annual-report acquisition selects the
+unique published cycle covering the 2026 election rather than relabeling 2027
+transactions. Unproved offices or election contexts remain held.
+
+Kansas contributor names, all new Missouri publication and all new Wisconsin
+publication remain held. Finish this Maryland PR and its CI, then pause before
+another state.

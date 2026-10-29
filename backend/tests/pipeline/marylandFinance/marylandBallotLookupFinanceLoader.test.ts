@@ -15,7 +15,7 @@ describe("marylandBallotLookupFinanceLoader", () => {
     tablePrefix: "md_candidate_finance",
     source: "MARYLAND_CFS",
     genericSourceUrl: "https://campaignfinance.maryland.gov/public/cf/downloads",
-    additionalQueryAliases: [{src: "pac_sources", donor: "pac_donors"}],
+    additionalQueryAliases: [{src: "pac_sources", donor: "pac_donors"}, {s:"ie_sources",g:"ie_groups"}],
     eligibleOffice: { office_scope: "statewide", office_canonical_name: "Governor" },
     ineligibleOffice: { office_scope: "place", office_canonical_name: "Mayor" },
   });
