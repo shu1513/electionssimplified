@@ -212,11 +212,20 @@ export async function syncDueUtahCandidateFinance(
   let reportedIe: UtahCandidateFinanceBatchSyncResult["reportedIe"];
   let reportedIeError: string | undefined;
   if (!input.committeeCashOnly) {
-    try { reportedIe = await (input.syncDueUtahReportedIeFn ?? syncDueUtahReportedIe)({
-      db: input.db, now, maxCandidates, staleAfterDays, electionLookbackDays, electionLookaheadDays,
-      rawDataCacheDir: input.rawDataCacheDir, candidateId: input.candidateId, electionYear: input.electionYear,
-      dryRun, refreshIe: input.refreshIe, ieNetwork: input.ieNetwork, refreshCache: input.refreshCache,
-    }); } catch { if (input.ieOnly) throw new Error("Utah reported IE component failed"); reportedIeError="component_failed"; }
+    try {
+      reportedIe = await (input.syncDueUtahReportedIeFn ?? syncDueUtahReportedIe)({
+        db: input.db, now, maxCandidates, staleAfterDays, electionLookbackDays, electionLookaheadDays,
+        rawDataCacheDir: input.rawDataCacheDir, candidateId: input.candidateId, electionYear: input.electionYear,
+        dryRun, refreshIe: input.refreshIe, ieNetwork: input.ieNetwork, refreshCache: input.refreshCache,
+      });
+    } catch (error) {
+      console.warn(input.ieOnly
+        ? "Utah reported IE sync failed:"
+        : "Utah reported IE sync skipped; continuing with committee cash and direct sync:",
+        error instanceof Error ? error.message : String(error));
+      if (input.ieOnly) throw new Error("Utah reported IE component failed", { cause: error });
+      reportedIeError = "component_failed";
+    }
   }
   if (input.ieOnly) return { dryRun, now:now.toISOString(), staleAfterDays, maxCandidates,
     dueCandidateCount:0,selectedCandidateCount:0,syncedCandidateCount:0,failedCandidateCount:0,

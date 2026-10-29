@@ -408,3 +408,49 @@ it("runs targeted IE alone and contains its failure during ordinary direct sync"
   const failed=await syncDueUtahCandidateFinance({db,now:NOW,autoLinkMissingLinks:false,syncDueUtahReportedIeFn:vi.fn(async()=>{throw Error("synthetic");})});
   expect(failed.reportedIeError).toBe("component_failed");expect(db.query).toHaveBeenCalled();
 });
+
+
+it.each([new Error("relation ut_reported_ie_attempts does not exist"), "database connection unavailable"])(
+  "logs reported IE infrastructure failures while retaining the stable result code: %s", async cause => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const cash = vi.fn(async () => ({ due: 0, selected: 0, accepted: 0, written: 0, held: 0, failures: [] }));
+    const direct = vi.fn(async () => syncResult());
+    try {
+      const result = await syncDueUtahCandidateFinance({
+        db: { query: vi.fn(async () => ({ rows: [dueRow()] })) }, now: NOW, autoLinkMissingLinks: false,
+        syncDueUtahReportedIeFn: vi.fn(async () => { throw cause; }),
+        syncDueUtahCommitteeCashFn: cash,
+        loadGeneratedReportRowsFn: vi.fn(async () => ({ rows: [], cachePath: "synthetic.csv", sourceUrl: SOURCE_URL, cacheHit: true })),
+        syncUtahCandidateFinanceFn: direct,
+      });
+      expect(result.reportedIeError).toBe("component_failed");
+      expect(result.reportedIe).toBeUndefined();
+      expect(result.syncedCandidateCount).toBe(1);
+      expect(cash).toHaveBeenCalledOnce();
+      expect(direct).toHaveBeenCalledOnce();
+      expect(warn).toHaveBeenCalledWith(
+        "Utah reported IE sync skipped; continuing with committee cash and direct sync:",
+        cause instanceof Error ? cause.message : cause,
+      );
+    } finally { warn.mockRestore(); }
+  },
+);
+
+it("preserves the original cause when an IE-only run fails", async () => {
+  const cause = new Error("database connection unavailable");
+  const db = { query: vi.fn() }, cash = vi.fn(), loader = vi.fn();
+  const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+  try {
+    const failure = await syncDueUtahCandidateFinance({ db, now: NOW, ieOnly: true,
+      syncDueUtahReportedIeFn: vi.fn(async () => { throw cause; }),
+      syncDueUtahCommitteeCashFn: cash, loadGeneratedReportRowsFn: loader,
+    }).catch(error => error);
+    expect(failure).toBeInstanceOf(Error);
+    expect(failure.message).toBe("Utah reported IE component failed");
+    expect(failure.cause).toBe(cause);
+    expect(warn).toHaveBeenCalledWith("Utah reported IE sync failed:", cause.message);
+    expect(db.query).not.toHaveBeenCalled();
+    expect(cash).not.toHaveBeenCalled();
+    expect(loader).not.toHaveBeenCalled();
+  } finally { warn.mockRestore(); }
+});
