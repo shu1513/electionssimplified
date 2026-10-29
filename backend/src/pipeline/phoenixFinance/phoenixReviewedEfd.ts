@@ -97,8 +97,11 @@ export function selectPhoenixEfdFamily(rows: readonly PhoenixEfdIndexRow[], spen
     if (name !== key) {
       // An annotated edition may belong to this filer. Do not drop it by
       // exact-name filtering or infer amendment parentage from its timestamp.
-      const suffix = name.startsWith(key) ? name.slice(key.length) : "";
-      efdCheck(!(row.filedDate >= cycle.cycleStart && /^[\s([,:/-]+.*(?:AMEND|48[\s-]*HOUR)/u.test(suffix)),
+      const at = name.indexOf(key);
+      const prefix = at < 0 ? "" : name.slice(0, at), suffix = at < 0 ? "" : name.slice(at + key.length);
+      const containsFiler = at >= 0 && (!prefix || /[\s()\[\],:/-]$/u.test(prefix)) &&
+        (!suffix || /^[\s()\[\],:/-]/u.test(suffix));
+      efdCheck(!(row.filedDate >= cycle.cycleStart && containsFiler && /(?:AMEND|48[\s-]*HOUR)/u.test(`${prefix} ${suffix}`)),
         "annotated_filer_lineage_requires_review");
       continue;
     }

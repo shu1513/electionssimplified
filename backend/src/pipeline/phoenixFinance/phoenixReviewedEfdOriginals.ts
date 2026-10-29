@@ -69,7 +69,11 @@ async function readOriginalFiles(path: string): Promise<OriginalFiles> {
 }
 /** Reasons proving the published source moved under a capture. A capture that
  * fails this way is evidence of change, not noise, and blocks replay of older ones. */
-const SOURCE_CHANGED = new Set(["publication_census_changed", "certified_ballot_changed", "whole_pdf_edition_changed"]);
+const SOURCE_CHANGED = new Set([
+  "publication_census_changed", "certified_ballot_changed", "whole_pdf_edition_changed",
+  "annotated_filer_lineage_requires_review", "direct_public_cms_pdf_required",
+  "selected_filer_date_requires_review", "duplicate_publication_reference", "whole_report_page_bound",
+]);
 async function qualifyOriginals({ metas, bodies }: OriginalFiles, spenderName: string, electionDate: string): Promise<PhoenixEfdOriginals> {
   const at = (role: string, url: string) => {
     const indexes = metas.flatMap((m, i) => m.role === role ? [i] : []);
@@ -201,6 +205,8 @@ export async function refreshPhoenixEfdOriginals(input: {
     obtained.push({ raw, meta });
     return { raw, meta };
   }
+  const markChanged = () => writeFile(resolve(root, `source-changed-${randomUUID()}.json`),
+    JSON.stringify({ completedAt: new Date().toISOString() }), { mode: 0o600, flag: "wx" });
   try {
     const opening = await request(PHOENIX_EFD_INDEX_URL, "opening_index");
     const family = selectPhoenixEfdFamily(parsePhoenixEfdIndex(html(opening.raw)), input.spenderName,
@@ -224,10 +230,13 @@ export async function refreshPhoenixEfdOriginals(input: {
         }
       } catch (changed) {
         // Durable: a later cache-only run must not replay the older edition.
-        await writeFile(resolve(root, `source-changed-${randomUUID()}.json`),
-          JSON.stringify({ completedAt: new Date().toISOString() }), { mode: 0o600, flag: "wx" });
+        await markChanged();
         throw changed;
       }
+    } else if (error instanceof PhoenixEfdHold && SOURCE_CHANGED.has(error.reason) && obtained.length) {
+      // Even an opening-only capture can reveal an unqualified new edition.
+      // Operational failures such as the request deadline do not establish change.
+      await markChanged();
     }
     throw error;
   }

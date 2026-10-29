@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
@@ -24,16 +24,18 @@ const contextRow = { candidate_name: person, election_date: "2026-11-03", office
 const electionRow = { election_id: electionId, state: "AZ", district_type: "place", geoid_compact: "0455000",
   office_scope: "place", office_canonical_name: "City Council Member", official_ballot_title: contextRow.official_ballot_title };
 
-function pdf(marker: string): Buffer {
+function pdf(marker: string, pages = 1): Buffer {
   const stream = `BT /F1 12 Tf 20 700 Td (${marker}) Tj ET`;
-  const objects = ["<< /Type /Catalog /Pages 2 0 R >>", "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
-    "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>",
+  const contentId = pages + 3, fontId = pages + 4;
+  const objects = ["<< /Type /Catalog /Pages 2 0 R >>",
+    `<< /Type /Pages /Kids [${Array.from({ length: pages }, (_, i) => `${i + 3} 0 R`).join(" ")}] /Count ${pages} >>`,
+    ...Array.from({ length: pages }, () => `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 ${fontId} 0 R >> >> /Contents ${contentId} 0 R >>`),
     `<< /Length ${stream.length} >>\nstream\n${stream}\nendstream`, "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>"];
   let text = "%PDF-1.4\n"; const offsets = [0];
   for (const [i, object] of objects.entries()) { offsets.push(Buffer.byteLength(text)); text += `${i + 1} 0 obj\n${object}\nendobj\n`; }
-  const xref = Buffer.byteLength(text);
-  text += `xref\n0 6\n0000000000 65535 f \n${offsets.slice(1).map(n => `${String(n).padStart(10, "0")} 00000 n \n`).join("")}`;
-  return Buffer.from(text + `trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`);
+  const xref = Buffer.byteLength(text), size = objects.length + 1;
+  text += `xref\n0 ${size}\n0000000000 65535 f \n${offsets.slice(1).map(n => `${String(n).padStart(10, "0")} 00000 n \n`).join("")}`;
+  return Buffer.from(text + `trailer\n<< /Size ${size} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF\n`);
 }
 const pdfs = [pdf("Synthetic review A"), pdf("Synthetic review B")];
 const sha = (raw: Buffer) => createHash("sha256").update(raw).digest("hex");
@@ -115,6 +117,21 @@ describe("Phoenix reviewed EFD qualification", () => {
     const annotated = index(`<tr><td>10/21/2026</td><td>${payer} (Amendment)</td><td><a href="${url("900003")}">900003</a></td></tr>`);
     expect(() => selectPhoenixEfdFamily(parsePhoenixEfdIndex(annotated), payer, "2026-11-03", "2026-10-26")).toThrow("lineage_requires_review");
   });
+  it.each([`AMENDED - ${payer}`, `48-Hour Report: ${payer}`, `${payer} (Amendment)`,
+    `${payer}(Amendment)`, `(Amended)${payer}`,
+    `Amended - ${payer} (48-Hour Report)`])("holds annotations around the exact filer name: %s", spenderName => {
+    const rows = parsePhoenixEfdIndex(index());
+    rows.push({ ...rows[1]!, documentId: "900003", sourceUrl: url("900003"), spenderName });
+    expect(() => selectPhoenixEfdFamily(rows, payer, "2026-11-03", "2026-10-26"))
+      .toThrow("annotated_filer_lineage_requires_review");
+  });
+  it.each(["AMENDED - Another Filer", `AMENDED - ${payer}hood`, `AMENDED - Other${payer}`])(
+    "does not treat a partial or unrelated name as the selected filer: %s", spenderName => {
+      const rows = parsePhoenixEfdIndex(index());
+      rows.push({ ...rows[1]!, documentId: "900003", sourceUrl: url("900003"), spenderName });
+      expect(selectPhoenixEfdFamily(rows, payer, "2026-11-03", "2026-10-26")).toHaveLength(2);
+    },
+  );
   it("requires exact cents, real dates and literal office/district controls", () => {
     const family = parsePhoenixEfdIndex(index());
     for (const change of [{ amountCents: 12.5 }, { expenditureDate: "2026-02-30" }, { reportedOffice: "Mayor" }, { reportedDistrictNumber: 3 }]) {
@@ -171,6 +188,56 @@ describe("Phoenix reviewed EFD qualification", () => {
     const fresh = await packet(dir);
     vi.stubEnv("PHOENIX_REVIEWED_EFD_RAW_REFRESH_ENABLED", "false");
     expect((await packet(dir)).sourceDigest).toBe(fresh.sourceDigest);
+  });
+  it.each([
+    ["suffix annotation", `${payer} (Amendment)`, "10/21/2026", url("900003"), "900003", "annotated_filer_lineage_requires_review"],
+    ["prefix amendment", `AMENDED - ${payer}`, "10/21/2026", url("900003"), "900003", "annotated_filer_lineage_requires_review"],
+    ["prefix 48-hour", `48-Hour Report: ${payer}`, "10/21/2026", url("900003"), "900003", "annotated_filer_lineage_requires_review"],
+    ["archive link", payer, "10/21/2026", "https://apps-secure.phoenix.gov/PublicRecordsSearch/Home/RenderPDF?doc=900003", "900003", "direct_public_cms_pdf_required"],
+    ["future filing", payer, "11/20/2026", url("900003"), "900003", "selected_filer_date_requires_review"],
+    ["duplicate reference", payer, "10/21/2026", url("900003"), "900001", "duplicate_publication_reference"],
+  ])("blocks old replay after a partial capture observes %s", async (_label, name, date, href, id, reason) => {
+    const dir = await cache(); await packet(dir);
+    vi.setSystemTime(new Date("2026-10-27T12:00:00Z"));
+    const extra = `<tr><td>${date}</td><td>${name}</td><td><a href="${href}">${id}</a></td></tr>`;
+    const fetchImpl = vi.fn(async () => new Response(index(extra), { headers: { "Content-Type": "text/html" } })) as unknown as typeof fetch;
+    await expect(packet(dir, fetchImpl)).rejects.toThrow(reason);
+    expect(fetchImpl).toHaveBeenCalledOnce();
+    vi.stubEnv("PHOENIX_REVIEWED_EFD_RAW_REFRESH_ENABLED", "false");
+    const db = { ...canonicalDb(), connect: vi.fn() };
+    await expect(syncPhoenixReviewedEfd({ db: db as never, cacheDir: dir, candidateId, electionId,
+      spenderName: payer, reports: reviews(), reviewedMapping: true })).rejects.toThrow("recent_whole_original_cache_required");
+    expect(db.connect).not.toHaveBeenCalled();
+    vi.stubEnv("PHOENIX_REVIEWED_EFD_RAW_REFRESH_ENABLED", "true");
+    vi.setSystemTime(new Date("2026-10-27T13:00:00Z"));
+    const fresh = await packet(dir);
+    vi.stubEnv("PHOENIX_REVIEWED_EFD_RAW_REFRESH_ENABLED", "false");
+    expect((await packet(dir)).sourceDigest).toBe(fresh.sourceDigest);
+  });
+  it("blocks older replay for a complete over-page-bound capture even without a change marker", async () => {
+    const dir = await cache(); await packet(dir);
+    vi.setSystemTime(new Date("2026-10-27T12:00:00Z"));
+    const ordinary = transport(), oversized = pdf("Changed whole report", 51);
+    const fetchImpl = vi.fn(async (input: string | URL | Request, init?: RequestInit) => String(input) === url("900001")
+      ? new Response(new Uint8Array(oversized), { headers: { "Content-Type": "application/pdf" } })
+      : ordinary(input, init)) as typeof fetch;
+    await expect(packet(dir, fetchImpl)).rejects.toThrow("whole_report_page_bound");
+    // Older versions saved this complete failed capture without a marker.
+    for (const name of await readdir(dir)) if (name.startsWith("source-changed-")) await rm(join(dir, name));
+    vi.stubEnv("PHOENIX_REVIEWED_EFD_RAW_REFRESH_ENABLED", "false");
+    await expect(packet(dir)).rejects.toThrow("recent_whole_original_cache_required");
+  });
+  it("preserves replay after an operational request deadline with unchanged obtained pages", async () => {
+    const dir = await cache(), first = await packet(dir);
+    vi.setSystemTime(new Date("2026-10-27T12:00:00Z"));
+    const fetchImpl = vi.fn(async () => {
+      vi.setSystemTime(new Date("2026-10-27T12:16:00Z"));
+      return new Response(index(), { headers: { "Content-Type": "text/html" } });
+    }) as unknown as typeof fetch;
+    await expect(packet(dir, fetchImpl)).rejects.toThrow("source_request_bound");
+    expect((await readdir(dir)).some(name => name.startsWith("source-changed-"))).toBe(false);
+    vi.stubEnv("PHOENIX_REVIEWED_EFD_RAW_REFRESH_ENABLED", "false");
+    expect((await packet(dir)).sourceDigest).toBe(first.sourceDigest);
   });
   it("rejects changed scan review hashes and missing review gates", async () => {
     await expect(loadPhoenixReviewedEfdPacket({ db: canonicalDb() as never, cacheDir: await cache(), candidateId, electionId,
