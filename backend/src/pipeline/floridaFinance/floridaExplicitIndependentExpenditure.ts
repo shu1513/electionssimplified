@@ -32,11 +32,11 @@ export type FloridaNativeExpenditure = {
 export type FloridaExplicitIeTarget = {
   candidateName: string;
   supportOppose: "support";
-  officeScope: "state_lower" | "county_school_board";
-  officeName: "State Lower Chamber Legislator" | "School Board";
+  officeScope: "state_lower" | "state_upper" | "county_school_board";
+  officeName: "State Lower Chamber Legislator" | "State Senator" | "School Board";
   district: string | null;
   county: string | null;
-  grammar: "pro_house" | "support_school_board";
+  grammar: "pro_house" | "support_school_board" | "support_legislative_data" | "support_legislative_mail_phone";
 };
 export type FloridaExplicitIeTargetResult =
   | { status: "parsed"; target: FloridaExplicitIeTarget }
@@ -177,6 +177,18 @@ export function parseFloridaExplicitIndependentExpenditureTarget(
 export function parseFloridaExplicitIePurpose(rawPurpose: string): FloridaExplicitIeTargetResult {
   const reject = (reason: string): FloridaExplicitIeTargetResult => ({ status: "unmatched", reason });
   const purpose = display(rawPurpose);
+  const legislative = /^(DATA|MAILER & PHONE BANKS) SUPPORTING (.+) \((HD|SD)-([1-9]\d{0,2})\)$/i.exec(purpose);
+  if (legislative && fullPerson(legislative[2]) &&
+      Number(legislative[4]) <= (legislative[3].toUpperCase() === "HD" ? 120 : 40)) {
+    const house = legislative[3].toUpperCase() === "HD";
+    return { status: "parsed", target: {
+      candidateName: legislative[2], supportOppose: "support",
+      officeScope: house ? "state_lower" : "state_upper",
+      officeName: house ? "State Lower Chamber Legislator" : "State Senator",
+      district: String(Number(legislative[4])), county: null,
+      grammar: legislative[1].toUpperCase() === "DATA" ? "support_legislative_data" : "support_legislative_mail_phone",
+    } };
+  }
   const house = /^TEXT MESSAGES; PRO-(.+), HD-([1-9]\d{0,2})$/i.exec(purpose);
   if (house && fullPerson(house[1]) && Number(house[2]) <= 120) {
     return {

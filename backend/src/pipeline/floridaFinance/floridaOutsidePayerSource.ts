@@ -9,7 +9,7 @@ import {
 } from "./floridaCommitteeRegistrySource.js";
 import { parseFloridaExplicitIePurpose } from "./floridaExplicitIndependentExpenditure.js";
 import type { FloridaExpenditureDiscoveryRow } from "./floridaIndependentExpenditureDiscovery.js";
-import type { FloridaLocalFinanceContext } from "./floridaLocalFinanceContext.js";
+import { isFloridaExplicitLegislativeContext, type FloridaLocalFinanceContext } from "./floridaLocalFinanceContext.js";
 import type { FloridaProcessedRawEvidence } from "./floridaProcessedFinanceSource.js";
 
 const exact = (value: string) => value.trim().replace(/\s+/gu, " ").toUpperCase();
@@ -41,9 +41,7 @@ export function selectFloridaOutsidePayerLeads(input: {
 }): FloridaExpenditureDiscoveryRow[] {
   const context = input.localContext;
   if (!context.candidateId || !context.electionId || !context.candidateName?.trim() ||
-    context.electionYear !== 2026 || context.electionDate !== "2026-11-03" ||
-    context.officeScope !== "state_lower" || context.officeCanonicalName !== "State Lower Chamber Legislator" ||
-    !/^(?:[1-9]\d?|1[01]\d|120)$/.test(context.district ?? "")) return [];
+    !isFloridaExplicitLegislativeContext(context)) return [];
   return input.rows.filter(row => {
     if (row.sourceType !== "IEC" || !Number.isSafeInteger(row.amountCents) || row.amountCents <= 0) return false;
     const result = parseFloridaExplicitIePurpose(row.purpose);

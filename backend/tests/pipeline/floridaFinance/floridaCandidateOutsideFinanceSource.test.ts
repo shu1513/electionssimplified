@@ -25,17 +25,18 @@ describe("Florida normal candidate outside source", () => {
     const query = vi.fn().mockResolvedValueOnce({ rows: [row] }).mockResolvedValueOnce({ rows: [] });
     const result = await (await source(query)).load(input);
     expect(result).toMatchObject({ status: "loaded", components: [] });
-    expect(fetch).toHaveBeenCalledOnce();
+    expect(fetch).toHaveBeenCalledTimes(3);
     expect(String(fetch.mock.calls[0][1].body)).toContain("cpurpose=TEXT+MESSAGES%3B+PRO-Adam+Botana");
     expect(query).toHaveBeenCalledTimes(2);
     expect(query.mock.calls[1][1]).toEqual([row.candidate_election_id, 2026]);
   });
   it("allows the next candidate to acquire discovery after one candidate exhausts its budget", async () => {
     const original = rawSource.createFloridaFinanceRawSourceClient;
-    vi.spyOn(rawSource, "createFloridaFinanceRawSourceClient").mockImplementation(options => original({ ...options, maxRequests: 1 }));
+    vi.spyOn(rawSource, "createFloridaFinanceRawSourceClient").mockImplementation(options => original({ ...options, maxRequests: 3 }));
     const transport = fullProtocol();
-    const fetch = vi.fn().mockImplementationOnce(transport.fetch).mockResolvedValueOnce(new Response(
-      FLORIDA_EXPENDITURE_DISCOVERY_HEADERS.join("\t") + "\n", { headers: { "content-type": "text/tab-separated-values" } }));
+    const fetch = vi.fn().mockImplementationOnce(transport.fetch).mockImplementationOnce(transport.fetch)
+      .mockImplementationOnce(transport.fetch).mockImplementation(() => Promise.resolve(new Response(
+        FLORIDA_EXPENDITURE_DISCOVERY_HEADERS.join("\t") + "\n", { headers: { "content-type": "text/tab-separated-values" } })));
     vi.stubGlobal("fetch", fetch);
     const query = vi.fn().mockResolvedValueOnce({ rows: [row] }).mockResolvedValueOnce({ rows: [] })
       .mockResolvedValueOnce({ rows: [row] }).mockResolvedValueOnce({ rows: [] });
@@ -44,7 +45,7 @@ describe("Florida normal candidate outside source", () => {
     const next = await batch.load(input);
     expect(next.status).toBe("loaded");
     expect(next.diagnostics.join()).not.toContain("budget exhausted");
-    expect(fetch).toHaveBeenCalledTimes(2);
+    expect(fetch).toHaveBeenCalledTimes(6);
   });
   it("refreshes a previously accepted payer even when current discovery fails", async () => {
     const requests: string[] = [];
@@ -76,11 +77,10 @@ describe("Florida normal candidate outside source", () => {
 
 // Real validators consume synthetic protocol responses. No source success or
 // financial acceptance is injected into the acquisition composition.
-function fullProtocol(changeFinalRegistry = false) {
+function fullProtocol(changeFinalRegistry = false, purpose = "TEXT MESSAGES; PRO-ADAM BOTANA, HD-80") {
   const events: string[] = [];
   let ownerGets = 0, registryPosts = 0;
   const payer = "Example Committee";
-  const purpose = "TEXT MESSAGES; PRO-ADAM BOTANA, HD-80";
   const generic = FLORIDA_EXPENDITURE_DISCOVERY_HEADERS.join("\t") +
     `\n${payer} (PAC)\t09/30/2026\t525.00\tExample Vendor\tVendor street\tCity FL 12345\t${purpose}\tIEC\n`;
   const native = "Rpt Yr\tRpt Type\tDate\tAmount\tExpense Paid To\tAddress\tCity State Zip\tPurpose\tTyp Reimb\n" +
@@ -105,7 +105,9 @@ function fullProtocol(changeFinalRegistry = false) {
     } else if (url.endsWith("TreFin.exe")) {
       events.push("expense-native"); body = native;
     } else if (url.endsWith("expend.exe")) {
-      events.push(fields.get("ComName") ? "expense-generic" : "discovery"); body = generic;
+      events.push(fields.get("ComName") ? "expense-generic" : "discovery");
+      body = !fields.get("ComName") && !purpose.toUpperCase().startsWith((fields.get("cpurpose") ?? "").toUpperCase())
+        ? FLORIDA_EXPENDITURE_DISCOVERY_HEADERS.join("\t") + "\n" : generic;
     } else if (url.includes("PrintReportSubmitted.aspx")) {
       events.push("expense-status");
       if (new URL(url).searchParams.get("SeqNum") !== "2")
@@ -125,6 +127,19 @@ function fullProtocol(changeFinalRegistry = false) {
 }
 
 describe("Florida candidate outside nested acquisition", () => {
+  it("acquires witnessed Senate support through complete native report and registry checks", async () => {
+    const transport = fullProtocol(false, "DATA SUPPORTING JANE EXAMPLE (SD-39)");
+    vi.stubGlobal("fetch", transport.fetch);
+    const query = vi.fn().mockResolvedValueOnce({ rows: [{ ...row, candidate_name: "Jane Example",
+      office_scope: "state_upper", office_canonical_name: "State Senator", district_type: "state_upper", geoid_compact: "12039" }] })
+      .mockResolvedValueOnce({ rows: [] });
+    const result = await (await source(query)).load(input);
+    expect(result).toMatchObject({ status: "loaded", localContext: { officeScope: "state_upper", district: "39" } });
+    if (result.status !== "loaded") return;
+    expect(result.components).toHaveLength(1);
+    expect(result.components[0].source.after.periodExports).toHaveLength(1);
+    expect(transport.events.filter(event => event === "discovery")).toHaveLength(2);
+  });
   it("accepts default saved-first operation with genuinely fresh nested financial packets", async () => {
     const transport = fullProtocol(); vi.stubGlobal("fetch", transport.fetch);
     const query = vi.fn().mockResolvedValueOnce({ rows: [row] }).mockResolvedValueOnce({ rows: [] });

@@ -110,6 +110,26 @@ describe("Florida native expenditure TSV foundation", () => {
 });
 
 describe("source-witnessed explicit IE target phrases", () => {
+  it.each([
+    ["DATA SUPPORTING JOHN EXAMPLE (HD-80)", "state_lower", "80"],
+    ["MAILER & PHONE BANKS SUPPORTING JANE EXAMPLE (SD-39)", "state_upper", "39"],
+  ])("parses complete single-target legislative allocations: %s", (purpose, scope, district) => {
+    expect(parseFloridaExplicitIePurpose(purpose)).toMatchObject({ status: "parsed", target: {
+      officeScope: scope, district, supportOppose: "support",
+    } });
+  });
+  it.each([
+    "DATA SUPPORTING JOHN EXAMPLE AND JANE EXAMPLE (HD-80)",
+    "DATA SUPPORTING JOHN EXAMPLE (HD-80) AND JANE EXAMPLE (HD-81)",
+    "DATA SUPPORTING JOHN EXAMPLE (SD-41)",
+    "MAILER & PHONE BANKS SUPPORTING JANE EXAMPLE (HD-121)",
+    "DATA SUPPORTING JOHN EXAMPLE (HD-080)",
+    "DATA OPPOSING JOHN EXAMPLE (HD-80)",
+    "DATA SUPPORTING JOHN EXAMPLE (HD-80) GENERAL ELECTION",
+    "MAILER & PHONE BANKS SUPPORTING JOHN EXAMPLE",
+  ])("preserves unsupported/pooled/truncated legislative purpose: %s", purpose => {
+    expect(parseFloridaExplicitIePurpose(purpose)).toMatchObject({ status: "unmatched" });
+  });
   it("parses the genuine RSLC purpose without converting its Special election into General", () => {
     expect(parseFloridaExplicitIndependentExpenditureTarget(row())).toEqual({
       status: "parsed", target: { candidateName: "JON MAPLES", supportOppose: "support", officeScope: "state_lower", officeName: "State Lower Chamber Legislator", district: "87", county: null, grammar: "pro_house" },

@@ -5,7 +5,7 @@ import {
   type FloridaProcessedExpenseProof,
 } from "./floridaProcessedExpenseSource.js";
 import { matchFloridaExplicitIndependentExpenditure, type FloridaNativeExpenditure } from "./floridaExplicitIndependentExpenditure.js";
-import type { FloridaLocalFinanceContext } from "./floridaLocalFinanceContext.js";
+import { isFloridaExplicitLegislativeContext, type FloridaLocalFinanceContext } from "./floridaLocalFinanceContext.js";
 
 export type FloridaOutsideAllocationSource = {
   context: FloridaProcessedExpenseContext;
@@ -40,9 +40,8 @@ export function buildFloridaVerifiedOutsideAllocations(input: {
     input = structuredClone(input);
     const local = input.localContext;
     if (!local.candidateId || !local.candidateElectionId || !local.electionId || !local.committeeId ||
-      !local.candidateName?.trim() || local.electionYear !== 2026 || local.electionDate !== "2026-11-03" ||
-      local.officeScope !== "state_lower" || local.officeCanonicalName !== "State Lower Chamber Legislator" ||
-      !/^(?:[1-9]\d?|1[01]\d|120)$/.test(local.district ?? "")) throw new Error("Unverified local General target scope.");
+      !local.candidateName?.trim() || !isFloridaExplicitLegislativeContext(local))
+      throw new Error("Unverified local General target scope.");
     const context = input.source.context;
     if (context.electionYear !== local.electionYear || context.electionType !== "general" ||
       context.electionDescription !== "2026 General Election" || context.electionSelector !== "20261103-GEN")
