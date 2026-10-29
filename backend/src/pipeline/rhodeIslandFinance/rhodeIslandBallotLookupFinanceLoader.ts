@@ -1,6 +1,7 @@
 import type { Pool, PoolClient } from "pg";
 
-import { isRhodeIslandCampaignFinanceEnabled, isRhodeIslandReportedCommitteeCashEnabled } from "../../config/featureFlags.js";
+import { isRhodeIslandCampaignFinanceEnabled, isRhodeIslandReportedCommitteeCashEnabled, isRhodeIslandReportedIeEnabled } from "../../config/featureFlags.js";
+import { appendRhodeIslandReviewedIeSummaries } from "./rhodeIslandReviewedIeBallotSummary.js";
 import {
   officeInputFromElectionRow,
   buildStateFinanceSummaryRequests,
@@ -72,6 +73,11 @@ export async function loadRhodeIslandCandidateFinanceSummariesByCandidateElectio
     const requests = buildStateFinanceSummaryRequests("RI", candidateRows, electionRows,
       row => isRhodeIslandFinanceEligibleOffice(officeInputFromElectionRow(row)));
     await appendRhodeIslandCommitteeCashSummaries(db, requests, summaries);
+  }
+  if (isRhodeIslandReportedIeEnabled()) {
+    const requests = buildStateFinanceSummaryRequests("RI", candidateRows, electionRows,
+      row => isRhodeIslandFinanceEligibleOffice(officeInputFromElectionRow(row)));
+    await appendRhodeIslandReviewedIeSummaries(db, requests, summaries);
   }
   return summaries;
 }

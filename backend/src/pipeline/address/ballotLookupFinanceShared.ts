@@ -218,6 +218,8 @@ export type BallotLookupFinanceSummary = {
     direct_coverage_note?: string | null;
   };
   outside_spending: {
+    /** Reported dissemination-based IE disbursements; cash payment is unverified. */
+    amount_basis?: "reported_ie_disbursements";
     support_total: number | null;
     oppose_total: number | null;
     /**
@@ -237,6 +239,8 @@ export type BallotLookupFinanceSummary = {
      * assumes the totals are all the outside money in the race.
      */
     outside_coverage_note?: string | null;
+    /** Amounts are filer-reported estimates, not verified cash payments. */
+    spending_basis?: "reported_estimates";
     top_supporting_groups: BallotLookupFinanceOutsideGroup[];
     top_opposing_groups: BallotLookupFinanceOutsideGroup[];
     /**

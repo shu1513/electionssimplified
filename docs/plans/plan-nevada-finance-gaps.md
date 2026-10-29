@@ -20,8 +20,9 @@ complete statewide coverage.
    reader. Outside inputs are already omitted, preserving stored data.
 3. Contribution CSV `Type` identifies monetary, in-kind or commitment
    transactions, rather than donor class. The typed group registry displays an
-   exact Keystone Corporation PAC witness, but publishes no verified result
-   count for that query. Its $2,500 gift remains excluded. A narrow literal PAC/P.A.C. name
+   exact Keystone Corporation witness under the PAC class, but the narrow
+   query published no verified result count. That query alone cannot establish
+   complete registry authority. A narrow literal PAC/P.A.C. name
    rule can also retain honestly reported committee names without inventing
    legal identities or aliases. Generic companies, associations and acronyms
    are insufficient.
@@ -129,3 +130,91 @@ Catchups do not manufacture October/November coverage when no newer report
 exists. Re-reading an old observation is not a fresh post-deadline acquisition.
 Record actual acquisition times and latest covered periods. No automation or
 production operation is included.
+
+## October 25 registry follow-up
+
+The fresh independent-expenditure source check covered all 110 registered
+independent-expenditure filer references. Of those, 108 report inventories were
+readable, 64 explicitly reported no submitted reports, and two returned portal
+errors on both the initial read and one retry. Eight readable filers had 15
+report references with grid year 2026. Full registry and current report-list
+closing observations agreed. The actual expenditure CSV still has only Payee,
+Date, Amount, Type, Payer and Report columns; its positive control matched a
+native statement. This bounded scope does not establish candidate allocations
+or absence in other reporting channels. Outside spending stays unknown.
+
+For donor recognition, a broader all-class group-name query can publish a
+complete native pager even when the narrower query omits it. The fresh
+"Corp" query contains 42 rows on two pages, including the exact reported donor
+name under the PAC class. Opening and closing rows agreed. The receiving
+candidate's fresh 40-report manifest selects four cycle reports through
+September 30; both financial readings contain 35 cash occurrences and agree
+with the native cash controls. The completed local import and candidate-card checks are recorded below.
+
+The optional groupRegistryObservations field supplies each query's opening
+and closing observations. Each contains sourceSearchPath, nameQuery,
+groupTypeBlank: true, otherFiltersBlank: true, and every page's
+observedAt, native pager strings, and complete four-cell rows.
+Only the public Nevada search path is accepted. Native totals must close over
+contiguous 25-row pages, including the final page. Names must lie within the
+observed query; unknown classes, repeated physical rows, restrictive filters,
+changed controls/content, missing counts and invalid time order fail before
+the writer runs.
+
+Registry opening pages must precede the receiving manifest opening; registry
+closing pages must follow its closing. The complete capture spans at most two
+hours and must be no more than 36 hours old. The donor source watermark stays
+at the financial manifest closing time; registry closings never advance it, so
+an older financial snapshot cannot replace a newer one. Full reported-name PAC
+matches feed the existing aggregator; exact non-PAC classes and cross-class
+conflicts retain their veto. No legal committee ID or alias is inferred.
+Packets without registry observations retain literal-name recognition.
+
+Before opening the follow-up PR, retain the complete approved donor-source
+originals, independently reproduce all source and stored positions, run the
+ordinary local import, verify repeat/failure preservation and every component
+clock, and prove the production HTTP response and hydrated candidate card.
+Direct amounts, direct freshness and outside data must remain unchanged.
+No new migration is needed. Kansas contributor names, all new Missouri
+publication and all new Wisconsin publication remain held.
+
+### Observed October 25 follow-up proof
+
+After explicit approval, all 25 complete donor-source DOM originals were
+retained privately and verified by whole-original hashes and file modes.
+An independent BeautifulSoup reference reproduced every native registry and
+manifest row, all four effective reports, all 35 cash occurrences, signed
+positions, loan-column evidence, report controls and quarterly cumulative
+controls. A source-derived observation was then written to the registered
+application cache and independently compared against those originals.
+
+The ordinary local Nevada import, with feature flags inline and AI denied,
+replaced four stored donor positions with six, including one exact registry
+PAC name without a literal PAC suffix. Independent reconciliation compared
+every uncapped stored name, reported-name key, signed amount, count,
+recognition method and source watermark against the original source.
+
+Dry-run made no changes. All direct summaries and breakdowns, outside
+components, their timestamps, link business fields and verification clocks
+were preserved. Only the receiving link's update metadata and donor sync
+timestamps may advance. Repeating the import preserved all donor business
+fields and the source observation watermark; sync timestamps remained
+monotonic. Truncated-registry and missing-source failures preserved every
+audited field and clock. All 412 applied migration ledger entries remained
+unchanged.
+
+The real production HTTP response matched the actual reader and stored
+direct amounts and freshness. The actual React Router candidate page was
+hydrated, with client state changes observed before and after a fresh reload.
+Its card showed five donor names under the normal display cap, the full
+six-PAC count and “and 1 more.” Every displayed name, amount and source link,
+plus the full interest totals and counts, matched the source and HTTP
+response. The newly recognized registry donor was visible under “Not yet
+sorted.” Outside amounts remained unknown and the filing-period limitation
+remained visible. No financial screenshot or source extract was saved.
+
+Focused validation passed 226 tests in 12 Nevada finance files; backend
+typecheck and diff checks passed. Proof services used read-only local
+Postgres and private loopback listeners, with environment files, providers
+and remote traffic denied. The initial preview needed the normal explicit
+SSR API URL; the successful fresh-load proof used that configuration.

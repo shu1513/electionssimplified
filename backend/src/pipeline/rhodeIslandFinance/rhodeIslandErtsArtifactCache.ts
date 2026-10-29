@@ -4,6 +4,7 @@ import { dirname, resolve } from "node:path";
 
 import {
   extractErtsPdfPageItems,
+  countErtsPdfPages,
   parseErtsContributionExport,
   parseErtsCf8IndexPage,
   parseErtsFilingListPage,
@@ -48,7 +49,8 @@ export type ErtsArtifactKey =
   | { type: "contribution_report"; orgId: string; beginIso: string; endIso: string }
   | { type: "expenditure_report"; orgId: string; beginIso: string; endIso: string }
   | { type: "contribution_export"; orgId: string; beginIso: string; endIso: string }
-  | { type: "cf8_index_page"; page: number };
+  | { type: "cf8_index_page"; page: number }
+  | { type: "cf8_scan"; guid: string };
 
 function slugifyErtsQuery(query: string): string {
   const slug = query
@@ -106,6 +108,8 @@ export function ertsArtifactRelativePath(key: ErtsArtifactKey): string {
       return `filing/${requireNumericId(key.filingId, "filing id")}/versions.html`;
     case "filing_pdf":
       return `filing/${requireNumericId(key.filingId, "filing id")}/${requirePdfGuid(key.guid)}.pdf`;
+    case "cf8_scan":
+      return `cf8-scans/${requirePdfGuid(key.guid)}.pdf`;
     case "contribution_report":
       return `${reportWindowDir(key.orgId, key.beginIso, key.endIso)}/contributions.html`;
     case "expenditure_report":
@@ -179,6 +183,12 @@ function bodyToBuffer(body: string | Uint8Array): Buffer {
 // layer (a scanned image PDF has none and must fail — the CF-2 totals
 // mapping depends on it).
 export async function validateErtsArtifactBody(key: ErtsArtifactKey, body: string | Uint8Array): Promise<number> {
+  if (key.type === "cf8_scan") {
+    const bytes = bodyToBuffer(body);
+    if (bytes.toString("latin1", 0, 5) !== "%PDF-" || !/%%EOF\s*$/u.test(bytes.toString("latin1", Math.max(0, bytes.length - 1024))))
+      throw new Error("ERTS scanned PDF original is incomplete");
+    return countErtsPdfPages(new Uint8Array(bytes));
+  }
   if (key.type === "filing_pdf") {
     const bytes = bodyToBuffer(body);
     if (bytes.length < 5 || bytes.toString("latin1", 0, 5) !== "%PDF-") {
@@ -404,13 +414,13 @@ export async function readErtsArtifact(input: {
   return { bytes: status.bytes, manifest: status.manifest };
 }
 
-/** Text artifacts (everything except filing_pdf) decoded as UTF-8. */
+/** Text artifacts decoded as UTF-8; scanned and text-layer PDFs stay binary. */
 export async function readErtsTextArtifact(input: {
   cacheDir: string;
   key: ErtsArtifactKey;
 }): Promise<{ text: string; manifest: ErtsArtifactManifest }> {
-  if (input.key.type === "filing_pdf") {
-    throw new Error("ERTS filing_pdf artifacts are binary; read bytes instead");
+  if (input.key.type === "filing_pdf" || input.key.type === "cf8_scan") {
+    throw new Error("ERTS PDF artifacts are binary; read bytes instead");
   }
   const { bytes, manifest } = await readErtsArtifact(input);
   return { text: utf8.decode(bytes), manifest };

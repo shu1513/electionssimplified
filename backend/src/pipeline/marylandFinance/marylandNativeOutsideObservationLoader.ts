@@ -129,6 +129,24 @@ export async function loadMarylandNativeOutsideObservation(
     : [];
   if (!years.length)
     return { status: "preserve", diagnostics: ["no_due_elections"] };
+  // Annual reports can arrive after the public default advances into the
+  // next cycle. Select the unique published cycle covering the due election.
+  const cycleForYears = (lookup: Cycle) => {
+    const matches = lookup.cycles.filter(cycle => {
+      const m = /^(\d{4})-(\d{4})$/.exec(cycle.name);
+      return m && years.every(y => y >= Number(m[1]) && y <= Number(m[2]));
+    });
+    if (matches.length > 1) hold("ambiguous_source_cycle_for_due_elections");
+    if (!matches.length) {
+      const m = /^(\d{4})-(\d{4})$/.exec(lookup.defaultCycle.name);
+      // Existing batches may span more than one published cycle. Preserve
+      // their explicit partial-coverage diagnostic rather than assigning
+      // out-of-cycle election years to this census.
+      if (m && years.some(y => y >= Number(m[1]) && y <= Number(m[2]))) return lookup.defaultCycle;
+      hold("default_cycle_incompatible_with_due_elections");
+    }
+    return matches[0]!;
+  };
   const timeout = input.totalTimeoutMs ?? 3600000,
     maxBytes = input.maxTotalBytes ?? 512 * 1024 * 1024,
     maxRequests = input.maxRequests ?? 4506;
@@ -256,7 +274,7 @@ export async function loadMarylandNativeOutsideObservation(
         const census = await Promise.race([
           readMarylandPublicIndependentExpenditureCensus({
             outputDirectory: p.censusDirectory,
-            electionCycle: cycle.defaultCycle.value,
+            electionCycle: cycleForYears(cycle).value,
           }),
           deadline,
         ]);
@@ -296,7 +314,8 @@ export async function loadMarylandNativeOutsideObservation(
       saved = undefined;
       diagnostics.push("saved_outside_observation_not_prior");
     }
-    const match = /^(\d{4})-(\d{4})$/.exec(beforeCycle.defaultCycle.name);
+    const selectedCycle = cycleForYears(beforeCycle);
+    const match = /^(\d{4})-(\d{4})$/.exec(selectedCycle.name);
     if (!match) hold("invalid_source_cycle_label");
     const compatible = years.filter(
       (y) => y >= Number(match[1]) && y <= Number(match[2]),
@@ -314,7 +333,7 @@ export async function loadMarylandNativeOutsideObservation(
       if (capturedBytes >= maxBytes) hold("outside_observation_byte_limit");
       const directory = join(generation, name);
       await acquireMarylandPublicIndependentExpenditureCensus({
-        electionCycle: beforeCycle.defaultCycle.value,
+        electionCycle: selectedCycle.value,
         outputDirectory: directory,
         fetchImpl: boundedFetch,
         totalTimeoutMs: Math.max(1, Math.floor(end - performance.now())),
@@ -327,7 +346,7 @@ export async function loadMarylandNativeOutsideObservation(
         census: await Promise.race([
           readMarylandPublicIndependentExpenditureCensus({
             outputDirectory: directory,
-            electionCycle: beforeCycle.defaultCycle.value,
+            electionCycle: selectedCycle.value,
           }),
           deadline,
         ]),
@@ -396,7 +415,7 @@ export async function loadMarylandNativeOutsideObservation(
     return {
       status: "observed",
       observation: {
-        cycleLabel: beforeCycle.defaultCycle.name,
+        cycleLabel: selectedCycle.name,
         compatibleElectionYears: Object.freeze(compatible),
         openingDirectory: opening.directory,
         closingDirectory: closing.directory,

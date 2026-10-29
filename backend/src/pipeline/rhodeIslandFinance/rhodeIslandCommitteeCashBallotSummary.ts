@@ -46,7 +46,6 @@ export async function appendRhodeIslandCommitteeCashSummaries(
     WHERE candidate.deleted_at IS NULL AND roster.status NOT IN ('withdrawn','lost')
       AND district.state='RI' AND election.race_type='office' AND election.election_stage='general'
       AND extract(year FROM election.election_date)::integer=link.election_year
-      AND election.election_date BETWEEN CURRENT_DATE-1 AND CURRENT_DATE+730
       AND (office.scope||'::'||office.canonical_name)=ANY($2::text[]) AND link.office_name=office.canonical_name
       AND link.district IS NOT DISTINCT FROM CASE WHEN district.district_type IN ('state_upper','state_lower') THEN
         NULLIF(regexp_replace(substring(district.geoid_compact FROM char_length(district.state_fips)+1),'^0+',''),'') END

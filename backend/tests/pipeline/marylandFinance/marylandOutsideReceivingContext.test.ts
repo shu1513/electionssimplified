@@ -231,7 +231,10 @@ describe("official finite receiving source facts", () => {
       r = await bindMarylandOutsideReceivingContext(i);
     expect(r.binding).toMatchObject({
       sourceCommitteeName: "Moore, Wes For Maryland",
-      sourceCommitteeLabels: ["Moore, Wes For Maryland", "Wes Moore For Maryland"],
+      sourceCommitteeLabels: [
+        "Moore, Wes For Maryland",
+        "Wes Moore For Maryland",
+      ],
       sourceOwnerName: "MOORE, WESTLEY W.",
       committeeDisplayPolicy: "moore_complete_committee_label_pair_v1",
     });
@@ -267,6 +270,28 @@ describe("official finite receiving source facts", () => {
     } as never);
     expect(r.binding).toBeUndefined();
   });
+  it.each([
+    { officeSought: null, officeSoughtId: null },
+    { jurisdiction: null, jurisdictionId: null },
+    { partyAffiliation: null },
+    { electionCycleID: null },
+    { registrationDocumentGuid: null },
+  ])(
+    "holds source-unknown registration context at the financial boundary %j",
+    async (extra) => {
+      const i = structuredClone(await input());
+      for (const capture of [
+        ...i.numericRegistration.captures,
+        ...i.nameRegistration.captures,
+      ]) {
+        const envelope = JSON.parse(await readFile(capture.outputPath, "utf8"));
+        Object.assign(envelope.data.items[0], extra);
+        await replace(capture, JSON.stringify(envelope));
+      }
+      const result = await bindMarylandOutsideReceivingContext(i);
+      expect(result.binding).toBeUndefined();
+    },
+  );
   it("rejects unclosed old research scope and hash corruption", async () => {
     const i = await input();
     const bad = {

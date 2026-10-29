@@ -41,6 +41,17 @@ describe("hasFinanceContent", () => {
 });
 
 describe("FinanceSummaryCard", () => {
+  it("states dissemination-based reported IE amounts without asserting cash spent or complete totals", () => {
+    const summary=emptyFinanceSummary();summary.source="RHODE_ISLAND_ERTS";
+    summary.outside_spending.amount_basis="reported_ie_disbursements";
+    summary.outside_spending.outside_coverage_note="Candidate-wide support and opposition totals are unknown. Cash payment is not established.";
+    summary.outside_spending.top_supporting_groups=[{committee_id:"synthetic",committee_name:"Example Spender",support_oppose:"support",amount:10000,source_url:null}];
+    render(<FinanceSummaryCard summary={summary}/>);
+    expect(screen.getByText("Reported outside disbursements")).toBeInTheDocument();
+    expect(screen.getByText(/Outside groups reported spending to support/)).toBeInTheDocument();
+    expect(screen.queryByText(/Outside groups spent/)).not.toBeInTheDocument();
+    expect(screen.getByText(summary.outside_spending.outside_coverage_note)).toBeInTheDocument();
+  });
   it("labels Georgia's typed gross contributions as committee money", () => {
     const summary = emptyFinanceSummary();
     summary.source = "GEORGIA_ETHICS";
@@ -884,4 +895,22 @@ describe("FinanceSummaryCard", () => {
       expect(screen.getByText(/These organizations spent \$12,000 to oppose/)).toBeInTheDocument();
     });
   });
+});
+
+it.each(["support", "oppose"] as const)("labels reported %s estimates without claiming paid spending or a known total", stance => {
+  const summary = emptyFinanceSummary();
+  summary.source = "UTAH_DISCLOSURES";
+  summary.outside_spending.spending_basis = "reported_estimates";
+  summary.outside_spending.outside_coverage_note = "Filer estimates only; candidate-wide totals unknown.";
+  summary.outside_spending[stance === "support" ? "top_supporting_groups" : "top_opposing_groups"] = [{committee_id:"INDEXP:123",committee_name:"Example Estimate Filer",support_oppose:stance,amount:6000,source_url:"https://disclosures.utah.gov/Search/PublicSearch/Report/456"}];
+  render(<FinanceSummaryCard summary={summary} />);
+  expect(screen.getByRole("heading", { name: "Estimates reported by outside groups" })).toBeInTheDocument();
+  expect(screen.getByText("Outside groups reported these estimates for activity supporting or opposing this candidate. The amounts are estimates, not verified payments.")).toBeInTheDocument();
+  expect(screen.queryByText("Spending by outside groups")).not.toBeInTheDocument();
+  expect(screen.queryByText(/spend this money on the race/)).not.toBeInTheDocument();
+  expect(screen.getByText(`Outside groups reported estimates to ${stance} this candidate.`)).toBeInTheDocument();
+  expect(screen.getByText(new RegExp(`Groups reporting estimates ${stance === "support" ? "supporting" : "opposing"} this candidate`))).toBeInTheDocument();
+  expect(screen.queryByText(/Outside groups spent/)).not.toBeInTheDocument();
+  expect(screen.getByText("Example Estimate Filer")).toBeInTheDocument();
+  expect(screen.getByText("Filer estimates only; candidate-wide totals unknown.")).toBeInTheDocument();
 });

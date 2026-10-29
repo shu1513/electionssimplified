@@ -1,3 +1,4 @@
+import { syncMarylandIndependentExpenditures, type MarylandIndependentExpenditureSyncResult } from "./marylandIndependentExpenditureSync.js";
 import { loadMarylandNativeOutsideObservation, type MarylandNativeOutsideObservationInput, type MarylandNativeOutsideObservationResult } from "./marylandNativeOutsideObservationLoader.js";
 import {syncMarylandCommitteeMonetaryPackets,type MarylandCommitteeMonetaryPacketConfiguration,type MarylandCommitteeMonetarySyncResult} from "./marylandCommitteeMonetarySync.js";
 import { stat } from "node:fs/promises";
@@ -73,6 +74,13 @@ export type MarylandExpenditureDataForYear = {
 
 export type MarylandCandidateFinanceBatchSyncInput = {
   db: ConnectableQueryable;
+  candidateId?: string;
+  electionYear?: number;
+  outsideOnly?: boolean;
+  refresh?: boolean;
+  force?: boolean;
+  log?: (message: string) => void;
+  syncIndependentExpendituresFn?: typeof syncMarylandIndependentExpenditures;
   now?: Date;
   dryRun?: boolean;
   maxCandidates?: number;
@@ -112,6 +120,7 @@ export type MarylandCandidateFinanceBatchSyncResult = {
   failedCandidateCount: number;
   results: MarylandCandidateFinanceBatchSyncItemResult[];
   nativeOutsideObservation: MarylandNativeOutsideObservationResult;
+  independentExpenditures?: MarylandIndependentExpenditureSyncResult;
   committeeMonetary?:MarylandCommitteeMonetarySyncResult;
 };
 
@@ -443,6 +452,26 @@ export async function syncDueMarylandCandidateFinance(
   );
   const dryRun = input.dryRun === true;
   const syncFn = input.syncMarylandCandidateFinanceFn ?? syncMarylandCandidateFinance;
+  // The native monetary component has its own canonical due query and clock.
+  // A missing/fresh/failed receiving ledger cannot suppress this pass.
+  let independentExpenditures: MarylandIndependentExpenditureSyncResult;
+  try {
+    independentExpenditures = await (input.syncIndependentExpendituresFn ?? syncMarylandIndependentExpenditures)({
+      db: input.db, rawCacheDir: nativeOutsideCacheDir, now, maxCandidates: input.maxCandidates,
+      staleAfterDays, electionLookbackDays: input.electionLookbackDays ?? 90, electionLookaheadDays,
+      candidateId: input.candidateId, electionYear: input.electionYear, dryRun, refresh: input.refresh,
+      force: input.force, fetchImpl: nativeOutsideSource?.fetchImpl, log: input.log,
+    });
+  } catch (error) {
+    input.log?.(`Maryland independent outside component failed: ${error instanceof Error ? error.message : String(error)}`);
+    independentExpenditures = { attempted:0,qualified:0,written:0,preserved:0,groupsWritten:0,allocationsQualified:0,
+      sourceCaptures:0,savedOpeningQueries:0,diagnostics:["outside_component_unavailable"],results:[] };
+  }
+  if (input.outsideOnly) return { dryRun, now: now.toISOString(), staleAfterDays, maxCandidates,
+    dueCandidateCount:0,selectedCandidateCount:0,syncedCandidateCount:0,failedCandidateCount:0,results:[],
+    independentExpenditures,nativeOutsideObservation:independentExpenditures.observation ??
+      {status:"preserve",diagnostics:independentExpenditures.diagnostics} };
+
 
   if (!dryRun && input.autoLinkMissingLinks !== false) {
     try {
@@ -508,7 +537,7 @@ export async function syncDueMarylandCandidateFinance(
 
   // Source-only outside acquisition remains independent of legacy receipt availability.
   // It never supplies finance rows, classifications, totals or verification timestamps.
-  const nativeOutsideObservation = await loadMarylandNativeOutsideObservation({
+  const nativeOutsideObservation = independentExpenditures.observation ?? await loadMarylandNativeOutsideObservation({
     ...nativeOutsideSource,
     electionYears: [...new Set(due.rows.map(row => row.electionYear))],
     rawCacheDir: nativeOutsideCacheDir,
@@ -661,6 +690,7 @@ export async function syncDueMarylandCandidateFinance(
     failedCandidateCount: results.length - syncedCandidateCount,
     results,
     nativeOutsideObservation,
+    independentExpenditures,
     committeeMonetary,
   };
 }
