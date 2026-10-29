@@ -218,6 +218,8 @@ export type BallotLookupFinanceSummary = {
     direct_coverage_note?: string | null;
   };
   outside_spending: {
+    /** Reported dissemination-based IE disbursements; cash payment is unverified. */
+    amount_basis?: "reported_ie_disbursements";
     support_total: number | null;
     oppose_total: number | null;
     /**

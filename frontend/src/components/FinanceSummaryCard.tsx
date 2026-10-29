@@ -275,6 +275,7 @@ function OutsideSection({
   total,
   groups,
   industries,
+  reportedDisbursements = false,
   reportedEstimates = false,
 }: {
   reportedEstimates?: boolean;
@@ -282,6 +283,7 @@ function OutsideSection({
   total: number | null;
   groups: FinanceOutsideGroup[];
   industries: (FinanceBreakdown | FinanceOutsideIndustrySupport)[];
+  reportedDisbursements?: boolean;
 }) {
   // A direction under the small-amount threshold renders nothing rather than
   // a bare header — a race often has disclosed support with no disclosed
@@ -312,7 +314,7 @@ function OutsideSection({
         {reportedEstimates ? (
           <>Outside groups reported estimates to {verb} this candidate.</>
         ) : (
-          <>Outside groups spent {shownTotal !== null ? formatMoney(shownTotal) : "money"} to {verb} this candidate.</>
+          <>{reportedDisbursements ? "Outside groups reported spending" : `Outside groups spent ${shownTotal !== null ? formatMoney(shownTotal) : "money"}`} to {verb} this candidate.</>
         )}
       </p>
       {industries.length > 0 ? (
@@ -336,7 +338,7 @@ function OutsideSection({
         // collapse a long list out of the way.
         <details className="mt-5" open>
           <summary className="cursor-pointer select-none text-sm font-medium text-ink hover:underline">
-            {reportedEstimates ? "Groups reporting estimates" : "Groups that spent money"} {directionLabel} this candidate ({groups.length})
+            {reportedEstimates ? "Groups reporting estimates" : reportedDisbursements ? "Groups that reported spending" : "Groups that spent money"} {directionLabel} this candidate ({groups.length})
           </summary>
           <ul className="mt-3 space-y-4">
             {groups.map((row) => (
@@ -571,11 +573,13 @@ export function FinanceSummaryCard({ summary }: { summary: FinanceSummary }) {
       {hasOutsideFinanceContent(summary) ? (
         <div className="mt-3">
           <h4 className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
-            {reportedEstimates ? "Estimates reported by outside groups" : "Spending by outside groups"}
+            {reportedEstimates ? "Estimates reported by outside groups" : outside.amount_basis === "reported_ie_disbursements" ? "Reported outside disbursements" : "Spending by outside groups"}
           </h4>
           <p className="mt-1 text-xs text-ink-soft">
             {reportedEstimates
               ? "Outside groups reported these estimates for activity supporting or opposing this candidate. The amounts are estimates, not verified payments."
+              : outside.amount_basis === "reported_ie_disbursements"
+              ? "Outside groups reported independent communications about this candidate. These amounts are separate from the candidate’s campaign finances."
               : "Outside groups, such as PACs and super PACs, spend this money on the race. The candidate's campaign does not spend it, and none of it goes to the candidate."}
           </p>
           {/* Stated with the outside evidence, not in the footnote: a reader
@@ -589,6 +593,7 @@ export function FinanceSummaryCard({ summary }: { summary: FinanceSummary }) {
           ) : null}
           <OutsideSection
             direction="support"
+            reportedDisbursements={outside.amount_basis === "reported_ie_disbursements"}
             reportedEstimates={reportedEstimates}
             total={outside.support_total}
             groups={outside.top_supporting_groups}
@@ -596,6 +601,7 @@ export function FinanceSummaryCard({ summary }: { summary: FinanceSummary }) {
           />
           <OutsideSection
             direction="opposition"
+            reportedDisbursements={outside.amount_basis === "reported_ie_disbursements"}
             reportedEstimates={reportedEstimates}
             total={outside.oppose_total}
             groups={outside.top_opposing_groups}

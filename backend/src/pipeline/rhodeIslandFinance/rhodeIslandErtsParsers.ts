@@ -497,6 +497,18 @@ export function parseErtsFilingVersionsPage(html: string): ErtsFilingVersion[] {
 
 export type ErtsPdfTextItem = { text: string; x: number; y: number };
 
+/** Structural validation for scanned CF-8 originals; no OCR or money reading. */
+export async function countErtsPdfPages(pdf: Uint8Array): Promise<number> {
+  const { getDocument } = await import("pdfjs-dist/legacy/build/pdf.mjs");
+  const document = await getDocument({ data: pdf }).promise;
+  try {
+    if (!Number.isInteger(document.numPages) || document.numPages < 1 || document.numPages > 1000)
+      throw new Error("ERTS scanned PDF page count is outside the acquisition bound");
+    for (let page = 1; page <= document.numPages; page++) await document.getPage(page);
+    return document.numPages;
+  } finally { await document.destroy(); }
+}
+
 /** Positioned text items of a PDF's first page (the CF-2 summary page). */
 export async function extractErtsPdfPageItems(pdf: Uint8Array): Promise<ErtsPdfTextItem[]> {
   const { getDocument } = await import("pdfjs-dist/legacy/build/pdf.mjs");
