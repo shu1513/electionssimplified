@@ -288,6 +288,17 @@ describe(
       expect(r.diagnostics).toContain("source_cycle_changed");
       expect(await readFile(pointer(rawCacheDir), "utf8")).toBe(old);
     });
+    it("selects the published prior cycle for annual reports after default rollover", async () => {
+      const p = packets();
+      const fetchImpl: typeof fetch = async (url, init) => String(url).endsWith("GetAllFilingCycleList")
+        ? new Response(JSON.stringify({succeeded:true,error:null,data:[
+          {value:"12023",name:"2023-2026",isDefault:false},
+          {value:"12027",name:"2027-2030",isDefault:true}]}))
+        : p.fetchImpl(url,init);
+      const result = await loadMarylandNativeOutsideObservation({electionYears:[2026],rawCacheDir:await dir(),fetchImpl});
+      expect(result.status).toBe("observed");expect(result.observation!.cycleLabel).toBe("2023-2026");
+      expect(p.fetchImpl.mock.calls.every(([,init])=>JSON.parse(String(init!.body)).electionCycle==="12023")).toBe(true);
+    });
     it("makes no network request for no due elections or incompatible default-cycle year", async () => {
       const p = packets(),
         rawCacheDir = await dir();

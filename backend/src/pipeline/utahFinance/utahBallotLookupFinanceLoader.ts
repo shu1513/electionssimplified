@@ -1,3 +1,4 @@
+import { appendUtahReportedIeSummaries } from "./utahReportedIeBallotSummary.js";
 import type { BallotLookupFinanceSummary } from "../address/ballotLookupFinanceShared.js";
 import { appendUtahCommitteeCashSummaries, UTAH_OUTSIDE_CASH_NOTE } from "./utahCommitteeCashBallotSummary.js";
 import type { Pool, PoolClient } from "pg";
@@ -407,5 +408,6 @@ export async function loadUtahCandidateFinanceSummariesByCandidateElection(input
     })
   );
   await appendUtahCommitteeCashSummaries(input.db, requests, summaries);
+  await appendUtahReportedIeSummaries(input.db, requests, summaries);
   return summaries;
 }

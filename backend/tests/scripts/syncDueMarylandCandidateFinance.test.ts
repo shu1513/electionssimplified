@@ -22,6 +22,9 @@ describe("syncDueMarylandCandidateFinance script", () => {
     ).toEqual({
       dryRun: true,
       force: true,
+      outsideOnly: false,
+      candidateId: undefined,
+      electionYear: undefined,
       maxCandidates: 12,
       staleAfterDays: 3,
       electionLookbackDays: 10,
@@ -31,13 +34,20 @@ describe("syncDueMarylandCandidateFinance script", () => {
     });
   });
 
-  it("defaults to AI industry classification enabled", () => {
+  it("defaults to ordinary component selection", () => {
     expect(parseSyncDueMarylandCandidateFinanceScriptArgs([])).toMatchObject({
       dryRun: false,
       force: false,
     });
   });
 
+  it("supports independent target selection and rejects invalid contexts", () => {
+    expect(parseSyncDueMarylandCandidateFinanceScriptArgs(["--outside-only","--candidate-id=11111111-1111-4111-8111-111111111111","--election-year=2026"]))
+      .toMatchObject({outsideOnly:true,candidateId:"11111111-1111-4111-8111-111111111111",electionYear:2026});
+    expect(()=>parseSyncDueMarylandCandidateFinanceScriptArgs(["--candidate-id=bad"])).toThrow();
+    expect(()=>parseSyncDueMarylandCandidateFinanceScriptArgs(["--election-year=1999"])).toThrow();
+    expect(()=>parseSyncDueMarylandCandidateFinanceScriptArgs(["--election-year=2026"])).toThrow("require --outside-only");
+  });
   it("rejects malformed numeric flags strictly", () => {
     expect(() => parseSyncDueMarylandCandidateFinanceScriptArgs(["--max-candidates=10abc"])).toThrow(
       "Invalid --max-candidates value"
@@ -85,6 +95,7 @@ describe("syncDueMarylandCandidateFinance script", () => {
       options: {
         dryRun: true,
         force: false,
+        outsideOnly: false,
         maxCandidates: 2,
       },
       result: {

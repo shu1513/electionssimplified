@@ -226,6 +226,7 @@ export async function runMarylandCandidateFinanceSyncJob(
       db: pool,
       now,
       dryRun,
+      force,
       maxCandidates: data.maxCandidates,
       staleAfterDays: data.staleAfterDays,
       electionLookbackDays: data.electionLookbackDays,

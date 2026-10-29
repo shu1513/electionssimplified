@@ -388,6 +388,15 @@ export async function bindMarylandOutsideReceivingContext(
       a.candidateName !== "MOORE, WESTLEY W." ||
       a.committeeType !== "Candidate" ||
       a.committeeTypeCode !== "CC" ||
+      typeof a.registrationDocumentGuid !== "string" ||
+      typeof a.officeSoughtId !== "number" ||
+      !Number.isSafeInteger(a.officeSoughtId) ||
+      a.officeSoughtId <= 0 ||
+      typeof a.jurisdictionId !== "number" ||
+      !Number.isSafeInteger(a.jurisdictionId) ||
+      a.jurisdictionId <= 0 ||
+      typeof a.electionCycleID !== "string" ||
+      !a.electionCycleID.trim() ||
       a.officeSought !== "Governor/Lieutenant Governor" ||
       a.partyAffiliation !== "Democrat" ||
       a.isActive !== true ||

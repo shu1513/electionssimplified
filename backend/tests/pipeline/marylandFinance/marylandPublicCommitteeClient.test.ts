@@ -131,6 +131,65 @@ describe("closed Maryland committee registration facts", () => {
     expect(p.rows[0]!.unknownSource).toEqual({ retained: true });
     expect(p).not.toHaveProperty("current");
   });
+  it("retains null historical context beside a fully identified account", async () => {
+    const historical = row(2, {
+      officeSought: null,
+      officeSoughtId: null,
+      jurisdiction: null,
+      jurisdictionId: null,
+      partyAffiliation: null,
+      electionCycleID: null,
+      registrationDocumentGuid: null,
+      isActive: false,
+      accountStatus: "Terminated",
+    });
+    const response = env([row(), historical]);
+    const outputDirectory = join(await dir(), "nullable-history");
+    const census = await acquireMarylandPublicCommitteeCensus({
+      query: named.query,
+      outputDirectory,
+      fetchImpl: async () => new Response(JSON.stringify(response)),
+    });
+    expect(census).toMatchObject({
+      declaredRows: 2,
+      physicalRows: 2,
+      completedPages: 1,
+    });
+    const decoded = decodeMarylandPublicCommitteePage(
+      response,
+      buildMarylandPublicCommitteeRequest(named),
+    );
+    expect(decoded.rows[1]).toMatchObject({
+      officeSought: null,
+      officeSoughtId: null,
+      jurisdiction: null,
+      jurisdictionId: null,
+      partyAffiliation: null,
+      electionCycleID: null,
+      registrationDocumentGuid: null,
+    });
+    expect(decoded).not.toHaveProperty("binding");
+  });
+  it.each([
+    { officeSoughtId: null },
+    { officeSought: null },
+    { jurisdictionId: null },
+    { jurisdiction: null },
+    { partyAffiliation: undefined },
+    { electionCycleID: undefined },
+    { partyAffiliation: 1 },
+    { electionCycleID: [] },
+    { registrationDocumentGuid: undefined },
+    { registrationDocumentGuid: "" },
+    { registrationDocumentGuid: "00000000-0000-0000-0000-000000000000" },
+  ])("holds missing, mistyped or incoherent optional context %j", (extra) => {
+    expect(() =>
+      decodeMarylandPublicCommitteePage(
+        env([row(1, extra)]),
+        buildMarylandPublicCommitteeRequest(named),
+      ),
+    ).toThrow("invalid_committee_page");
+  });
   it.each([
     { filerRegistrationGuid: null },
     { registrationDocumentGuid: "bad" },

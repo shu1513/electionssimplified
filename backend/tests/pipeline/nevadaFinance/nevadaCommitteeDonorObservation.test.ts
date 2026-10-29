@@ -583,3 +583,63 @@ describe("Nevada manually decoded financial observations", () => {
     ).toThrow();
   });
 });
+
+describe("Nevada registry evidence through the complete cash source validator", () => {
+  function registryFixture() {
+    const value = fixture();
+    alterBoth(value, 2, (report) => {
+      report.cashRows[0]!.contributorName = "Generic Corporation";
+    });
+    const rows = Array.from({ length: 26 }, (_, i) => [
+      i === 0 ? "Generic Corporation" : "Synthetic Corporation " + i,
+      i === 0 ? "PAC" : "Nonprofit", "", "",
+    ]);
+    function observation(closing: boolean) {
+      return {
+        sourceSearchPath: SEARCH,
+        nameQuery: "Corp",
+        groupTypeBlank: true,
+        otherFiltersBlank: true,
+        pages: pages(rows, closing).map((page, i) => ({
+          ...page,
+          observedAt: "2026-10-12T" + (closing ? "09:30:" : "08:50:") + String(i).padStart(2, "0") + ".000Z",
+        })),
+      };
+    }
+    return {
+      ...value,
+      groupRegistryObservations: [{ opening: observation(false), closing: observation(true) }],
+    };
+  }
+  it("admits an exact typed PAC without a literal suffix and preserves cash controls and the financial watermark", () => {
+    const value = registryFixture();
+    expect(validate({ ...value, groupRegistryObservations: undefined }).pacDonors).toHaveLength(2);
+    const result = validate(value);
+    expect(result.pacDonors).toHaveLength(3);
+    expect(result.pacDonors.find((donor) => donor.recognitionMethod === "registry_name")).toMatchObject({
+      committeeId: "reported:GENERIC CORPORATION",
+      totalAmount: 300,
+      contributionCount: 1,
+    });
+    expect(result.cashCents).toBe(230000);
+    // Registry pages close at 09:30; the watermark stays at the manifest closing.
+    expect(result.pacDonorSource.observedAt.toISOString()).toBe("2026-10-12T09:20:00.000Z");
+  });
+  it("rejects incomplete registry evidence before it can replace the existing donor component", () => {
+    const value = registryFixture();
+    value.groupRegistryObservations[0]!.closing.pages.pop();
+    expect(() => validate(value)).toThrow(/registry/);
+  });
+  it("retains an exact non-PAC class veto and rejects a cross-class name collision", () => {
+    const value = registryFixture();
+    for (const side of ["opening", "closing"] as const) {
+      value.groupRegistryObservations[0]![side].pages[0]!.rows[0]![1] = "Nonprofit";
+    }
+    expect(validate(value).pacDonors).toHaveLength(2);
+    for (const side of ["opening", "closing"] as const) {
+      value.groupRegistryObservations[0]![side].pages[0]!.rows[1]![0] = "Generic Corporation";
+      value.groupRegistryObservations[0]![side].pages[0]!.rows[1]![1] = "PAC";
+    }
+    expect(() => validate(value)).toThrow(/conflicting group classes/);
+  });
+});
