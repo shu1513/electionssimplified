@@ -119,10 +119,11 @@ describe("parseBallotSummaryOptions", () => {
     });
   });
 
-  it("rejects state_baseline as a SAVED preference (the DB CHECK does not allow it)", () => {
-    expect(() =>
-      parseBallotPreferencesBodyValue({ sort: "state_baseline", followed_first: true })
-    ).toThrow(/sort must be one of/);
+  it("accepts state_baseline as a SAVED preference (migration 393 widened the DB CHECK)", () => {
+    expect(parseBallotPreferencesBodyValue({ sort: "state_baseline", followed_first: true })).toEqual({
+      sort: "state_baseline",
+      followed_first: true,
+    });
   });
 
   it("still accepts saveable sorts as preferences", () => {

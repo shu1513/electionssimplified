@@ -546,17 +546,23 @@ export type ElectionResult = {
 
 // Mirrors BALLOT_SUMMARY_SORTS (backend ballotElectionOrdering.ts). my_areas
 // is also the backend's default for users who saved research areas but never
-// chose a sort, so this list must always be able to represent it. Every sort
-// orders races WITHIN an election date — the date sections' order is fixed
-// (earliest first), which is why there is no "soonest first" option.
+// chose a sort, so this list must always be able to represent it.
+// state_baseline ("Ballot order") lists races in the order they print on the
+// paper ballot. Every sort orders races WITHIN an election date — the date
+// sections' order is fixed (earliest first), which is why there is no
+// "soonest first" option.
 export const BALLOT_SORTS = [
   { value: "my_areas", label: "My issues" },
   { value: "vote_power", label: "My vote power" },
+  { value: "state_baseline", label: "Ballot order" },
   { value: "district_size_smallest", label: "Smallest districts" },
   { value: "district_size", label: "Biggest districts" },
 ] as const;
 
 export type BallotSort = (typeof BALLOT_SORTS)[number]["value"];
+
+/** The list sort applied when a URL or saved preference names none. */
+export const DEFAULT_BALLOT_SORT: BallotSort = "vote_power";
 
 // Sorts the anonymous /api/ballot page may offer. my_areas needs a signed-in
 // user with saved research areas — the public endpoint has no user, so the
@@ -565,6 +571,7 @@ export type BallotSort = (typeof BALLOT_SORTS)[number]["value"];
 export const PUBLIC_BALLOT_SORTS = BALLOT_SORTS.filter((option) => option.value !== "my_areas");
 
 export const BALLOT_SORT_DESCRIPTIONS: Record<BallotSort, string> = {
+  state_baseline: "in the order they appear on your ballot.",
   my_areas: "ordered by how much each race affects the issues you care about.",
   vote_power: "ordered by where your vote carries the most weight.",
   district_size: "grouped by level, biggest districts first.",

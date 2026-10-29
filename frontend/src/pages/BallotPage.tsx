@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { APP_NAME, apiRequest, useMe } from "@voteapp/api-client";
 import {
   BALLOT_SORTS,
+  DEFAULT_BALLOT_SORT,
   PUBLIC_BALLOT_SORTS,
   type BallotSort,
   type BallotSummary,
@@ -42,8 +43,8 @@ import { useTrackBallotResult, track } from "../lib/usage";
 // top of them to signed-in visitors with saved research areas, honored by a
 // CLIENT-side re-sort (sortRailEntries — the same mirror of the backend
 // comparator the detail rail uses), because /api/ballot has no user to score
-// against. For anonymous visitors a my_areas URL value falls back to
-// vote_power so the UI never claims an ordering nobody computed.
+// against. For anonymous visitors a my_areas URL value falls back to the
+// default sort so the UI never claims an ordering nobody computed.
 const SORT_VALUES: readonly string[] = PUBLIC_BALLOT_SORTS.map((option) => option.value);
 
 export function BallotPage() {
@@ -100,11 +101,11 @@ export function BallotPage() {
   // (president, governor, U.S. Senate), the order a reader expects from a
   // ballot; a sort the reader picks still wins, as on the site.
   const embedSession = useEmbedSession();
-  const defaultSort: BallotSort = embedSession ? "district_size" : "vote_power";
+  const defaultSort: BallotSort = embedSession ? "district_size" : DEFAULT_BALLOT_SORT;
   const rawSort = searchParams.get("sort") ?? "";
   // my_areas is only real once the viewer's saved areas confirm (hasSaved);
   // until then — and for anonymous visitors forever — it degrades to the
-  // vote_power default. The list is withheld while that's still unsettled
+  // default sort. The list is withheld while that's still unsettled
   // (awaitingSavedAreas below) so the degraded order never flashes.
   const myAreasRequested = rawSort === "my_areas";
   const sort: BallotSort = myAreasRequested
@@ -178,7 +179,7 @@ export function BallotPage() {
   // areas are still unknown (the ballot is one request; the saved areas are
   // two chained ones, so the ballot usually lands first). Withhold the list
   // until the flag settles — it settles on failure too, falling open to the
-  // vote_power order: a ballot app errs toward showing races, and the select
+  // default order: a ballot app errs toward showing races, and the select
   // admits the fallback rather than claiming an issue ordering.
   const awaitingSavedAreas = myAreasRequested && savedAreasLoading;
 

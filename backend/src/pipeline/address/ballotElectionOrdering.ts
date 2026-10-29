@@ -55,15 +55,16 @@ type Queryable = Pick<Pool | PoolClient, "query">;
 // research areas match the user's saved research-area preferences (summed
 // weights, see userResearchAreaScoring.ts) and degrades to `vote_power` for
 // anonymous callers and users with no saved areas.
-// `state_baseline` orders contests the way they appear on a US paper ballot
-// (ballotContestRank.ts generic tiers + stateBallotOrderRules.ts per-state
-// general-election overrides) for the ballot-preview render. It is a
-// POSITIONAL order: followed-first grouping and the empty-race sink are both
-// skipped under it, because moving a race breaks the copy-across promise.
+// `state_baseline` ("Ballot order" in the UI) orders contests the way they
+// appear on a US paper ballot (ballotContestRank.ts generic tiers +
+// stateBallotOrderRules.ts per-state general-election overrides); the
+// ballot-preview render passes it explicitly. It is a POSITIONAL order:
+// followed-first grouping and the empty-race sink are both skipped under it,
+// because moving a race breaks the copy-across promise (the list pages
+// still split the awaiting-candidates tail out themselves).
 // Keep SAVEABLE_BALLOT_PREFERENCE_SORTS in sync with the
-// user_ballot_preferences sort CHECK constraint (db/migrations/281) and the
-// frontend BALLOT_SORTS mirror; state_baseline is deliberately request-only
-// (not saveable) — the preview always passes it explicitly. The former
+// user_ballot_preferences sort CHECK constraint (db/migrations/393) and the
+// frontend BALLOT_SORTS mirror. The former
 // `soonest` sort was retired once date became the outer order of every sort
 // (migration 281 rewrote saved rows to vote_power).
 export type BallotSummarySort =
@@ -82,19 +83,24 @@ export const BALLOT_SUMMARY_SORTS: readonly BallotSummarySort[] = [
 ];
 
 export const SAVEABLE_BALLOT_PREFERENCE_SORTS: readonly BallotSummarySort[] = [
+  "state_baseline",
   "vote_power",
   "district_size",
   "district_size_smallest",
   "my_areas",
 ];
 
+// The sort applied when a request names none and the user saved none.
+export const DEFAULT_BALLOT_SUMMARY_SORT: BallotSummarySort = "vote_power";
+
 export function isBallotSummarySort(value: unknown): value is BallotSummarySort {
   return typeof value === "string" && (BALLOT_SUMMARY_SORTS as readonly string[]).includes(value);
 }
 
-// The preferences store must use this, not isBallotSummarySort: a request-only
-// sort that reaches the INSERT surfaces as a CHECK-constraint failure instead
-// of invalid_preferences.
+// The preferences store must use this, not isBallotSummarySort: a sort that
+// is accepted on requests but missing from the CHECK constraint would reach
+// the INSERT and surface as a constraint failure instead of
+// invalid_preferences. Today the two lists match; keep the guard.
 export function isSaveableBallotPreferenceSort(value: unknown): value is BallotSummarySort {
   return typeof value === "string" && (SAVEABLE_BALLOT_PREFERENCE_SORTS as readonly string[]).includes(value);
 }
@@ -163,12 +169,12 @@ export async function applyBallotElectionOrdering(
     followed_candidates: followedByElection.get(election.id) ?? [],
   }));
 
-  let sort = options.sort ?? "vote_power";
+  let sort = options.sort ?? DEFAULT_BALLOT_SUMMARY_SORT;
   let areaScoresByElection: Map<string, ResearchAreaMatchScore> | null = null;
   if (sort === "my_areas") {
     if (!weights || weights.size === 0) {
       // Anonymous caller or no saved areas: nothing to match against, so the
-      // sort degrades to the default rather than erroring.
+      // sort degrades to vote_power rather than erroring.
       sort = "vote_power";
     } else {
       areaScoresByElection = new Map(

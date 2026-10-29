@@ -152,7 +152,7 @@ function stubNearbyFetch({
     if (path.startsWith("/api/ballot?")) {
       const sort = /&sort=([a-z_]+)$/.exec(path)?.[1] ?? "";
       expect(path).toBe(`/api/ballot?district_ids=d-ca%2Cd-fresno&sort=${sort}`);
-      expect(["vote_power", "district_size", "district_size_smallest"]).toContain(sort);
+      expect(["state_baseline", "vote_power", "district_size", "district_size_smallest"]).toContain(sort);
       if (hangBallotSorts.includes(sort)) {
         return new Promise(() => {});
       }
@@ -198,6 +198,7 @@ describe("HomePage nearby elections", () => {
     const { router } = renderHome();
     const select = await screen.findByRole("combobox", { name: "Sort by" });
     expect(select).toHaveValue("vote_power");
+    expect(screen.getByRole("option", { name: "Ballot order" })).toBeInTheDocument();
     expect(screen.getByRole("option", { name: "Biggest districts" })).toBeInTheDocument();
     expect(screen.queryByRole("option", { name: /issues/i })).not.toBeInTheDocument();
     await userEvent.setup().selectOptions(select, "district_size");

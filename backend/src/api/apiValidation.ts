@@ -962,9 +962,8 @@ export function parseBallotPreferencesBodyValue(parsed: unknown): UserBallotPref
     throw new RequestValidationError("Request body must be a JSON object");
   }
 
-  // SAVEABLE list, not the full request list: state_baseline is request-only
-  // (the ballot preview passes it explicitly) and the user_ballot_preferences
-  // sort CHECK constraint would reject it with a 500 instead of this 400.
+  // SAVEABLE list (what the user_ballot_preferences sort CHECK constraint
+  // admits), so a sort the constraint rejects is a 400 here, not a 500.
   const sort = (parsed as { sort?: unknown }).sort;
   if (
     typeof sort !== "string" ||

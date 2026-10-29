@@ -3,6 +3,8 @@ import {
   ApiError,
   apiRequest,
   BALLOT_SORT_DESCRIPTIONS,
+  ballotListOrder,
+  DEFAULT_BALLOT_SORT,
   BALLOT_SORTS,
   deriveBallotFilters,
   myDraftLabel,
@@ -272,7 +274,7 @@ function SavedBallotBody({ email }: { email: string }) {
       <Text className="mt-1 text-sm text-ink-soft">
         {data.elections.length} election{data.elections.length === 1 ? "" : "s"} across{" "}
         {data.districts.length} district{data.districts.length === 1 ? "" : "s"},{" "}
-        {BALLOT_SORT_DESCRIPTIONS[savedPrefs.data?.sort ?? "vote_power"]}
+        {BALLOT_SORT_DESCRIPTIONS[savedPrefs.data?.sort ?? DEFAULT_BALLOT_SORT]}
       </Text>
       <BallotSortPreference />
       {/* The Order section makes the disclosure always available here —
@@ -300,7 +302,12 @@ function SavedBallotBody({ email }: { email: string }) {
         // An active filter can empty this list; the "N elections hidden ·
         // Show all" line above explains the empty view.
         <View className="mt-4 gap-3">
-          {filtersView.visibleElections.map((election) => (
+          {/* Flat list: ballotListOrder restores date order and the
+              empty-race sink that the positional ballot-order payload leaves
+              out (the identity for every other sort's payload). Unconditional
+              on purpose: the list arrives in the saved sort, which this
+              screen only learns once the preferences query resolves. */}
+          {ballotListOrder(filtersView.visibleElections).map((election) => (
             <ElectionCard
               key={election.id}
               election={election}

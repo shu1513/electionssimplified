@@ -1,6 +1,7 @@
 import type { Pool, PoolClient } from "pg";
 
 import {
+  DEFAULT_BALLOT_SUMMARY_SORT,
   isSaveableBallotPreferenceSort,
   type BallotSummarySort,
 } from "../address/ballotElectionOrdering.js";
@@ -8,10 +9,10 @@ import { isUuid } from "../../utils/uuid.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
-// Application defaults, applied whenever the user has no saved row. Keep in
-// sync with the reader defaults in lookupBallotSummariesByDistrictIds.
+// Application defaults, applied whenever the user has no saved row. The sort
+// is the same default the anonymous ballot gets (DEFAULT_BALLOT_SUMMARY_SORT).
 export const DEFAULT_BALLOT_PREFERENCES: UserBallotPreferences = {
-  sort: "vote_power",
+  sort: DEFAULT_BALLOT_SUMMARY_SORT,
   followed_first: true,
 };
 
