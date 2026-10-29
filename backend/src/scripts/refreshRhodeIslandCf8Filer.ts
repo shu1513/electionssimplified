@@ -38,5 +38,9 @@ async function main() {
   console.log(JSON.stringify({ status: "acquired", ...result, financialWrites: 0 }));
 }
 if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) {
-  main().catch(() => { console.error("Rhode Island CF8 source refresh held; previous generation preserved"); process.exitCode = 1; });
+  main().catch((error: unknown) => {
+    console.error(JSON.stringify({ status: "held", previousGenerationPreserved: true,
+      reason: error instanceof Error ? error.message : String(error) }));
+    process.exitCode = 1;
+  });
 }
