@@ -1,5 +1,82 @@
 # Phoenix City Campaign Finance Plan
 
+## Reviewed Election Funding Disclosures — 2026-10-26
+
+The current city CMS publication list contains four 2026 EFD reports from one
+reported filer. All twenty whole PDF pages were read, and the complete list and
+all four PDF editions were acquired twice unchanged. Each report identifies one
+council candidate, a direction and a distinct expenditure. The official candidate
+register and canonical context establish the contest; finance filings do not
+establish ballot inclusion. Historical web-cache copies of the list omit these
+new reports. The standing-PAC global IE grid also omits some published name-only
+transactions, so its result count cannot establish all-channel absence.
+
+This increment adds an explicit operator-reviewed paper sync and independent
+read component. It leaves existing city B6 acquisition and PAC monetary donor
+work intact. EFD amounts are **reported election-funding expenditures**, not a
+determination of statutory independence, cash payment or complete outside
+totals. Overall support/opposition totals stay unknown. Blank original-funder
+sections never create donor attribution. Potentially overlapping legacy payer
+names are withheld from combination until resolved.
+
+**Publication hold:** the user confirmed no Phoenix commercial-use clearance;
+code and private local proof only. The new read, sync and raw-refresh gates
+default false. Do not enable them for publication without clearance. Kansas
+contributor names and new Missouri/Wisconsin publication also remain held.
+The inspected current reports are direct public city-CMS documents; the
+public-records archive was not searched and its agreement was not accepted.
+
+Operator workflow:
+
+1. Read every whole report in the current literal filer family. Reject amendments
+   without established lineage, indistinguishable expenses, ambiguous candidates,
+   split amounts or unchecked direction. The current implementation binds the
+   November 3, 2026 council ballot; it does not extrapolate future ballot URLs.
+   Late filings of pre-election expenses are eligible; post-election expenses
+   require a separately qualified contest.
+2. Supply the typed `PhoenixReviewedEfdReport` contract in memory, including whole
+   scan hashes and reviewed page counts. Never save a transcription/payload file.
+3. Provide the reviewed JSON on stdin to
+   `npm run phoenix-candidates:finance:efd:sync-reviewed -- --cache-dir=/absolute/private/cache`.
+   Set `DATABASE_URL` explicitly and pass `PHOENIX_CAMPAIGN_FINANCE_ENABLED`,
+   `PHOENIX_REVIEWED_EFD_ENABLED`, `PHOENIX_REVIEWED_EFD_SYNC_ENABLED`, and
+   `PHOENIX_REVIEWED_EFD_RAW_REFRESH_ENABLED` inline for private verification.
+   Keep `AI_API_CALLS_ALLOWED=false`; the command does not load `.env`.
+4. The source loader checks the whole public index, exact published CMS links,
+   complete PDF editions and certified ballot before sealing a packet. Only the
+   production writer can persist it. Cached replay keeps original observation
+   clocks; changed content cannot hide behind fallback. Writes are atomic and
+   globally owned single-candidate document references cannot move families.
+5. Verify every stored report and cent before display caps, preserve legacy six
+   tables/clocks, then verify the ordinary HTTP reader and hydrated candidate
+   card/reload. The EFD-only reader does not require a direct-finance link.
+
+Migration 392 adds only the reviewed family and single-expense report tables.
+Applied migrations are not copied or renumbered. The prior full local ledger
+has 415 entries; existing present-file checksums match and inherited missing
+historical entries remain unchanged. The normal stdin operator sync wrote one
+family and four reports locally. Every uncapped stored report, direction, source
+field and exact cent matched a separate whole-page reference. Saved-original
+replay returned unchanged without advancing clocks. All six legacy Phoenix
+tables and all 416 migration entries remained exactly unchanged by the sync.
+
+The ordinary production HTTP finance endpoint matched the reader exactly;
+disabling the new read gate hid the component. The actual React Router candidate
+page displayed the reported payer and normally formatted amount, EFD limitations
+and unknown overall totals after a fresh reload and hydrated React interaction.
+No financial UI screenshot or extract was saved. Private proof listeners were
+closed afterward. Local validation passed 390 Phoenix/feature-flag tests and
+backend typecheck. Exact-head CI remains required before delivery. The bespoke
+city module remains the appropriate capability-matrix path; see the Phoenix row
+in `docs/finance-module-capability-matrix.md`.
+
+Repeat after deadlines and for late filings: PAC pre-election report due October
+19, covering October 1–17; manual late checks October 27/29 and November 4/6.
+Candidate post-first-election report due November 18; recheck November 19/23.
+PAC year-end report due January 15, 2027; recheck January 16/19. An EFD expenditure
+date may follow a PAC cutoff; filing and observation dates never substitute for
+transaction dates or overall reporting coverage. No automation is created.
+
 ## Finance-gap continuation — 2026-10-12
 
 The refreshed source/code audit and ranked work order are recorded in `~/.claude/tmp/voteapp-finance-gaps-2026-10/phoenix-finance-gap-source-code-audit-2026-10-12.md`, `phoenix-finance-gap-next-step-2026-10-12.md`, and `plan.md`. The local cohort has 16 active linked council candidates across four November 3 contests; stored summaries date from August 13. City Schedule B(6) acquisition already runs through the normal batch context. Standing-PAC state filings, noncommittee IE, and expenditure-funded communications remain separate acquisition gaps; an unavailable channel must not establish zero outside spending.
@@ -151,7 +228,7 @@ Genuinely new (Phase 0/1 work):
 
 ## Flags & labels (checklist items, do not skip)
 
-- `PHOENIX_CAMPAIGN_FINANCE_ENABLED` + `PHOENIX_CAMPAIGN_FINANCE_SYNC_ENABLED` (+ `PHOENIX_CAMPAIGN_FINANCE_RAW_DATA_REFRESH_ENABLED` if the artifact-refresh split is kept): code defaults `false` in `featureFlags.ts`; set `true` in `backend/.env` (alphabetical); add to `backend/.env.example`; read flag added to `render.yaml`.
+- `PHOENIX_CAMPAIGN_FINANCE_ENABLED` + `PHOENIX_CAMPAIGN_FINANCE_SYNC_ENABLED` (+ `PHOENIX_CAMPAIGN_FINANCE_RAW_DATA_REFRESH_ENABLED` if the artifact-refresh split is kept): use explicit inline flags for local verification; never read or write `.env`. New reviewed EFD publication gates stay false pending clearance; do not change deployment flags in this increment.
 - Source enum `PHOENIX_CITY_CLERK` in `ballotLookupFinanceShared.ts` (union + `FINANCE_SUMMARY_SOURCES`); display label "City of Phoenix City Clerk Department" in `FINANCE_SOURCE_LABELS` (`packages/api-client/src/format.ts`, alphabetical) + `format.test.ts` case.
 - Capability-matrix row (`docs/finance-module-capability-matrix.md`) cited in every PR.
 

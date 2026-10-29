@@ -267,6 +267,7 @@
     "state-resources:scheduler:worker": "tsx src/scripts/runStateResourcesSchedulerWorker.ts",
     "state-resources:scheduler:trigger": "tsx src/scripts/triggerStateResourcesRefresh.ts",
     "typecheck": "tsc --noEmit",
+    "phoenix-candidates:finance:efd:sync-reviewed": "tsx src/scripts/syncReviewedPhoenixEfd.ts",
     "test": "vitest run",
     "test:e2e:proxy": "ADDRESS_API_PROXY_E2E=true vitest run tests/api/addressApiProxy.e2e.test.ts",
     "test:watch": "vitest",
