@@ -423,6 +423,8 @@ export type FinanceSummary = {
      * sources with a known, systematic gap (e.g. Ohio, where unregistered
      * spenders disclose through filings the pipeline does not read yet). */
     outside_coverage_note?: string | null;
+    /** Amounts are filer-reported estimates, not verified cash payments. */
+    spending_basis?: "reported_estimates";
     top_supporting_groups: FinanceOutsideGroup[];
     top_opposing_groups: FinanceOutsideGroup[];
     /** Filing-backed direction with no candidate-level amount; never $0. */

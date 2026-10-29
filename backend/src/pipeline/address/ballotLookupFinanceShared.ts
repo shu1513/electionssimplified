@@ -237,6 +237,8 @@ export type BallotLookupFinanceSummary = {
      * assumes the totals are all the outside money in the race.
      */
     outside_coverage_note?: string | null;
+    /** Amounts are filer-reported estimates, not verified cash payments. */
+    spending_basis?: "reported_estimates";
     top_supporting_groups: BallotLookupFinanceOutsideGroup[];
     top_opposing_groups: BallotLookupFinanceOutsideGroup[];
     /**

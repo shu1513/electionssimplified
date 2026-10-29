@@ -114,3 +114,8 @@ it("parses explicit independent component scope without weakening source filters
   expect(()=>parseSyncDueUtahCandidateFinanceScriptArgs(["--candidate-id=invalid"])).toThrow("Invalid --candidate-id");
   expect(()=>parseSyncDueUtahCandidateFinanceScriptArgs(["--year=9999"])).toThrow("Invalid --year");
 });
+
+it("parses independent IE controls and rejects incompatible component-only flags",()=>{
+ expect(parseSyncDueUtahCandidateFinanceScriptArgs(["--ie-only","--refresh-ie","--ie-network","--year=2026"])).toMatchObject({ieOnly:true,refreshIe:true,ieNetwork:true,electionYear:2026});
+ expect(()=>parseSyncDueUtahCandidateFinanceScriptArgs(["--ie-only","--committee-cash-only"])).toThrow("mutually exclusive");
+});
