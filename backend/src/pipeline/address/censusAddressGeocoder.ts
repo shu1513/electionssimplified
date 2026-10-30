@@ -13,6 +13,9 @@ export const DEFAULT_CENSUS_ADDRESS_GEOCODER_LAYERS = "all";
 export const DEFAULT_CENSUS_ADDRESS_GEOCODER_TIMEOUT_MS = 6_000;
 export const DEFAULT_CENSUS_ADDRESS_GEOCODER_RETRY_DELAY_MS = 500;
 export const CENSUS_ADDRESS_GEOCODER_MAX_ATTEMPTS = 2;
+// A retry that could not get at least this long before the deadline is not
+// started: a clipped attempt would only replace the real error with a timeout.
+export const CENSUS_ADDRESS_GEOCODER_MIN_RETRY_WINDOW_MS = 1_000;
 
 export type CensusAddressGeocoderErrorCode =
   | "invalid_address"
@@ -42,8 +45,37 @@ export type CensusAddressGeocoderOptions = {
   timeoutMs?: number;
   /** Pause before the single retry of a transient failure; 0 disables the pause. */
   retryDelayMs?: number;
+  /**
+   * Absolute Date.now() timestamp shared by every upstream call of one
+   * lookup. Each attempt's timeout is clipped to the time left, nothing
+   * starts after it passes, and a retry needs CENSUS_ADDRESS_GEOCODER_MIN_RETRY_WINDOW_MS.
+   */
+  deadlineAt?: number;
   fetchImpl?: typeof fetch;
 };
+
+/** Milliseconds until the deadline, or null when none is set. */
+export function msUntilDeadline(deadlineAt: number | undefined): number | null {
+  if (deadlineAt === undefined) {
+    return null;
+  }
+  if (!Number.isFinite(deadlineAt)) {
+    throw new CensusAddressGeocoderError("invalid_address", `deadlineAt must be a finite timestamp, got ${deadlineAt}`);
+  }
+  return deadlineAt - Date.now();
+}
+
+/** The per-call timeout clipped to the time left; a timeout error once the deadline has passed. */
+export function clampTimeoutToDeadline(timeoutMs: number, deadlineAt: number | undefined, what: string): number {
+  const remaining = msUntilDeadline(deadlineAt);
+  if (remaining === null) {
+    return timeoutMs;
+  }
+  if (remaining <= 0) {
+    throw new CensusAddressGeocoderError("timeout", `${what} skipped: the lookup's time budget is exhausted`);
+  }
+  return Math.min(timeoutMs, Math.ceil(remaining));
+}
 
 export type CensusAddressCoordinates = {
   lat: number;
@@ -272,6 +304,10 @@ async function fetchCensusGeocoderPayload(url: string, options: CensusAddressGeo
       if (attempt === CENSUS_ADDRESS_GEOCODER_MAX_ATTEMPTS || !isRetryableCensusError(error)) {
         throw error;
       }
+      const remaining = msUntilDeadline(options.deadlineAt);
+      if (remaining !== null && remaining <= retryDelayMs + CENSUS_ADDRESS_GEOCODER_MIN_RETRY_WINDOW_MS) {
+        throw error;
+      }
       if (retryDelayMs > 0) {
         await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
       }
@@ -281,7 +317,7 @@ async function fetchCensusGeocoderPayload(url: string, options: CensusAddressGeo
 }
 
 async function fetchCensusGeocoderPayloadOnce(url: string, options: CensusAddressGeocoderOptions): Promise<unknown> {
-  const timeoutMs = normalizeTimeoutMs(options.timeoutMs);
+  const timeoutMs = clampTimeoutToDeadline(normalizeTimeoutMs(options.timeoutMs), options.deadlineAt, "Census geocoder request");
   const fetchImpl = options.fetchImpl ?? globalThis.fetch;
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);

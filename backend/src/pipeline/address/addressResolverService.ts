@@ -98,7 +98,15 @@ export type AddressResolutionResult = {
   warnings: AddressDistrictResolverWarning[];
 };
 
+// Every upstream call of one exact lookup — coordinate lookup, address
+// candidates, block point, 120th-district layer, and their retries — shares
+// this budget. The browser abandons the request at 15s; the rest is for the
+// district queries and the network.
+export const DEFAULT_ADDRESS_RESOLVE_UPSTREAM_BUDGET_MS = 12_000;
+
 export type AddressResolverServiceOptions = {
+  /** Total time for upstream geocoder calls; defaults to DEFAULT_ADDRESS_RESOLVE_UPSTREAM_BUDGET_MS. */
+  upstreamBudgetMs?: number;
   geocodeAddress?: (address: string) => Promise<CensusAddressGeocodeResult>;
   geocodeCoordinates?: (coordinates: CensusAddressCoordinates) => Promise<CensusCoordinatesGeocodeResult>;
   geocoderOptions?: CensusAddressGeocoderOptions;
@@ -477,18 +485,30 @@ export async function resolveAddressToDistricts(
     });
   }
 
+  // One deadline for the whole lookup. Without it the coordinate path and
+  // its address-string fallback each spend their own attempts and retries,
+  // and a geocoder outage answers long after the browser has given up.
+  const upstreamBudgetMs = options.upstreamBudgetMs ?? DEFAULT_ADDRESS_RESOLVE_UPSTREAM_BUDGET_MS;
+  if (!Number.isInteger(upstreamBudgetMs) || upstreamBudgetMs <= 0) {
+    throw new TypeError(`upstreamBudgetMs must be a positive integer, got ${upstreamBudgetMs}`);
+  }
+  const geocoderOptions: CensusAddressGeocoderOptions = {
+    ...options.geocoderOptions,
+    deadlineAt: Date.now() + upstreamBudgetMs,
+  };
   const geocodeAddress =
-    options.geocodeAddress ?? ((input: string) => geocodeAddressWithCensusFallbacks(input, options.geocoderOptions));
+    options.geocodeAddress ?? ((input: string) => geocodeAddressWithCensusFallbacks(input, geocoderOptions));
   const lookupUsHouse120th =
     options.lookupUsHouse120thDistrict ??
     ((point: CensusAddressCoordinates) =>
       lookupUsHouse120thDistrict(point, {
-        fetchImpl: options.geocoderOptions?.fetchImpl,
-        timeoutMs: options.geocoderOptions?.timeoutMs,
+        fetchImpl: geocoderOptions.fetchImpl,
+        timeoutMs: geocoderOptions.timeoutMs,
+        deadlineAt: geocoderOptions.deadlineAt,
       }));
   const locateBlockInteriorPoint =
     options.locateCensusBlockInteriorPoint ??
-    ((input: string) => locateCensusBlockInteriorPoint(input, options.geocoderOptions));
+    ((input: string) => locateCensusBlockInteriorPoint(input, geocoderOptions));
 
   // Coordinate-first path. Never cached: the coordinates come from a Google
   // Places response, and Google's ToS forbids persisting Places data — the
@@ -498,7 +518,7 @@ export async function resolveAddressToDistricts(
   if (options.coordinates) {
     const geocodeCoordinates =
       options.geocodeCoordinates ??
-      ((input: CensusAddressCoordinates) => geocodeCoordinatesWithCensus(input, options.geocoderOptions));
+      ((input: CensusAddressCoordinates) => geocodeCoordinatesWithCensus(input, geocoderOptions));
     try {
       const located = await geocodeCoordinates(options.coordinates);
       const keyResolution = await applyUsHouse2026Redistricting(

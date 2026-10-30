@@ -34,6 +34,7 @@ import {
   type CensusAddressCoordinates,
   type CensusAddressGeocoderOptions,
   CensusAddressGeocoderError,
+  clampTimeoutToDeadline,
   geocodeAddressWithCensusFallbacks,
 } from "./censusAddressGeocoder.js";
 
@@ -90,6 +91,8 @@ export type UsHouse120thLookup = (coordinates: CensusAddressCoordinates) => Prom
 
 export type UsHouse120thLookupOptions = {
   timeoutMs?: number;
+  /** Shared lookup deadline (see CensusAddressGeocoderOptions.deadlineAt). */
+  deadlineAt?: number;
   fetchImpl?: typeof fetch;
 };
 
@@ -129,10 +132,11 @@ export async function lookupUsHouse120thDistrict(
   coordinates: CensusAddressCoordinates,
   options: UsHouse120thLookupOptions = {}
 ): Promise<UsHouse120thDistrict | null> {
-  const timeoutMs = options.timeoutMs ?? DEFAULT_US_HOUSE_120TH_LOOKUP_TIMEOUT_MS;
-  if (!Number.isInteger(timeoutMs) || timeoutMs <= 0) {
-    throw new CensusAddressGeocoderError("invalid_address", `timeoutMs must be a positive integer, got ${timeoutMs}`);
+  const configuredTimeoutMs = options.timeoutMs ?? DEFAULT_US_HOUSE_120TH_LOOKUP_TIMEOUT_MS;
+  if (!Number.isInteger(configuredTimeoutMs) || configuredTimeoutMs <= 0) {
+    throw new CensusAddressGeocoderError("invalid_address", `timeoutMs must be a positive integer, got ${configuredTimeoutMs}`);
   }
+  const timeoutMs = clampTimeoutToDeadline(configuredTimeoutMs, options.deadlineAt, "TIGERweb 120th district lookup");
   if (!Number.isFinite(coordinates.lat) || !Number.isFinite(coordinates.lng)) {
     throw new CensusAddressGeocoderError("invalid_address", "coordinates must be finite numbers");
   }

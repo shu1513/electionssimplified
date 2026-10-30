@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import {
   CENSUS_ADDRESS_GEOCODER_MAX_ATTEMPTS,
+  CENSUS_ADDRESS_GEOCODER_MIN_RETRY_WINDOW_MS,
   CensusAddressGeocoderError,
   DEFAULT_CENSUS_ADDRESS_GEOCODER_RETRY_DELAY_MS,
   DEFAULT_CENSUS_ADDRESS_GEOCODER_TIMEOUT_MS,
@@ -472,5 +473,78 @@ describe("Census geocoder retry", () => {
     const result = await geocodeCoordinatesWithCensus({ lat: 38.664, lng: -106.846 }, { fetchImpl, retryDelayMs: 0 });
     expect(result.geographies).toEqual({ States: [{ GEOID: "08" }] });
     expect(fetchImpl).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe("Census geocoder deadline", () => {
+  const ADDRESS = "143 Grizzley Peak Dr, Almont, CO 81210, USA";
+
+  // Resolves only by abort, like a hung upstream.
+  function hangingFetch(): typeof fetch {
+    return vi.fn(
+      (_url: unknown, init?: RequestInit) =>
+        new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener("abort", () => reject(new DOMException("aborted", "AbortError")));
+        })
+    ) as unknown as typeof fetch;
+  }
+
+  it("clips an attempt's timeout to the time left before the deadline", async () => {
+    vi.useFakeTimers();
+    try {
+      const fetchImpl = hangingFetch();
+      const pending = geocodeAddressWithCensus(ADDRESS, {
+        fetchImpl,
+        timeoutMs: 6_000,
+        retryDelayMs: 0,
+        deadlineAt: Date.now() + 500,
+      });
+      pending.catch(() => undefined);
+      await vi.advanceTimersByTimeAsync(500);
+      await expect(pending).rejects.toMatchObject({
+        code: "timeout",
+        message: "Census geocoder request timed out after 500ms",
+      });
+      expect(fetchImpl).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("skips the retry when too little of the budget is left for it", async () => {
+    vi.useFakeTimers();
+    try {
+      const start = Date.now();
+      const fetchImpl = hangingFetch();
+      const pending = geocodeAddressWithCensus(ADDRESS, {
+        fetchImpl,
+        timeoutMs: 600,
+        retryDelayMs: 0,
+        deadlineAt: start + 600 + CENSUS_ADDRESS_GEOCODER_MIN_RETRY_WINDOW_MS,
+      });
+      pending.catch(() => undefined);
+      await vi.advanceTimersByTimeAsync(5_000);
+      await expect(pending).rejects.toMatchObject({ code: "timeout" });
+      expect(fetchImpl).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("does not start a call once the deadline has passed", async () => {
+    const fetchImpl = vi.fn() as unknown as typeof fetch;
+    await expect(geocodeAddressWithCensus(ADDRESS, { fetchImpl, deadlineAt: Date.now() - 1 })).rejects.toMatchObject({
+      code: "timeout",
+      message: expect.stringContaining("time budget is exhausted"),
+    });
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it("rejects a non-finite deadline before calling Census", async () => {
+    const fetchImpl = vi.fn() as unknown as typeof fetch;
+    await expect(geocodeAddressWithCensus(ADDRESS, { fetchImpl, deadlineAt: Number.NaN })).rejects.toMatchObject({
+      code: "invalid_address",
+    });
+    expect(fetchImpl).not.toHaveBeenCalled();
   });
 });
