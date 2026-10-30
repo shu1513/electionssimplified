@@ -489,6 +489,14 @@ function mapWaterSewerBodyForms(value: string): string {
 // stripped first, the pattern is anchored to the whole key, and a key that
 // still names a non-board role is left alone.
 const LOCAL_BODY_SEAT_KEY_FOLDS: ReadonlyArray<readonly [RegExp, string]> = [
+  // District of Columbia ANC seats, one per single-member district row
+  // (DC:ANC:1A01). The seat is the SMD code ("1A01": ward, commission letter,
+  // two digits) or the commission ("ANC 1A"), in any order around the role:
+  // "Advisory Neighborhood Commissioner, SMD 1A01", "Advisory Neighborhood
+  // Commission 1A Single Member District 1A01", "ANC 6B04 Commissioner".
+  // The commission straddling Wards 3 and 4 writes "3/4G01", which
+  // normalizes with the slash gone.
+  [/^(?:advisory neighborhood commission(?:er| member)?|anc(?= .*\b(?:(?:3 ?4|[1-8])[a-g](?:\d{2})?|commissioner)\b))(?: (?:(?:3 ?4|[1-8])[a-g](?:\d{2})?|single member district|smd|district|commissioner|commission member|member))*$/, "advisory neighborhood commissioner"],
   [/^(?:[a-z0-9]+ ){0,4}highway district (?:commissioner|commission member)$/, "highway district commissioner"],
   [/^(?:[a-z0-9]+ ){0,4}college (?:of (?:[a-z0-9]+ ){1,3})?trustee$/, "community college trustee"],
   // California prints the board seat as "Palomar Community College District

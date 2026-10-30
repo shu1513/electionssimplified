@@ -961,6 +961,16 @@ const SEED_OFFICES: SeedOffice[] = [
     ].join("\n"),
   },
   {
+    // District of Columbia single-member district seat (migration 395).
+    scope: "local_special",
+    canonicalName: "Advisory Neighborhood Commissioner",
+    summary: [
+      "Advising city agencies on zoning, building permits, and liquor licenses nearby",
+      "Weighing in on traffic, parking, sidewalks, and public safety plans",
+      "Speaking for about 2,000 neighbors; the city must give these views great weight",
+    ].join("\n"),
+  },
+  {
     scope: "local_special",
     canonicalName: "Transit District Director",
     summary: [
@@ -2339,6 +2349,17 @@ const SEED_OFFICE_ALIASES: SeedOfficeAlias[] = [
   ].map((aliasText): SeedOfficeAlias => ({
     scope: "county",
     officeCanonicalName: "Appraisal District Director",
+    aliasText,
+  })),
+  // DC ANC single-member district seats (migration 395).
+  ...[
+    "Advisory Neighborhood Commissioner",
+    "Advisory Neighborhood Commission Member",
+    "Advisory Neighborhood Commission",
+    "ANC Commissioner",
+  ].map((aliasText): SeedOfficeAlias => ({
+    scope: "local_special",
+    officeCanonicalName: "Advisory Neighborhood Commissioner",
     aliasText,
   })),
   ...[

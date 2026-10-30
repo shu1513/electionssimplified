@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
+  boundaryEdgeMarginMeters,
   clearLocalSpecialBoundaryCache,
   LOCAL_BOUNDARY_CACHE_TTL_MS,
   lookupLocalSpecialDistrictKeys,
@@ -84,6 +85,29 @@ describe("local-special district eligibility", () => {
     expect(pointInVerifiedLocalBoundary({ lng: -105.05, lat: 39.75 }, gap)).toBe(true);
   });
 
+  // About 10 m east of the township's west edge (lng -81.32 at lat 40.63).
+  const tenMetersInside = { lng: -81.32 + 10 / (111_195 * Math.cos(40.63 * Math.PI / 180)), lat: 40.63 };
+
+  it("applies a boundary's own edge margin, never more than the default", () => {
+    expect(pointInVerifiedLocalBoundary(tenMetersInside, township)).toBe(false);
+    expect(pointInVerifiedLocalBoundary(tenMetersInside, township, null, 3)).toBe(true);
+    expect(pointInVerifiedLocalBoundary(tenMetersInside, township, null, 0)).toBe(true);
+    // A margin larger than the default is clamped to it.
+    expect(pointInVerifiedLocalBoundary(tenMetersInside, township, null, 100)).toBe(false);
+    // Outside is still outside with no margin.
+    expect(pointInVerifiedLocalBoundary({ lng: -81.3201, lat: 40.63 }, township, null, 0)).toBe(false);
+  });
+
+  it("reads a stored edge margin, falling back to the default", () => {
+    expect(boundaryEdgeMarginMeters(3)).toBe(3);
+    expect(boundaryEdgeMarginMeters("3")).toBe(3);
+    expect(boundaryEdgeMarginMeters(-1)).toBe(0);
+    expect(boundaryEdgeMarginMeters(40)).toBe(25);
+    expect(boundaryEdgeMarginMeters(null)).toBe(25);
+    expect(boundaryEdgeMarginMeters(undefined)).toBe(25);
+    expect(boundaryEdgeMarginMeters("not a number")).toBe(25);
+  });
+
   it("fails closed for malformed geometry", () => {
     expect(pointInVerifiedLocalBoundary({ lng: -81.31, lat: 40.63 }, { type: "Polygon", coordinates: [] })).toBe(false);
     expect(pointInVerifiedLocalBoundary({ lng: -81.31, lat: 40.63 }, township, { type: "Polygon" })).toBe(false);
@@ -91,7 +115,7 @@ describe("local-special district eligibility", () => {
 
   // The fake database answers the index query with one box per row (built the
   // way Postgres builds it, from outer rings) and the shape query by id.
-  type Row = { geoid_compact: string; geometry: unknown; exclusion_geometry: unknown };
+  type Row = { geoid_compact: string; geometry: unknown; exclusion_geometry: unknown; edge_margin_meters?: number | string };
   const box = (geometry: unknown) => {
     const g = geometry as { type?: string; coordinates?: unknown };
     const polys = g?.type === "Polygon" ? [g.coordinates] : g?.type === "MultiPolygon" ? (g.coordinates as unknown[]) : [];
@@ -183,6 +207,16 @@ describe("local-special district eligibility", () => {
     const keys = await lookupLocalSpecialDistrictKeys({ query }, "39", { lng: -81.31, lat: 40.63 });
     expect(keys.map((key) => key.geoid_compact)).toEqual(["OH:CARROLL:FOX"]);
     await expect(lookupLocalSpecialDistrictKeys({ query }, "39", { lng: -81.298, lat: 40.642 })).resolves.toEqual([]);
+  });
+
+  it("uses each row's stored edge margin in the lookup", async () => {
+    const query = fakeDb([
+      { geoid_compact: "OH:WIDE:MARGIN", geometry: township, exclusion_geometry: null },
+      { geoid_compact: "DC:ANC:1A01", geometry: township, exclusion_geometry: null, edge_margin_meters: "3" },
+    ]);
+    const keys = await lookupLocalSpecialDistrictKeys({ query }, "39", tenMetersInside);
+    expect(keys.map((key) => key.geoid_compact)).toEqual(["DC:ANC:1A01"]);
+    expect(query.mock.calls[1]?.[0]).toContain("boundary.edge_margin_meters");
   });
 
   it("does not cache a failed read", async () => {

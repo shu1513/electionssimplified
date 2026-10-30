@@ -153,7 +153,7 @@ export function parseLocalBoundaryImport(value: unknown): LocalBoundaryImport {
   };
 }
 
-function stableJson(value: unknown): string {
+export function stableJson(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(stableJson).join(",")}]`;
   if (isRecord(value)) {
     return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${stableJson(value[key])}`).join(",")}}`;

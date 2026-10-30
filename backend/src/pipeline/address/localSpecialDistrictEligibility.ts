@@ -13,11 +13,15 @@ type BoundaryRow = {
   geoid_compact: string;
   geometry: unknown;
   exclusion_geometry: unknown;
+  edge_margin_meters?: number | string | null;
 };
 
 // The Census address-string geocoder places points on street centerlines.
 // Those often form voting-area edges. Refuse an edge and a 25 m buffer rather
 // than claiming a voter on the wrong side; rooftop coordinates also benefit.
+// A boundary may carry a smaller margin of its own (edge_margin_meters,
+// migration 395) when its layer is known to place geocoded points on the
+// correct side of its street-centerline edges; never a larger one.
 export const LOCAL_BOUNDARY_MARGIN_METERS = 25;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -122,14 +126,15 @@ function geometryContains(point: Point, geometry: MultiPolygon): boolean {
 // pieces, or the outer line has a probe land outside.
 const EDGE_PROBE_METERS = 1;
 
-function nearEdge(point: Point, geometry: MultiPolygon): boolean {
+function nearEdge(point: Point, geometry: MultiPolygon, marginMeters: number): boolean {
+  if (marginMeters <= 0) return false;
   const lonScale = metersPerDegreeLon(point[1]);
   for (const polygon of geometry) {
     for (const ring of polygon) {
       for (let index = 1; index < ring.length; index += 1) {
         const from = ring[index - 1];
         const to = ring[index];
-        const nearest = nearestOnSegment(point, from, to, LOCAL_BOUNDARY_MARGIN_METERS);
+        const nearest = nearestOnSegment(point, from, to, marginMeters);
         if (!nearest) continue;
         const dx = (to[0] - from[0]) * lonScale;
         const dy = (to[1] - from[1]) * METERS_PER_DEGREE_LAT;
@@ -157,6 +162,7 @@ type ParsedBoundary = {
   geometry: MultiPolygon;
   exclusions: MultiPolygon | null;
   bbox: BoundingBox;
+  edgeMarginMeters: number;
 };
 
 function boundingBox(geometry: MultiPolygon): BoundingBox {
@@ -176,9 +182,22 @@ function inBoundingBox(point: Point, box: BoundingBox): boolean {
   return point[0] > box.minLon && point[0] < box.maxLon && point[1] > box.minLat && point[1] < box.maxLat;
 }
 
-function pointInParsedBoundary(point: Point, geometry: MultiPolygon, exclusions: MultiPolygon | null): boolean {
-  if (!geometryContains(point, geometry) || nearEdge(point, geometry)) return false;
-  return !exclusions || (!geometryContains(point, exclusions) && !nearEdge(point, exclusions));
+function pointInParsedBoundary(
+  point: Point,
+  geometry: MultiPolygon,
+  exclusions: MultiPolygon | null,
+  marginMeters: number = LOCAL_BOUNDARY_MARGIN_METERS
+): boolean {
+  if (!geometryContains(point, geometry) || nearEdge(point, geometry, marginMeters)) return false;
+  return !exclusions || (!geometryContains(point, exclusions) && !nearEdge(point, exclusions, marginMeters));
+}
+
+/** The stored margin, clamped to [0, LOCAL_BOUNDARY_MARGIN_METERS]. A missing
+ * or unreadable value falls back to the full margin. */
+export function boundaryEdgeMarginMeters(value: number | string | null | undefined): number {
+  const margin = typeof value === "string" ? Number(value) : value;
+  if (typeof margin !== "number" || !Number.isFinite(margin)) return LOCAL_BOUNDARY_MARGIN_METERS;
+  return Math.min(LOCAL_BOUNDARY_MARGIN_METERS, Math.max(0, margin));
 }
 
 /** Only a strict interior point beyond the boundary buffer is eligible.
@@ -187,12 +206,13 @@ function pointInParsedBoundary(point: Point, geometry: MultiPolygon, exclusions:
 export function pointInVerifiedLocalBoundary(
   coordinates: CensusAddressCoordinates,
   geometryValue: unknown,
-  exclusionValue: unknown = null
+  exclusionValue: unknown = null,
+  marginMeters: number = LOCAL_BOUNDARY_MARGIN_METERS
 ): boolean {
   const geometry = parseGeometry(geometryValue);
   const exclusions = exclusionValue === null ? null : parseGeometry(exclusionValue);
   if (!geometry || (exclusionValue !== null && !exclusions)) return false;
-  return pointInParsedBoundary([coordinates.lng, coordinates.lat], geometry, exclusions);
+  return pointInParsedBoundary([coordinates.lng, coordinates.lat], geometry, exclusions, boundaryEdgeMarginMeters(marginMeters));
 }
 
 // Boundaries change only through a reviewed import, so each process keeps a
@@ -284,7 +304,8 @@ function cachedStateBoundaryIndex(db: Queryable, stateFips: string): Promise<Bou
 // Fetched one at a time so at most one parsed shape is alive per lookup.
 async function loadBoundaryShape(db: Queryable, boundaryId: string): Promise<ParsedBoundary | null> {
   const result = await db.query<BoundaryRow>(
-    `SELECT district.geoid_compact, boundary.geometry, boundary.exclusion_geometry
+    `SELECT district.geoid_compact, boundary.geometry, boundary.exclusion_geometry,
+            boundary.edge_margin_meters
      FROM public.local_special_boundaries AS boundary
      JOIN public.districts AS district ON district.id = boundary.district_id
      WHERE boundary.district_id = $1 AND boundary.review_status = 'verified'`,
@@ -296,7 +317,13 @@ async function loadBoundaryShape(db: Queryable, boundaryId: string): Promise<Par
   const geometry = parseGeometry(row.geometry);
   const exclusions = row.exclusion_geometry === null ? null : parseGeometry(row.exclusion_geometry);
   if (!geometry || (row.exclusion_geometry !== null && !exclusions)) return null;
-  return { geoid_compact: row.geoid_compact, geometry, exclusions, bbox: boundingBox(geometry) };
+  return {
+    geoid_compact: row.geoid_compact,
+    geometry,
+    exclusions,
+    bbox: boundingBox(geometry),
+    edgeMarginMeters: boundaryEdgeMarginMeters(row.edge_margin_meters),
+  };
 }
 
 export async function lookupLocalSpecialDistrictKeys(
@@ -313,7 +340,7 @@ export async function lookupLocalSpecialDistrictKeys(
   for (const entry of index) {
     if (!inBoundingBox(point, entry.bbox)) continue;
     const shape = await loadBoundaryShape(db, entry.boundary_id);
-    if (!shape || !pointInParsedBoundary(point, shape.geometry, shape.exclusions)) continue;
+    if (!shape || !pointInParsedBoundary(point, shape.geometry, shape.exclusions, shape.edgeMarginMeters)) continue;
     keys.push({
       district_type: "local_special",
       geoid_compact: shape.geoid_compact,
