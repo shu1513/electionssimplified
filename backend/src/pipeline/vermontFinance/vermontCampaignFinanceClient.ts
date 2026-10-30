@@ -39,6 +39,9 @@ export type VermontTransactionSearchInput = {
   electionId?: number;
   transactionAmountMin?: number;
   transactionAmountMax?: number;
+  /** Inclusive YYYY-MM-DD transaction-date bounds (API fields fromDate/toDate). */
+  fromDate?: string;
+  toDate?: string;
 };
 
 export type VermontPagedResult<T> = {
@@ -244,6 +247,17 @@ function normalizeOptionalAmount(value: number | undefined, fieldName: string): 
   return value;
 }
 
+function normalizeOptionalIsoDate(value: string | undefined, fieldName: string): string | undefined {
+  const text = normalizeOptionalText(value);
+  if (text === undefined) {
+    return undefined;
+  }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(text) || Number.isNaN(Date.parse(`${text}T00:00:00Z`))) {
+    throw new VermontCampaignFinanceClientError("invalid_request", `${fieldName} must be YYYY-MM-DD`);
+  }
+  return text;
+}
+
 function normalizeOptionalText(value: string | undefined): string | undefined {
   const trimmed = value?.trim();
   return trimmed ? trimmed : undefined;
@@ -320,6 +334,15 @@ export function buildVermontTransactionSearchPayload(
   );
   if (electionYear !== undefined) {
     payload.electionYear = electionYear;
+  }
+
+  const fromDate = normalizeOptionalIsoDate(input.fromDate, "Vermont campaign finance fromDate");
+  if (fromDate) {
+    payload.fromDate = fromDate;
+  }
+  const toDate = normalizeOptionalIsoDate(input.toDate, "Vermont campaign finance toDate");
+  if (toDate) {
+    payload.toDate = toDate;
   }
 
   const electionId = normalizeOptionalInteger(

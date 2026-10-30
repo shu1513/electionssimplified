@@ -1,7 +1,11 @@
 export const MASSACHUSETTS_OCPF_API_BASE_URL = "https://api.ocpf.us";
 export const MASSACHUSETTS_OCPF_DEFAULT_TIMEOUT_MS = 30_000;
-export const MASSACHUSETTS_OCPF_DEFAULT_ITEM_LIMIT = 100_000;
-export const MASSACHUSETTS_OCPF_MAX_ITEM_LIMIT = 100_000;
+// /search/items answers 400 "Search too broad" above 50,000 (observed 2026-10-30).
+export const MASSACHUSETTS_OCPF_DEFAULT_ITEM_LIMIT = 50_000;
+export const MASSACHUSETTS_OCPF_MAX_ITEM_LIMIT = 50_000;
+export const MASSACHUSETTS_OCPF_DEFAULT_RETRY_COUNT = 5;
+export const MASSACHUSETTS_OCPF_DEFAULT_RETRY_DELAY_MS = 2_000;
+export const MASSACHUSETTS_OCPF_MAX_RETRY_DELAY_MS = 60_000;
 export const MASSACHUSETTS_OCPF_DEFAULT_REPORT_LIMIT = 1_000;
 export const MASSACHUSETTS_OCPF_MAX_REPORT_LIMIT = 10_000;
 
@@ -20,11 +24,18 @@ export class MassachusettsOcpfClientError extends Error {
     super(message);
     this.name = "MassachusettsOcpfClientError";
   }
+
+  retryAfterMs?: number;
 }
 
 export type MassachusettsOcpfClientOptions = {
   fetchImpl?: typeof fetch;
   timeoutMs?: number;
+  /** Retries after 429/5xx answers; 0 disables. */
+  retryCount?: number;
+  /** First retry delay; doubles per attempt unless Retry-After says otherwise. */
+  retryDelayMs?: number;
+  sleep?: (ms: number) => Promise<void>;
 };
 
 export type MassachusettsOcpfCandidateFiler = {
@@ -301,7 +312,61 @@ function arrayPayload(payload: unknown, context: string): Record<string, unknown
   return maybeArray.filter(isRecord);
 }
 
+function isRetryableMassachusettsOcpfStatus(status: number): boolean {
+  return status === 429 || status === 503 || status === 502 || status === 504;
+}
+
+function parseRetryAfterMs(header: string | null): number | undefined {
+  const raw = header?.trim();
+  if (!raw) {
+    return undefined;
+  }
+  if (/^\d+$/.test(raw)) {
+    return Number(raw) * 1000;
+  }
+  const at = Date.parse(raw);
+  return Number.isNaN(at) ? undefined : Math.max(0, at - Date.now());
+}
+
+// The timer stays referenced: an unreferenced one let the process exit mid-retry
+// once the event loop had nothing else pending (observed 2026-10-30).
+function defaultSleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function fetchMassachusettsOcpfJson(url: string, options: MassachusettsOcpfClientOptions = {}): Promise<unknown> {
+  const retryCount = Math.max(0, Math.floor(options.retryCount ?? MASSACHUSETTS_OCPF_DEFAULT_RETRY_COUNT));
+  const retryDelayMs = Math.max(0, options.retryDelayMs ?? MASSACHUSETTS_OCPF_DEFAULT_RETRY_DELAY_MS);
+  const sleep = options.sleep ?? defaultSleep;
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      return await fetchMassachusettsOcpfJsonOnce(url, options);
+    } catch (error) {
+      if (
+        !(error instanceof MassachusettsOcpfClientError) ||
+        error.status === undefined ||
+        !isRetryableMassachusettsOcpfStatus(error.status) ||
+        attempt >= retryCount
+      ) {
+        throw error;
+      }
+      const backoffMs = Math.min(retryDelayMs * 2 ** attempt, MASSACHUSETTS_OCPF_MAX_RETRY_DELAY_MS);
+      const delayMs = Math.min(
+        Math.max(error.retryAfterMs ?? 0, backoffMs),
+        MASSACHUSETTS_OCPF_MAX_RETRY_DELAY_MS
+      );
+      console.warn(
+        `Massachusetts OCPF request retrying after HTTP ${error.status} (attempt ${attempt + 1} of ${retryCount}, ${delayMs}ms): ${url}`
+      );
+      await sleep(delayMs);
+    }
+  }
+}
+
+async function fetchMassachusettsOcpfJsonOnce(
+  url: string,
+  options: MassachusettsOcpfClientOptions = {}
+): Promise<unknown> {
   const timeoutMs = options.timeoutMs ?? MASSACHUSETTS_OCPF_DEFAULT_TIMEOUT_MS;
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
@@ -313,11 +378,13 @@ async function fetchMassachusettsOcpfJson(url: string, options: MassachusettsOcp
       signal: controller.signal,
     });
     if (!response.ok) {
-      throw new MassachusettsOcpfClientError(
+      const failure = new MassachusettsOcpfClientError(
         "http_error",
         `Massachusetts OCPF request failed: ${response.status} ${response.statusText}`,
         response.status
       );
+      failure.retryAfterMs = parseRetryAfterMs(response.headers.get("retry-after"));
+      throw failure;
     }
 
     return await response.json();

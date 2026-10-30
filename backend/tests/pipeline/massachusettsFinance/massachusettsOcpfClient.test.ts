@@ -247,7 +247,7 @@ describe("massachusettsOcpfClient", () => {
     expect(url.searchParams.get("cpfId")).toBe("15710");
     expect(url.searchParams.get("startDate")).toBe("1/1/2022");
     expect(url.searchParams.get("endDate")).toBe("12/31/2022");
-    expect(url.searchParams.get("pageSize")).toBe("100000");
+    expect(url.searchParams.get("pageSize")).toBe("50000");
     expect(url.searchParams.get("sortField")).toBe("date");
 
     const fetchImpl = vi.fn().mockResolvedValue(
@@ -418,5 +418,42 @@ describe("massachusettsOcpfClient", () => {
     await expect(
       searchMassachusettsOcpfCandidateFilers({ searchPhrase: "Maura Healey" }, { fetchImpl: malformedFetch, timeoutMs: 1000 })
     ).rejects.toMatchObject({ code: "bad_response" });
+  });
+});
+
+describe("massachusettsOcpfClient retries", () => {
+  const input = { candidateCpfId: "15710", electionYear: 2026 };
+
+  it("retries rate-limited answers, honoring Retry-After, before succeeding", async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response("slow down", { status: 429, statusText: "Too Many Requests", headers: { "retry-after": "3" } })
+      )
+      .mockResolvedValueOnce(jsonResponse([]));
+    const sleep = vi.fn(async () => {});
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    await expect(
+      getMassachusettsOcpfContributionItems(input, { fetchImpl, sleep, retryDelayMs: 100 })
+    ).resolves.toEqual([]);
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+    expect(sleep).toHaveBeenCalledWith(3000);
+  });
+
+  it("stops after the retry budget with doubling delays and never retries 400s", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    const limited = vi.fn().mockResolvedValue(new Response("", { status: 429, statusText: "Too Many Requests" }));
+    const sleep = vi.fn(async () => {});
+    await expect(
+      getMassachusettsOcpfContributionItems(input, { fetchImpl: limited, sleep, retryCount: 2, retryDelayMs: 10 })
+    ).rejects.toMatchObject({ status: 429 });
+    expect(limited).toHaveBeenCalledTimes(3);
+    expect(sleep.mock.calls.map((call) => call[0])).toEqual([10, 20]);
+
+    const rejected = vi.fn().mockResolvedValue(new Response("", { status: 400, statusText: "Bad Request" }));
+    await expect(
+      getMassachusettsOcpfContributionItems(input, { fetchImpl: rejected, sleep })
+    ).rejects.toMatchObject({ status: 400 });
+    expect(rejected).toHaveBeenCalledTimes(1);
   });
 });

@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
-import { fetchAllVermontTransactionRows } from "../../../src/pipeline/vermontFinance/vermontTransactionPaging.js";
+import {
+  fetchAllVermontTransactionRows,
+  fetchAllVermontTransactionRowsByDateWindow,
+  type VermontTransactionDateWindow,
+} from "../../../src/pipeline/vermontFinance/vermontTransactionPaging.js";
 
 const row = (id: number) => ({
   transactionId: id,
@@ -85,5 +89,75 @@ describe("Vermont physical transaction census", () => {
       fetchAllVermontTransactionRows({ fetchPage, pageSize: 2, maxPages: 1 }),
     ).rejects.toThrow("maxPages=1");
     expect(fetchPage).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("Vermont date-window census", () => {
+  it("pages the unfiltered query when the declared total fits the API cap", async () => {
+    const fetchPage = vi
+      .fn()
+      .mockResolvedValueOnce({ items: [row(1), row(2)], totalItems: 3 })
+      .mockResolvedValueOnce({ items: [row(3)], totalItems: 3 });
+    await expect(
+      fetchAllVermontTransactionRowsByDateWindow({ fetchPage, pageSize: 2, queryRowCap: 10 }),
+    ).resolves.toEqual([row(1), row(2), row(3)]);
+    expect(fetchPage.mock.calls).toEqual([[1, null], [2, null]]);
+  });
+
+  // Stamped dates; the API keeps a midnight row inside both windows that share its day.
+  const dated: Record<number, string> = {
+    1: "2026-01-01", 2: "2026-01-02", 3: "2026-01-02", 4: "2026-01-03", 5: "2026-01-04",
+  };
+  const source = (ids: number[], pageSize: number) =>
+    vi.fn(async (pageNumber: number, window: VermontTransactionDateWindow | null) => {
+      const all = ids.filter(
+        (id) => !window || (dated[id]! >= window.fromDate && dated[id]! <= window.toDate),
+      );
+      return {
+        items: all.slice((pageNumber - 1) * pageSize, pageNumber * pageSize).map(row),
+        totalItems: all.length,
+      };
+    });
+
+  it("bisects date windows until each fits the cap and drops boundary duplicates", async () => {
+    const fetchPage = source([1, 2, 3, 4, 5], 2);
+    await expect(
+      fetchAllVermontTransactionRowsByDateWindow({
+        fetchPage, pageSize: 2, queryRowCap: 3,
+        window: { fromDate: "2026-01-01", toDate: "2026-01-04" },
+      }),
+    ).resolves.toEqual([row(1), row(2), row(3), row(4), row(5)]);
+    expect(fetchPage.mock.calls.map(([pageNumber, window]) => [pageNumber, window?.fromDate, window?.toDate])).toEqual([
+      [1, undefined, undefined],
+      [1, "2026-01-01", "2026-01-04"],
+      [1, "2026-01-01", "2026-01-02"],
+      [2, "2026-01-01", "2026-01-02"],
+      [1, "2026-01-02", "2026-01-04"],
+      [1, "2026-01-02", "2026-01-03"],
+      [2, "2026-01-02", "2026-01-03"],
+      [1, "2026-01-03", "2026-01-04"],
+    ]);
+  });
+
+  it("refuses a single day that exceeds the cap instead of returning a partial census", async () => {
+    const fetchPage = source([2, 3], 2);
+    await expect(
+      fetchAllVermontTransactionRowsByDateWindow({
+        fetchPage, pageSize: 2, queryRowCap: 1,
+        window: { fromDate: "2026-01-01", toDate: "2026-01-02" },
+      }),
+    ).rejects.toThrow("serves at most 1");
+  });
+
+  it("reports a moved census when the windows do not add up to the declared total", async () => {
+    const fetchPage = vi.fn(async (_pageNumber: number, window: VermontTransactionDateWindow | null) =>
+      window ? { items: [row(1)], totalItems: 1 } : { items: [row(1), row(2)], totalItems: 2 },
+    );
+    await expect(
+      fetchAllVermontTransactionRowsByDateWindow({
+        fetchPage, pageSize: 2, queryRowCap: 1,
+        window: { fromDate: "2026-01-01", toDate: "2026-01-01" },
+      }),
+    ).rejects.toMatchObject({ name: "VermontCensusMovedError" });
   });
 });
