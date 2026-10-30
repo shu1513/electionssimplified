@@ -1,7 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 
 import {
+  CENSUS_ADDRESS_GEOCODER_MAX_ATTEMPTS,
   CensusAddressGeocoderError,
+  DEFAULT_CENSUS_ADDRESS_GEOCODER_RETRY_DELAY_MS,
+  DEFAULT_CENSUS_ADDRESS_GEOCODER_TIMEOUT_MS,
   buildCensusAddressCandidates,
   buildCensusAddressGeocoderUrl,
   buildCensusCoordinatesGeocoderUrl,
@@ -133,13 +136,29 @@ describe("censusAddressGeocoder", () => {
     expect(init?.signal).toBeInstanceOf(AbortSignal);
   });
 
-  it("throws typed http_error for non-2xx responses", async () => {
-    const fetchImpl = fetchMockReturning(new Response("upstream unavailable", { status: 503, statusText: "Service Unavailable" }));
+  it("throws typed http_error, carrying the status, once a 5xx has been retried", async () => {
+    // A fresh Response per call: a body can only be read once.
+    const fetchImpl = vi.fn(
+      async () => new Response("upstream unavailable", { status: 503, statusText: "Service Unavailable" })
+    ) as unknown as typeof fetch;
 
-    await expect(geocodeAddressWithCensus("3921 Harlan Ave Baldwin Park CA 91706", { fetchImpl })).rejects.toMatchObject({
+    await expect(
+      geocodeAddressWithCensus("3921 Harlan Ave Baldwin Park CA 91706", { fetchImpl, retryDelayMs: 0 })
+    ).rejects.toMatchObject({
       code: "http_error",
+      status: 503,
       message: expect.stringContaining("status=503 Service Unavailable"),
     });
+    expect(fetchImpl).toHaveBeenCalledTimes(CENSUS_ADDRESS_GEOCODER_MAX_ATTEMPTS);
+  });
+
+  it("throws typed http_error without a retry for a 4xx", async () => {
+    const fetchImpl = fetchMockReturning(new Response("bad request", { status: 400, statusText: "Bad Request" }));
+
+    await expect(
+      geocodeAddressWithCensus("3921 Harlan Ave Baldwin Park CA 91706", { fetchImpl, retryDelayMs: 0 })
+    ).rejects.toMatchObject({ code: "http_error", status: 400 });
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 
   it("throws typed bad_response for non-JSON responses", async () => {
@@ -147,8 +166,10 @@ describe("censusAddressGeocoder", () => {
 
     await expect(geocodeAddressWithCensus("3921 Harlan Ave Baldwin Park CA 91706", { fetchImpl })).rejects.toMatchObject({
       code: "bad_response",
+      status: null,
       message: expect.stringContaining("non-JSON"),
     });
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 
   it("maps AbortError to a timeout error", async () => {
@@ -156,23 +177,25 @@ describe("censusAddressGeocoder", () => {
     const fetchImpl = vi.fn().mockRejectedValue(abortError) as unknown as typeof fetch;
 
     await expect(
-      geocodeAddressWithCensus("3921 Harlan Ave Baldwin Park CA 91706", { fetchImpl, timeoutMs: 1234 })
+      geocodeAddressWithCensus("3921 Harlan Ave Baldwin Park CA 91706", { fetchImpl, timeoutMs: 1234, retryDelayMs: 0 })
     ).rejects.toMatchObject({
       code: "timeout",
       message: "Census geocoder request timed out after 1234ms",
     });
+    expect(fetchImpl).toHaveBeenCalledTimes(CENSUS_ADDRESS_GEOCODER_MAX_ATTEMPTS);
   });
 
   it("wraps non-abort fetch failures in a typed network_error", async () => {
     const fetchImpl = vi.fn().mockRejectedValue(new TypeError("fetch failed")) as unknown as typeof fetch;
 
     await expect(
-      geocodeAddressWithCensus("3921 Harlan Ave Baldwin Park CA 91706", { fetchImpl })
+      geocodeAddressWithCensus("3921 Harlan Ave Baldwin Park CA 91706", { fetchImpl, retryDelayMs: 0 })
     ).rejects.toMatchObject({
       name: "CensusAddressGeocoderError",
       code: "network_error",
       message: "Census geocoder request failed: fetch failed",
     });
+    expect(fetchImpl).toHaveBeenCalledTimes(CENSUS_ADDRESS_GEOCODER_MAX_ATTEMPTS);
   });
 });
 
@@ -268,15 +291,17 @@ describe("geocodeAddressWithCensusFallbacks", () => {
     expect(fetchImpl).toHaveBeenCalledTimes(4);
   });
 
-  it("propagates upstream failures immediately instead of retrying", async () => {
-    const fetchImpl = vi
-      .fn()
-      .mockResolvedValue(jsonResponse({ error: "boom" }, { status: 500, statusText: "Internal Server Error" })) as unknown as typeof fetch;
+  it("stops at the first candidate when the upstream failure survives its retry", async () => {
+    // A retried-and-still-failing upstream must not multiply the wait across
+    // candidate spellings: only a definitive not_found moves down the ladder.
+    const fetchImpl = vi.fn(
+      async () => jsonResponse({ error: "boom" }, { status: 500, statusText: "Internal Server Error" })
+    ) as unknown as typeof fetch;
 
     await expect(
-      geocodeAddressWithCensusFallbacks("1 MetLife Stadium Dr, East Rutherford, NJ 07073, USA", { fetchImpl })
-    ).rejects.toMatchObject({ code: "http_error" });
-    expect(fetchImpl).toHaveBeenCalledTimes(1);
+      geocodeAddressWithCensusFallbacks("1 MetLife Stadium Dr, East Rutherford, NJ 07073, USA", { fetchImpl, retryDelayMs: 0 })
+    ).rejects.toMatchObject({ code: "http_error", status: 500 });
+    expect(fetchImpl).toHaveBeenCalledTimes(CENSUS_ADDRESS_GEOCODER_MAX_ATTEMPTS);
   });
 
   it("rejects blank addresses before calling Census", async () => {
@@ -328,5 +353,124 @@ describe("censusCoordinatesGeocoder", () => {
     const result = await geocodeCoordinatesWithCensus({ lat: 40.8135, lng: -74.0741 }, { fetchImpl });
 
     expect(result).toEqual({ geographies });
+  });
+});
+
+describe("Census geocoder retry", () => {
+  const ADDRESS = "143 Grizzley Peak Dr, Almont, CO 81210, USA";
+  const MATCH_PAYLOAD = {
+    result: {
+      addressMatches: [
+        {
+          matchedAddress: "143 GRIZZLEY PEAK DR, ALMONT, CO, 81210",
+          coordinates: { x: -106.846, y: 38.664 },
+          geographies: { States: [{ GEOID: "08" }] },
+        },
+      ],
+    },
+  };
+  const GATEWAY_PAYLOAD = { errors: ["gateway got an invalid response"], status: "502" };
+  const abortError = () => new DOMException("aborted", "AbortError");
+
+  it("keeps two attempts plus the pause inside the browser's 15s request budget", () => {
+    expect(
+      CENSUS_ADDRESS_GEOCODER_MAX_ATTEMPTS * DEFAULT_CENSUS_ADDRESS_GEOCODER_TIMEOUT_MS +
+        DEFAULT_CENSUS_ADDRESS_GEOCODER_RETRY_DELAY_MS
+    ).toBeLessThan(15_000);
+  });
+
+  it("retries once after a 5xx reply and returns the second answer", async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockResolvedValueOnce(jsonResponse(GATEWAY_PAYLOAD, { status: 502 }))
+      .mockResolvedValueOnce(jsonResponse(MATCH_PAYLOAD)) as unknown as typeof fetch;
+
+    const result = await geocodeAddressWithCensus(ADDRESS, { fetchImpl, retryDelayMs: 0 });
+    expect(result.matched_address).toBe("143 GRIZZLEY PEAK DR, ALMONT, CO, 81210");
+    expect(result.coordinates).toEqual({ lat: 38.664, lng: -106.846 });
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+  });
+
+  it("retries once after a timeout", async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockRejectedValueOnce(abortError())
+      .mockResolvedValueOnce(jsonResponse(MATCH_PAYLOAD)) as unknown as typeof fetch;
+
+    await expect(geocodeAddressWithCensus(ADDRESS, { fetchImpl, retryDelayMs: 0 })).resolves.toMatchObject({
+      address_match_count: 1,
+    });
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+  });
+
+  it("retries once after a connection error", async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockRejectedValueOnce(new TypeError("fetch failed"))
+      .mockResolvedValueOnce(jsonResponse(MATCH_PAYLOAD)) as unknown as typeof fetch;
+
+    await geocodeAddressWithCensus(ADDRESS, { fetchImpl, retryDelayMs: 0 });
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+  });
+
+  it("gives up after the second failure with that attempt's error", async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockRejectedValueOnce(abortError())
+      .mockResolvedValueOnce(jsonResponse(GATEWAY_PAYLOAD, { status: 503 })) as unknown as typeof fetch;
+
+    await expect(geocodeAddressWithCensus(ADDRESS, { fetchImpl, retryDelayMs: 0 })).rejects.toMatchObject({
+      code: "http_error",
+      status: 503,
+    });
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+  });
+
+  it("does not retry a definitive not-found", async () => {
+    const fetchImpl = fetchMockReturning(jsonResponse({ result: { addressMatches: [] } }));
+
+    await expect(geocodeAddressWithCensus(ADDRESS, { fetchImpl, retryDelayMs: 0 })).rejects.toMatchObject({
+      code: "not_found",
+    });
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+
+  it("waits the configured pause before retrying", async () => {
+    vi.useFakeTimers();
+    try {
+      const fetchImpl = vi
+        .fn()
+        .mockResolvedValueOnce(jsonResponse(GATEWAY_PAYLOAD, { status: 502 }))
+        .mockResolvedValueOnce(jsonResponse(MATCH_PAYLOAD)) as unknown as typeof fetch;
+
+      const pending = geocodeAddressWithCensus(ADDRESS, { fetchImpl, retryDelayMs: 250 });
+      await vi.advanceTimersByTimeAsync(249);
+      expect(fetchImpl).toHaveBeenCalledTimes(1);
+      await vi.advanceTimersByTimeAsync(1);
+      await expect(pending).resolves.toMatchObject({ address_match_count: 1 });
+      expect(fetchImpl).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("rejects a negative retry pause before calling Census", async () => {
+    const fetchImpl = vi.fn() as unknown as typeof fetch;
+
+    await expect(geocodeAddressWithCensus(ADDRESS, { fetchImpl, retryDelayMs: -1 })).rejects.toMatchObject({
+      code: "invalid_address",
+    });
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it("retries the coordinates lookup the same way", async () => {
+    const fetchImpl = vi
+      .fn()
+      .mockRejectedValueOnce(abortError())
+      .mockResolvedValueOnce(jsonResponse({ result: { geographies: { States: [{ GEOID: "08" }] } } })) as unknown as typeof fetch;
+
+    const result = await geocodeCoordinatesWithCensus({ lat: 38.664, lng: -106.846 }, { fetchImpl, retryDelayMs: 0 });
+    expect(result.geographies).toEqual({ States: [{ GEOID: "08" }] });
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
   });
 });
