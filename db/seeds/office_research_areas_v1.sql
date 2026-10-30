@@ -3432,6 +3432,10 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     -- public_safety_and_crime_control — branch security is the director's
     -- administrative problem, not a lever the board is elected on.
     ('place', 'Library Board Member', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality', 'public_infrastructure']::text[]),
+    -- Rent Control Board Member (migration 394): the yearly rent adjustment is
+    -- the board's core lever; the spending slugs cover its own budget and the
+    -- registration fee it charges landlords.
+    ('place', 'Rent Control Board Member', ARRAY['cost_of_living_reduction', 'government_efficiency', 'government_spending_reduction', 'housing_affordability']::text[]),
     ('place', 'Comptroller', ARRAY['anti_corruption', 'corporate_accountability', 'government_efficiency', 'government_spending_reduction']::text[]),
     ('place', 'City Treasurer', ARRAY['anti_corruption', 'government_efficiency', 'government_spending_reduction']::text[]),
     ('place', 'Mayor', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),

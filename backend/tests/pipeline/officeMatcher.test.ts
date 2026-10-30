@@ -2766,6 +2766,45 @@ describe("OfficeMatcher", () => {
     }
   });
 
+  it("resolves Santa Monica and Berkeley rent board titles (migration 394)", async () => {
+    const aliasRow = (officeId: string, aliasText: string) => ({
+      office_id: officeId,
+      normalized_alias: normalizeElectionTitleKey(aliasText),
+    });
+    const client = createMatcherDataClient({
+      aliasesByScope: {
+        place: [
+          aliasRow("office-rent-board", "Rent Control Board"),
+          aliasRow("office-rent-board", "Member of the Rent Control Board"),
+          aliasRow("office-rent-board", "Rent Stabilization Board Commissioner"),
+        ],
+      },
+      officesByScope: {
+        place: [
+          { id: "office-city-council-member", canonical_name: "City Council Member" },
+          { id: "office-rent-board", canonical_name: "Rent Control Board Member" },
+        ],
+      },
+    });
+
+    const matcher = new OfficeMatcher(client as never);
+    const cases: Array<[title: string, districtName: string]> = [
+      ["Member of the Rent Control Board, City of Santa Monica", "Santa Monica city, California"],
+      ["Member of the Rent Control Board", "Santa Monica city, California"],
+      ["Rent Stabilization Board Commissioner", "Berkeley city, California"],
+    ];
+    for (const [officialBallotTitle, districtName] of cases) {
+      const result = await matcher.resolve({
+        scope: "place",
+        districtName,
+        state: "CA",
+        officialBallotTitle,
+        discoveryContestFamily: "non_judicial_office",
+      });
+      expect(result.officeId, officialBallotTitle).toBe("office-rent-board");
+    }
+  });
+
   it("pins the unfixed 'N Year Term' suffix gap", async () => {
     // Kent County prints the term length on the heading line ("City
     // Commissioner 1st Ward 4 Year Term"). Nothing strips "N Year Term", so
