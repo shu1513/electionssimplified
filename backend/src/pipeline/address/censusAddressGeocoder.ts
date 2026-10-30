@@ -6,7 +6,16 @@ export const CENSUS_COORDINATES_GEOCODER_URL =
 export const DEFAULT_CENSUS_ADDRESS_GEOCODER_BENCHMARK = "Public_AR_Current";
 export const DEFAULT_CENSUS_ADDRESS_GEOCODER_VINTAGE = "ACS2024_Current";
 export const DEFAULT_CENSUS_ADDRESS_GEOCODER_LAYERS = "all";
-export const DEFAULT_CENSUS_ADDRESS_GEOCODER_TIMEOUT_MS = 30_000;
+// Per-attempt budget. The browser abandons any API request after 15s
+// (packages/api-client REQUEST_TIMEOUT_MS), so two attempts plus the retry
+// pause must finish inside that window: an outage then reaches the visitor
+// as a 503 with its own wording instead of a client-side timeout.
+export const DEFAULT_CENSUS_ADDRESS_GEOCODER_TIMEOUT_MS = 6_000;
+export const DEFAULT_CENSUS_ADDRESS_GEOCODER_RETRY_DELAY_MS = 500;
+export const CENSUS_ADDRESS_GEOCODER_MAX_ATTEMPTS = 2;
+// A retry that could not get at least this long before the deadline is not
+// started: a clipped attempt would only replace the real error with a timeout.
+export const CENSUS_ADDRESS_GEOCODER_MIN_RETRY_WINDOW_MS = 1_000;
 
 export type CensusAddressGeocoderErrorCode =
   | "invalid_address"
@@ -18,11 +27,14 @@ export type CensusAddressGeocoderErrorCode =
 
 export class CensusAddressGeocoderError extends Error {
   readonly code: CensusAddressGeocoderErrorCode;
+  /** HTTP status for http_error; null for every other code. */
+  readonly status: number | null;
 
-  constructor(code: CensusAddressGeocoderErrorCode, message: string) {
+  constructor(code: CensusAddressGeocoderErrorCode, message: string, status: number | null = null) {
     super(message);
     this.name = "CensusAddressGeocoderError";
     this.code = code;
+    this.status = status;
   }
 }
 
@@ -31,8 +43,39 @@ export type CensusAddressGeocoderOptions = {
   vintage?: string;
   layers?: string;
   timeoutMs?: number;
+  /** Pause before the single retry of a transient failure; 0 disables the pause. */
+  retryDelayMs?: number;
+  /**
+   * Absolute Date.now() timestamp shared by every upstream call of one
+   * lookup. Each attempt's timeout is clipped to the time left, nothing
+   * starts after it passes, and a retry needs CENSUS_ADDRESS_GEOCODER_MIN_RETRY_WINDOW_MS.
+   */
+  deadlineAt?: number;
   fetchImpl?: typeof fetch;
 };
+
+/** Milliseconds until the deadline, or null when none is set. */
+export function msUntilDeadline(deadlineAt: number | undefined): number | null {
+  if (deadlineAt === undefined) {
+    return null;
+  }
+  if (!Number.isFinite(deadlineAt)) {
+    throw new CensusAddressGeocoderError("invalid_address", `deadlineAt must be a finite timestamp, got ${deadlineAt}`);
+  }
+  return deadlineAt - Date.now();
+}
+
+/** The per-call timeout clipped to the time left; a timeout error once the deadline has passed. */
+export function clampTimeoutToDeadline(timeoutMs: number, deadlineAt: number | undefined, what: string): number {
+  const remaining = msUntilDeadline(deadlineAt);
+  if (remaining === null) {
+    return timeoutMs;
+  }
+  if (remaining <= 0) {
+    throw new CensusAddressGeocoderError("timeout", `${what} skipped: the lookup's time budget is exhausted`);
+  }
+  return Math.min(timeoutMs, Math.ceil(remaining));
+}
 
 export type CensusAddressCoordinates = {
   lat: number;
@@ -226,8 +269,55 @@ export async function geocodeAddressWithCensusFallbacks(
   throw firstNotFound as CensusAddressGeocoderError;
 }
 
+function normalizeRetryDelayMs(value: number | undefined): number {
+  const delayMs = value ?? DEFAULT_CENSUS_ADDRESS_GEOCODER_RETRY_DELAY_MS;
+  if (!Number.isInteger(delayMs) || delayMs < 0) {
+    throw new CensusAddressGeocoderError("invalid_address", `retryDelayMs must be a non-negative integer, got ${delayMs}`);
+  }
+  return delayMs;
+}
+
+// Transient upstream failures only: a timeout, a connection error, or a 5xx
+// reply. Definitive answers (2xx, 4xx) and malformed bodies are never retried.
+function isRetryableCensusError(error: unknown): boolean {
+  if (!(error instanceof CensusAddressGeocoderError)) {
+    return false;
+  }
+  if (error.code === "timeout" || error.code === "network_error") {
+    return true;
+  }
+  return error.code === "http_error" && error.status !== null && error.status >= 500;
+}
+
+// One retry after a short pause. The Census geocoder has answered with
+// gateway errors for a minute at a time while healthy calls take well under
+// a second, so a second attempt usually turns a blip into an answer. The
+// error thrown after the last attempt is that attempt's own.
 async function fetchCensusGeocoderPayload(url: string, options: CensusAddressGeocoderOptions): Promise<unknown> {
-  const timeoutMs = normalizeTimeoutMs(options.timeoutMs);
+  const retryDelayMs = normalizeRetryDelayMs(options.retryDelayMs);
+  let lastError: unknown = null;
+  for (let attempt = 1; attempt <= CENSUS_ADDRESS_GEOCODER_MAX_ATTEMPTS; attempt += 1) {
+    try {
+      return await fetchCensusGeocoderPayloadOnce(url, options);
+    } catch (error) {
+      lastError = error;
+      if (attempt === CENSUS_ADDRESS_GEOCODER_MAX_ATTEMPTS || !isRetryableCensusError(error)) {
+        throw error;
+      }
+      const remaining = msUntilDeadline(options.deadlineAt);
+      if (remaining !== null && remaining <= retryDelayMs + CENSUS_ADDRESS_GEOCODER_MIN_RETRY_WINDOW_MS) {
+        throw error;
+      }
+      if (retryDelayMs > 0) {
+        await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
+      }
+    }
+  }
+  throw lastError;
+}
+
+async function fetchCensusGeocoderPayloadOnce(url: string, options: CensusAddressGeocoderOptions): Promise<unknown> {
+  const timeoutMs = clampTimeoutToDeadline(normalizeTimeoutMs(options.timeoutMs), options.deadlineAt, "Census geocoder request");
   const fetchImpl = options.fetchImpl ?? globalThis.fetch;
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
@@ -243,7 +333,8 @@ async function fetchCensusGeocoderPayload(url: string, options: CensusAddressGeo
     if (!response.ok) {
       throw new CensusAddressGeocoderError(
         "http_error",
-        `Census geocoder request failed: status=${response.status} ${response.statusText}; body=${truncate(bodyText)}`
+        `Census geocoder request failed: status=${response.status} ${response.statusText}; body=${truncate(bodyText)}`,
+        response.status
       );
     }
 

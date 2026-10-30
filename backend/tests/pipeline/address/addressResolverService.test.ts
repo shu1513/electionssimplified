@@ -1047,3 +1047,68 @@ describe("resolveAddressToDistricts 2026 House redistricting override", () => {
     expect(locateCensusBlockInteriorPoint).not.toHaveBeenCalled();
   });
 });
+
+describe("resolveAddressToDistricts upstream time budget", () => {
+  const ADDRESS = "143 Grizzley Peak Dr, Almont, CO 81210, USA";
+  const COORDINATES = { lat: 38.664, lng: -106.846 };
+  const GATEWAY_PAYLOAD = { errors: ["gateway got an invalid response"], status: "502" };
+
+  function hangingFetch(): typeof fetch {
+    return vi.fn(
+      (_url: unknown, init?: RequestInit) =>
+        new Promise<Response>((_resolve, reject) => {
+          init?.signal?.addEventListener("abort", () => reject(new DOMException("aborted", "AbortError")));
+        })
+    ) as unknown as typeof fetch;
+  }
+
+  it("shares one deadline across the coordinate path, its address fallback, and their retries", async () => {
+    vi.useFakeTimers();
+    try {
+      const start = Date.now();
+      const fetchImpl = hangingFetch();
+      const query = vi.fn();
+      const pending = resolveAddressToDistricts({ query }, ADDRESS, {
+        coordinates: COORDINATES,
+        upstreamBudgetMs: 1_000,
+        geocoderOptions: { fetchImpl, timeoutMs: 600, retryDelayMs: 0 },
+      });
+      let settledAt: number | null = null;
+      pending.catch(() => {
+        settledAt = Date.now();
+      });
+      await vi.advanceTimersByTimeAsync(30_000);
+      await expect(pending).rejects.toMatchObject({ name: "CensusAddressGeocoderError", code: "timeout" });
+      // Coordinate attempt (600ms, no retry: under the retry window), then
+      // the address attempt clipped to the 400ms left. Nothing after that.
+      expect(fetchImpl).toHaveBeenCalledTimes(2);
+      expect(settledAt).toBe(start + 1_000);
+      expect(query).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("still falls back to the address path when the coordinate path fails fast", async () => {
+    // A fresh Response per call: a body can only be read once.
+    const fetchImpl = vi.fn(async () => new Response(JSON.stringify(GATEWAY_PAYLOAD), { status: 502 })) as unknown as typeof fetch;
+    const query = vi.fn();
+    await expect(
+      resolveAddressToDistricts({ query }, ADDRESS, {
+        coordinates: COORDINATES,
+        geocoderOptions: { fetchImpl, retryDelayMs: 0 },
+      })
+    ).rejects.toMatchObject({ name: "CensusAddressGeocoderError", code: "http_error", status: 502 });
+    // Two attempts by point, then two by address string.
+    expect(fetchImpl).toHaveBeenCalledTimes(4);
+    expect(query).not.toHaveBeenCalled();
+  });
+
+  it("rejects a non-positive budget before any upstream call", async () => {
+    const fetchImpl = vi.fn() as unknown as typeof fetch;
+    await expect(
+      resolveAddressToDistricts({ query: vi.fn() }, ADDRESS, { upstreamBudgetMs: 0, geocoderOptions: { fetchImpl } })
+    ).rejects.toThrow("upstreamBudgetMs must be a positive integer");
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+});

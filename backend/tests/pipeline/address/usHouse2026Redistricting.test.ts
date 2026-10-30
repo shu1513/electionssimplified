@@ -262,3 +262,14 @@ describe("applyUsHouse2026Redistricting", () => {
     ).rejects.toMatchObject({ code: "bad_response", message: expect.stringContaining("outside the geocoded state 47") });
   });
 });
+
+describe("lookupUsHouse120thDistrict deadline", () => {
+  it("does not start the layer query once the shared deadline has passed", async () => {
+    const fetchImpl = vi.fn() as unknown as typeof fetch;
+    await expect(lookupUsHouse120thDistrict(MEMPHIS, { fetchImpl, deadlineAt: Date.now() - 1 })).rejects.toMatchObject({
+      name: "CensusAddressGeocoderError",
+      code: "timeout",
+    });
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+});
