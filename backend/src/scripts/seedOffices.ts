@@ -764,6 +764,15 @@ const SEED_OFFICES: SeedOffice[] = [
   },
   {
     scope: "place",
+    canonicalName: "Rent Control Board Member",
+    summary: [
+      "Setting the yearly rent increase for rent-controlled apartments",
+      "Deciding tenant and landlord petitions about rent and services",
+      "Approving the rent board's budget and the fee landlords pay",
+    ].join("\n"),
+  },
+  {
+    scope: "place",
     canonicalName: "City Clerk",
     summary: [
       "Keeping meeting minutes, ordinances, and public notices",
@@ -3186,6 +3195,20 @@ const SEED_OFFICE_ALIASES: SeedOfficeAlias[] = [
     officeCanonicalName: "Library Board Member",
     aliasText: "Board of Library Trustees",
   },
+  // Santa Monica "Member of the Rent Control Board"; Berkeley "Rent
+  // Stabilization Board Commissioner" (migration 394).
+  ...[
+    "Rent Control Board",
+    "Member of the Rent Control Board",
+    "Rent Control Board Commissioner",
+    "Rent Stabilization Board",
+    "Rent Stabilization Board Commissioner",
+    "Rent Board",
+  ].map((aliasText) => ({
+    scope: "place" as const,
+    officeCanonicalName: "Rent Control Board Member",
+    aliasText,
+  })),
   {
     scope: "county",
     officeCanonicalName: "Constable",
