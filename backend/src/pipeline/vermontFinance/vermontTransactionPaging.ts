@@ -114,8 +114,11 @@ function isoDay(day: number): string {
  * cap. Window bounds are inclusive on both ends (toDate keeps rows stamped at
  * midnight of that day; rows later that day fall to the next window, which
  * starts on the same day), so the windows overlap on their boundary day and
- * duplicates are dropped. The merged row count must still equal the
- * unfiltered declared total, otherwise the census moved and callers may retry.
+ * duplicates are dropped. A two-day window is the smallest split: single-day
+ * windows would drop the first day's later-stamped rows (observed live
+ * 2026-10-30: 2026-10-01..02 held 330 rows, each single day 164, two rows
+ * stamped 20:00). The merged row count must still equal the unfiltered
+ * declared total, otherwise the census moved and callers may retry.
  */
 export async function fetchAllVermontTransactionRowsByDateWindow<T extends VermontTransactionIdentity>(input: {
   fetchPage: (

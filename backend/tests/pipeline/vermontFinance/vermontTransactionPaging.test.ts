@@ -149,6 +149,39 @@ describe("Vermont date-window census", () => {
     ).rejects.toThrow("serves at most 1");
   });
 
+  // Live API semantics (2026-10-30): toDate keeps only that day's midnight rows,
+  // and some rows carry a time of day. Single-day windows would lose those rows.
+  const stamped: Record<number, string> = {
+    1: "2026-01-01T00:00:00", 2: "2026-01-01T20:00:00", 3: "2026-01-02T00:00:00", 4: "2026-01-03T00:00:00",
+  };
+  const stampedSource = (ids: number[]) =>
+    vi.fn(async (pageNumber: number, window: VermontTransactionDateWindow | null) => {
+      const all = ids.filter(
+        (id) =>
+          !window ||
+          (stamped[id]! >= `${window.fromDate}T00:00:00` && stamped[id]! <= `${window.toDate}T00:00:00`),
+      );
+      return { items: all.slice((pageNumber - 1) * 2, pageNumber * 2).map(row), totalItems: all.length };
+    });
+
+  it("keeps a later-stamped row exactly once when its day is a bisection boundary", async () => {
+    await expect(
+      fetchAllVermontTransactionRowsByDateWindow({
+        fetchPage: stampedSource([1, 2, 3, 4]), pageSize: 2, queryRowCap: 3,
+        window: { fromDate: "2026-01-01", toDate: "2026-01-03" },
+      }),
+    ).resolves.toEqual([row(1), row(2), row(3), row(4)]);
+  });
+
+  it("refuses to split a two-day window into single days, which would drop later-stamped rows", async () => {
+    await expect(
+      fetchAllVermontTransactionRowsByDateWindow({
+        fetchPage: stampedSource([1, 2, 3]), pageSize: 2, queryRowCap: 2,
+        window: { fromDate: "2026-01-01", toDate: "2026-01-02" },
+      }),
+    ).rejects.toThrow("serves at most 2");
+  });
+
   it("reports a moved census when the windows do not add up to the declared total", async () => {
     const fetchPage = vi.fn(async (_pageNumber: number, window: VermontTransactionDateWindow | null) =>
       window ? { items: [row(1)], totalItems: 1 } : { items: [row(1), row(2)], totalItems: 2 },
