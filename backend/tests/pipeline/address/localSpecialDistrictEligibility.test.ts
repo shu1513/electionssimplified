@@ -98,6 +98,17 @@ describe("local-special district eligibility", () => {
     expect(pointInVerifiedLocalBoundary({ lng: -81.3201, lat: 40.63 }, township, null, 0)).toBe(false);
   });
 
+  it("refuses a point on the line itself even with no margin", () => {
+    // The ray-cast inside test is half-open: a point exactly on the west or
+    // south edge, or on a corner, counted as inside once the margin was 0.
+    expect(pointInVerifiedLocalBoundary({ lng: -81.32, lat: 40.63 }, township, null, 0)).toBe(false);
+    expect(pointInVerifiedLocalBoundary({ lng: -81.3, lat: 40.62 }, township, null, 0)).toBe(false);
+    expect(pointInVerifiedLocalBoundary({ lng: -81.32, lat: 40.62 }, township, null, 0)).toBe(false);
+    const triangle = { type: "Polygon", coordinates: [[[-77.0, 38.9], [-76.9, 38.9], [-76.95, 38.95], [-77.0, 38.9]]] };
+    expect(pointInVerifiedLocalBoundary({ lng: -76.975, lat: 38.925 }, triangle, null, 0)).toBe(false);
+    expect(pointInVerifiedLocalBoundary({ lng: -76.95, lat: 38.92 }, triangle, null, 0)).toBe(true);
+  });
+
   it("reads a stored edge margin, falling back to the default", () => {
     expect(boundaryEdgeMarginMeters(3)).toBe(3);
     expect(boundaryEdgeMarginMeters("3")).toBe(3);

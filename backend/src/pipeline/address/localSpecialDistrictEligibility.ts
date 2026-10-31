@@ -125,16 +125,20 @@ function geometryContains(point: Point, geometry: MultiPolygon): boolean {
 // within the margin is probed one step to either side; a hole, a gap between
 // pieces, or the outer line has a probe land outside.
 const EDGE_PROBE_METERS = 1;
+// A zero margin still refuses a point on the line itself: the ray-cast inside
+// test is half-open, so such a point lands on an arbitrary side. The floor
+// absorbs floating-point error in the projection.
+const ON_EDGE_METERS = 0.001;
 
 function nearEdge(point: Point, geometry: MultiPolygon, marginMeters: number): boolean {
-  if (marginMeters <= 0) return false;
+  const margin = Math.max(marginMeters, ON_EDGE_METERS);
   const lonScale = metersPerDegreeLon(point[1]);
   for (const polygon of geometry) {
     for (const ring of polygon) {
       for (let index = 1; index < ring.length; index += 1) {
         const from = ring[index - 1];
         const to = ring[index];
-        const nearest = nearestOnSegment(point, from, to, marginMeters);
+        const nearest = nearestOnSegment(point, from, to, margin);
         if (!nearest) continue;
         const dx = (to[0] - from[0]) * lonScale;
         const dy = (to[1] - from[1]) * METERS_PER_DEGREE_LAT;
