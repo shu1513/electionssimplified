@@ -2805,6 +2805,48 @@ describe("OfficeMatcher", () => {
     }
   });
 
+  it("resolves DC Advisory Neighborhood Commissioner seat titles (migration 395)", async () => {
+    const aliasRow = (officeId: string, aliasText: string) => ({
+      office_id: officeId,
+      normalized_alias: normalizeElectionTitleKey(aliasText),
+    });
+    const client = createMatcherDataClient({
+      aliasesByScope: {
+        local_special: [
+          aliasRow("office-anc", "Advisory Neighborhood Commissioner"),
+          aliasRow("office-anc", "ANC Commissioner"),
+        ],
+      },
+      officesByScope: {
+        local_special: [
+          { id: "office-transit", canonical_name: "Transit District Director" },
+          { id: "office-anc", canonical_name: "Advisory Neighborhood Commissioner" },
+        ],
+      },
+    });
+
+    const matcher = new OfficeMatcher(client as never);
+    const cases: Array<[title: string, districtName: string]> = [
+      ["Advisory Neighborhood Commissioner", "Advisory Neighborhood Commission 1A Single Member District 1A01"],
+      ["Advisory Neighborhood Commissioner, SMD 1A01", "Advisory Neighborhood Commission 1A Single Member District 1A01"],
+      ["Advisory Neighborhood Commissioner Single Member District 6B04", "Advisory Neighborhood Commission 6B Single Member District 6B04"],
+      ["Advisory Neighborhood Commission 2B, Single Member District 2B05", "Advisory Neighborhood Commission 2B Single Member District 2B05"],
+      ["ANC 8F05 Commissioner", "Advisory Neighborhood Commission 8F Single Member District 8F05"],
+      ["ANC Commissioner 3/4G01", "Advisory Neighborhood Commission 3/4G Single Member District 3/4G01"],
+      ["Advisory Neighborhood Commissioner, SMD 3/4G07", "Advisory Neighborhood Commission 3/4G Single Member District 3/4G07"],
+    ];
+    for (const [officialBallotTitle, districtName] of cases) {
+      const result = await matcher.resolve({
+        scope: "local_special",
+        districtName,
+        state: "DC",
+        officialBallotTitle,
+        discoveryContestFamily: "non_judicial_office",
+      });
+      expect(result.officeId, officialBallotTitle).toBe("office-anc");
+    }
+  });
+
   it("pins the unfixed 'N Year Term' suffix gap", async () => {
     // Kent County prints the term length on the heading line ("City
     // Commissioner 1st Ward 4 Year Term"). Nothing strips "N Year Term", so
