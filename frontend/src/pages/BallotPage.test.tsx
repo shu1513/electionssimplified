@@ -720,6 +720,26 @@ describe("BallotPage wide-screen shortcut", () => {
     expect(state.railSort).toBe("vote_power");
   });
 
+  it("waits for identity, so a guest's draft has the ballot's districts before the forward", async () => {
+    vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: true }));
+    clearBallotDraft();
+    stubApiRoutes({
+      // /api/me answers after the ballot: the forward must still wait for
+      // it, or the page unmounts before the guest draft records the
+      // districts the election page's pick controls are gated on.
+      "/api/me": async () => {
+        await new Promise((resolve) => setTimeout(resolve, 30));
+        return apiError(401, "unauthorized", "Not logged in");
+      },
+      "/api/ballot": { body: TWO_RACES },
+    });
+    const { router } = renderBallot("/ballot?d=d-1");
+
+    await waitFor(() => expect(router.state.location.pathname).toBe("/elections/e-1"));
+    expect(readBallotDraft().district_ids).toEqual(["d-1"]);
+    clearBallotDraft();
+  });
+
   it("keeps the list below the rail breakpoint", async () => {
     stubApiRoutes({ ...ANONYMOUS, "/api/ballot": { body: TWO_RACES } });
     const { router } = renderBallot("/ballot?d=d-1");

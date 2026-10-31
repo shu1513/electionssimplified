@@ -238,10 +238,13 @@ export function BallotPage() {
     label: "All elections",
   };
   // The forward itself: the first displayed race, carrying the snapshot its
-  // card would have delivered.
+  // card would have delivered. Not before identity settles: the guest draft
+  // effect above records the ballot's districts only once me reads null,
+  // and the election page's pick controls are gated on those districts —
+  // forwarding first would unmount this page with them unsaved.
   const skippingList = useSplitViewForward(
     shortcut,
-    ballot.isSuccess && !awaitingSavedAreas
+    ballot.isSuccess && !awaitingSavedAreas && me !== undefined
       ? splitViewEntry({
           elections: visibleElections,
           contestsPool: filtersView.filteredElections,

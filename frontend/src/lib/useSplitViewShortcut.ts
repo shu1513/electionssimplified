@@ -31,12 +31,15 @@ export type SplitViewShortcut = { intended: boolean; navigated: RefObject<boolea
  * keeps the list for a load that has something to say first (a partial
  * ballot, an ambiguous address match, an address-saved notice).
  *
- * Decided once per mount, at the first hydrated render — wide reads false
- * during hydration (useMediaQuery), so never before it — and held from
- * then on: a window widened or narrowed later keeps whatever the reader is
- * already on, and a one-race ballot (no rail, so no forward) stays in the
- * sort it was fetched in instead of re-sorting under them. A lazy ref init
- * during render, the once-only pattern React allows.
+ * The viewport and arrival parts are decided once per mount, at the first
+ * hydrated render — wide reads false during hydration (useMediaQuery), so
+ * never before it — and held from then on: a window widened or narrowed
+ * later keeps whatever the reader is already on, and a one-race ballot (no
+ * rail, so no forward) stays in the sort it was fetched in instead of
+ * re-sorting under them. A lazy ref init during render, the once-only
+ * pattern React allows. `hold` is read live, because a page can gain
+ * something to say after mount: the saved ballot's own address form saves
+ * into this same route, and its confirmation must still show.
  */
 export function useSplitViewShortcut({ hold = false }: { hold?: boolean } = {}): SplitViewShortcut {
   const location = useLocation();
@@ -44,10 +47,10 @@ export function useSplitViewShortcut({ hold = false }: { hold?: boolean } = {}):
   const wide = useMediaQuery(RAIL_MEDIA_QUERY);
   const decision = useRef<boolean | null>(null);
   if (hydrated && decision.current === null) {
-    decision.current = wide && !hold && !isListRequested(location.state);
+    decision.current = wide && !isListRequested(location.state);
   }
   const navigated = useRef(false);
-  return { intended: decision.current === true, navigated };
+  return { intended: decision.current === true && !hold, navigated };
 }
 
 /**

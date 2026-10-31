@@ -416,6 +416,27 @@ describe("SavedBallotPage wide-screen shortcut", () => {
     expect(router.state.location.pathname).toBe("/me/ballot");
   });
 
+  it("still confirms an address saved from this page's own form, after the mount-time decision", async () => {
+    vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: true }));
+    stubApiRoutes({
+      ...VERIFIED_BASE,
+      "/api/me/ballot": async () => {
+        await new Promise((resolve) => setTimeout(resolve, 30));
+        return { body: TWO_RACES };
+      },
+    });
+    const { router } = renderSavedBallot();
+    // The empty-state form's save: a same-route navigation carrying the
+    // notice while the page is already mounted and heading for the split
+    // view. The hold is read live, so the confirmation still shows.
+    await router.navigate("/me/ballot", {
+      state: { addressSaved: { matched_address: "1 MAIN ST, ANCHORAGE, AK", address_match_count: 2 } },
+    });
+
+    expect(await screen.findByRole("heading", { name: "Elections on November 3, 2026" })).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe("/me/ballot");
+  });
+
   it("keeps the list to confirm a fresh address save", async () => {
     vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: true }));
     stubApiRoutes({ ...VERIFIED_BASE, "/api/me/ballot": { body: TWO_RACES } });

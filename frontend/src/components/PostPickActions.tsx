@@ -1,6 +1,7 @@
 import { Link } from "react-router";
 import { useMe } from "@voteapp/api-client";
 import { myDraftLabel, useGuestDraftNav, useMyPicksProgress } from "../lib/usePickProgress";
+import { withListRequested } from "../lib/detailNavContext";
 import { track } from "../lib/usage";
 
 // Post-pick confirmation actions — the "added to cart" moment, shared by the
@@ -23,9 +24,12 @@ export function PostPickActions({ back }: PostPickActionsProps) {
   return (
     <div className="mt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-sm">
       {back ? (
+        // listRequested, as on the pager's and rail's back links: the reader
+        // chose the list page, so its wide-screen shortcut must not forward
+        // them straight back into the first race.
         <Link
           to={back.path}
-          state={back.state}
+          state={withListRequested(back.state)}
           onClick={() => track("post_pick_click", { target: "back" })}
           className="whitespace-nowrap text-ink-soft underline hover:text-ink"
         >

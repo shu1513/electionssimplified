@@ -2122,7 +2122,9 @@ describe("ElectionPage back link and nav context", () => {
     await waitFor(() => expect(group()).toHaveAttribute("aria-expanded", "true"));
     expect(high()).toHaveAttribute("aria-expanded", "false");
     expect(router.state.location.search).toBe("?sort=vote_power");
-    expect(router.state.location.state).toEqual(listState);
+    // Plus the back link's listRequested stamp, so the list page's
+    // wide-screen shortcut shows the list instead of forwarding again.
+    expect(router.state.location.state).toEqual({ ...(listState as object), listRequested: true });
     clearBallotDraft();
   });
 
@@ -2138,7 +2140,7 @@ describe("ElectionPage back link and nav context", () => {
     });
     await userEvent.click(await screen.findByRole("button", { name: "No" }));
     await userEvent.click(await screen.findByRole("link", { name: "Back to elections" }));
-    expect(router.state.location.state).toEqual(backState);
+    expect(router.state.location.state).toEqual({ ...backState, listRequested: true });
     clearBallotDraft();
   });
 
