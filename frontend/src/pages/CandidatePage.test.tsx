@@ -1333,8 +1333,9 @@ describe("CandidatePage back link and nav context", () => {
 
     await user.click(back);
     expect(router.state.location.pathname).toBe("/elections/e-1");
-    // The election page gets its own ballot context back.
-    expect(router.state.location.state).toEqual(ARRIVAL.backState);
+    // The election page gets its own ballot context back — plus the back
+    // link's listRequested stamp (DetailPager), read only by the list pages.
+    expect(router.state.location.state).toEqual({ ...ARRIVAL.backState, listRequested: true });
   });
 
   it("drops the one-race list for a reader who arrived from a race, and never names the race above the name", async () => {
@@ -1477,7 +1478,7 @@ describe("CandidatePage roster pager", () => {
     await user.click(within(pager).getByRole("link", { name: "Back to Election" }));
 
     expect(router.state.location.pathname).toBe("/elections/e-1");
-    expect(router.state.location.state).toEqual(ROSTER_ARRIVAL.backState);
+    expect(router.state.location.state).toEqual({ ...ROSTER_ARRIVAL.backState, listRequested: true });
   });
 
   it("shows no nav bar at all on a deep link with no back destination", async () => {
@@ -1602,7 +1603,7 @@ describe("CandidatePage roster rail", () => {
     await user.click(within(rail).getByRole("link", { name: "Back to Governor" }));
 
     expect(router.state.location.pathname).toBe("/elections/e-1");
-    expect(router.state.location.state).toEqual(ROSTER_ARRIVAL.backState);
+    expect(router.state.location.state).toEqual({ ...ROSTER_ARRIVAL.backState, listRequested: true });
   });
 
   it("renders no rail on deep links or stale snapshots (pager rules apply)", async () => {
@@ -1752,6 +1753,7 @@ describe("CandidatePage roster rail sort", () => {
     expect(router.state.location.state).toEqual({
       ...electionContext,
       rosterSort: "alphabetical",
+      listRequested: true,
     });
   });
 

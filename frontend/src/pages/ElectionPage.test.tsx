@@ -2177,7 +2177,9 @@ describe("ElectionPage back link and nav context", () => {
     await user.click(await screen.findByRole("link", { name: "Back to Jordan Voter" }));
 
     expect(router.state.location.pathname).toBe("/candidates/c-1");
-    expect(router.state.location.state).toEqual(candidateContext);
+    // Plus the back link's listRequested stamp (DetailPager), which only
+    // the list pages read — the candidate context itself arrives intact.
+    expect(router.state.location.state).toEqual({ ...candidateContext, listRequested: true });
   });
 
   it("hands candidate links this election as back context plus the displayed roster order", async () => {

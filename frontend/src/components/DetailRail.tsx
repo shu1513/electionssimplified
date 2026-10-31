@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link } from "react-router";
-import type { BackTo } from "../lib/detailNavContext";
+import { withListRequested, type BackTo } from "../lib/detailNavContext";
 import { track } from "../lib/usage";
 
 /** One rail row: the sibling's detail path plus the label the list showed.
@@ -168,9 +168,9 @@ export function DetailRail({
   const renderRow = (entry: RailEntry) =>
     entry.id === currentId ? (
       // The current row: the page tone on the panel's grey, hairlines above
-      // and below, run to the panel's edge — the page's own tab — with a
-      // brand chevron pointing at the detail. No accent fill needed, which
-      // sidesteps the partisan read of blue/red on election content.
+      // and below, run to the panel's edge — the page's own tab. No accent
+      // fill or marker (the brand-red chevron came off, owner 2026-10-31),
+      // which sidesteps the partisan read of blue/red on election content.
       <li
         key={entry.id}
         ref={currentRef}
@@ -189,18 +189,6 @@ export function DetailRail({
           ) : null}
         </span>
         {entry.pickedLabel ? <PickedAnswer label={entry.pickedLabel} /> : null}
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 20 20"
-          className="ml-auto h-4 w-4 shrink-0 text-rausch"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M7 5l5 5-5 5" />
-        </svg>
       </li>
     ) : (
       <li key={entry.id}>
@@ -245,9 +233,11 @@ export function DetailRail({
         aria-label={ariaLabel}
         className="sticky top-0 max-h-screen min-w-0 scrollbar-none overflow-y-auto pb-4 pl-3 pt-4"
       >
+        {/* listRequested: the reader chose the full list, so the list page's
+            wide-screen shortcut must not forward them straight back here. */}
         <Link
           to={backTo.path}
-          state={backToState}
+          state={withListRequested(backToState)}
           aria-label={`Back to ${backTo.label}`}
           title={backTo.label}
           onClick={() =>

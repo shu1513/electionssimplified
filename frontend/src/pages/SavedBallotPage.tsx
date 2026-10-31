@@ -9,7 +9,8 @@ import {
   type AddressSavedLocationState,
   type AddressSavedNoticeData,
 } from "../components/SavedAddressForm";
-import { ElectionList } from "../components/ElectionCard";
+import { ElectionList, splitViewEntry } from "../components/ElectionCard";
+import { useSplitViewForward, useSplitViewShortcut } from "../lib/useSplitViewShortcut";
 import { FullAddressExplanation } from "../components/FullAddressExplanation";
 import { CandidateSearchBox } from "../components/CandidateSearchBox";
 import { HowToVoteControl } from "../components/HowToVoteControl";
@@ -173,16 +174,28 @@ export function SavedBallotPage() {
       { replace: true }
     );
   }
+  // Wide screens skip this list for the split view (useSplitViewShortcut).
+  // Held while an address-saved notice is due — that confirmation (matched
+  // address, ambiguity warning) belongs on this page.
+  const shortcut = useSplitViewShortcut({
+    hold:
+      addressSaved !== null ||
+      Boolean((location.state as Partial<AddressSavedLocationState> | null)?.addressSaved),
+  });
+  // The sort the ballot is requested in: the ?sort= override, else ballot
+  // order for the split view (owner, 2026-10-31), else none — the server
+  // applies the saved preference.
+  const fetchSort: BallotSort | null = sortOverride ?? (shortcut.intended ? "state_baseline" : null);
   const { choiceByElectionId } = useElectionChoices();
-  // The sort this list is ACTUALLY in (override wins server-side, else the
-  // saved preference) — seeds the detail rail's always-engaged sort. Shares
-  // the preference controls' query via the cache. The list is withheld
-  // until this settles (guard below): the server has already ordered the
-  // ballot by the saved preference, so cards navigable before the client
-  // knows that sort would seed the rail with the wrong order. On a
-  // preferences failure it falls open — list shown, seed simply omitted.
+  // The sort this list is ACTUALLY in (a requested sort wins server-side,
+  // else the saved preference) — seeds the detail rail's always-engaged
+  // sort. Shares the preference controls' query via the cache. The list is
+  // withheld until this settles (guard below): the server has already
+  // ordered the ballot by the saved preference, so cards navigable before
+  // the client knows that sort would seed the rail with the wrong order. On
+  // a preferences failure it falls open — list shown, seed simply omitted.
   const { prefs: ballotPreferencesQuery, current: ballotPreferences } = useBallotPreferences();
-  const effectiveListSort = sortOverride ?? ballotPreferences?.sort ?? null;
+  const effectiveListSort = fetchSort ?? ballotPreferences?.sort ?? null;
   // Anonymous-to-account handoff (lib/districtHandoff.ts) runs app-wide from
   // App; this page only reads its status: the ballot query is withheld while
   // ids are still queued, and a recoverable failure gets an explicit retry.
@@ -191,17 +204,59 @@ export function SavedBallotPage() {
   const verified = me?.email_verified === true;
 
   const ballot = useQuery<SavedBallot>({
-    // The override is part of the key so switching (or clearing) it
+    // The requested sort is part of the key so switching (or clearing) it
     // refetches; invalidations on the ["me", "ballot"] prefix still match.
-    queryKey: ["me", "ballot", sortOverride ?? ""],
+    queryKey: ["me", "ballot", fetchSort ?? ""],
     queryFn: () =>
-      apiRequest<SavedBallot>(
-        sortOverride ? `/api/me/ballot?sort=${encodeURIComponent(sortOverride)}` : "/api/me/ballot"
-      ),
+      apiRequest<SavedBallot>(fetchSort ? `/api/me/ballot?sort=${encodeURIComponent(fetchSort)}` : "/api/me/ballot"),
     enabled: verified && handoffState === "done",
     retry: false,
   });
   useTrackBallotResult(ballot, { scope: "exact", partialBanner: false, ambiguousBanner: false });
+
+  // No hide-by-choice filters on the web pages — only the race-type tab
+  // slices the list. The shared derivation still serves mobile's filters.
+  // Derived before the guards below (empty until the ballot lands) so the
+  // shortcut hook can read it unconditionally.
+  const filtersView = deriveBallotFilters({
+    elections: ballot.data?.elections ?? [],
+    savedAreaIds,
+    hasSaved,
+    issuesRequested: false,
+    impactRequested: null,
+    raceTypeRequested: null,
+  });
+  // Where a detail page's back link returns: this exact list — the ?type=
+  // tab and ?sort= override survive the round trip (full query string). A
+  // forward to the split view names its ballot-order sort explicitly, so
+  // "← All elections" shows the list in the order the rail had, as the
+  // rail's usual sort carry-over.
+  const listBackTo = {
+    path:
+      shortcut.intended && !searchParams.has("sort")
+        ? `${location.pathname}${location.search}${location.search ? "&" : "?"}sort=${fetchSort}`
+        : location.pathname + location.search,
+    label: "All elections",
+  };
+  // The list's sort is known: a requested sort, or the preferences query's
+  // first attempt settled (the same gate that withholds the list).
+  const sortSettled =
+    fetchSort !== null || !ballotPreferencesQuery.isLoading || ballotPreferencesQuery.errorUpdateCount > 0;
+  // The forward itself: the first displayed race, carrying the snapshot its
+  // card would have delivered.
+  const skippingList = useSplitViewForward(
+    shortcut,
+    ballot.isSuccess && sortSettled
+      ? splitViewEntry({
+          elections: filtersView.visibleElections,
+          contestsPool: filtersView.filteredElections,
+          sort: effectiveListSort ?? undefined,
+          backTo: listBackTo,
+          raceType: filtersView.raceType,
+          railSort: effectiveListSort ? railSortForBallotSort(effectiveListSort) : undefined,
+        })
+      : null
+  );
 
   if (meError) {
     // /api/me failed for a non-auth reason (network, 5xx): without this the
@@ -291,16 +346,12 @@ export function SavedBallotPage() {
   }
 
   const data = ballot.data;
-  // No hide-by-choice filters on the web pages — only the race-type tab
-  // slices the list. The shared derivation still serves mobile's filters.
-  const filtersView = deriveBallotFilters({
-    elections: data.elections,
-    savedAreaIds,
-    hasSaved,
-    issuesRequested: false,
-    impactRequested: null,
-    raceTypeRequested: null,
-  });
+
+  if (skippingList) {
+    // The forward to the split view is in flight: the loading notice stays
+    // up rather than the list flashing for a frame.
+    return <LoadingNotice text="Loading your ballot…" />;
+  }
 
   if (data.districts.length === 0) {
     return (
@@ -364,9 +415,7 @@ export function SavedBallotPage() {
           elections={filtersView.visibleElections}
           savedAreaWeights={savedAreaWeights}
           choicesByElectionId={choiceByElectionId}
-          // Full query string: the back link must return to this exact
-          // list — the ?type= tab and ?sort= override survive the round trip.
-          backTo={{ path: location.pathname + location.search, label: "All elections" }}
+          backTo={listBackTo}
           // Tab-unsliced pool + the engaged tab: the detail rail's own
           // race-type tabs start here and can reach the other tab's races.
           contestsPool={filtersView.filteredElections}

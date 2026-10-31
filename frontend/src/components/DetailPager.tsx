@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import type { BackTo } from "../lib/detailNavContext";
+import { withListRequested, type BackTo } from "../lib/detailNavContext";
 import { track } from "../lib/usage";
 
 type PagerLink = { path: string; label: string };
@@ -48,7 +48,9 @@ export function DetailPager({
   next: PagerLink | null;
   backTo: BackTo;
   /** Delivered by the up-level link — e.g. the candidate context an
-   * election's back destination restores (navState.backState). */
+   * election's back destination restores (navState.backState). Stamped
+   * listRequested on the way out: the reader chose the full list, so a
+   * list page's wide-screen shortcut must not forward them straight back. */
   backToState?: unknown;
   /** Delivered by prev/next links, verbatim — the page's own incoming nav
    * state, so the walk continues from every stop. */
@@ -76,7 +78,7 @@ export function DetailPager({
           buttons on one line are the same size. */}
       <Link
         to={backTo.path}
-        state={backToState}
+        state={withListRequested(backToState)}
         aria-label={`Back to ${backTo.label}`}
         title={backTo.label}
         onClick={() => track("detail_control", { control: "pager_back", value: "none" })}
@@ -97,7 +99,7 @@ export function DetailPager({
         <p className="min-w-0">
           <Link
             to={backTo.path}
-            state={backToState}
+            state={withListRequested(backToState)}
             aria-label={`Back to ${backTo.label}`}
             title={backTo.label}
             onClick={() => track("detail_control", { control: "pager_back", value: "none" })}
@@ -120,7 +122,7 @@ export function DetailPager({
         <p className="min-w-0 max-w-[50%]">
           <Link
             to={backTo.path}
-            state={backToState}
+            state={withListRequested(backToState)}
             aria-label={`Back to ${backTo.label}`}
             title={backTo.label}
             onClick={() => track("detail_control", { control: "pager_back", value: "none" })}

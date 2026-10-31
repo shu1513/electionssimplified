@@ -377,3 +377,52 @@ describe("SavedBallotPage nav context", () => {
     expect(navState.railSort).toBeUndefined();
   });
 });
+
+// The wide-screen shortcut (lib/useSplitViewShortcut) on the signed-in
+// list: the home page's redirect and the header's ballot link land here,
+// and from the rail breakpoint up continue straight into the split view.
+describe("SavedBallotPage wide-screen shortcut", () => {
+  const TWO_RACES = ballotSummary([electionSummary(), electionSummary({ id: "e-2", official_ballot_title: "Mayor" })]);
+
+  it("forwards a wide screen to the first race in ballot order, over the saved sort", async () => {
+    vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: true }));
+    const ballotUrls: string[] = [];
+    stubApiRoutes({
+      ...VERIFIED_BASE,
+      "/api/me/ballot": (url) => {
+        ballotUrls.push(String(url));
+        return { body: TWO_RACES };
+      },
+    });
+    const { router } = renderSavedBallot();
+
+    await waitFor(() => expect(router.state.location.pathname).toBe("/elections/e-1"));
+    expect(router.state.historyAction).toBe("REPLACE");
+    // Requested in ballot order from the start (the saved preference is
+    // vote_power), the rail seeded with it, the back link naming it.
+    expect(ballotUrls).toHaveLength(1);
+    expect(ballotUrls[0]).toContain("sort=state_baseline");
+    const state = router.state.location.state as { backTo: unknown; contests: { id: string }[]; railSort: unknown };
+    expect(state.backTo).toEqual({ path: "/me/ballot?sort=state_baseline", label: "All elections" });
+    expect(state.contests.map((contest) => contest.id)).toEqual(["e-1", "e-2"]);
+    expect(state.railSort).toBe("ballot_order");
+  });
+
+  it("keeps the list when the reader came back for it", async () => {
+    vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: true }));
+    stubApiRoutes({ ...VERIFIED_BASE, "/api/me/ballot": { body: TWO_RACES } });
+    const { router } = renderSavedBallot({ listRequested: true });
+    expect(await screen.findByRole("heading", { name: "Elections on November 3, 2026" })).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe("/me/ballot");
+  });
+
+  it("keeps the list to confirm a fresh address save", async () => {
+    vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: true }));
+    stubApiRoutes({ ...VERIFIED_BASE, "/api/me/ballot": { body: TWO_RACES } });
+    const { router } = renderSavedBallot({
+      addressSaved: { matched_address: "1 MAIN ST, ANCHORAGE, AK", address_match_count: 1 },
+    });
+    expect(await screen.findByRole("heading", { name: "Elections on November 3, 2026" })).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe("/me/ballot");
+  });
+});

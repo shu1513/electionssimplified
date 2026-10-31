@@ -17,6 +17,20 @@ import { safeInternalPath } from "./safeInternalPath";
  * this type non-recursive. */
 export type BackTo = { path: string; label: string };
 
+/** Stamped on the state a detail page's back link delivers to a list page
+ * ("← All elections", DetailRail and DetailPager): the reader asked for
+ * the full list, so the wide-screen shortcut (useSplitViewShortcut) must
+ * not forward them straight back into the split view. A top-level key
+ * beside whatever list or candidate context rides along; the readers of
+ * that context ignore it. */
+export function withListRequested(state: unknown): Record<string, unknown> {
+  return { ...(typeof state === "object" && state !== null ? state : {}), listRequested: true };
+}
+
+export function isListRequested(state: unknown): boolean {
+  return typeof state === "object" && state !== null && (state as Record<string, unknown>).listRequested === true;
+}
+
 /** List disclosure state travels only with this navigation round trip. */
 export type ElectionListState = {
   expandedRetentionDates: string[];

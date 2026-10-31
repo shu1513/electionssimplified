@@ -661,3 +661,110 @@ it("excludes grouped retention from the guest header and target", async () => {
     vi.useRealTimers();
   }
 });
+
+// The wide-screen shortcut (lib/useSplitViewShortcut): from the rail
+// breakpoint up, a fresh arrival at the list is forwarded to the first
+// race's split view. jsdom has no matchMedia, so "wide" is a stub that
+// matches every query; the stock environment reads as narrow.
+describe("BallotPage wide-screen shortcut", () => {
+  const TWO_RACES = ballotSummary([electionSummary(), electionSummary({ id: "e-2", official_ballot_title: "Mayor" })]);
+
+  it("forwards a wide screen straight to the first race, in ballot order, with the card's snapshot", async () => {
+    vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: true }));
+    const ballotUrls: string[] = [];
+    stubApiRoutes({
+      ...ANONYMOUS,
+      "/api/ballot": (url) => {
+        ballotUrls.push(String(url));
+        return { body: TWO_RACES };
+      },
+    });
+    const { router } = renderBallot({ pathname: "/ballot", search: "?d=d-1", state: { matchedAddress: "1 Main St" } });
+
+    await waitFor(() => expect(router.state.location.pathname).toBe("/elections/e-1"));
+    // Replaced, not pushed: browser Back leaves the way the reader came.
+    expect(router.state.historyAction).toBe("REPLACE");
+    // The split view's default is ballot order: fetched that way from the
+    // start (one request), the rail seeded with it, and the back link
+    // naming it so "All elections" shows the same order.
+    expect(ballotUrls).toHaveLength(1);
+    expect(ballotUrls[0]).toContain("sort=state_baseline");
+    const state = router.state.location.state as {
+      backTo: unknown;
+      contests: { id: string }[];
+      railSort: unknown;
+      listSort: unknown;
+    };
+    expect(state.backTo).toEqual({ path: "/ballot?d=d-1&sort=state_baseline", label: "All elections" });
+    expect(state.contests.map((contest) => contest.id)).toEqual(["e-1", "e-2"]);
+    expect(state.railSort).toBe("ballot_order");
+    expect(state.listSort).toBe("ballot_order");
+  });
+
+  it("lets an explicit ?sort= in the URL win over the split view's ballot order", async () => {
+    vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: true }));
+    const ballotUrls: string[] = [];
+    stubApiRoutes({
+      ...ANONYMOUS,
+      "/api/ballot": (url) => {
+        ballotUrls.push(String(url));
+        return { body: TWO_RACES };
+      },
+    });
+    const { router } = renderBallot("/ballot?d=d-1&sort=vote_power");
+
+    await waitFor(() => expect(router.state.location.pathname).toBe("/elections/e-1"));
+    expect(ballotUrls[0]).toContain("sort=vote_power");
+    const state = router.state.location.state as { backTo: unknown; railSort: unknown };
+    expect(state.backTo).toEqual({ path: "/ballot?d=d-1&sort=vote_power", label: "All elections" });
+    expect(state.railSort).toBe("vote_power");
+  });
+
+  it("keeps the list below the rail breakpoint", async () => {
+    stubApiRoutes({ ...ANONYMOUS, "/api/ballot": { body: TWO_RACES } });
+    const { router } = renderBallot("/ballot?d=d-1");
+    expect(await screen.findByRole("heading", { name: "Elections on November 3, 2026" })).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe("/ballot");
+  });
+
+  it("keeps the list when the reader came back for it (listRequested)", async () => {
+    vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: true }));
+    stubApiRoutes({ ...ANONYMOUS, "/api/ballot": { body: TWO_RACES } });
+    const { router } = renderBallot({ pathname: "/ballot", search: "?d=d-1", state: { listRequested: true } });
+    expect(await screen.findByRole("heading", { name: "Elections on November 3, 2026" })).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe("/ballot");
+  });
+
+  it("keeps the list on a partial ballot, whose banner has no place in the split view", async () => {
+    vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: true }));
+    stubApiRoutes({ ...ANONYMOUS, "/api/ballot": { body: TWO_RACES } });
+    const { router } = renderBallot({
+      pathname: "/ballot",
+      search: "?d=d-1&partial=1",
+      state: { matchedAddress: "78701", addressMatchCount: 1, scope: "zip" },
+    });
+    expect(await screen.findByRole("alert")).toHaveTextContent("This is a partial ballot");
+    expect(await screen.findByRole("heading", { name: "Elections on November 3, 2026" })).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe("/ballot");
+  });
+
+  it("keeps the list when the address matched several places", async () => {
+    vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: true }));
+    stubApiRoutes({ ...ANONYMOUS, "/api/ballot": { body: TWO_RACES } });
+    const { router } = renderBallot({
+      pathname: "/ballot",
+      search: "?d=d-1",
+      state: { matchedAddress: "1 Main St", addressMatchCount: 3 },
+    });
+    expect(await screen.findByRole("alert")).toHaveTextContent("matched 3 possible addresses");
+    expect(router.state.location.pathname).toBe("/ballot");
+  });
+
+  it("keeps a one-race list: the election page would render no rail for it", async () => {
+    vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: true }));
+    stubApiRoutes({ ...ANONYMOUS, "/api/ballot": { body: ballotSummary([electionSummary()]) } });
+    const { router } = renderBallot("/ballot?d=d-1");
+    expect(await screen.findByRole("heading", { name: "Elections on November 3, 2026" })).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe("/ballot");
+  });
+});
