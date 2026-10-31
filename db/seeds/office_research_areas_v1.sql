@@ -3461,6 +3461,9 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     -- (both spending slugs), builds and runs rail and bus lines
     -- (public_infrastructure), and moves riders out of cars
     -- (environment_and_public_health).
+    -- Advisory Neighborhood Commissioner (migration 395): zoning and
+    -- development, streets, policing and liquor licensing, city services.
+    ('local_special', 'Advisory Neighborhood Commissioner', ARRAY['government_efficiency', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control']::text[]),
     ('local_special', 'Transit District Director', ARRAY['environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'public_infrastructure']::text[]),
     ('local_special', 'Highway District Commissioner', ARRAY['government_efficiency', 'government_spending_reduction', 'public_infrastructure']::text[]),
     -- A water district board sets rates (cost_of_living_reduction), builds dams,

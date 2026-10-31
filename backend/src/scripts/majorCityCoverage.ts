@@ -11,7 +11,7 @@ import {
   type ManualResearchDemandStage,
   type ResearchGap,
 } from "../pipeline/address/manualResearchDemand.js";
-import { pointInVerifiedLocalBoundary } from "../pipeline/address/localSpecialDistrictEligibility.js";
+import { boundaryEdgeMarginMeters, pointInVerifiedLocalBoundary } from "../pipeline/address/localSpecialDistrictEligibility.js";
 import { US_HOUSE_2026_REDRAWN_STATE_FIPS } from "../pipeline/address/usHouse2026Redistricting.js";
 import { readStrictFlagValue, readStrictPositiveIntegerFlag } from "../utils/cliFlags.js";
 import { usLatestLocalDateIso } from "../utils/usLocalDate.js";
@@ -300,14 +300,21 @@ export function samplePoints(polygon: EsriPolygon): Array<[number, number]> {
   return points;
 }
 
-type LocalBoundaryRow = { geoid_compact: string; name: string; geometry: unknown; exclusion_geometry: unknown };
+type LocalBoundaryRow = {
+  geoid_compact: string;
+  name: string;
+  geometry: unknown;
+  exclusion_geometry: unknown;
+  edge_margin_meters?: number | string | null;
+};
 
 // Reviewed special-district boundaries (transit, rail, tax districts) are not
 // in TIGERweb. Score them against the same sample points, with the address
 // resolver's own inside test, so the report sees the contests voters get.
 async function loadLocalBoundaries(db: Queryable, stateFips: string): Promise<LocalBoundaryRow[]> {
   const result = await db.query<LocalBoundaryRow>(
-    `SELECT district.geoid_compact, district.name, boundary.geometry, boundary.exclusion_geometry
+    `SELECT district.geoid_compact, district.name, boundary.geometry, boundary.exclusion_geometry,
+            boundary.edge_margin_meters
      FROM public.local_special_boundaries AS boundary
      JOIN public.districts AS district ON district.id = boundary.district_id
      WHERE district.state_fips = $1 AND district.district_type = 'local_special'
@@ -325,7 +332,10 @@ export function localSpecialOverlaps(points: Array<[number, number]>, boundaries
   return boundaries.flatMap((boundary) => {
     const hits = points.reduce(
       (count, [lng, lat]) =>
-        count + (pointInVerifiedLocalBoundary({ lng, lat }, boundary.geometry, boundary.exclusion_geometry) ? 1 : 0),
+        count + (pointInVerifiedLocalBoundary(
+          { lng, lat }, boundary.geometry, boundary.exclusion_geometry,
+          boundaryEdgeMarginMeters(boundary.edge_margin_meters)
+        ) ? 1 : 0),
       0
     );
     return hits === 0
