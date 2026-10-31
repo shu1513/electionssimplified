@@ -95,6 +95,17 @@ function catalogUrl(value: string, relativeTo?: string): string {
   } catch {
     fail("invalid catalog URL");
   }
+  // Confluence writes continuation links against its own "/wiki" context path
+  // (`_links.base` is https://maplight.atlassian.net/wiki); the mirror serves
+  // the same API without that prefix (observed live 2026-10-30, 330 attachments).
+  // Only a link relative to the mirror or absolute on Confluence is rewritten;
+  // any other host still fails the origin check below.
+  if (
+    url.pathname === `/wiki${path}` &&
+    (url.origin === MAINE_MAPLIGHT_DATASET_ORIGIN || url.origin === "https://maplight.atlassian.net")
+  ) {
+    url = new URL(`${path}${url.search}`, MAINE_MAPLIGHT_DATASET_ORIGIN);
+  }
   if (
     url.origin !== MAINE_MAPLIGHT_DATASET_ORIGIN ||
     url.username ||

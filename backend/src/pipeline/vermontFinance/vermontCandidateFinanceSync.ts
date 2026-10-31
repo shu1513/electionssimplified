@@ -23,6 +23,7 @@ import {
 import { aggregateVermontOutsideSpending } from "./vermontOutsideSpendingAggregator.js";
 import {
   fetchAllVermontTransactionRows as fetchAllTransactionRows,
+  fetchAllVermontTransactionRowsByDateWindow as fetchAllTransactionRowsByDateWindow,
   VermontCensusMovedError,
 } from "./vermontTransactionPaging.js";
 import {
@@ -374,17 +375,20 @@ export async function syncVermontCandidateFinance(
         input.vermontClientOptions
       ),
   });
+  // Every election-year expenditure (outside spending is matched by candidate
+  // mention); the census exceeds the API row cap, so it is windowed by date.
   const expenditureRows = await fetchStableExpenditureRows(() =>
-    fetchAllTransactionRows({
+    fetchAllTransactionRowsByDateWindow({
       pageSize,
       maxPages,
-      fetchPage: (pageNumber) =>
+      fetchPage: (pageNumber, window) =>
         client.getExpenditureDetails(
           {
             pageNumber,
             pageSize,
             electionYear,
             transactionTypeCode: "TEXP",
+            ...(window ?? {}),
           },
           input.vermontClientOptions
         ),

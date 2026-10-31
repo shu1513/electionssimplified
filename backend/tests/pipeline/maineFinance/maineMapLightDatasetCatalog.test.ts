@@ -233,6 +233,24 @@ describe("Maine MapLight dataset publication discovery", () => {
       ]),
     ).toThrow("duplicate");
   });
+  it("maps Confluence /wiki continuation links onto the mirror origin", () => {
+    const rows = Array.from({ length: 250 }, (_, i) =>
+      record(`att${i + 1}`, `history ${i}.csv`),
+    );
+    const next =
+      "/wiki/api/v2/pages/2763390977/attachments?limit=250&cursor=abc";
+    expect(catalog(body(rows, next), { sourceUrl: URL }).nextUrl).toBe(
+      `${ORIGIN}/api/v2/pages/2763390977/attachments?limit=250&cursor=abc`,
+    );
+    expect(
+      catalog(body(rows, `https://maplight.atlassian.net${next}`), {
+        sourceUrl: URL,
+      }).nextUrl,
+    ).toBe(`${ORIGIN}/api/v2/pages/2763390977/attachments?limit=250&cursor=abc`);
+    expect(() =>
+      catalog(body(rows, `https://private.invalid${next}`), { sourceUrl: URL }),
+    ).toThrow("URL");
+  });
   it("rejects wrong-host/self/partial-page continuation and excessive physical pages", () => {
     expect(() => catalog(body([record()], URL), { sourceUrl: URL })).toThrow(
       "continuation",
