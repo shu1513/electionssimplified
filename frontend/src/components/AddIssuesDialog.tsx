@@ -103,6 +103,11 @@ export function AddIssuesDialog({ suggestions, scope, onClose, onAdded }: AddIss
   function onEditorChange(next: RankedResearchArea[]) {
     const before = new Set((ranked ?? []).map((row) => row.research_area_id));
     const landed = next.find((row) => !before.has(row.research_area_id));
+    // A failed save's message describes the list as it was; an edit makes
+    // it stale, so it clears until the next attempt.
+    if (save.isError) {
+      save.reset();
+    }
     setDraft(next);
     setLandedId(landed ? landed.research_area_id : null);
   }

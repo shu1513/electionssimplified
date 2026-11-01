@@ -247,5 +247,8 @@ describe("AddIssuesDialog", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent("Too many issues.");
     expect(onAdded).not.toHaveBeenCalled();
     expect(screen.getByRole("dialog")).toBeInTheDocument();
+    // Editing the list makes that message stale, so it clears.
+    await user.click(screen.getByRole("button", { name: "Public safety", pressed: false }));
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 });
