@@ -597,9 +597,12 @@ export function ElectionPage() {
                 <p className="shrink-0 text-base font-bold text-ink">My elections</p>
                 {offeredRailSorts.length > 0 ? (
                   // The select never shrinks (a clipped "My vote po…" is worse
-                  // than a wrap); the word "Sort" shows only on the wide rail,
-                  // where title + word + select fit on one line — the select
-                  // carries "Sort" as its accessible name either way.
+                  // than anything), and it must share the title's line on the
+                  // 18rem rail too (owner, 2026-10-31): a native select is as
+                  // wide as its widest option ("Smallest districts"), so there
+                  // its type steps down to 11px, which is what fits beside the
+                  // title; the word "Sort" shows only on the wide rail, and the
+                  // select carries "Sort" as its accessible name either way.
                   <label className="flex shrink-0 items-center gap-1.5 text-xs text-ink-soft">
                     <span className="hidden lg:inline">Sort</span>
                     <select
@@ -609,7 +612,7 @@ export function ElectionPage() {
                         track("detail_control", { control: "rail_sort", value: event.target.value });
                         setRailSortState(event.target.value as RailSortKey);
                       }}
-                      className="rounded-md border border-line bg-white px-1.5 py-1 text-xs text-ink focus:border-ink focus:outline-none"
+                      className="rounded-md border border-line bg-white px-1.5 py-1 text-[11px] text-ink focus:border-ink focus:outline-none lg:text-xs"
                     >
                       {RAIL_SORTS.filter((option) => offeredRailSorts.includes(option.value)).map(
                         (option) => (
