@@ -40,7 +40,16 @@ export function AddIssuesDialog({ suggestions, scope, onClose, onAdded }: AddIss
   // The PUT replaces the whole list, so the existing ranked issues must be
   // in hand before anything is edited: the editor waits for the fetch (in
   // practice it is cached — the control that opened this read it).
-  const { preferences, savedAreaIds, isLoading: preferencesLoading } = useMyResearchAreas();
+  // A FAILED fetch must not read as an empty list either: the hook returns
+  // [] then, and an editor built on it would PUT a one-issue list over the
+  // user's whole ranking. No editor until the list really loaded.
+  const {
+    preferences,
+    savedAreaIds,
+    isLoading: preferencesLoading,
+    isError: preferencesError,
+    refetch: refetchPreferences,
+  } = useMyResearchAreas();
   const save = useReplaceResearchAreaPreferences();
   const [draft, setDraft] = useState<RankedResearchArea[] | null>(null);
   // The pool sits above a list that can run below the fold, so a tap would
@@ -87,7 +96,8 @@ export function AddIssuesDialog({ suggestions, scope, onClose, onAdded }: AddIss
   // Nothing offered starts chosen (owner, 2026-10-31): the list opens as
   // the user's current priorities, and each race issue is a deliberate tap
   // — the pool sits above the list so that choice is the first thing seen.
-  const ranked: RankedResearchArea[] | null = draft ?? (preferencesLoading ? null : toRankedResearchAreas(preferences));
+  const ranked: RankedResearchArea[] | null =
+    draft ?? (preferencesLoading || preferencesError ? null : toRankedResearchAreas(preferences));
   const added = ranked ? ranked.filter((row) => !savedAreaIds.has(row.research_area_id)).length : 0;
 
   function onEditorChange(next: RankedResearchArea[]) {
@@ -141,6 +151,18 @@ export function AddIssuesDialog({ suggestions, scope, onClose, onAdded }: AddIss
             opposite stance from yours.
           </p>
           <div ref={editorRef} className="min-h-0 flex-1 overflow-y-auto">
+            {preferencesError ? (
+              <p role="alert" className="mt-3 text-sm font-medium text-red-800">
+                Couldn&apos;t load your issues.{" "}
+                <button
+                  type="button"
+                  onClick={refetchPreferences}
+                  className="font-medium underline decoration-dotted underline-offset-2 hover:text-ink"
+                >
+                  Try again
+                </button>
+              </p>
+            ) : null}
             {ranked ? (
               <ResearchAreaPicker
                 areas={areas}

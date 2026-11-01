@@ -203,6 +203,42 @@ describe("AddIssuesDialog", () => {
     expect(screen.getByRole("button", { name: "Add 2 issues and pick again" })).toBeEnabled();
   });
 
+  // The hook hands back an empty list on a FAILED fetch too; building the
+  // editor on it would let one tap PUT a one-issue list over the user's
+  // whole ranking. Nothing is editable until the list really loaded.
+  it("never offers the editor on a failed preferences fetch, and recovers on retry", async () => {
+    let failures = 1;
+    const fetchMock = stubApiRoutes({
+      "/api/me": { body: { user: SIGNED_IN } },
+      "/api/me/research-area-preferences": (_url, init) => {
+        if (init?.method === "PUT") {
+          return { body: { preferences: JSON.parse(String(init.body)).preferences } };
+        }
+        if (failures > 0) {
+          failures -= 1;
+          return { status: 500, body: { error: { code: "internal_error", message: "boom" } } };
+        }
+        return { body: THREE_PREFERENCES };
+      },
+    });
+    renderRoutes([
+      {
+        path: "/",
+        element: <AddIssuesDialog suggestions={SUGGESTIONS} scope="election" onClose={vi.fn()} onAdded={vi.fn()} />,
+      },
+    ]);
+    expect(await screen.findByRole("alert")).toHaveTextContent("Couldn't load your issues.");
+    expect(screen.queryByRole("button", { name: "Public safety", pressed: false })).not.toBeInTheDocument();
+    expect(screen.queryByText("My priorities")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Add 0 issues" })).toBeDisabled();
+    await userEvent.setup().click(screen.getByRole("button", { name: "Try again" }));
+    // The retry loaded the real list: the editor appears with all three
+    // existing rows, so a later save carries them.
+    expect(await screen.findByRole("button", { name: "Taxes, rank 3. Drag to reorder." })).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(putBodies(fetchMock)).toEqual([]);
+  });
+
   it("shows the server's message when the save fails, keeping the dialog open", async () => {
     const { onAdded } = renderDialog({ putStatus: 400 });
     const user = userEvent.setup();

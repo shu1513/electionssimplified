@@ -22,6 +22,8 @@ export function useMyResearchAreas(): {
    * flow on "how many issues are saved" must not read an errored empty
    * list as "the user saved nothing". */
   isError: boolean;
+  /** Re-runs the preferences fetch (a retry affordance after isError). */
+  refetch: () => void;
 } {
   const { me, isLoading: meLoading } = useMe();
   const enabled = me?.email_verified === true;
@@ -47,5 +49,8 @@ export function useMyResearchAreas(): {
     // fail open instead of spinning.
     isLoading: enabled ? query.isPending : meLoading,
     isError: enabled ? query.isError : false,
+    refetch: () => {
+      void query.refetch();
+    },
   };
 }
