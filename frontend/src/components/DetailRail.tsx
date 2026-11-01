@@ -60,8 +60,9 @@ function EmptyCircle() {
 }
 
 // Filled green circle with a white check — the rail's "you decided this
-// race" marker. The sr-only text in the row carries it for screen readers.
-function PickedCheck() {
+// race" marker, also the election page's mark on a picked candidate's
+// card. aria-hidden: the caller's sr-only text carries it for screen readers.
+export function PickedCheck() {
   return (
     <svg
       aria-hidden="true"

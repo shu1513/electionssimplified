@@ -2948,6 +2948,21 @@ describe("ElectionPage sticky candidate picks", () => {
     await userEvent.click(jordan);
     expect(await screen.findByRole("button", { name: "Jordan Voter is my pick" })).toHaveTextContent("✓ Jordan Voter");
     expect(readBallotDraft().choices["e-1"].picks.map((pick) => pick.candidate_id)).toEqual(["c-1"]);
+    // The picked candidate's card: the green check (spoken as "My pick:")
+    // beside the name, and an Unpick in the old button slot. Riley's card
+    // gets neither.
+    const jordanCard = screen.getByRole("heading", { name: "Jordan Voter" }).closest("div.group") as HTMLElement;
+    expect(within(jordanCard).getByText("My pick:")).toBeInTheDocument();
+    const unpick = within(jordanCard).getByRole("button", { name: "Unpick Jordan Voter" });
+    expect(unpick).toHaveTextContent("Unpick");
+    const rileyCard = screen.getByRole("heading", { name: "Riley Runner" }).closest("div.group") as HTMLElement;
+    expect(within(rileyCard).queryByText("My pick:")).not.toBeInTheDocument();
+    expect(within(rileyCard).queryByRole("button", { name: /Unpick/ })).not.toBeInTheDocument();
+
+    await userEvent.click(unpick);
+    expect(await screen.findByRole("button", { name: "Make Jordan Voter my pick" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Unpick Jordan Voter" })).not.toBeInTheDocument();
+    expect(readBallotDraft().choices["e-1"]?.picks ?? []).toEqual([]);
     clearBallotDraft();
   });
 

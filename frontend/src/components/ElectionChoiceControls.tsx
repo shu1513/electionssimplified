@@ -78,9 +78,11 @@ type CandidatePickButtonProps = {
    * page's post-pick toast hangs off it. */
   onPicked?: () => void;
   /** "name": the candidate's name is the button text — the election page's
-   * sticky names card, where one "My pick:" label sits before the row. The
+   * sticky names card, where one "My pick:" label sits before the row.
+   * "unpick": a quiet "Unpick" on a picked candidate's card, rendered only
+   * while they are picked (the sticky card holds the pick controls). The
    * default reads "Make my pick" beside a card that already names them. */
-  variant?: "action" | "name";
+  variant?: "action" | "name" | "unpick";
 };
 
 /**
@@ -165,9 +167,11 @@ export function CandidatePickButton({
       ? isPicked
         ? `✓ ${candidateName}`
         : candidateName
-      : isPicked
-        ? "✓ My pick"
-        : "Make my pick";
+      : variant === "unpick"
+        ? "Unpick"
+        : isPicked
+          ? "✓ My pick"
+          : "Make my pick";
   // The accessible name keeps the visible text inside it (WCAG 2.5.3) and
   // keeps the page's N pick buttons apart in screen-reader button lists and
   // voice control. Default: the visible text with the candidate suffix,
@@ -180,7 +184,9 @@ export function CandidatePickButton({
       ? isPicked
         ? `${candidateName} is my pick`
         : `Make ${candidateName} my pick`
-      : `${visibleLabel}: ${candidateName}`;
+      : variant === "unpick"
+        ? `Unpick ${candidateName}`
+        : `${visibleLabel}: ${candidateName}`;
 
   return (
     <span className={fullWidth ? "flex w-full flex-col gap-1" : "inline-flex flex-col items-end gap-1"}>
@@ -197,7 +203,11 @@ export function CandidatePickButton({
         }
         onClick={toggle}
         className={
-          isPicked
+          variant === "unpick"
+            ? // Quiet outline: the removal is the secondary action beside the
+              // green check that already says "picked".
+              `${base} border border-line bg-white text-ink-soft hover:border-red-700 hover:text-ink`
+            : isPicked
             ? `${base} bg-green-700 text-white hover:bg-green-800`
             : raceDecided
               ? `${base} border border-line bg-white text-ink hover:border-green-700`

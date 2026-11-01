@@ -13,7 +13,7 @@ import {
 } from "@voteapp/api-client";
 import { partyColorClass } from "@voteapp/api-client";
 import { DetailPager } from "../components/DetailPager";
-import { DetailRail } from "../components/DetailRail";
+import { DetailRail, PickedCheck } from "../components/DetailRail";
 import {
   pagerNeighbors,
   readElectionNavState,
@@ -286,6 +286,9 @@ export function ElectionPage() {
   const myChoice = isGuest
     ? draftChoicesByElectionId(draft).get(data.id)
     : choiceByElectionId?.get(data.id);
+  // The viewer's picked candidate ids: the green check beside a picked
+  // candidate's name on the roster card, and that card's Unpick button.
+  const myPickIds = new Set((myChoice?.picks ?? []).map((pick) => pick.candidate_id));
   // The rail's pick checks: same choice source as the ballot pages' cards
   // (account choices signed-in, local draft as guest), same decided rule as
   // the pick-progress counters — a choice row emptied of picks keeps no
@@ -1185,6 +1188,17 @@ export function ElectionPage() {
                           "Jordan VoterAdvanced"), and the wrapper is a div
                           because a heading is flow content, invalid in a span. */}
                       <div className="flex items-center gap-2">
+                        {/* The rail's green check beside a picked candidate's
+                            name (owner, 2026-10-31): the card itself says
+                            "picked" now that it carries no pick button. Outside
+                            the heading so the heading's name stays the
+                            candidate's; the sr-only text speaks it. */}
+                        {myPickIds.has(candidate.candidate_id) ? (
+                          <>
+                            <PickedCheck />
+                            <span className="sr-only">My pick:</span>
+                          </>
+                        ) : null}
                         <h3 className="text-subheading font-semibold">
                           <Link
                             to={`/candidates/${candidate.candidate_id}`}
@@ -1227,19 +1241,21 @@ export function ElectionPage() {
                       {/* Withdrawn candidacies never reach this payload
                           (ballotLookup filters them), but the writer also
                           rejects withdrawn/lost — don't render a button whose
-                          only outcome is an error. Not beside the sticky
-                          names card either (owner, 2026-10-31): the card is
-                          the pick control then, and a button on every card
-                          as well read as two ways to do one thing. */}
+                          only outcome is an error. Beside the sticky names
+                          card (owner, 2026-10-31) the card is the pick
+                          control, so this slot holds only an Unpick on the
+                          picked candidate's card — a button on every card as
+                          well read as two ways to do one thing. */}
                       {showChoiceControls &&
                       !retention &&
-                      stickyPickCandidates.length === 0 &&
                       candidate.status !== "withdrawn" &&
-                      candidate.status !== "lost" ? (
+                      candidate.status !== "lost" &&
+                      (stickyPickCandidates.length === 0 || myPickIds.has(candidate.candidate_id)) ? (
                         // z-10 lifts the button above the card's stretched
                         // link so clicking it doesn't navigate.
                         <span className="relative z-10">
                           <CandidatePickButton
+                            variant={stickyPickCandidates.length === 0 ? "action" : "unpick"}
                             electionId={data.id}
                             candidateId={candidate.candidate_id}
                             candidateName={candidate.display_name}
