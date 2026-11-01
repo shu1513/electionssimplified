@@ -77,6 +77,10 @@ type CandidatePickButtonProps = {
    * PUT resolves) — never on a removal or a failed save. The election
    * page's post-pick toast hangs off it. */
   onPicked?: () => void;
+  /** "name": the candidate's name is the button text — the election page's
+   * sticky names card, where one "My pick:" label sits before the row. The
+   * default reads "Make my pick" beside a card that already names them. */
+  variant?: "action" | "name";
 };
 
 /**
@@ -97,6 +101,7 @@ export function CandidatePickButton({
   fullWidth = false,
   surface = "election_inline",
   onPicked,
+  variant = "action",
 }: CandidatePickButtonProps) {
   const { me } = useMe();
   const isGuest = me === null;
@@ -154,20 +159,36 @@ export function CandidatePickButton({
       ? "rounded-full px-3 py-1 text-xs font-semibold transition disabled:opacity-50"
       : "rounded-full px-4 py-2 text-sm font-semibold transition disabled:opacity-50";
   const base = fullWidth ? `${sizeClass} w-full text-center` : sizeClass;
-  const visibleLabel = setChoice.isPending ? "…" : isPicked ? "✓ My pick" : "Make my pick";
+  const visibleLabel = setChoice.isPending
+    ? "…"
+    : variant === "name"
+      ? isPicked
+        ? `✓ ${candidateName}`
+        : candidateName
+      : isPicked
+        ? "✓ My pick"
+        : "Make my pick";
+  // The accessible name keeps the visible text inside it (WCAG 2.5.3) and
+  // keeps the page's N pick buttons apart in screen-reader button lists and
+  // voice control. Default: the visible text with the candidate suffix,
+  // matching the ballot cards' "My pick: {name}" chip wording. Name variant:
+  // a sentence around the name ("Make Jane Doe my pick" / "Jane Doe is my
+  // pick"), which also keeps it distinct from the inline button for the
+  // same candidate on the same page.
+  const accessibleName =
+    variant === "name"
+      ? isPicked
+        ? `${candidateName} is my pick`
+        : `Make ${candidateName} my pick`
+      : `${visibleLabel}: ${candidateName}`;
 
   return (
     <span className={fullWidth ? "flex w-full flex-col gap-1" : "inline-flex flex-col items-end gap-1"}>
-      {/* aria-label derives from visibleLabel so name and text can't drift:
-          the candidate suffix keeps the page's N pick buttons apart in
-          screen-reader button lists and voice control, and leading with the
-          visible text keeps the spoken label a prefix of the name (WCAG
-          2.5.3). Matches the ballot cards' "My pick: {name}" chip wording. */}
       <button
         type="button"
         disabled={saving || atMultiSeatCap}
         aria-pressed={isPicked}
-        aria-label={`${visibleLabel}: ${candidateName}`}
+        aria-label={accessibleName}
         aria-describedby={showCapMessage ? capMessageId : undefined}
         title={
           atMultiSeatCap && !showCapMessage

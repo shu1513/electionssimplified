@@ -108,6 +108,10 @@ function rewriteBackPath(
 // that the page says nothing — "Below average" over every low-stakes race
 // read as a put-down, not information.
 const VOTE_POWER_CHIP_LABELS: ReadonlySet<string> = new Set(["medium", "above_average", "high", "very_high"]);
+// The sticky names card renders for rosters up to this size: a typical
+// general-election field is two to four names, which fit as one row.
+const STICKY_PICK_MAX_CANDIDATES = 5;
+
 // The pill the owner asked for (2026-10-31), text color per band; the ⓘ
 // beside it is the control that opens the bubble.
 const VOTE_POWER_CHIP_CLASS = "inline-flex items-center rounded-full border border-line bg-white px-3 py-1 text-sm font-semibold";
@@ -459,10 +463,31 @@ export function ElectionPage() {
   });
   // The arriving half of that motion: only the race the advance moved to.
   const raceEntering = useAdvanceEnter(data.id);
+  // Every roster pick control (the inline card buttons, the sticky names
+  // card) lands here: arm the advance, and show the first-pick toast once
+  // per browser — the toast is a lesson, not a receipt, and marks itself
+  // seen once it is actually on screen (a split-view mount is hidden and
+  // doesn't count — see DraftToast).
+  const onRosterPicked = () => {
+    armAdvance();
+    if (hasDraftToastBeenSeen()) return;
+    setDraftToast((prev) => ({ electionId: data.id, n: (prev?.n ?? 0) + 1 }));
+  };
   // Computed once, before render: the roster links hand the candidate page
   // this exact displayed order (sort + party + records filters applied), so
   // the JSX and the state payload must come from the same array.
   const orderedCandidates = sortCandidatesByStance(data.candidates, candidateSort, weights);
+  // The sticky names card: the roster in displayed order, minus the
+  // candidacies the writer would reject, and only when short enough to read
+  // as one row of names — a long primary field keeps the inline buttons
+  // alone. Measures have their own Yes/No card.
+  const pickableCandidates = orderedCandidates
+    .map(({ candidate }) => candidate)
+    .filter((candidate) => candidate.status !== "withdrawn" && candidate.status !== "lost");
+  const stickyPickCandidates =
+    data.race_type !== "ballot_measure" && pickableCandidates.length <= STICKY_PICK_MAX_CANDIDATES
+      ? pickableCandidates
+      : [];
   const candidateNavState: CandidateNavState = {
     backTo: { path: `/elections/${data.id}`, label: data.official_ballot_title },
     // The election page's own incoming context rides along so the back hop
@@ -1220,18 +1245,7 @@ export function ElectionPage() {
                             seatsToFill={data.seats_to_fill ?? null}
                             size="sm"
                             surface="election_inline"
-                            onPicked={() => {
-                              armAdvance();
-                              // First SHOWING on this browser only: the
-                              // toast is a lesson, not a receipt, and marks
-                              // itself seen once it is actually on screen
-                              // (a split-view mount is hidden and doesn't
-                              // count — see DraftToast).
-                              if (hasDraftToastBeenSeen()) {
-                                return;
-                              }
-                              setDraftToast((prev) => ({ electionId: data.id, n: (prev?.n ?? 0) + 1 }));
-                            }}
+                            onPicked={onRosterPicked}
                           />
                         </span>
                       ) : null}
@@ -1337,6 +1351,44 @@ export function ElectionPage() {
                 </div>
               ))}
             </div>
+            {/* The roster's pick controls, pinned (owner, 2026-10-31): a sticky
+                card at the viewport bottom with each candidate's name as the
+                button — the office-race counterpart of the measure page's
+                Yes/No card — so a reader deep in the roster picks without
+                scrolling back up. Same gate as the inline buttons; see
+                stickyPickCandidates for the roster-size cap. data-sticky-
+                pick-cta lifts the chatbot launcher clear of it. */}
+            {showChoiceControls && !retention && stickyPickCandidates.length > 0 ? (
+              <div
+                data-sticky-pick-cta="names"
+                className="sticky bottom-3 z-30 mt-[29px] box:mt-[18px] rounded-xl border border-line bg-surface p-3 shadow-lg"
+              >
+                <div className="flex w-full flex-wrap items-center gap-2">
+                  <span className="text-sm font-medium text-ink">
+                    {data.seats_to_fill != null && data.seats_to_fill > 1 ? `My picks (up to ${data.seats_to_fill}):` : "My pick:"}
+                  </span>
+                  {stickyPickCandidates.map((candidate) => (
+                    <CandidatePickButton
+                      key={candidate.candidate_id}
+                      variant="name"
+                      // Small pills: five names must fit in a couple of rows
+                      // on a phone, where the card is a quarter of the
+                      // screen at the roster buttons' size.
+                      size="sm"
+                      electionId={data.id}
+                      candidateId={candidate.candidate_id}
+                      candidateName={candidate.display_name}
+                      raceTitle={data.official_ballot_title}
+                      electionDate={data.election_date}
+                      choice={myChoice}
+                      seatsToFill={data.seats_to_fill ?? null}
+                      surface="election_inline"
+                      onPicked={onRosterPicked}
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </section>
         ) : data.candidate_roster_status ? (
           // Empty office roster: say WHY instead of hiding the section (roster

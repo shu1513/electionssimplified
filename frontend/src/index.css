@@ -194,6 +194,15 @@ body {
 body:has([data-sticky-pick-cta]) .chat-launcher {
   bottom: 7rem;
 }
+/* The election page's names card ("names") wraps up to five candidates
+   into two or three rows on a phone, taller than the one-row cards the
+   lift above assumes; lift the launcher further there. Phones only: on
+   wider screens the launcher sits beside the detail column, not over it. */
+@media (max-width: 639px) {
+  body:has([data-sticky-pick-cta="names"]) .chat-launcher {
+    bottom: 12.5rem;
+  }
+}
 
 /* When the ballot preview is on screen, printing yields ONLY the sheets —
    page chrome, headings, and past picks would otherwise print around them.

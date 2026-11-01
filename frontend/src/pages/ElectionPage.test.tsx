@@ -2914,3 +2914,75 @@ describe("ElectionPage post-pick auto-advance", () => {
     clearBallotDraft();
   });
 });
+
+// The sticky names card: the roster's pick controls pinned to the viewport
+// bottom on office races, the counterpart of the measure page's Yes/No card.
+describe("ElectionPage sticky candidate picks", () => {
+  const rosterOf = (n: number) =>
+    Array.from({ length: n }, (_, i) => ({
+      candidate_id: `c-${i + 1}`,
+      display_name: `Candidate ${i + 1}`,
+      party: "Independent",
+      is_incumbent: false,
+      status: "active" as const,
+      summary: null,
+      finance_summary: null,
+      records: [],
+    }));
+
+  it("pins the roster's names as pick buttons, in step with the inline buttons", async () => {
+    clearBallotDraft();
+    setDraftBallotContext([DISTRICT.id], null);
+    stubApiRoutes({ ...ANONYMOUS });
+    renderElection(() => electionDetail());
+
+    const jordan = await screen.findByRole("button", { name: "Make Jordan Voter my pick" });
+    const card = jordan.closest("[data-sticky-pick-cta]") as HTMLElement | null;
+    expect(card).not.toBeNull();
+    expect(card!.className).toContain("sticky");
+    expect(within(card!).getByText("My pick:")).toBeInTheDocument();
+    expect(within(card!).getByRole("button", { name: "Make Riley Runner my pick" })).toHaveTextContent("Riley Runner");
+    // The inline button for the same candidate keeps its own name.
+    expect(screen.getByRole("button", { name: "Make my pick: Jordan Voter" })).toBeInTheDocument();
+
+    await userEvent.click(jordan);
+    // Both controls show the landed pick.
+    expect(await screen.findByRole("button", { name: "Jordan Voter is my pick" })).toHaveTextContent("✓ Jordan Voter");
+    expect(screen.getByRole("button", { name: "✓ My pick: Jordan Voter" })).toBeInTheDocument();
+    expect(readBallotDraft().choices["e-1"].picks.map((pick) => pick.candidate_id)).toEqual(["c-1"]);
+    clearBallotDraft();
+  });
+
+  it("names the seat cap on a multi-seat race", async () => {
+    clearBallotDraft();
+    setDraftBallotContext([DISTRICT.id], null);
+    stubApiRoutes({ ...ANONYMOUS });
+    renderElection(() => electionDetail({ seats_to_fill: 2, candidates: rosterOf(3) }));
+
+    await screen.findByRole("button", { name: "Make Candidate 1 my pick" });
+    expect(screen.getByText("My picks (up to 2):")).toBeInTheDocument();
+    clearBallotDraft();
+  });
+
+  it("keeps the inline buttons alone on a long roster", async () => {
+    clearBallotDraft();
+    setDraftBallotContext([DISTRICT.id], null);
+    stubApiRoutes({ ...ANONYMOUS });
+    renderElection(() => electionDetail({ candidates: rosterOf(6) }));
+
+    await screen.findByRole("button", { name: "Make my pick: Candidate 1" });
+    expect(document.querySelector("[data-sticky-pick-cta]")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Make Candidate 1 my pick" })).not.toBeInTheDocument();
+    clearBallotDraft();
+  });
+
+  it("shows no card when the pick controls are hidden", async () => {
+    // A guest with no ballot context: the district gate hides every control.
+    clearBallotDraft();
+    stubApiRoutes({ ...ANONYMOUS });
+    renderElection(() => electionDetail());
+
+    await screen.findByRole("heading", { name: "Governor" });
+    expect(document.querySelector("[data-sticky-pick-cta]")).toBeNull();
+  });
+});
