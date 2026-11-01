@@ -587,15 +587,38 @@ export function ElectionPage() {
             // old snapshot): naming WHAT the rows are never depends on the
             // sort/tab keys.
             <div className="flex flex-col gap-2">
-              {/* Title and progress on one line (owner, 2026-10-31): the bar
-                  fills the room to the right of "My elections". Same bar as
-                  My Draft, count beside it as on that page: green = the
+              {/* Title with the sort control beside it (owner, 2026-10-31): the
+                  select hugs its short labels instead of stretching across the
+                  rail, and the full-width progress bar sits under them. Same
+                  bar as My Draft, count beside it as on that page: green = the
                   "decided" color the pick names use; the sentence is the
                   bar's accessible name. */}
-              <div className="flex items-center gap-3">
-              <p className="shrink-0 text-base font-bold text-ink">My elections</p>
+              <div className="flex items-center justify-between gap-3">
+                <p className="shrink-0 text-base font-bold text-ink">My elections</p>
+                {offeredRailSorts.length > 0 ? (
+                  <label className="flex min-w-0 items-center gap-1.5 text-xs text-ink-soft">
+                    Sort
+                    <select
+                      value={railSort ?? ""}
+                      onChange={(event) => {
+                        track("detail_control", { control: "rail_sort", value: event.target.value });
+                        setRailSortState(event.target.value as RailSortKey);
+                      }}
+                      className="min-w-0 rounded-md border border-line bg-white px-1.5 py-1 text-xs text-ink focus:border-ink focus:outline-none"
+                    >
+                      {RAIL_SORTS.filter((option) => offeredRailSorts.includes(option.value)).map(
+                        (option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        )
+                      )}
+                    </select>
+                  </label>
+                ) : null}
+              </div>
               {railProgress !== null ? (
-                <div className="flex min-w-0 flex-1 items-center gap-2">
+                <div className="flex items-center gap-2">
                   <div
                     role="progressbar"
                     aria-label={`${railProgress.picked} of ${railProgress.total} races decided`}
@@ -618,29 +641,7 @@ export function ElectionPage() {
                   </span>
                 </div>
               ) : null}
-              </div>
               <div className="flex flex-col gap-2">
-                {offeredRailSorts.length > 0 ? (
-                  <label className="flex items-center gap-1.5 text-xs text-ink-soft">
-                    Sort
-                    <select
-                      value={railSort ?? ""}
-                      onChange={(event) => {
-                        track("detail_control", { control: "rail_sort", value: event.target.value });
-                        setRailSortState(event.target.value as RailSortKey);
-                      }}
-                      className="min-w-0 flex-1 rounded-md border border-line bg-white px-1.5 py-1 text-xs text-ink focus:border-ink focus:outline-none"
-                    >
-                      {RAIL_SORTS.filter((option) => offeredRailSorts.includes(option.value)).map(
-                        (option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        )
-                      )}
-                    </select>
-                  </label>
-                ) : null}
                 {railAutoFill !== null ? (
                   <AutoPickFillControl
                     date={railAutoFill.date}
