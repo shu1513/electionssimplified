@@ -724,23 +724,21 @@ export function ElectionPage() {
         {/* A link, not just a label: the district page lists every race
             here, which is also the crawl path back up the browse catalog
             (district → state → all states). */}
-        <p className="mt-1 text-sm text-ink-soft">
+        {/* The vote-power verdict shares this line, after the district, as a
+            chip (owner, 2026-10-31) — and only when it earns one, Average or
+            above, so a race where the reader's vote carries weight stands
+            out and the rest say nothing rather than "Below average". The
+            chip opens a floating bubble with the brief explanation (the how
+            copy and the result line); the per-measure math left with the
+            old disclosure. A retention race gets a "Retention race" chip of
+            the same kind: the label alone means nothing to a first-time
+            reader, and its bubble says what the race is. No election date
+            line: the list's date headings, the page title and the Event
+            JSON-LD already carry it. */}
+        <div ref={votePowerRef} className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-ink-soft">
           <Link to={`/districts/${data.district.id}`} className="underline hover:text-ink">
             {formatDistrictName(data.district.name)}
           </Link>
-        </p>
-        {/* Header strip (owner, 2026-10-31): the vote-power verdict is a chip,
-            and only when it earns one — Average or above — so a race where
-            the reader's vote carries weight stands out and the rest say
-            nothing rather than "Below average". The chip opens a floating
-            bubble with the brief explanation (the how copy and the result
-            line); the per-measure math left with the old disclosure. A
-            retention race gets a "Retention race" chip of the same kind:
-            the label alone means nothing to a first-time reader, and its
-            bubble says what the race is. No election date line (owner,
-            2026-10-31): the list's date headings, the page title and the
-            Event JSON-LD already carry it. */}
-        <div ref={votePowerRef} className={votePowerChip !== null ? "mt-3" : undefined}>
           {votePowerChip !== null ? (
             // relative: the bubble anchors under the chip's left edge.
             <div ref={votePowerInfoRef} className="relative inline-block">
