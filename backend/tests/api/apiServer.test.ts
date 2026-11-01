@@ -2995,7 +2995,10 @@ describe("createApiApp", () => {
     expect(response.rawBody).toContain("PNG");
     expect(lookupPublicPickCard).toHaveBeenCalledWith("tok_abcdefghijklmnopqrstuvwxyz012345");
     expect(resolveAddress).not.toHaveBeenCalled();
-  });
+    // This is the one test that renders a real PNG (font load + rasterize):
+    // ~1.5s warm locally, and it has hit vitest's 5s default on a loaded CI
+    // runner (PR #1662). The budget is for the render, not a hang.
+  }, 20_000);
 
   it("404s an unknown og-image token and 400s a malformed one", async () => {
     const resolveAddress = vi.fn();

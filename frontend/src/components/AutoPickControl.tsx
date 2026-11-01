@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router";
 import {
   ApiError,
+  collectSuggestedIssues,
   joinNames,
   MIN_AUTO_PICK_ISSUES,
   summarizeAutoPick,
@@ -10,9 +11,10 @@ import {
   useMe,
   useMyResearchAreas,
 } from "@voteapp/api-client";
-import type { AutoPickCandidateReport, AutoPickElectionResult } from "@voteapp/api-client";
+import type { AutoPickCandidateReport, AutoPickElectionResult, SuggestedIssueGroup } from "@voteapp/api-client";
 import { ISSUES_SETTINGS_PATH } from "../lib/issuesSettingsLink";
 import { currentAttribution, errorCategoryOf, track } from "../lib/usage";
+import { AddIssuesDialog } from "./AddIssuesDialog";
 import { HowItWorksPopover } from "./HowItWorksPopover";
 import { RegisterPromptDialog } from "./RegisterPromptDialog";
 
@@ -31,6 +33,16 @@ import { RegisterPromptDialog } from "./RegisterPromptDialog";
 // post-auth return path: issue preferences are account-only, and the
 // question is the pitch for an account. Plain words on purpose: a first
 // visit has no idea the app keeps "my issues".
+//
+// A no-pick the user's list could not decide (the response carries
+// suggested_issues: unranked issues these candidates DO have records on)
+// opens the "Add these issues?" dialog over the panel; adding them appends
+// to the ranked list and reruns the pick, so the list grows one race at a
+// time instead of sending the user to Settings to guess. That includes a
+// user below the three-issue floor: the engine is called anyway, answers
+// too_few_issues with the same suggestions, and the dialog says how many
+// more are needed. The "Rank your issues" prompt remains only for the
+// case where the race has nothing to offer.
 export { MIN_AUTO_PICK_ISSUES };
 
 type AutoPickControlProps = {
@@ -69,6 +81,8 @@ export function AutoPickControl({
   const [prompt, setPrompt] = useState<"rank_issues" | null>(null);
   const [result, setResult] = useState<AutoPickElectionResult | null>(null);
   const [teaserOpen, setTeaserOpen] = useState(false);
+  // Non-null while the "Add these issues?" dialog is up.
+  const [suggestions, setSuggestions] = useState<SuggestedIssueGroup[] | null>(null);
 
   const areaNames = new Map(preferences.map((preference) => [preference.research_area_id, preference.name]));
   const areaName = (researchAreaId: string) => areaNames.get(researchAreaId) ?? "one of your issues";
@@ -122,20 +136,26 @@ export function AutoPickControl({
     );
   }
 
+  const usage = { scope: "election", races_bucket: "1-3" };
+
   function onClick() {
     setResult(null);
-    const usage = { scope: "election", races_bucket: "1-3" };
-    // The issue-floor prompt only fires on a LOADED list: a failed fetch
-    // returns the same empty array, and telling a user with five ranked
-    // issues to go rank issues would be wrong — on error the backend's
-    // per-result too_few_issues is the authority (the panel renders it).
-    if (!preferencesError && preferences.length < MIN_AUTO_PICK_ISSUES) {
-      track("autopick_attempt", { ...usage, prompted_rank_issues: true });
-      setPrompt("rank_issues");
-      return;
-    }
-    track("autopick_attempt", { ...usage, prompted_rank_issues: false });
     setPrompt(null);
+    // Below the issue floor the engine still runs: it answers too_few_issues
+    // AND names the issues this race's candidates have records on, which the
+    // dialog turns into the fastest way to reach three. (A failed
+    // preferences fetch looks like an empty list; the backend's per-result
+    // reason is the authority either way.)
+    track("autopick_attempt", {
+      ...usage,
+      prompted_rank_issues: !preferencesError && preferences.length < MIN_AUTO_PICK_ISSUES,
+    });
+    run();
+  }
+
+  // The engine call itself — the button's click, and the rerun after the
+  // dialog added issues.
+  function run() {
     // UI work stays in the per-call onSuccess: react-query skips it once
     // this control has unmounted, so a run started on election A can't
     // touch election B's page through a stale onPicked. The usage
@@ -147,10 +167,18 @@ export function AutoPickControl({
       {
         onSuccess: (response) => {
           const first = response.results[0] ?? null;
-          setResult(first);
+          const suggested = first ? collectSuggestedIssues([first]) : [];
+          if (first?.reason === "too_few_issues" && suggested.length === 0) {
+            // Nothing here to offer, so the only way forward is Settings:
+            // the linked prompt, not a panel repeating the same sentence.
+            setPrompt("rank_issues");
+          } else {
+            setResult(first);
+          }
           if (first?.outcome === "picked") {
             onPicked?.();
           }
+          setSuggestions(suggested.length > 0 ? suggested : null);
         },
       }
     );
@@ -225,6 +253,19 @@ export function AutoPickControl({
           areaName={areaName}
           issueOrder={issueOrder}
           onDismiss={() => setResult(null)}
+        />
+      ) : null}
+      {suggestions !== null ? (
+        <AddIssuesDialog
+          suggestions={suggestions}
+          scope="election"
+          onClose={() => setSuggestions(null)}
+          onAdded={() => {
+            setSuggestions(null);
+            setResult(null);
+            track("autopick_attempt", { ...usage, prompted_rank_issues: false });
+            run();
+          }}
         />
       ) : null}
     </div>

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { hasClearableAutoPicks, reasonLabel, summarizeAutoPick } from "./autoPick";
+import { collectSuggestedIssues, hasClearableAutoPicks, reasonLabel, summarizeAutoPick } from "./autoPick";
 import type { AutoPickElectionResult, AutoPickReason, ElectionChoice } from "./types";
 
 // The full summary/panel copy matrix is exercised by the web control tests
@@ -197,5 +197,40 @@ describe("retention Yes/No copy", () => {
     expect(summarizeAutoPick(cancelled, 1)).toBe(
       "No pick: this candidate's record helps some of your issues and hurts others about equally, so it's your call."
     );
+  });
+});
+
+describe("collectSuggestedIssues", () => {
+  const issue = (research_area_id: string, name: string, candidate_count: number, record_count = candidate_count) => ({
+    research_area_id,
+    slug: name.toLowerCase(),
+    name,
+    description: null,
+    candidate_count,
+    record_count,
+  });
+
+  it("merges one issue across races, summing counts and counting the races it would help", () => {
+    const merged = collectSuggestedIssues([
+      result({ election_id: "e1", suggested_issues: [issue("a", "Housing", 2), issue("b", "Taxes", 3)] }),
+      result({ election_id: "e2", suggested_issues: [issue("a", "Housing", 1)] }),
+    ]);
+    expect(merged).toEqual([
+      { ...issue("a", "Housing", 3), race_count: 2 },
+      { ...issue("b", "Taxes", 3), race_count: 1 },
+    ]);
+  });
+
+  it("orders by races helped, then candidates, then records, then name", () => {
+    const merged = collectSuggestedIssues([
+      result({
+        suggested_issues: [issue("c", "Climate", 1, 1), issue("b", "Budget", 1, 4), issue("a", "Water", 2, 2)],
+      }),
+    ]);
+    expect(merged.map((entry) => entry.name)).toEqual(["Water", "Budget", "Climate"]);
+  });
+
+  it("contributes nothing from a result without the field (older backend)", () => {
+    expect(collectSuggestedIssues([result({})])).toEqual([]);
   });
 });

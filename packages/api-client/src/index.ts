@@ -39,3 +39,4 @@ export * from "./useMe";
 export * from "./useMyAccountDistricts";
 export * from "./useMyResearchAreas";
 export * from "./usePickCardShare";
+export * from "./useReplaceResearchAreaPreferences";

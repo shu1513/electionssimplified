@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router";
 import {
   ApiError,
+  collectSuggestedIssues,
   hasClearableAutoPicks,
   isDecidedChoice,
   MIN_AUTO_PICK_ISSUES,
@@ -11,9 +12,10 @@ import {
   useElectionChoiceSaving,
   useMyResearchAreas,
 } from "@voteapp/api-client";
-import type { AutoPickElectionResult, ElectionChoice } from "@voteapp/api-client";
+import type { AutoPickElectionResult, ElectionChoice, SuggestedIssueGroup } from "@voteapp/api-client";
 import { ISSUES_SETTINGS_PATH } from "../lib/issuesSettingsLink";
 import { countBucket, currentAttribution, errorCategoryOf, track } from "../lib/usage";
+import { AddIssuesDialog } from "./AddIssuesDialog";
 import { HowItWorksPopover } from "./HowItWorksPopover";
 
 // Per-date auto-pick controls for the My Picks page
@@ -32,6 +34,11 @@ import { HowItWorksPopover } from "./HowItWorksPopover";
 // the caller gets the per-election results via onResults and renders its
 // own one-line run summary; per-race "why" details live on each election
 // page's panel.
+//
+// When a run leaves races open that more issues could decide (their results
+// carry suggested_issues), the "Add these issues?" dialog opens with the
+// issues merged across those races; adding them appends to the ranked list
+// and reruns the fill over whatever is still empty.
 
 // Kept for the existing import sites (PicksPage, BallotPreview).
 export { reasonLabel };
@@ -95,6 +102,8 @@ export function AutoPickFillControl({
   const { preferences, isLoading: preferencesLoading, isError: preferencesError } = useMyResearchAreas();
   const saving = useElectionChoiceSaving();
   const [prompt, setPrompt] = useState(false);
+  // Non-null while the "Add these issues?" dialog is up.
+  const [suggestions, setSuggestions] = useState<SuggestedIssueGroup[] | null>(null);
 
   const emptyElectionIds = elections
     .filter((election) => !isDecidedChoice(choiceByElectionId?.get(election.id)))
@@ -107,18 +116,24 @@ export function AutoPickFillControl({
 
   function onFill() {
     const usage = { scope: "date", races_bucket: countBucket(emptyElectionIds.length) };
-    // Same rule as AutoPickControl: the issue-floor prompt only fires on a
-    // LOADED list — on a failed fetch the backend's per-result
-    // too_few_issues is the authority.
-    if (!preferencesError && preferences.length < MIN_AUTO_PICK_ISSUES) {
-      track("autopick_attempt", { ...usage, prompted_rank_issues: true });
-      setPrompt(true);
-      return;
-    }
-    track("autopick_attempt", { ...usage, prompted_rank_issues: false });
+    // Same rule as AutoPickControl: below the floor the engine still runs,
+    // answers too_few_issues per race, and names the issues those races'
+    // candidates have records on — the dialog merges them into the fastest
+    // way to reach three ranked issues.
+    track("autopick_attempt", {
+      ...usage,
+      prompted_rank_issues: !preferencesError && preferences.length < MIN_AUTO_PICK_ISSUES,
+    });
     setPrompt(false);
+    run(usage);
+  }
+
+  // The fill call itself — after the floor check on a click, and again
+  // after the dialog added issues (over whatever is still empty by then).
+  function run(usage: { scope: string; races_bucket: string }) {
     // The hook's own onSuccess still delivers the results to the page; this
-    // chain only records the outcome, on the page the fill started from.
+    // chain records the outcome, on the page the fill started from, and
+    // opens the dialog when the open races have issues worth adding.
     const attribution = currentAttribution();
     fill.mutateAsync(emptyElectionIds).then(
       (all) => {
@@ -128,14 +143,40 @@ export function AutoPickFillControl({
           { ...usage, outcome: picked === 0 ? "no_pick" : picked === all.length ? "picked" : "mixed" },
           attribution
         );
+        const open = all.filter((result) => result.outcome === "no_pick");
+        const issues = collectSuggestedIssues(open);
+        setSuggestions(issues.length > 0 ? issues : null);
+        // Below the floor with nothing to offer anywhere on the date: the
+        // linked "rank your issues" prompt is the only way forward.
+        setPrompt(
+          issues.length === 0 && open.length > 0 && open.every((result) => result.reason === "too_few_issues")
+        );
       },
       (error: unknown) =>
         track("autopick_result", { ...usage, outcome: "error", error_category: errorCategoryOf(error) }, attribution)
     );
   }
 
+  // The dialog outlives the fill button: once a run lands picks, the button
+  // gives way to Clear, but the open races' issues are still worth adding
+  // and the rerun (fill_empty) only touches what is still empty.
+  const dialog =
+    suggestions !== null ? (
+      <AddIssuesDialog
+        suggestions={suggestions}
+        scope="date"
+        onClose={() => setSuggestions(null)}
+        onAdded={() => {
+          setSuggestions(null);
+          const usage = { scope: "date", races_bucket: countBucket(emptyElectionIds.length) };
+          track("autopick_attempt", { ...usage, prompted_rank_issues: false });
+          run(usage);
+        }}
+      />
+    ) : null;
+
   if (!fillable && !clearable) {
-    return null;
+    return dialog;
   }
 
   // Compact (the rail): one line, always — the (i) never drops below the
@@ -200,6 +241,7 @@ export function AutoPickFillControl({
           Couldn't clear your auto picks — try again.
         </p>
       ) : null}
+      {dialog}
     </div>
   );
 }

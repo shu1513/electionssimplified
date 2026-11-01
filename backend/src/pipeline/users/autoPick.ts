@@ -102,6 +102,22 @@ export type AutoPickUnresearched = {
   never_researched: boolean;
 };
 
+/**
+ * An issue the user has NOT ranked that the race's candidates (or the
+ * measure) carry usable records on — what the "add these issues" prompt
+ * offers after a no-pick the user's list could not decide.
+ */
+export type AutoPickSuggestedIssue = {
+  research_area_id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  /** Live candidates in the (narrowed) field with at least one usable
+   * record on this issue. 1 for a measure or a retention judge. */
+  candidate_count: number;
+  record_count: number;
+};
+
 export type AutoPickElectionResult = {
   election_id: string;
   race_type: "office" | "ballot_measure";
@@ -117,6 +133,12 @@ export type AutoPickElectionResult = {
    * direction), for the "Why this pick" panel. Empty for office races. */
   measure_per_issue: { research_area_id: string; net: number }[];
   unresearched: AutoPickUnresearched[];
+  /** Non-empty only on a no-pick that more ranked issues could decide
+   * (too_few_issues, insufficient_evidence, only_negative_evidence, tie):
+   * the unranked, user-selectable issues the undecided field has records
+   * on, most candidates first. Empty when nothing is known about them at
+   * all. */
+  suggested_issues: AutoPickSuggestedIssue[];
 };
 
 export type AutoPicksResult = { results: AutoPickElectionResult[] };
@@ -711,6 +733,116 @@ async function loadMeasureTags(
   return result.rows.map((row) => ({ researchAreaId: row.research_area_id, stance: row.stance }));
 }
 
+type SuggestedIssueRow = {
+  research_area_id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  candidate_count: number | string;
+  record_count: number | string;
+};
+
+function toSuggestedIssues(rows: readonly SuggestedIssueRow[]): AutoPickSuggestedIssue[] {
+  return rows.map((row) => ({
+    research_area_id: row.research_area_id,
+    slug: row.slug,
+    name: row.name,
+    description: row.description,
+    candidate_count: Number(row.candidate_count),
+    record_count: Number(row.record_count),
+  }));
+}
+
+// The no-pick reasons that a longer issue list can turn into a pick. Vetoes
+// and the too-few / closed cases are not evidence gaps, so no suggestions.
+const SUGGESTION_REASONS: ReadonlySet<AutoPickReason> = new Set<AutoPickReason>([
+  "insufficient_evidence",
+  "only_negative_evidence",
+  "tie",
+]);
+
+// The mirror image of loadRecordTags: live records on these candidates
+// tagged with areas the user has NOT ranked, filtered to what the engine
+// could actually use — a stance (or any integrity_and_ethics tag, which is
+// evidence by itself), a user-selectable area (the 'general' area cannot
+// be ranked, so offering it would be a dead end), and the office's allowed
+// areas under the same scoping rule as loadRecordTags.
+async function loadUncoveredRecordAreas(
+  db: Queryable,
+  candidateIds: readonly string[],
+  rankedAreaIds: readonly string[],
+  officeId: string | null
+): Promise<AutoPickSuggestedIssue[]> {
+  if (candidateIds.length === 0) {
+    return [];
+  }
+  const result = await db.query<SuggestedIssueRow>(
+    `
+      SELECT
+        area.id::text AS research_area_id,
+        area.slug,
+        area.name,
+        area.description,
+        count(DISTINCT record.candidate_id)::int AS candidate_count,
+        count(*)::int AS record_count
+      FROM public.candidate_records AS record
+      JOIN public.candidate_record_area_tags AS tag
+        ON tag.candidate_record_id = record.id
+      JOIN public.research_areas AS area
+        ON area.id = tag.research_area_id
+      WHERE record.candidate_id = ANY($1::uuid[])
+        AND record.retired_at IS NULL
+        AND NOT (tag.research_area_id = ANY($2::uuid[]))
+        AND area.is_user_selectable = true
+        AND (tag.stance IS NOT NULL OR area.slug = '${INTEGRITY_SLUG}')
+        AND (
+          $3::uuid IS NULL
+          OR area.slug = '${INTEGRITY_SLUG}'
+          OR tag.research_area_id IN (
+            SELECT allowed.research_area_id
+            FROM public.office_research_areas AS allowed
+            WHERE allowed.office_id = $3::uuid
+          )
+        )
+      GROUP BY area.id, area.slug, area.name, area.description
+      ORDER BY candidate_count DESC, record_count DESC, area.name ASC
+    `,
+    [candidateIds, rankedAreaIds, officeId]
+  );
+  return toSuggestedIssues(result.rows);
+}
+
+// Measure counterpart: the measure's tags on unranked, selectable areas.
+// One tag per (measure, area), so each row is one record on one "candidate".
+async function loadUncoveredMeasureAreas(
+  db: Queryable,
+  normalizedElectionId: string,
+  rankedAreaIds: readonly string[]
+): Promise<AutoPickSuggestedIssue[]> {
+  const result = await db.query<SuggestedIssueRow>(
+    `
+      SELECT
+        area.id::text AS research_area_id,
+        area.slug,
+        area.name,
+        area.description,
+        1 AS candidate_count,
+        1 AS record_count
+      FROM public.ballot_measures AS measure
+      JOIN public.ballot_measure_research_area_tags AS tag
+        ON tag.ballot_measure_id = measure.id
+      JOIN public.research_areas AS area
+        ON area.id = tag.research_area_id
+      WHERE measure.election_id = $1::uuid
+        AND NOT (tag.research_area_id = ANY($2::uuid[]))
+        AND area.is_user_selectable = true
+      ORDER BY area.name ASC
+    `,
+    [normalizedElectionId, rankedAreaIds]
+  );
+  return toSuggestedIssues(result.rows);
+}
+
 async function countExistingPicks(
   db: Queryable,
   normalizedUserId: string,
@@ -790,7 +922,13 @@ function emptyResult(
     candidates: [],
     measure_per_issue: [],
     unresearched: [],
+    suggested_issues: [],
   };
+}
+
+/** Whether a no-pick is the kind a longer issue list could decide. */
+function wantsSuggestions(result: Pick<AutoPickElectionResult, "outcome" | "reason">): boolean {
+  return result.outcome === "no_pick" && result.reason !== null && SUGGESTION_REASONS.has(result.reason);
 }
 
 /**
@@ -808,11 +946,15 @@ async function computeDecision(
   if (election.race_type === "ballot_measure") {
     const tags = await loadMeasureTags(db, election.id, areaIds);
     const decision = decideMeasure(issues, tags);
-    return {
+    const result = {
       ...emptyResult(election.id, election.race_type, decision.outcome, decision.reason),
       measure_position: decision.measurePosition,
       measure_per_issue: decision.perIssue,
     };
+    if (wantsSuggestions(result)) {
+      result.suggested_issues = await loadUncoveredMeasureAreas(db, election.id, areaIds);
+    }
+    return result;
   }
   const candidates = await loadCandidates(db, election.id);
   const tags = await loadRecordTags(
@@ -828,7 +970,7 @@ async function computeDecision(
       return emptyResult(election.id, election.race_type, "no_pick", "insufficient_evidence");
     }
     const decision = decideRetentionRace(issues, candidates[0]!, tags);
-    return {
+    const result = {
       ...emptyResult(election.id, election.race_type, decision.outcome, decision.reason),
       measure_position: decision.measurePosition,
       candidates: [decision.candidate],
@@ -836,9 +978,18 @@ async function computeDecision(
       // list, so the "Why this pick" panel reads the same for a Yes/No.
       measure_per_issue: decision.candidate.per_issue.map(({ research_area_id, net }) => ({ research_area_id, net })),
     };
+    if (wantsSuggestions(result)) {
+      result.suggested_issues = await loadUncoveredRecordAreas(
+        db,
+        [candidates[0]!.candidateId],
+        areaIds,
+        election.office_id
+      );
+    }
+    return result;
   }
   const decision = decideOfficeRace(issues, candidates, tags, election.seats_to_fill);
-  return {
+  const result: AutoPickElectionResult = {
     election_id: election.id,
     race_type: election.race_type,
     outcome: decision.outcome,
@@ -849,7 +1000,19 @@ async function computeDecision(
     candidates: decision.candidates,
     measure_per_issue: [],
     unresearched: decision.unresearched,
+    suggested_issues: [],
   };
+  if (wantsSuggestions(result)) {
+    // A tie or an unknowns-only field is already narrowed: suggest what
+    // separates THOSE candidates, not what the eliminated ones did. With no
+    // shortlist (nobody has evidence) the whole live roster is the field.
+    const field =
+      decision.shortlistCandidateIds.length > 0
+        ? decision.shortlistCandidateIds
+        : candidates.map((candidate) => candidate.candidateId);
+    result.suggested_issues = await loadUncoveredRecordAreas(db, field, areaIds, election.office_id);
+  }
+  return result;
 }
 
 // ---------------------------------------------------------------------------
@@ -1038,9 +1201,34 @@ async function computeOne(
     return emptyResult(election.id, election.race_type, "skipped_existing", null);
   }
   if (issues.length < MIN_AUTO_PICK_ISSUES) {
-    return emptyResult(election.id, election.race_type, "no_pick", "too_few_issues");
+    // Below the floor the engine does not score, but the "add these
+    // issues" prompt is MORE useful here, not less: it is how a user with
+    // zero or two ranked issues gets to three without guessing in Settings.
+    // Same loaders as the scored path, over the whole live roster (nothing
+    // is narrowed yet).
+    const result = emptyResult(election.id, election.race_type, "no_pick", "too_few_issues");
+    result.suggested_issues = await loadUncoveredAreasForElection(db, issues, election);
+    return result;
   }
   return computeDecision(db, issues, election);
+}
+
+async function loadUncoveredAreasForElection(
+  db: Queryable,
+  issues: readonly AutoPickIssue[],
+  election: ElectionRow
+): Promise<AutoPickSuggestedIssue[]> {
+  const areaIds = issues.map((issue) => issue.researchAreaId);
+  if (election.race_type === "ballot_measure") {
+    return loadUncoveredMeasureAreas(db, election.id, areaIds);
+  }
+  const candidates = await loadCandidates(db, election.id);
+  return loadUncoveredRecordAreas(
+    db,
+    candidates.map((candidate) => candidate.candidateId),
+    areaIds,
+    election.office_id
+  );
 }
 
 async function applyOne(
