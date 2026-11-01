@@ -1480,14 +1480,9 @@ export function ElectionPage() {
             pages of one site (index + detail), and a heading plus a line per
             URL read as the same source printed twice. */}
         <SourceFootnote urls={electionOnlySources} className="mt-[29px] box:mt-[18px]" />
-        {/* Visible freshness, same as the candidate page's "Profile last
-            researched" line: engines weigh a dated page over an undated
-            one, and a reader deserves to know how old the roster is. */}
-        {data.updated_at ? (
-          <p className="mt-[29px] box:mt-[18px] text-xs text-ink-soft">
-            Last updated {formatElectionDate(data.updated_at.slice(0, 10))}.
-          </p>
-        ) : null}
+        {/* No visible "Last updated" line (owner, 2026-10-31: readers don't
+            need it); the page's freshness stays machine-readable as the
+            Event JSON-LD's dateModified above. */}
 
         {/* Last on purpose: reporting is a reaction to reading the page, not a
             headline action worth space above the candidates. Skipped when the
