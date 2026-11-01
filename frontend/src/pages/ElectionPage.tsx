@@ -737,13 +737,13 @@ export function ElectionPage() {
             line); the per-measure math left with the old disclosure. A
             retention race gets a "Retention race" chip of the same kind:
             the label alone means nothing to a first-time reader, and its
-            bubble says what the race is. Then the date, whose value carries
-            the stage ("General election") so "General" can't read as a
-            mystery word. */}
-        <div ref={votePowerRef} className="mt-3">
+            bubble says what the race is. No election date line (owner,
+            2026-10-31): the list's date headings, the page title and the
+            Event JSON-LD already carry it. */}
+        <div ref={votePowerRef} className={votePowerChip !== null ? "mt-3" : undefined}>
           {votePowerChip !== null ? (
             // relative: the bubble anchors under the chip's left edge.
-            <div ref={votePowerInfoRef} className="relative mb-3 inline-block">
+            <div ref={votePowerInfoRef} className="relative inline-block">
               {votePowerChip.explanation ? (
                 <button
                   type="button"
@@ -792,15 +792,6 @@ export function ElectionPage() {
               ) : null}
             </div>
           ) : null}
-          <div>
-            <p className="text-sm text-ink">Election date</p>
-            <p className="mt-1 text-lg text-ink">
-              {formatElectionDate(data.election_date)}
-              {/* formatOutcome doubles as a stage prettifier: general → General */}
-              {data.election_stage ? <> · {formatOutcome(data.election_stage)} election</> : null}
-              {data.seats_to_fill != null && data.seats_to_fill > 1 ? <> · {data.seats_to_fill} seats</> : null}
-            </p>
-          </div>
         </div>
         <RankedChoiceNotice votingMethod={data.voting_method} className="text-body text-ink" />
         {/* The detail page has room for the whole caveat, where the ballot card

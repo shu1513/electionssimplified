@@ -173,8 +173,8 @@ describe("ElectionPage", () => {
     await screen.findByRole("heading", { name: "Governor" });
     expect(screen.queryByText(/My vote power/)).not.toBeInTheDocument();
     expect(screen.queryByText("Below average")).not.toBeInTheDocument();
-    // The date stands on its own.
-    expect(screen.getByText("Election date")).toBeInTheDocument();
+    // And no election date line either: the header carries only the chip.
+    expect(screen.queryByText("Election date")).not.toBeInTheDocument();
   });
 
   it("renders the chip as plain text when the payload carries no explanation", async () => {
@@ -228,23 +228,6 @@ describe("ElectionPage", () => {
     await screen.findByRole("heading", { name: "Governor" });
     expect(screen.queryByText(/My vote power/)).not.toBeInTheDocument();
     expect(screen.queryByText("How do we calculate my vote power?")).not.toBeInTheDocument();
-  });
-
-  it("shows the seat count for multi-seat contests and hides it otherwise", async () => {
-    stubApiRoutes({ ...ANONYMOUS });
-    renderElection(() => electionDetail({ seats_to_fill: 3 }));
-
-    expect(await screen.findByRole("heading", { name: "Governor" })).toBeInTheDocument();
-    // The header strip names the seat count.
-    expect(screen.getByText(/3 seats/)).toBeInTheDocument();
-  });
-
-  it("shows no seat count when seats_to_fill is absent or 1", async () => {
-    stubApiRoutes({ ...ANONYMOUS });
-    renderElection(() => electionDetail({ seats_to_fill: 1 }));
-
-    expect(await screen.findByRole("heading", { name: "Governor" })).toBeInTheDocument();
-    expect(screen.queryByText(/seats/)).not.toBeInTheDocument();
   });
 
   it("explains a seat whose electorate is smaller than the district, without claiming to filter", async () => {
