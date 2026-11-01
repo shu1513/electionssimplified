@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { BackLink } from "../components/BackLink";
 import { Link, useNavigate } from "react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@voteapp/api-client";
@@ -480,6 +481,7 @@ export function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-4 px-4 py-8">
+      <BackLink />
       <h1 className="text-title font-bold">Settings</h1>
       <ProfileSection me={me} />
       {me.email_verified ? (

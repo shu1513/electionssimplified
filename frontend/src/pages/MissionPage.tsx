@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { BackLink } from "../components/BackLink";
 import type { MetaFunction } from "react-router";
 import { Link } from "react-router";
 import { APP_NAME, useMe } from "@voteapp/api-client";
@@ -182,6 +183,7 @@ export default function MissionPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-4 py-8">
+      <BackLink />
       <section className="space-y-3 text-body text-ink">
         <h1 className="text-title font-bold">Mission</h1>
 
