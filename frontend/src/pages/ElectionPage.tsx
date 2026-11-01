@@ -739,7 +739,7 @@ export function ElectionPage() {
             reader, and its bubble says what the race is. No election date
             line: the list's date headings, the page title and the Event
             JSON-LD already carry it. */}
-        <div ref={votePowerRef} className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-ink-soft">
+        <div ref={votePowerRef} className="mt-1 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm text-ink-soft">
           <Link to={`/districts/${data.district.id}`} className="underline hover:text-ink">
             {formatDistrictName(data.district.name)}
           </Link>
