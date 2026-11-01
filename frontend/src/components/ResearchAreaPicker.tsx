@@ -55,17 +55,44 @@ export type ResearchAreaOption = {
 export type ResearchAreaPickerLayout = "split" | "pool" | "ranked";
 
 type ResearchAreaPickerProps = {
+  /** Every area the ranked rows may name (the catalog, or at least the
+   * ranked areas plus the pool). */
   areas: ResearchAreaOption[];
   ranked: RankedResearchArea[];
   disabled: boolean;
   onChange: (next: RankedResearchArea[]) => void;
   layout?: ResearchAreaPickerLayout;
+  /** Restricts the pool to these areas (the auto-pick "add these issues"
+   * dialog offers only the race's relevant issues) while the ranked panel
+   * still shows the user's whole list. Omitted: the pool is `areas`. */
+  poolAreas?: ResearchAreaOption[];
+  /** Stacked order (below lg, where the panels do not sit side by side):
+   * the pool first, then the ranked list. The auto-pick dialog's job is to
+   * choose from the race's few issues, and a long priority list above them
+   * would push that choice below the fold. Settings keeps ranked first. */
+  poolFirst?: boolean;
+  /** Replaces the pool heading ("Choose issues (N selected · no limit)")
+   * — the auto-pick dialog names the race instead, with no count. */
+  poolTitle?: string;
+  /** A ranked row to tint (the auto-pick dialog flashes the row an issue
+   * just landed in, since the list can sit below the fold there). */
+  highlightedId?: string | null;
 };
 
 const RANKED_PANEL_ID = "ranked-panel";
 const POOL_ID_PREFIX = "pool-";
 
-export function ResearchAreaPicker({ areas, ranked, disabled, onChange, layout = "split" }: ResearchAreaPickerProps) {
+export function ResearchAreaPicker({
+  areas,
+  ranked,
+  disabled,
+  onChange,
+  layout = "split",
+  poolAreas,
+  poolFirst = false,
+  poolTitle,
+  highlightedId = null,
+}: ResearchAreaPickerProps) {
   // Mouse: drag starts after 4px of movement, so the buttons stay plain
   // clicks. Touch: press-and-hold (200ms) then drag, so the lists do not
   // hijack page scrolling. Keyboard sorting stays for accessibility.
@@ -144,72 +171,83 @@ export function ResearchAreaPicker({ areas, ranked, disabled, onChange, layout =
   const showRanked = layout !== "pool";
   const showPool = layout !== "ranked";
 
+  // In the split layout the second panel needs air above it while the two
+  // are stacked (below lg); side by side they align at the top.
+  const secondPanelClass = layout === "split" ? "mt-6 lg:mt-0" : "";
+  const rankedPanel = showRanked ? (
+    <div key="ranked" className={poolFirst && showPool ? secondPanelClass : ""}>
+      <p className="text-sm font-medium text-ink">
+        My priorities{" "}
+        <span className="font-normal text-ink-soft">(drag to arrange)</span>
+      </p>
+      <RankedDropZone empty={ranked.length === 0}>
+        {ranked.length > 0 ? (
+          <SortableContext items={orderedIds} strategy={verticalListSortingStrategy}>
+            <ol className="space-y-1.5">
+              {ranked.map((row, index) => {
+                const area = areaById.get(row.research_area_id);
+                return (
+                  <SortableAreaRow
+                    key={row.research_area_id}
+                    row={row}
+                    index={index}
+                    name={area?.name ?? "Unknown area"}
+                    isEthics={area?.slug === INTEGRITY_ETHICS_SLUG}
+                    disabled={disabled}
+                    highlighted={row.research_area_id === highlightedId}
+                    onChange={(patch) => update(row.research_area_id, patch)}
+                    onRemove={() => remove(row.research_area_id)}
+                  />
+                );
+              })}
+            </ol>
+          </SortableContext>
+        ) : (
+          <p className="px-4 py-8 text-center text-sm text-ink-soft">
+            {layout === "ranked" ? "Nothing to rank yet. Go back and choose an issue." : "Tap an issue to add it here."}
+          </p>
+        )}
+      </RankedDropZone>
+    </div>
+  ) : null;
+  const poolPanel = showPool ? (
+    <div key="pool" className={poolFirst || !showRanked ? "" : secondPanelClass}>
+      {poolTitle ? (
+        <p className="text-sm font-medium text-ink">{poolTitle}</p>
+      ) : (
+        <p className="text-sm font-medium text-ink">
+          Choose issues{" "}
+          <span className="font-normal text-ink-soft">
+            ({ranked.length > 0 ? `${ranked.length} selected \u00b7 no limit` : "no limit"})
+          </span>
+        </p>
+      )}
+      {/* Public-salience order, not the catalog's alphabetical order — the
+          same ranking the election and candidate pages use, so the issues
+          most users pick first sit at the top of the grid. */}
+      <ul className="mt-2 grid grid-cols-[repeat(auto-fill,minmax(11rem,1fr))] gap-2">
+        {sortByResearchAreaPriority(poolAreas ?? areas).map((area) => {
+          const rank = orderedIds.indexOf(area.id);
+          return (
+            <PoolAreaCard
+              key={area.id}
+              area={area}
+              rank={rank}
+              disabled={disabled}
+              draggable={layout === "split"}
+              onToggle={() => (rank >= 0 ? remove(area.id) : addAt(area.id, ranked.length))}
+            />
+          );
+        })}
+      </ul>
+    </div>
+  ) : null;
+
   return (
     <DndContext sensors={sensors} collisionDetection={collisionDetection} onDragEnd={onDragEnd}>
       <div className={`mt-3 ${layout === "split" ? "gap-x-6 lg:grid lg:grid-cols-2 lg:items-start" : ""}`}>
-        {showRanked ? (
-        <div>
-          <p className="text-sm font-medium text-ink">
-            My priorities{" "}
-            <span className="font-normal text-ink-soft">(drag to arrange)</span>
-          </p>
-          <RankedDropZone empty={ranked.length === 0}>
-            {ranked.length > 0 ? (
-              <SortableContext items={orderedIds} strategy={verticalListSortingStrategy}>
-                <ol className="space-y-1.5">
-                  {ranked.map((row, index) => {
-                    const area = areaById.get(row.research_area_id);
-                    return (
-                      <SortableAreaRow
-                        key={row.research_area_id}
-                        row={row}
-                        index={index}
-                        name={area?.name ?? "Unknown area"}
-                        isEthics={area?.slug === INTEGRITY_ETHICS_SLUG}
-                        disabled={disabled}
-                        onChange={(patch) => update(row.research_area_id, patch)}
-                        onRemove={() => remove(row.research_area_id)}
-                      />
-                    );
-                  })}
-                </ol>
-              </SortableContext>
-            ) : (
-              <p className="px-4 py-8 text-center text-sm text-ink-soft">
-                {layout === "ranked" ? "Nothing to rank yet. Go back and choose an issue." : "Tap an issue to add it here."}
-              </p>
-            )}
-          </RankedDropZone>
-        </div>
-        ) : null}
-        {showPool ? (
-        <div className={layout === "split" ? "mt-6 lg:mt-0" : ""}>
-          <p className="text-sm font-medium text-ink">
-            Choose issues{" "}
-            <span className="font-normal text-ink-soft">
-              ({ranked.length > 0 ? `${ranked.length} selected \u00b7 no limit` : "no limit"})
-            </span>
-          </p>
-          {/* Public-salience order, not the catalog's alphabetical order — the
-              same ranking the election and candidate pages use, so the issues
-              most users pick first sit at the top of the grid. */}
-          <ul className="mt-2 grid grid-cols-[repeat(auto-fill,minmax(11rem,1fr))] gap-2">
-            {sortByResearchAreaPriority(areas).map((area) => {
-              const rank = orderedIds.indexOf(area.id);
-              return (
-                <PoolAreaCard
-                  key={area.id}
-                  area={area}
-                  rank={rank}
-                  disabled={disabled}
-                  draggable={layout === "split"}
-                  onToggle={() => (rank >= 0 ? remove(area.id) : addAt(area.id, ranked.length))}
-                />
-              );
-            })}
-          </ul>
-        </div>
-        ) : null}
+        {poolFirst ? poolPanel : rankedPanel}
+        {poolFirst ? rankedPanel : poolPanel}
       </div>
     </DndContext>
   );
@@ -346,6 +384,7 @@ function SortableAreaRow({
   name,
   isEthics,
   disabled,
+  highlighted = false,
   onChange,
   onRemove,
 }: {
@@ -354,6 +393,7 @@ function SortableAreaRow({
   name: string;
   isEthics: boolean;
   disabled: boolean;
+  highlighted?: boolean;
   onChange: (patch: Partial<Omit<RankedResearchArea, "research_area_id">>) => void;
   onRemove: () => void;
 }) {
@@ -375,13 +415,16 @@ function SortableAreaRow({
     <li
       ref={setNodeRef}
       {...listeners}
+      data-research-area-id={row.research_area_id}
       style={{ transform: CSS.Transform.toString(transform), transition }}
       // touch-manipulation, not touch-none: the TouchSensor prevents
       // scrolling itself once its press-and-hold delay activates, so plain
       // touches on the list still scroll the page.
-      className={`flex cursor-grab touch-manipulation flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-line bg-surface px-2 py-2 text-sm select-none ${
-        isDragging ? "z-10 shadow-md" : ""
-      }`}
+      // highlighted: the same green as a chosen pool card, so "it landed
+      // here" reads as the same state.
+      className={`flex cursor-grab touch-manipulation flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border px-2 py-2 text-sm select-none transition-colors ${
+        highlighted ? "border-green-700 bg-green-50" : "border-line bg-surface"
+      } ${isDragging ? "z-10 shadow-md" : ""}`}
     >
       <span
         ref={setActivatorNodeRef}

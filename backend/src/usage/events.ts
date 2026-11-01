@@ -309,6 +309,17 @@ const CATALOG: Record<string, { required: Record<string, PropRule>; optional?: R
       error_category: oneOf("address", "not_found", "rate_limited", "server", "network", "other"),
     },
   },
+  // The "add these issues" prompt after a no-pick the user's list could not
+  // decide: shown with the offered issues, then added (the pick reruns) or
+  // dismissed. issues_bucket counts the issues offered (shown/dismissed) or
+  // added.
+  autopick_suggest: {
+    required: {
+      scope: oneOf("election", "date"),
+      action: oneOf("shown", "added", "dismissed"),
+      issues_bucket: oneOf(...COUNT_BUCKETS),
+    },
+  },
   address_nudge_click: { required: {} },
   post_pick_click: { required: { target: oneOf("back", "draft") } },
   share_open: { required: { subject: oneOf("election", "candidate", "picks", "site") } },

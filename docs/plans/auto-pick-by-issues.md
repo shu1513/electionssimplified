@@ -321,6 +321,27 @@ choices` writes have none today, and the 200-id cap bounds the work per call.
 - **Mobile**: uncapped list works once the cap constant is gone; direction /
   veto toggles and the buttons are a follow-up PR (server preserves values on
   omitted fields, so nothing breaks in between).
+- **"Add these issues?" prompt** (2026-10-31): a no-pick that more ranked
+  issues could decide (`insufficient_evidence`, `only_negative_evidence`,
+  `tie`) carries `suggested_issues` — the unranked, user-selectable issues
+  the undecided field (the shortlist when there is one, else the live
+  roster; the one judge; the measure's tags) has usable records on, scoped
+  to the office's allowed areas like the engine's own tag load. The web
+  controls open `AddIssuesDialog` ("Filter candidates based on issues most
+  important to me") over the result (per race on the election page; merged
+  across the open races on a date fill). Its body is the Settings ranked
+  editor (`ResearchAreaPicker` with `poolAreas` = the offered issues): the
+  user's whole list with the offered issues chosen at the bottom, drag to
+  place them, Support/Oppose, Must, tap off. Save is one full-list PUT and
+  the same pick reruns, so the list grows one race at a time. Below the three-issue floor
+  the web controls call the engine anyway: `too_few_issues` carries the same
+  suggestions (whole live roster), the dialog says "needs at least 3; you
+  have N", and promises the rerun only once the additions reach the floor;
+  the linked "Rank your issues" prompt remains only when the race(s) offer
+  nothing. Vetoes and closed elections never suggest; a race nobody
+  researched has nothing to suggest and opens nothing. Mobile: field is
+  optional in the client type; the mobile dialog is a follow-up (parked
+  2026-10-31).
 
 ## Phases / PRs
 

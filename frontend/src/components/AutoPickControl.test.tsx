@@ -188,8 +188,11 @@ describe("AutoPickControl", () => {
     expect(screen.queryByRole("button", { name: /your values/ })).not.toBeInTheDocument();
   });
 
-  it("prompts for more ranked issues below the floor, linking to the issue editor", async () => {
-    stubApiRoutes({
+  // Below the floor the engine is still called: it answers too_few_issues
+  // and names the issues this race's candidates have records on, and the
+  // dialog turns that into the shortest path to three ranked issues.
+  it("opens the add-issues dialog below the floor when the race has issues to offer", async () => {
+    const fetchMock = stubApiRoutes({
       // useMyResearchAreas resolves the session through the real useMe (the
       // vi.mock above only swaps the component's own import), so the identity
       // endpoint must answer for the preferences query to enable.
@@ -197,11 +200,61 @@ describe("AutoPickControl", () => {
       "/api/me/research-area-preferences": {
         body: { preferences: THREE_PREFERENCES.preferences.slice(0, 2) },
       },
+      "/api/me/election-choices": { body: { choices: [] } },
+      "/api/me/auto-picks": {
+        body: {
+          results: [
+            pickedResult({
+              outcome: "no_pick",
+              reason: "too_few_issues",
+              picked_candidate_ids: [],
+              candidates: [],
+              unresearched: [],
+              suggested_issues: [
+                {
+                  research_area_id: "aaaaaaaa-0000-4000-8000-000000000004",
+                  slug: "public_safety",
+                  name: "Public safety",
+                  description: null,
+                  candidate_count: 2,
+                  record_count: 4,
+                },
+              ],
+            }),
+          ],
+        },
+      },
+    });
+    renderControl();
+    await clickPickForMe();
+    const dialog = await screen.findByRole("dialog", { name: "Filter candidates by choosing your stances on these issues" });
+    // Two ranked plus this one reaches the floor, so the rerun is promised.
+    await userEvent.setup().click(within(dialog).getByRole("button", { name: "Public safety", pressed: false }));
+    expect(within(dialog).getByRole("button", { name: "Add 1 issue and pick again" })).toBeEnabled();
+    expect(screen.queryByRole("link", { name: "Rank your issues" })).not.toBeInTheDocument();
+    expect(fetchMock.mock.calls.some(([input]) => String(input).includes("auto-picks"))).toBe(true);
+  });
+
+  it("falls back to the linked rank-your-issues prompt below the floor when the race offers nothing", async () => {
+    stubApiRoutes({
+      "/api/me": { body: { user: SIGNED_IN } },
+      "/api/me/research-area-preferences": { body: { preferences: [] } },
+      "/api/me/election-choices": { body: { choices: [] } },
+      "/api/me/auto-picks": {
+        body: {
+          results: [
+            pickedResult({ outcome: "no_pick", reason: "too_few_issues", picked_candidate_ids: [], suggested_issues: [] }),
+          ],
+        },
+      },
     });
     renderControl();
     await clickPickForMe();
     const link = await screen.findByRole("link", { name: "Rank your issues" });
     expect(link).toHaveAttribute("href", "/me/settings#my-issues");
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    // No panel repeating the same sentence under the prompt.
+    expect(screen.queryByRole("region", { name: "Why this pick" })).not.toBeInTheDocument();
   });
 
   it("runs the engine and renders the why-this-pick panel for a winner", async () => {
@@ -226,6 +279,97 @@ describe("AutoPickControl", () => {
       election_ids: [ELECTION_ID],
       mode: "replace",
     });
+  });
+
+  // A no-pick the user's list could not decide opens the "Add these issues?"
+  // dialog over the panel, offering only the issues the response says these
+  // candidates have records on. Adding them PUTs the full ranked list (the
+  // existing three, then the new ones) and reruns the pick without another
+  // click.
+  it("offers the candidates' uncovered issues after an evidence-gap no-pick, then reruns once they are added", async () => {
+    const AREA_SAFETY = "aaaaaaaa-0000-4000-8000-000000000004";
+    let runs = 0;
+    const fetchMock = stubApiRoutes({
+      "/api/me": { body: { user: SIGNED_IN } },
+      "/api/me/research-area-preferences": (_url, init) =>
+        init?.method === "PUT"
+          ? { body: { preferences: JSON.parse(String(init.body)).preferences } }
+          : { body: THREE_PREFERENCES },
+      "/api/me/election-choices": { body: { choices: [] } },
+      "/api/me/auto-picks": () => {
+        runs += 1;
+        return runs === 1
+          ? {
+              body: {
+                results: [
+                  pickedResult({
+                    outcome: "no_pick",
+                    reason: "insufficient_evidence",
+                    picked_candidate_ids: [],
+                    suggested_issues: [
+                      {
+                        research_area_id: AREA_SAFETY,
+                        slug: "public_safety",
+                        name: "Public safety",
+                        description: null,
+                        candidate_count: 2,
+                        record_count: 4,
+                      },
+                    ],
+                  }),
+                ],
+              },
+            }
+          : { body: { results: [pickedResult()] } };
+      },
+    });
+    renderControl();
+    await clickPickForMe();
+    const dialog = await screen.findByRole("dialog", { name: "Filter candidates by choosing your stances on these issues" });
+    // The offered issue waits in the pool, not yet chosen.
+    expect(within(dialog).getByRole("button", { name: "Public safety", pressed: false })).toBeInTheDocument();
+    // The honest no-pick panel is still there behind the dialog.
+    expect(screen.getByRole("region", { name: "Why this pick" })).toHaveTextContent(
+      "No pick: none of these candidates has a record on your issues yet."
+    );
+    const user = userEvent.setup();
+    await user.click(within(dialog).getByRole("button", { name: "Public safety", pressed: false }));
+    await user.click(within(dialog).getByRole("button", { name: "Add 1 issue and pick again" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    await waitFor(() =>
+      expect(screen.getByRole("region", { name: "Why this pick" })).toHaveTextContent(
+        "Picked Alice Alvarez — the best match for your issues."
+      )
+    );
+    const put = fetchMock.mock.calls.find(
+      ([input, init]) => String(input).includes("research-area-preferences") && init?.method === "PUT"
+    );
+    expect(JSON.parse(String(put?.[1]?.body)).preferences.map((entry: { research_area_id: string; rank: number }) => [entry.research_area_id, entry.rank])).toEqual([
+      [AREA_HOUSING, 1],
+      [AREA_CLIMATE, 2],
+      [AREA_TAXES, 3],
+      [AREA_SAFETY, 4],
+    ]);
+    expect(runs).toBe(2);
+  });
+
+  it("keeps the panel and offers no dialog when the no-pick has nothing to suggest", async () => {
+    stubApiRoutes({
+      "/api/me": { body: { user: SIGNED_IN } },
+      "/api/me/research-area-preferences": { body: THREE_PREFERENCES },
+      "/api/me/election-choices": { body: { choices: [] } },
+      "/api/me/auto-picks": {
+        body: {
+          results: [
+            pickedResult({ outcome: "no_pick", reason: "insufficient_evidence", picked_candidate_ids: [], suggested_issues: [] }),
+          ],
+        },
+      },
+    });
+    renderControl();
+    await clickPickForMe();
+    await screen.findByRole("region", { name: "Why this pick" });
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
   // A run started on election A must not reach into election B's page:
@@ -301,11 +445,12 @@ describe("AutoPickControl", () => {
     });
     renderControl();
     await clickPickForMe();
-    // No client-side "rank your issues" misdirection from the errored empty
-    // list — the POST ran and the backend's authoritative reason rendered.
-    const panel = await screen.findByRole("region", { name: "Why this pick" });
-    expect(panel).toHaveTextContent("Rank at least 3 issues first");
-    expect(screen.queryByRole("link", { name: "Rank your issues" })).not.toBeInTheDocument();
+    // The POST ran (no client-side short-circuit on the errored empty list)
+    // and the backend's authoritative reason rendered — as the linked
+    // prompt, since the race offered nothing to add.
+    expect(await screen.findByText(/Rank at least 3 issues first/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Rank your issues" })).toHaveAttribute("href", "/me/settings#my-issues");
+    expect(screen.queryByRole("region", { name: "Why this pick" })).not.toBeInTheDocument();
   });
 
   it("explains an honest no-pick, naming the shortlist", async () => {
@@ -622,8 +767,10 @@ describe("AutoPickControl", () => {
     });
     renderControl();
     await clickPickForMe();
-    const panel = await screen.findByRole("region", { name: "Why this pick" });
-    expect(panel).toHaveTextContent("Rank at least 3 issues first");
-    expect(panel).not.toHaveTextContent("isn't tagged");
+    // With nothing to offer, the floor shows as the linked prompt, not a panel.
+    expect(await screen.findByText(/Rank at least 3 issues first/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Rank your issues" })).toHaveAttribute("href", "/me/settings#my-issues");
+    expect(screen.queryByRole("region", { name: "Why this pick" })).not.toBeInTheDocument();
+    expect(screen.queryByText(/isn't tagged/)).not.toBeInTheDocument();
   });
 });

@@ -531,8 +531,23 @@ describe("applyAutoPicks", () => {
       .mockResolvedValueOnce({ rows: [{ id: ELECTION_ID }] }) // prevalidate election ids
       .mockResolvedValueOnce({ rows: threeIssueRows.rows.slice(0, 2) }) // loadIssues: only 2
       .mockResolvedValueOnce({
-        rows: [{ id: ELECTION_ID, race_type: "office", seats_to_fill: 1, is_upcoming: true }],
-      }); // loadElection
+        rows: [{ id: ELECTION_ID, race_type: "office", seats_to_fill: 1, office_id: null, is_upcoming: true }],
+      }) // loadElection
+      .mockResolvedValueOnce({
+        rows: [{ candidate_id: CAND_A, display_name: "Alice", never_researched: false }],
+      }) // loadCandidates (for the suggestions)
+      .mockResolvedValueOnce({
+        rows: [
+          {
+            research_area_id: AREA_3,
+            slug: "area-3",
+            name: "Area 3",
+            description: null,
+            candidate_count: 1,
+            record_count: 2,
+          },
+        ],
+      }); // loadUncoveredRecordAreas
     const result = await applyAutoPicks(db, USER_ID, {
       electionIds: [ELECTION_ID],
       mode: "replace",
@@ -541,6 +556,13 @@ describe("applyAutoPicks", () => {
     expect(result.results).toEqual([
       expect.objectContaining({ election_id: ELECTION_ID, outcome: "no_pick", reason: "too_few_issues" }),
     ]);
+    // Below the floor the prompt still gets the race's uncovered issues —
+    // that is how a two-issue user reaches three. The two ranked areas are
+    // excluded from the offer.
+    expect(result.results[0]!.suggested_issues).toEqual([
+      expect.objectContaining({ research_area_id: AREA_3, candidate_count: 1, record_count: 2 }),
+    ]);
+    expect(db.query.mock.calls[5]![1]).toEqual([[CAND_A], [AREA_1, AREA_2], null]);
   });
 
   it("answers Yes on a judicial retention race from the judge's records, as a measure position", async () => {
@@ -757,6 +779,152 @@ describe("applyAutoPicks", () => {
     expect(sql.some((statement) => statement.includes("DELETE"))).toBe(false);
     expect(sql.some((statement) => statement.includes("INSERT"))).toBe(false);
     expect(sql[sql.length - 1]).toBe("COMMIT");
+  });
+
+  it("suggests the unranked issues the undecided field has records on after an evidence-gap no-pick", async () => {
+    const { db } = createMockDb();
+    const suggestionRows = [
+      {
+        research_area_id: AREA_ETHICS,
+        slug: "public_safety",
+        name: "Public safety",
+        description: "Policing and crime.",
+        candidate_count: "2",
+        record_count: "5",
+      },
+    ];
+    db.query
+      .mockResolvedValueOnce(userRow)
+      .mockResolvedValueOnce({ rows: [{ id: ELECTION_ID }] }) // prevalidate election ids
+      .mockResolvedValueOnce(threeIssueRows)
+      .mockResolvedValueOnce({
+        rows: [{ id: ELECTION_ID, race_type: "office", seats_to_fill: 1, office_id: null, is_upcoming: true }],
+      }) // loadElection
+      .mockResolvedValueOnce({
+        rows: [
+          { candidate_id: CAND_A, display_name: "Alice", never_researched: false },
+          { candidate_id: CAND_B, display_name: "Bob", never_researched: false },
+        ],
+      }) // loadCandidates
+      .mockResolvedValueOnce({ rows: [] }) // loadRecordTags: nothing on the user's issues
+      .mockResolvedValueOnce({ rows: suggestionRows }); // loadUncoveredRecordAreas
+    const result = await applyAutoPicks(db, USER_ID, { electionIds: [ELECTION_ID], mode: "replace", dryRun: true });
+    expect(result.results[0]).toMatchObject({ outcome: "no_pick", reason: "insufficient_evidence" });
+    expect(result.results[0]!.suggested_issues).toEqual([
+      {
+        research_area_id: AREA_ETHICS,
+        slug: "public_safety",
+        name: "Public safety",
+        description: "Policing and crime.",
+        candidate_count: 2,
+        record_count: 5,
+      },
+    ]);
+    // The suggestion query runs over the whole roster (nobody had evidence,
+    // so there is no shortlist), excludes the ranked areas, and only offers
+    // what the user could actually rank and the engine could actually use.
+    const [sql, params] = db.query.mock.calls[6]!;
+    expect(String(sql)).toContain("is_user_selectable = true");
+    expect(String(sql)).toContain("NOT (tag.research_area_id = ANY($2::uuid[]))");
+    expect(String(sql)).toContain("tag.stance IS NOT NULL OR area.slug = 'integrity_and_ethics'");
+    expect(params).toEqual([[CAND_A, CAND_B], [AREA_1, AREA_2, AREA_3], null]);
+  });
+
+  it("narrows the suggestion query to the shortlist on a tie", async () => {
+    const { db } = createMockDb();
+    const tiedTag = (candidateId: string, recordId: string) => ({
+      candidate_id: candidateId,
+      record_id: recordId,
+      research_area_id: AREA_1,
+      stance: "for",
+      description: "a record",
+    });
+    db.query
+      .mockResolvedValueOnce(userRow)
+      .mockResolvedValueOnce({ rows: [{ id: ELECTION_ID }] })
+      .mockResolvedValueOnce(threeIssueRows)
+      .mockResolvedValueOnce({
+        rows: [{ id: ELECTION_ID, race_type: "office", seats_to_fill: 1, office_id: null, is_upcoming: true }],
+      })
+      .mockResolvedValueOnce({
+        rows: [
+          { candidate_id: CAND_A, display_name: "Alice", never_researched: false },
+          { candidate_id: CAND_B, display_name: "Bob", never_researched: false },
+          { candidate_id: CAND_C, display_name: "Cara", never_researched: true },
+        ],
+      })
+      .mockResolvedValueOnce({
+        rows: [
+          tiedTag(CAND_A, "cccccccc-0000-4000-8000-000000000001"),
+          tiedTag(CAND_B, "cccccccc-0000-4000-8000-000000000002"),
+        ],
+      })
+      .mockResolvedValueOnce({ rows: [] }); // loadUncoveredRecordAreas: nothing more known
+    const result = await applyAutoPicks(db, USER_ID, { electionIds: [ELECTION_ID], mode: "replace", dryRun: true });
+    expect(result.results[0]).toMatchObject({ outcome: "no_pick", reason: "tie", suggested_issues: [] });
+    expect(db.query.mock.calls[6]![1]).toEqual([[CAND_A, CAND_B], [AREA_1, AREA_2, AREA_3], null]);
+  });
+
+  it("does not look for suggestions when every candidate crossed a line", async () => {
+    const { db } = createMockDb();
+    db.query
+      .mockResolvedValueOnce(userRow)
+      .mockResolvedValueOnce({ rows: [{ id: ELECTION_ID }] })
+      .mockResolvedValueOnce({
+        rows: threeIssueRows.rows.map((row) => ({ ...row, hard_veto: true })),
+      })
+      .mockResolvedValueOnce({
+        rows: [{ id: ELECTION_ID, race_type: "office", seats_to_fill: 1, office_id: null, is_upcoming: true }],
+      })
+      .mockResolvedValueOnce({
+        rows: [{ candidate_id: CAND_A, display_name: "Alice", never_researched: false }],
+      })
+      .mockResolvedValueOnce({
+        rows: [
+          {
+            candidate_id: CAND_A,
+            record_id: "cccccccc-0000-4000-8000-000000000001",
+            research_area_id: AREA_1,
+            stance: "against",
+            description: "a record",
+          },
+        ],
+      });
+    const result = await applyAutoPicks(db, USER_ID, { electionIds: [ELECTION_ID], mode: "replace", dryRun: true });
+    expect(result.results[0]).toMatchObject({ outcome: "no_pick", reason: "all_vetoed", suggested_issues: [] });
+    expect(db.query).toHaveBeenCalledTimes(6);
+  });
+
+  it("suggests a measure's tags on unranked issues when it shares none with the user's", async () => {
+    const { db } = createMockDb();
+    db.query
+      .mockResolvedValueOnce(userRow)
+      .mockResolvedValueOnce({ rows: [{ id: ELECTION_ID }] })
+      .mockResolvedValueOnce(threeIssueRows)
+      .mockResolvedValueOnce({
+        rows: [{ id: ELECTION_ID, race_type: "ballot_measure", seats_to_fill: null, office_id: null, is_upcoming: true }],
+      })
+      .mockResolvedValueOnce({ rows: [] }) // loadMeasureTags: no overlap
+      .mockResolvedValueOnce({
+        rows: [
+          {
+            research_area_id: AREA_ETHICS,
+            slug: "housing",
+            name: "Housing",
+            description: null,
+            candidate_count: 1,
+            record_count: 1,
+          },
+        ],
+      }); // loadUncoveredMeasureAreas
+    const result = await applyAutoPicks(db, USER_ID, { electionIds: [ELECTION_ID], mode: "replace", dryRun: true });
+    expect(result.results[0]).toMatchObject({
+      race_type: "ballot_measure",
+      outcome: "no_pick",
+      reason: "insufficient_evidence",
+      suggested_issues: [expect.objectContaining({ research_area_id: AREA_ETHICS, name: "Housing", candidate_count: 1 })],
+    });
+    expect(String(db.query.mock.calls[5]![0])).toContain("ballot_measure_research_area_tags");
   });
 
   it("replaces existing picks and writes the winner with origin auto", async () => {

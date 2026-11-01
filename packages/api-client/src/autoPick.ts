@@ -3,6 +3,7 @@ import { apiRequest } from "./client";
 import type {
   AutoPickElectionResult,
   AutoPickReason,
+  AutoPickSuggestedIssue,
   AutoPicksClearResult,
   AutoPicksResult,
   ElectionChoice,
@@ -160,6 +161,44 @@ export function summarizeAutoPick(result: AutoPickElectionResult, seatsToFill: n
       return "No pick: none of these candidates has a record on your issues yet.";
     }
   }
+}
+
+/** One issue the "add these issues" prompt offers, merged across the races
+ * of one run. */
+export type SuggestedIssueGroup = AutoPickSuggestedIssue & {
+  /** Races in the run whose undecided candidates have records on it. */
+  race_count: number;
+};
+
+/**
+ * Merges the per-race suggested_issues of a run into one list for the
+ * "add these issues" prompt: a single-race run is a list of one. Each issue
+ * appears once, with the candidate and record counts summed and the number
+ * of races it would help; the issues that would move the most races (then
+ * the most candidates) come first. A result from a backend without the
+ * field contributes nothing.
+ */
+export function collectSuggestedIssues(results: Iterable<AutoPickElectionResult>): SuggestedIssueGroup[] {
+  const byId = new Map<string, SuggestedIssueGroup>();
+  for (const result of results) {
+    for (const issue of result.suggested_issues ?? []) {
+      const existing = byId.get(issue.research_area_id);
+      if (existing) {
+        existing.candidate_count += issue.candidate_count;
+        existing.record_count += issue.record_count;
+        existing.race_count += 1;
+      } else {
+        byId.set(issue.research_area_id, { ...issue, race_count: 1 });
+      }
+    }
+  }
+  return [...byId.values()].sort(
+    (a, b) =>
+      b.race_count - a.race_count ||
+      b.candidate_count - a.candidate_count ||
+      b.record_count - a.record_count ||
+      a.name.localeCompare(b.name)
+  );
 }
 
 /**

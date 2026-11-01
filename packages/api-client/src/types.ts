@@ -751,6 +751,23 @@ export type AutoPickElectionResult = {
   /** Measure races: per-issue alignment (net = ±1 after the user's direction). */
   measure_per_issue: { research_area_id: string; net: number }[];
   unresearched: { candidate_id: string; display_name: string; never_researched: boolean }[];
+  /** On a no-pick that more ranked issues could decide (insufficient
+   * evidence, unknowns only, a tie): the unranked issues the undecided
+   * candidates (or the measure) have usable records on, most candidates
+   * first — what the "add these issues" prompt offers. Optional to tolerate
+   * a backend from before the field existed (deploy skew). */
+  suggested_issues?: AutoPickSuggestedIssue[];
+};
+
+export type AutoPickSuggestedIssue = {
+  research_area_id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  /** Candidates in the undecided field with a usable record on this issue
+   * (1 for a measure or a retention judge). */
+  candidate_count: number;
+  record_count: number;
 };
 
 export type AutoPicksResult = { results: AutoPickElectionResult[] };

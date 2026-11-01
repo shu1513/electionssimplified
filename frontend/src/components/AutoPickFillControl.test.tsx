@@ -1,4 +1,4 @@
-import { screen, waitFor } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { AutoPickElectionResult, ElectionChoice, Me } from "@voteapp/api-client";
@@ -174,6 +174,81 @@ describe("AutoPickFillControl", () => {
     ]);
   });
 
+  // Races the run left open can carry suggested_issues — the unranked
+  // issues their candidates DO have records on. The dialog merges them
+  // across the open races (one card per issue, counting the races it would
+  // help), and adding them appends to the ranked list and reruns the fill
+  // over whatever is still empty.
+  it("offers the open races' uncovered issues merged, then refills once they are added", async () => {
+    const AREA_SAFETY = "aaaaaaaa-0000-4000-8000-000000000009";
+    const AREA_WATER = "aaaaaaaa-0000-4000-8000-000000000008";
+    const suggested = (researchAreaId: string, name: string) => ({
+      research_area_id: researchAreaId,
+      slug: name.toLowerCase(),
+      name,
+      description: null,
+      candidate_count: 2,
+      record_count: 2,
+    });
+    let runs = 0;
+    const fetchMock = stubApiRoutes({
+      "/api/me": { body: { user: SIGNED_IN } },
+      "/api/me/research-area-preferences": (_url, init) =>
+        init?.method === "PUT"
+          ? { body: { preferences: JSON.parse(String(init.body)).preferences } }
+          : { body: THREE_PREFERENCES },
+      "/api/me/auto-picks": () => {
+        runs += 1;
+        return runs === 1
+          ? {
+              body: {
+                results: [
+                  {
+                    ...noPickResult(E_EMPTY, "insufficient_evidence"),
+                    suggested_issues: [suggested(AREA_SAFETY, "Safety"), suggested(AREA_WATER, "Water")],
+                  },
+                  { ...noPickResult(E_MEASURE, "insufficient_evidence"), suggested_issues: [suggested(AREA_SAFETY, "Safety")] },
+                ],
+              },
+            }
+          : { body: { results: [pickedResult(E_EMPTY), noPickResult(E_MEASURE, "insufficient_evidence")] } };
+      },
+    });
+    const onResults = vi.fn();
+    renderControl({
+      choices: [choice({ picks: [{ candidate_id: CAND_A, display_name: "Alice", candidacy_status: "declared" }] })],
+      onResults,
+    });
+    await clickFill();
+    const dialog = await screen.findByRole("dialog", { name: "Filter candidates by choosing your stances on these issues" });
+    // Both offered, neither chosen yet; tapping them in appends after the
+    // three existing (Safety, which helps both open races, first).
+    const user = userEvent.setup();
+    await user.click(within(dialog).getByRole("button", { name: "Safety", pressed: false }));
+    await user.click(within(dialog).getByRole("button", { name: "Water", pressed: false }));
+    await user.click(within(dialog).getByRole("button", { name: "Add 2 issues and pick again" }));
+    await waitFor(() => expect(runs).toBe(2));
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+    const put = fetchMock.mock.calls.find(
+      ([input, init]) => String(input).includes("research-area-preferences") && init?.method === "PUT"
+    );
+    const ranked = JSON.parse(String(put?.[1]?.body)).preferences as { research_area_id: string; rank: number }[];
+    expect(ranked.slice(3)).toEqual([
+      { research_area_id: AREA_SAFETY, rank: 4, direction: "support", hard_veto: false },
+      { research_area_id: AREA_WATER, rank: 5, direction: "support", hard_veto: false },
+    ]);
+    // Both runs cover the same still-empty races (the choices prop is
+    // static here); the second one's picked result reaches the caller.
+    expect(requestsTo(fetchMock, "/api/me/auto-picks")).toEqual([
+      { election_ids: [E_EMPTY, E_MEASURE], mode: "fill_empty" },
+      { election_ids: [E_EMPTY, E_MEASURE], mode: "fill_empty" },
+    ]);
+    await waitFor(() => {
+      const latest = onResults.mock.lastCall?.[0] as Map<string, AutoPickElectionResult> | null | undefined;
+      expect(latest?.get(E_EMPTY)?.outcome).toBe("picked");
+    });
+  });
+
   it("sends large ballots in chunks of 200", async () => {
     const many = Array.from({ length: 201 }, (_, index) =>
       electionSummary({
@@ -199,17 +274,59 @@ describe("AutoPickFillControl", () => {
     expect(bodies.map((body) => body.election_ids.length)).toEqual([200, 1]);
   });
 
-  it("prompts for the issue floor instead of calling the API", async () => {
+  // Below the floor the fill still runs: every race answers too_few_issues,
+  // and whatever those races' candidates have records on is offered.
+  it("opens the add-issues dialog below the floor, counting the gap", async () => {
+    stubApiRoutes({
+      "/api/me": { body: { user: SIGNED_IN } },
+      "/api/me/research-area-preferences": { body: { preferences: [] } },
+      "/api/me/auto-picks": {
+        body: {
+          results: [
+            {
+              ...noPickResult(E_EMPTY, "too_few_issues"),
+              suggested_issues: [
+                {
+                  research_area_id: "aaaaaaaa-0000-4000-8000-000000000009",
+                  slug: "safety",
+                  name: "Safety",
+                  description: null,
+                  candidate_count: 2,
+                  record_count: 2,
+                },
+              ],
+            },
+            noPickResult(E_MEASURE, "too_few_issues"),
+          ],
+        },
+      },
+    });
+    renderControl();
+    await clickFill();
+    const dialog = await screen.findByRole("dialog", { name: "Filter candidates by choosing your stances on these issues" });
+    // One issue does not reach the floor, so no rerun is promised.
+    await userEvent.setup().click(within(dialog).getByRole("button", { name: "Safety", pressed: false }));
+    expect(within(dialog).getByRole("button", { name: "Add 1 issue" })).toBeEnabled();
+    expect(screen.queryByRole("link", { name: "Rank your issues" })).not.toBeInTheDocument();
+  });
+
+  it("falls back to the linked rank-your-issues prompt below the floor when nothing is offered", async () => {
     const fetchMock = stubApiRoutes({
       "/api/me": { body: { user: SIGNED_IN } },
       "/api/me/research-area-preferences": { body: { preferences: [] } },
+      "/api/me/auto-picks": {
+        body: { results: [noPickResult(E_EMPTY, "too_few_issues"), noPickResult(E_MEASURE, "too_few_issues")] },
+      },
     });
     renderControl();
     await clickFill();
 
     expect(await screen.findByText(/Rank at least 3 issues first/)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Rank your issues" })).toHaveAttribute("href", "/me/settings#my-issues");
-    expect(requestsTo(fetchMock, "/api/me/auto-picks")).toEqual([]);
+    expect(requestsTo(fetchMock, "/api/me/auto-picks")).toEqual([
+      { election_ids: [E_EMPTY, E_PICKED, E_MEASURE], mode: "fill_empty" },
+    ]);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
   it("clears via one server-side DELETE, never a per-row loop", async () => {
