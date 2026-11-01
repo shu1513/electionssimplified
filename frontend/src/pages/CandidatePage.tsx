@@ -627,9 +627,11 @@ export function CandidatePage() {
             subjectOf: { "@type": "WebPage", "@id": `${SITE_ORIGIN}/candidates/${candidate.candidate_id}`, publisher: { "@id": ORGANIZATION_ID } },
           }}
         />
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-title font-bold">{candidate.display_name}</h1>
-          <div className="flex items-center gap-2">
+        {/* No wrap, as on the election page: a long name wraps inside its
+            own column and the buttons stay on the first line at the right. */}
+        <div className="flex items-start justify-between gap-3">
+          <h1 className="min-w-0 flex-1 text-title font-bold">{candidate.display_name}</h1>
+          <div className="flex shrink-0 items-center gap-2">
             <ShareButton
               path={`/candidates/${candidate.candidate_id}`}
               shareText={candidateShareText(candidate)}

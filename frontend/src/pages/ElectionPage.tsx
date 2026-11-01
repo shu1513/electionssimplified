@@ -704,12 +704,17 @@ export function ElectionPage() {
             }}
           />
         ) : null}
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-title font-bold">{data.official_ballot_title}</h1>
-          <ShareButton
-            path={`/elections/${data.id}`}
-            shareText={`${data.official_ballot_title} — ${formatElectionDate(data.election_date)}`}
-          />
+        {/* No wrap: a long title wraps inside its own column (min-w-0
+            flex-1) and Share stays on the first line at the right, instead
+            of dropping under the title (owner, 2026-10-31). */}
+        <div className="flex items-start justify-between gap-3">
+          <h1 className="min-w-0 flex-1 text-title font-bold">{data.official_ballot_title}</h1>
+          <div className="shrink-0">
+            <ShareButton
+              path={`/elections/${data.id}`}
+              shareText={`${data.official_ballot_title} — ${formatElectionDate(data.election_date)}`}
+            />
+          </div>
         </div>
         {/* District as a quiet subtitle, name only (no district type): ballot
             titles are often generic ("Governor", "Mayor"), and a direct-link
