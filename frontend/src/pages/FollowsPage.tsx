@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { BackLink } from "../components/BackLink";
 import { useMe } from "@voteapp/api-client";
 import { LoadingNotice } from "../components/Status";
 import { VerifyPrompt } from "../components/VerifyPrompt";
@@ -40,6 +41,7 @@ export function FollowsPage() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px]">
+      <BackLink />
       <FollowedCandidatesSection />
     </div>
   );

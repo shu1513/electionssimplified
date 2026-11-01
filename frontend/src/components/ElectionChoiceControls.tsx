@@ -77,6 +77,12 @@ type CandidatePickButtonProps = {
    * PUT resolves) — never on a removal or a failed save. The election
    * page's post-pick toast hangs off it. */
   onPicked?: () => void;
+  /** "name": the candidate's name is the button text — the election page's
+   * sticky names card, where one "My pick:" label sits before the row.
+   * "unpick": a quiet "Unpick" on a picked candidate's card, rendered only
+   * while they are picked (the sticky card holds the pick controls). The
+   * default reads "Make my pick" beside a card that already names them. */
+  variant?: "action" | "name" | "unpick";
 };
 
 /**
@@ -97,6 +103,7 @@ export function CandidatePickButton({
   fullWidth = false,
   surface = "election_inline",
   onPicked,
+  variant = "action",
 }: CandidatePickButtonProps) {
   const { me } = useMe();
   const isGuest = me === null;
@@ -154,20 +161,40 @@ export function CandidatePickButton({
       ? "rounded-full px-3 py-1 text-xs font-semibold transition disabled:opacity-50"
       : "rounded-full px-4 py-2 text-sm font-semibold transition disabled:opacity-50";
   const base = fullWidth ? `${sizeClass} w-full text-center` : sizeClass;
-  const visibleLabel = setChoice.isPending ? "…" : isPicked ? "✓ My pick" : "Make my pick";
+  const visibleLabel = setChoice.isPending
+    ? "…"
+    : variant === "name"
+      ? isPicked
+        ? `✓ ${candidateName}`
+        : candidateName
+      : variant === "unpick"
+        ? "Unpick"
+        : isPicked
+          ? "✓ My pick"
+          : "Make my pick";
+  // The accessible name keeps the visible text inside it (WCAG 2.5.3) and
+  // keeps the page's N pick buttons apart in screen-reader button lists and
+  // voice control. Default: the visible text with the candidate suffix,
+  // matching the ballot cards' "My pick: {name}" chip wording. Name variant:
+  // a sentence around the name ("Make Jane Doe my pick" / "Jane Doe is my
+  // pick"), which also keeps it distinct from the inline button for the
+  // same candidate on the same page.
+  const accessibleName =
+    variant === "name"
+      ? isPicked
+        ? `${candidateName} is my pick`
+        : `Make ${candidateName} my pick`
+      : variant === "unpick"
+        ? `Unpick ${candidateName}`
+        : `${visibleLabel}: ${candidateName}`;
 
   return (
     <span className={fullWidth ? "flex w-full flex-col gap-1" : "inline-flex flex-col items-end gap-1"}>
-      {/* aria-label derives from visibleLabel so name and text can't drift:
-          the candidate suffix keeps the page's N pick buttons apart in
-          screen-reader button lists and voice control, and leading with the
-          visible text keeps the spoken label a prefix of the name (WCAG
-          2.5.3). Matches the ballot cards' "My pick: {name}" chip wording. */}
       <button
         type="button"
         disabled={saving || atMultiSeatCap}
         aria-pressed={isPicked}
-        aria-label={`${visibleLabel}: ${candidateName}`}
+        aria-label={accessibleName}
         aria-describedby={showCapMessage ? capMessageId : undefined}
         title={
           atMultiSeatCap && !showCapMessage
@@ -176,7 +203,11 @@ export function CandidatePickButton({
         }
         onClick={toggle}
         className={
-          isPicked
+          variant === "unpick"
+            ? // Quiet outline: the removal is the secondary action beside the
+              // green check that already says "picked".
+              `${base} border border-line bg-white text-ink-soft hover:border-red-700 hover:text-ink`
+            : isPicked
             ? `${base} bg-green-700 text-white hover:bg-green-800`
             : raceDecided
               ? `${base} border border-line bg-white text-ink hover:border-green-700`
@@ -458,6 +489,9 @@ export function StrandedPicksNotice({
 }
 
 type MeasureChoiceButtonsProps = {
+  /** Fires once a Yes/No LANDS (guest: on the draft write; account: when
+   * the PUT resolves) — never on a removal or a failed save. */
+  onPicked?: () => void;
   electionId: string;
   /** The measure's official ballot title — stored on guest draft rows. */
   raceTitle: string;
@@ -486,6 +520,7 @@ export function MeasureChoiceButtons({
   choice,
   fullWidth = false,
   raceType = "ballot_measure",
+  onPicked,
 }: MeasureChoiceButtonsProps) {
   const { me } = useMe();
   const isGuest = me === null;
@@ -506,9 +541,17 @@ export function MeasureChoiceButtons({
     if (isGuest) {
       setDraftMeasureChoice({ electionId, raceTitle, electionDate, position: next, raceType });
       recordPick(pickBase, null);
+      if (next !== null) {
+        onPicked?.();
+      }
       return;
     }
-    recordPick(pickBase, setChoice.mutateAsync({ election_id: electionId, measure_position: next }));
+    const request = setChoice.mutateAsync({ election_id: electionId, measure_position: next });
+    recordPick(pickBase, request);
+    if (next !== null && onPicked) {
+      // Rejections already surface under the buttons; nothing to confirm then.
+      request.then(onPicked, () => undefined);
+    }
   }
 
   return (

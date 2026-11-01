@@ -1333,8 +1333,9 @@ describe("CandidatePage back link and nav context", () => {
 
     await user.click(back);
     expect(router.state.location.pathname).toBe("/elections/e-1");
-    // The election page gets its own ballot context back.
-    expect(router.state.location.state).toEqual(ARRIVAL.backState);
+    // The election page gets its own ballot context back — plus the back
+    // link's listRequested stamp (DetailPager), read only by the list pages.
+    expect(router.state.location.state).toEqual({ ...ARRIVAL.backState, listRequested: true });
   });
 
   it("drops the one-race list for a reader who arrived from a race, and never names the race above the name", async () => {
@@ -1477,7 +1478,7 @@ describe("CandidatePage roster pager", () => {
     await user.click(within(pager).getByRole("link", { name: "Back to Election" }));
 
     expect(router.state.location.pathname).toBe("/elections/e-1");
-    expect(router.state.location.state).toEqual(ROSTER_ARRIVAL.backState);
+    expect(router.state.location.state).toEqual({ ...ROSTER_ARRIVAL.backState, listRequested: true });
   });
 
   it("shows no nav bar at all on a deep link with no back destination", async () => {
@@ -1602,7 +1603,7 @@ describe("CandidatePage roster rail", () => {
     await user.click(within(rail).getByRole("link", { name: "Back to Governor" }));
 
     expect(router.state.location.pathname).toBe("/elections/e-1");
-    expect(router.state.location.state).toEqual(ROSTER_ARRIVAL.backState);
+    expect(router.state.location.state).toEqual({ ...ROSTER_ARRIVAL.backState, listRequested: true });
   });
 
   it("renders no rail on deep links or stale snapshots (pager rules apply)", async () => {
@@ -1752,6 +1753,7 @@ describe("CandidatePage roster rail sort", () => {
     expect(router.state.location.state).toEqual({
       ...electionContext,
       rosterSort: "alphabetical",
+      listRequested: true,
     });
   });
 
@@ -1807,5 +1809,49 @@ describe("CandidatePage newest-view expansion across the pager", () => {
     await user.click(screen.getByRole("link", { name: "Next: Riley Runner" }));
     expect(router.state.location.pathname).toBe("/candidates/c-2");
     expect(await screen.findByRole("button", { name: "Show all 21 records" })).toBeInTheDocument();
+  });
+});
+
+// Post-pick auto-advance (lib/useAdvanceAfterPick): the sticky card's pick,
+// once it decides the race, moves to the next RACE of the election the
+// reader came from — the election context the page carries names it.
+describe("CandidatePage post-pick auto-advance", () => {
+  it("moves to the arrival election's next race once the pick lands", async () => {
+    clearBallotDraft();
+    setDraftBallotContext([DISTRICT.id], null);
+    stubApiRoutes({ ...ANONYMOUS });
+    const electionContext = {
+      backTo: { path: "/ballot", label: "All elections" },
+      contests: [{ id: "e-1", title: "Governor" }, { id: "e-2", title: "Mayor" }],
+    };
+    const { router } = renderCandidate(() => candidateDetail({ elections: [candidateElection()] }), "c-1", {
+      backTo: { path: "/elections/e-1", label: "Governor" },
+      backState: electionContext,
+    });
+
+    await userEvent.click(await screen.findByRole("button", { name: "Make my pick: Jordan Voter" }));
+    expect(await screen.findByRole("button", { name: "✓ My pick: Jordan Voter" })).toBeInTheDocument();
+    await waitFor(() => expect(router.state.location.pathname).toBe("/elections/e-2"), { timeout: 3000 });
+    // The election's own sibling context, not a roster sort for this race.
+    expect(router.state.location.state).toEqual(electionContext);
+    clearBallotDraft();
+  });
+
+  it("stays put when the arrival election is the ballot's last race", async () => {
+    clearBallotDraft();
+    setDraftBallotContext([DISTRICT.id], null);
+    stubApiRoutes({ ...ANONYMOUS });
+    const { router } = renderCandidate(() => candidateDetail({ elections: [candidateElection()] }), "c-1", {
+      backTo: { path: "/elections/e-1", label: "Governor" },
+      backState: {
+        backTo: { path: "/ballot", label: "All elections" },
+        contests: [{ id: "e-0", title: "Mayor" }, { id: "e-1", title: "Governor" }],
+      },
+    });
+
+    await userEvent.click(await screen.findByRole("button", { name: "Make my pick: Jordan Voter" }));
+    await new Promise((resolve) => setTimeout(resolve, 1600));
+    expect(router.state.location.pathname).toBe("/candidates/c-1");
+    clearBallotDraft();
   });
 });

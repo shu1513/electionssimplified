@@ -377,3 +377,112 @@ describe("SavedBallotPage nav context", () => {
     expect(navState.railSort).toBeUndefined();
   });
 });
+
+// The wide-screen shortcut (lib/useSplitViewShortcut) on the signed-in
+// list: the home page's redirect and the header's ballot link land here,
+// and from the rail breakpoint up continue straight into the split view.
+describe("SavedBallotPage wide-screen shortcut", () => {
+  const TWO_RACES = ballotSummary([electionSummary(), electionSummary({ id: "e-2", official_ballot_title: "Mayor" })]);
+
+  it("forwards a wide screen to the first race in ballot order, over the saved sort", async () => {
+    vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: true }));
+    const ballotUrls: string[] = [];
+    stubApiRoutes({
+      ...VERIFIED_BASE,
+      "/api/me/ballot": (url) => {
+        ballotUrls.push(String(url));
+        return { body: TWO_RACES };
+      },
+    });
+    const { router } = renderSavedBallot();
+
+    await waitFor(() => expect(router.state.location.pathname).toBe("/elections/e-1"));
+    expect(router.state.historyAction).toBe("REPLACE");
+    // Requested in ballot order from the start (the saved preference is
+    // vote_power), the rail seeded with it, the back link naming it.
+    expect(ballotUrls).toHaveLength(1);
+    expect(ballotUrls[0]).toContain("sort=state_baseline");
+    const state = router.state.location.state as { backTo: unknown; contests: { id: string }[]; railSort: unknown };
+    expect(state.backTo).toEqual({ path: "/me/ballot?sort=state_baseline", label: "All elections" });
+    expect(state.contests.map((contest) => contest.id)).toEqual(["e-1", "e-2"]);
+    expect(state.railSort).toBe("ballot_order");
+  });
+
+  it("shows the wide screen's ballot order in the select, and a saved choice takes the list over", async () => {
+    vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: true }));
+    const ballotUrls: string[] = [];
+    stubApiRoutes({
+      ...VERIFIED_BASE,
+      "/api/me/ballot": (url) => {
+        ballotUrls.push(String(url));
+        return { body: TWO_RACES };
+      },
+      "/api/me/ballot-preferences": (_url, init) => {
+        if (init?.method === "PUT") {
+          return { body: JSON.parse(String(init.body)) };
+        }
+        return { body: { sort: "vote_power", followed_first: true } };
+      },
+    });
+    const user = userEvent.setup();
+    const { router } = renderSavedBallot({ listRequested: true });
+
+    await screen.findByRole("heading", { name: "Elections on November 3, 2026" });
+    // The list is in ballot order (the wide-screen default), and the select
+    // says so rather than showing the saved preference it is not using.
+    expect(ballotUrls[0]).toContain("sort=state_baseline");
+    const select = await screen.findByRole("combobox", { name: /Sort/ });
+    expect(select).toHaveValue("state_baseline");
+    // Cards carry that order into the rail, naming it in the back path.
+    await user.click(screen.getAllByRole("link", { name: /Governor/ })[0]);
+    expect((router.state.location.state as { backTo: { path: string } }).backTo.path).toBe(
+      "/me/ballot?sort=state_baseline"
+    );
+    await router.navigate(-1);
+
+    // Saving a sort here ends the default: the list reloads under the saved
+    // preference and the select follows.
+    await user.selectOptions(await screen.findByRole("combobox", { name: /Sort/ }), "vote_power");
+    await waitFor(() => expect(ballotUrls.at(-1)).not.toContain("sort="));
+    expect(await screen.findByRole("combobox", { name: /Sort/ })).toHaveValue("vote_power");
+  });
+
+  it("keeps the list when the reader came back for it", async () => {
+    vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: true }));
+    stubApiRoutes({ ...VERIFIED_BASE, "/api/me/ballot": { body: TWO_RACES } });
+    const { router } = renderSavedBallot({ listRequested: true });
+    expect(await screen.findByRole("heading", { name: "Elections on November 3, 2026" })).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe("/me/ballot");
+  });
+
+  it("still confirms an address saved from this page's own form, after the mount-time decision", async () => {
+    vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: true }));
+    stubApiRoutes({
+      ...VERIFIED_BASE,
+      "/api/me/ballot": async () => {
+        await new Promise((resolve) => setTimeout(resolve, 30));
+        return { body: TWO_RACES };
+      },
+    });
+    const { router } = renderSavedBallot();
+    // The empty-state form's save: a same-route navigation carrying the
+    // notice while the page is already mounted and heading for the split
+    // view. The hold is read live, so the confirmation still shows.
+    await router.navigate("/me/ballot", {
+      state: { addressSaved: { matched_address: "1 MAIN ST, ANCHORAGE, AK", address_match_count: 2 } },
+    });
+
+    expect(await screen.findByRole("heading", { name: "Elections on November 3, 2026" })).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe("/me/ballot");
+  });
+
+  it("keeps the list to confirm a fresh address save", async () => {
+    vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: true }));
+    stubApiRoutes({ ...VERIFIED_BASE, "/api/me/ballot": { body: TWO_RACES } });
+    const { router } = renderSavedBallot({
+      addressSaved: { matched_address: "1 MAIN ST, ANCHORAGE, AK", address_match_count: 1 },
+    });
+    expect(await screen.findByRole("heading", { name: "Elections on November 3, 2026" })).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe("/me/ballot");
+  });
+});

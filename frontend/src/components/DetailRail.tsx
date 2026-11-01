@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link } from "react-router";
-import type { BackTo } from "../lib/detailNavContext";
+import { withListRequested, type BackTo } from "../lib/detailNavContext";
 import { track } from "../lib/usage";
 
 /** One rail row: the sibling's detail path plus the label the list showed.
@@ -60,8 +60,9 @@ function EmptyCircle() {
 }
 
 // Filled green circle with a white check — the rail's "you decided this
-// race" marker. The sr-only text in the row carries it for screen readers.
-function PickedCheck() {
+// race" marker, also the election page's mark on a picked candidate's
+// card. aria-hidden: the caller's sr-only text carries it for screen readers.
+export function PickedCheck() {
   return (
     <svg
       aria-hidden="true"
@@ -168,9 +169,9 @@ export function DetailRail({
   const renderRow = (entry: RailEntry) =>
     entry.id === currentId ? (
       // The current row: the page tone on the panel's grey, hairlines above
-      // and below, run to the panel's edge — the page's own tab — with a
-      // brand chevron pointing at the detail. No accent fill needed, which
-      // sidesteps the partisan read of blue/red on election content.
+      // and below, run to the panel's edge — the page's own tab. No accent
+      // fill or marker (the brand-red chevron came off, owner 2026-10-31),
+      // which sidesteps the partisan read of blue/red on election content.
       <li
         key={entry.id}
         ref={currentRef}
@@ -189,18 +190,6 @@ export function DetailRail({
           ) : null}
         </span>
         {entry.pickedLabel ? <PickedAnswer label={entry.pickedLabel} /> : null}
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 20 20"
-          className="ml-auto h-4 w-4 shrink-0 text-rausch"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <path d="M7 5l5 5-5 5" />
-        </svg>
       </li>
     ) : (
       <li key={entry.id}>
@@ -240,14 +229,22 @@ export function DetailRail({
   // over. truncate + title on every row: contest titles run legal-length,
   // and the rail must stay a rail.
   return (
-    <div className="relative hidden border-r border-rail-line bg-rail before:absolute before:inset-y-0 before:right-full before:w-screen before:bg-rail rail:block">
+    <div className="relative hidden bg-rail before:absolute before:inset-y-0 before:right-full before:w-screen before:bg-rail rail:block">
+      {/* The hairline between rail and detail, drawn BEHIND the rows rather
+          than as the panel's border: the current row's white tab runs to the
+          panel's edge and covers it, so the tab connects to the page with no
+          grey seam (owner, 2026-10-31). First child, so the nav paints over
+          it; the nav has no background, so it shows through everywhere else. */}
+      <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 w-px bg-rail-line" />
       <nav
         aria-label={ariaLabel}
         className="sticky top-0 max-h-screen min-w-0 scrollbar-none overflow-y-auto pb-4 pl-3 pt-4"
       >
+        {/* listRequested: the reader chose the full list, so the list page's
+            wide-screen shortcut must not forward them straight back here. */}
         <Link
           to={backTo.path}
-          state={backToState}
+          state={withListRequested(backToState)}
           aria-label={`Back to ${backTo.label}`}
           title={backTo.label}
           onClick={() =>
@@ -261,7 +258,10 @@ export function DetailRail({
         {/* No divider under the back link: on the tinted panel the title
           and controls read as one block with it (the mockup's "← All
           elections" / "Your ballot"); spacing alone separates them. */}
-        {headerSlot ? <div className="mr-3 mt-4 px-3">{headerSlot}</div> : null}
+        {/* px-3 only, no extra right margin: the header's content then ends
+            where the rows' text ends (rows have px-3 too), and the 18rem
+            rail's title line needs that room (owner, 2026-10-31). */}
+        {headerSlot ? <div className="mt-4 px-3">{headerSlot}</div> : null}
         <ul className="mt-2.5 space-y-1">
           {main.map((entry, index) => [
             // role="presentation": a heading, not a list item — the rows keep

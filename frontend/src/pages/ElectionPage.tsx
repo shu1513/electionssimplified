@@ -1,28 +1,24 @@
 import { Fragment, useEffect, useRef, useState } from "react";
 import { isRouteErrorResponse, Link, useLoaderData, useLocation, useRouteError } from "react-router";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
-import type { AutoPickElectionResult, BallotRaceType, ElectionDetail, PartyBucket, RailSortKey } from "@voteapp/api-client";
+import type { AutoPickElectionResult, ElectionDetail, RailSortKey } from "@voteapp/api-client";
 import { RankedChoiceNotice } from "../components/RankedChoiceNotice";
 import {
   RAIL_SORTS,
-  VOTE_POWER_BAND_ORDER,
   ballotSortForRailSort,
   competitivenessChip,
   isRailDistrictSort,
   nearestDayPickProgress,
   railSortForBallotSort,
-  railSortsOffered,
-  sortRailEntries,
 } from "@voteapp/api-client";
 import { partyColorClass } from "@voteapp/api-client";
 import { DetailPager } from "../components/DetailPager";
-import { DetailRail } from "../components/DetailRail";
+import { DetailRail, PickedCheck } from "../components/DetailRail";
 import {
   pagerNeighbors,
   readElectionNavState,
   type CandidateNavState,
   type ElectionNavState,
-  type NavContest,
 } from "../lib/detailNavContext";
 import { JsonLdScript } from "../components/JsonLdScript";
 import { MeasureFundingSection } from "../components/MeasureFundingSection";
@@ -45,6 +41,8 @@ import {
 } from "@voteapp/api-client";
 import { loadFromApi } from "../lib/loadFromApi";
 import { useHydrated } from "../lib/useHydrated";
+import { railOrder } from "../lib/railOrder";
+import { useAdvanceAfterPick, useAdvanceEnter } from "../lib/useAdvanceAfterPick";
 import { pageMeta, SITE_ORIGIN } from "../lib/pageMeta";
 import { ORGANIZATION_ID } from "../components/SiteJsonLd";
 import { usLatestLocalDate } from "../lib/usLatestLocalDate";
@@ -67,7 +65,6 @@ import { APP_NAME } from "@voteapp/api-client";
 import { useMe } from "@voteapp/api-client";
 import { useMyResearchAreas } from "@voteapp/api-client";
 import { aggregateRecordAreaStances, scoreStanceRelevance } from "@voteapp/api-client";
-import { partyBucket } from "@voteapp/api-client";
 import { positionBucket, sourceLinkProps, track, useSectionExposure } from "../lib/usage";
 
 // "alphabetical" is the payload's own order: the API sorts candidates by
@@ -107,13 +104,17 @@ function rewriteBackPath(
   return url.pathname + url.search + url.hash;
 }
 
-// The party filter over the candidates list. Order fixes the chip row;
-// labels are plural because the chips answer "show me the …".
-const PARTY_FILTER_OPTIONS: { bucket: PartyBucket; label: string }[] = [
-  { bucket: "democratic", label: "Democrats" },
-  { bucket: "republican", label: "Republicans" },
-  { bucket: "other", label: "Other" },
-];
+// Ratings that earn the header's vote-power chip: Average and above. Below
+// that the page says nothing — "Below average" over every low-stakes race
+// read as a put-down, not information.
+const VOTE_POWER_CHIP_LABELS: ReadonlySet<string> = new Set(["medium", "above_average", "high", "very_high"]);
+// The sticky names card renders for rosters up to this size: a typical
+// general-election field is two to four names, which fit as one row.
+const STICKY_PICK_MAX_CANDIDATES = 5;
+
+// The pill the owner asked for (2026-10-31), text color per band; the ⓘ
+// beside it is the control that opens the bubble.
+const VOTE_POWER_CHIP_CLASS = "inline-flex items-center rounded-full border border-line bg-white px-3 py-1 text-sm font-semibold";
 
 // The office summary is seeded (seedOffices.ts) as newline-separated
 // bullets, rendered as-is under the "About this office" heading. Blank lines
@@ -188,19 +189,30 @@ export function ElectionPage() {
   const chosenSort = chosenSortOverride ?? navState?.rosterSort ?? null;
   const effectiveChosenSort = chosenSort === "my_issues" && !hasSaved ? null : chosenSort;
   const candidateSort = effectiveChosenSort ?? (hasSaved ? "my_issues" : "alphabetical");
-  // The pick carries the election it was made on: this component stays
-  // mounted across param changes, and unlike the sort (a preference that
-  // travels), a party filter is a per-race choice — carrying it into the
-  // next election would silently hide candidates there. A pick from another
-  // election reads as "all"; no effect needed, stale state is simply never
-  // read.
-  const [partyPick, setPartyPick] = useState<{ electionId: string; bucket: PartyBucket | "all" }>({
-    electionId: "",
-    bucket: "all",
-  });
-
   const data = useLoaderData<typeof loader>();
   const competitiveness = competitivenessChip(data);
+  // The header chip: "My vote power: High" for a rating of Average or above,
+  // "Retention race" for a retention race, nothing for the rest (Below
+  // average, Very low, unknown). The ⓘ beside it opens the bubble and needs
+  // the backend's explanation; without one the chip stands alone.
+  const votePowerChip = (() => {
+    const label = data.vote_power.label;
+    const explanation = data.vote_power.explanation ?? null;
+    if (label === "retention") {
+      return { label: "Retention race", className: "text-ink-soft", explanation, infoLabel: "What is a retention race?" };
+    }
+    if (!VOTE_POWER_CHIP_LABELS.has(label)) return null;
+    return {
+      label: `My vote power: ${formatVotePowerLabel(label)}`,
+      className: votePowerBadgeClass(label),
+      explanation,
+      infoLabel: "How do we calculate my vote power?",
+    };
+  })()
+  // Close the bubble on a walk to another race.
+  useEffect(() => {
+    setVotePowerInfoOpen(false);
+  }, [data.id]);
   // The one-paragraph answer (electionAnswerText) feeds the Event JSON-LD
   // description, and its first sentences are the meta description. It is
   // not rendered on the page: every fact in it (title, place, date, roster,
@@ -210,22 +222,24 @@ export function ElectionPage() {
   // The ⓘ next to "Retention race": the one-line explanation is a tap
   // target, not a title tooltip (touch never sees tooltips). Component
   // state, so it closes again on a sibling walk to the next race.
-  const [retentionInfoOpen, setRetentionInfoOpen] = useState(false);
-  const retentionInfoRef = useRef<HTMLDivElement>(null);
-  // Popover, not in-flow text: opening it must not push the page down. It
-  // closes on Escape or a click anywhere outside the ⓘ and its bubble.
+  // The header chip's bubble (vote power / retention race). Popover, not
+  // in-flow text: opening it must not push the page down. It closes on
+  // Escape, on a click anywhere outside the chip and its bubble, and on a
+  // walk to another race (this element stays mounted across rail walks).
+  const [votePowerInfoOpen, setVotePowerInfoOpen] = useState(false);
+  const votePowerInfoRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (!retentionInfoOpen) {
+    if (!votePowerInfoOpen) {
       return;
     }
     const onPointerDown = (event: PointerEvent) => {
-      if (!retentionInfoRef.current?.contains(event.target as Node)) {
-        setRetentionInfoOpen(false);
+      if (!votePowerInfoRef.current?.contains(event.target as Node)) {
+        setVotePowerInfoOpen(false);
       }
     };
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setRetentionInfoOpen(false);
+        setVotePowerInfoOpen(false);
       }
     };
     document.addEventListener("pointerdown", onPointerDown);
@@ -234,7 +248,7 @@ export function ElectionPage() {
       document.removeEventListener("pointerdown", onPointerDown);
       document.removeEventListener("keydown", onKeyDown);
     };
-  }, [retentionInfoOpen]);
+  }, [votePowerInfoOpen]);
   // Usage: which parts of the page reached the viewport, once per election
   // (this element stays mounted across rail walks, hence the key).
   const votePowerRef = useSectionExposure("vote_power", data.id);
@@ -243,28 +257,6 @@ export function ElectionPage() {
   const measureYesNoRef = useSectionExposure("measure_yes_no", data.id);
   const candidatesRef = useSectionExposure("candidates", data.id);
   const resultsRef = useSectionExposure("results", data.id);
-  const chosenPartyFilter = partyPick.electionId === data.id ? partyPick.bucket : "all";
-  // Data-driven visibility: the filter renders only when the roster spans
-  // >= 2 buckets — a nonpartisan or one-party roster gets no filter because
-  // it could not change anything. is_partisan is deliberately not consulted
-  // (it can be null, and a partisan race whose roster is all one bucket
-  // still has nothing to filter). The count guard mirrors the sort's
-  // resilience: a picked bucket is ignored — not cleared — while the filter
-  // is hidden.
-  const partyCounts: Record<PartyBucket, number> = { democratic: 0, republican: 0, other: 0 };
-  for (const candidate of data.candidates) {
-    partyCounts[partyBucket(candidate.party)] += 1;
-  }
-  const presentPartyOptions = PARTY_FILTER_OPTIONS.filter((option) => partyCounts[option.bucket] > 0);
-  const showPartyFilter = presentPartyOptions.length >= 2;
-  const partyFilter =
-    showPartyFilter && chosenPartyFilter !== "all" && partyCounts[chosenPartyFilter] > 0
-      ? chosenPartyFilter
-      : "all";
-  const partyFilteredCandidates =
-    partyFilter === "all"
-      ? data.candidates
-      : data.candidates.filter((candidate) => partyBucket(candidate.party) === partyFilter);
   const measure = data.ballot_measure;
   // Election-level sources the measure section did NOT already show. A
   // measure election's sources are usually the same page the measure was
@@ -294,6 +286,9 @@ export function ElectionPage() {
   const myChoice = isGuest
     ? draftChoicesByElectionId(draft).get(data.id)
     : choiceByElectionId?.get(data.id);
+  // The viewer's picked candidate ids: the green check beside a picked
+  // candidate's name on the roster card, and that card's Unpick button.
+  const myPickIds = new Set((myChoice?.picks ?? []).map((pick) => pick.candidate_id));
   // The rail's pick checks: same choice source as the ballot pages' cards
   // (account choices signed-in, local draft as guest), same decided rule as
   // the pick-progress counters — a choice row emptied of picks keeps no
@@ -393,119 +388,21 @@ export function ElectionPage() {
   // The nav bar exists only for in-app arrivals: router state carries where
   // "back" goes and the ballot sequence. Deep links (shares, search
   // engines) have neither — they get no bar at all, by product choice.
-  // The rail mirrors the list tab the reader arrived from (navState.raceType):
-  // it slices to that race type when the snapshot types every contest (an
-  // old history entry may not) and holds both types. No switch of its own —
-  // the list page's tabs are the one place the type is chosen, so the back
-  // link's ?type= is never rewritten here.
-  const contests = navState?.contests;
-  const railTabsAvailable =
-    contests !== undefined &&
-    contests.every((contest) => contest.race_type !== undefined) &&
-    contests.some((contest) => contest.race_type === "office") &&
-    contests.some((contest) => contest.race_type === "ballot_measure");
-  const railTab: BallotRaceType | null = railTabsAvailable ? (navState?.raceType ?? null) : null;
-  // The rail's sort control: offered only for the sorts this snapshot can
-  // honor faithfully (railSortsOffered — an old unkeyed snapshot offers
-  // none), and withheld while the saved areas load so the default cannot
-  // engage prematurely and visibly re-shuffle. Same persistence story as
-  // the tab: component state across sibling walks, nav state across
-  // remounts. No "As listed": the sort is always engaged, seeded by the
-  // LIST's sort (the pages stamp railSort via railSortForBallotSort — the
-  // rail's sorts are the list's own, the two district-size sorts
-  // included). A snapshot
-  // that PREDATES the railSort stamp seeds from the back URL's own ?sort=
-  // instead — defaulting it to vote_power would make rewriteBackPath
-  // silently rewrite a sort=my_areas back link the reader never touched.
-  // Only after both fall through does vote_power, the ballot's default,
-  // apply (below).
-  // The direction the snapshot's district headings run in — the list's
-  // sort at click time (stamped; else read off the back URL for a snapshot
-  // that predates the stamp). Flipping to the other district sort runs the
-  // groups the other way.
-  const snapshotDistrictSort = (() => {
-    if (navState === null) return null;
-    // listSort, never railSort: railSort is the rail's engaged sort and is
-    // forwarded on sibling walks, so after a switch to a district sort it
-    // would misread a vote-power snapshot as size-ordered.
-    const stamped = navState.listSort;
-    if (isRailDistrictSort(stamped)) return stamped;
-    if (stamped !== undefined) return null;
-    // A snapshot that predates the listSort stamp: the back URL's sort.
-    const fromUrl = railSortForBallotSort(
-      new URL(navState.backTo.path, "http://internal").searchParams.get("sort") ?? "vote_power"
-    );
-    return isRailDistrictSort(fromUrl) ? fromUrl : null;
-  })();
-  // Ballot order is offered only from a snapshot that arrived in it (the
-  // rail cannot compute the paper-ballot order itself); listSort, never
-  // railSort, for the same reason as above.
-  const snapshotBallotOrdered = navState?.listSort === "ballot_order";
-  const offeredRailSorts = savedAreasLoading
-    ? []
-    : railSortsOffered(contests ?? [], hasSaved, {
-        snapshotOrdered: snapshotDistrictSort !== null,
-        ballotOrdered: snapshotBallotOrdered,
-      });
+  // The rail's order — tab slice, engaged sort, vote-power bands — comes
+  // from lib/railOrder, shared with the candidate page's post-pick advance
+  // so both pages agree on "the next race". The override is the reader's
+  // explicit pick on the rail's sort control: component state across
+  // sibling walks, nav state (railSort) across remounts.
   const [railSortOverride, setRailSortState] = useState<RailSortKey | null>(null);
-  const railSortState =
-    railSortOverride ??
-    (navState === null
-      ? null
-      : navState.railSort !== undefined
-        ? navState.railSort
-        : railSortForBallotSort(
-            new URL(navState.backTo.path, "http://internal").searchParams.get("sort") ?? "vote_power"
-          ));
-  const railSort =
-    railSortState !== null && offeredRailSorts.includes(railSortState)
-      ? railSortState
-      : offeredRailSorts.includes("vote_power")
-        ? "vote_power"
-        : (offeredRailSorts[0] ?? null);
-  // A fallback sort is one the reader did not choose (rewriteBackPath).
-  const railSortFallback = railSort !== railSortState;
-  const railDistrictOffered = offeredRailSorts.some((sort) => isRailDistrictSort(sort));
-  // Prev/next walk exactly what the rail shows: the engaged tab's slice, in
-  // the engaged sort's order.
-  const slicedContests =
-    railTab !== null && contests !== undefined
-      ? contests.filter((contest) => contest.race_type === railTab)
-      : contests;
-  const sortedContests =
-    railSort !== null && slicedContests !== undefined
-      ? sortRailEntries(slicedContests, railSort, weights, {
-          // A district-size arrival's own order is the list's true size
-          // order: keep it (flipped for the other direction). Any other
-          // arrival orders the levels itself.
-          groupOrder: snapshotDistrictSort !== null ? "snapshot" : "level",
-          reverseGroups:
-            isRailDistrictSort(railSort) && snapshotDistrictSort !== null && railSort !== snapshotDistrictSort,
-        })
-      : slicedContests;
-  // Vote-power band headings by the list's own rule: bands only once ten
-  // or more banded races are on show, so a short ballot is not chopped
-  // into tiny sections — and only on a single-date slice, since the list
-  // counts per date and the rail has no date headings to keep a second
-  // date's bands from reading as repeats.
-  const bandedContests = (sortedContests ?? []).filter((contest) => contest.vote_power_band !== undefined);
-  const railVotePowerBands =
-    railSort === "vote_power" &&
-    bandedContests.length >= 10 &&
-    new Set(bandedContests.map((contest) => contest.election_date)).size === 1;
-  // With bands on, the order is the list's: band first, score within — the
-  // scorer's ratings are not monotone in the score (a measure bump can
-  // lift a rating), so a pure score order would repeat a heading. A stable
-  // sort keeps the score order inside each band; the tails (no band) stay
-  // where sortRailEntries put them. Rail and pager both read this array.
-  const bandRank = (contest: NavContest): number =>
-    contest.vote_power_band === undefined
-      ? Number.POSITIVE_INFINITY
-      : VOTE_POWER_BAND_ORDER.indexOf(contest.vote_power_band as (typeof VOTE_POWER_BAND_ORDER)[number]);
-  const displayedContests =
-    railVotePowerBands && sortedContests !== undefined
-      ? [...sortedContests].sort((a, b) => bandRank(a) - bandRank(b))
-      : sortedContests;
+  const {
+    contests,
+    offeredRailSorts,
+    railSort,
+    railSortFallback,
+    railDistrictOffered,
+    railVotePowerBands,
+    displayedContests,
+  } = railOrder({ navState, railSortOverride, weights, hasSaved, savedAreasLoading });
   const contestNeighbors = pagerNeighbors(displayedContests, data.id);
   // Desktop rail: gated on the FULL snapshot (>= 2 entries containing this
   // election), not the slice — switching the rail to the other tab hides
@@ -547,10 +444,53 @@ export function ElectionPage() {
             },
           };
         })();
+  // Post-pick auto-advance (lib/useAdvanceAfterPick): once a pick made here
+  // decides this race — the single seat, the measure's answer, the last of
+  // several seats — move to the rail's next row, carrying the same context
+  // the pager's Next link would. Nothing to move to on a deep link or the
+  // ballot's last race.
+  const raceDecided =
+    myChoice !== undefined &&
+    (myChoice.measure_position !== null || myChoice.picks.length >= (data.seats_to_fill ?? 1));
+  const { arm: armAdvance, leaving: raceLeaving } = useAdvanceAfterPick({
+    key: data.id,
+    decided: raceDecided,
+    next:
+      contestNeighbors?.next && railNav !== null
+        ? {
+            electionId: contestNeighbors.next.id,
+            path: `/elections/${contestNeighbors.next.id}`,
+            state: railNav.forwarded,
+          }
+        : null,
+  });
+  // The arriving half of that motion: only the race the advance moved to.
+  const raceEntering = useAdvanceEnter(data.id);
+  // Every roster pick control (the inline card buttons, the sticky names
+  // card) lands here: arm the advance, and show the first-pick toast once
+  // per browser — the toast is a lesson, not a receipt, and marks itself
+  // seen once it is actually on screen (a split-view mount is hidden and
+  // doesn't count — see DraftToast).
+  const onRosterPicked = () => {
+    armAdvance();
+    if (hasDraftToastBeenSeen()) return;
+    setDraftToast((prev) => ({ electionId: data.id, n: (prev?.n ?? 0) + 1 }));
+  };
   // Computed once, before render: the roster links hand the candidate page
   // this exact displayed order (sort + party + records filters applied), so
   // the JSX and the state payload must come from the same array.
-  const orderedCandidates = sortCandidatesByStance(partyFilteredCandidates, candidateSort, weights);
+  const orderedCandidates = sortCandidatesByStance(data.candidates, candidateSort, weights);
+  // The sticky names card: the roster in displayed order, minus the
+  // candidacies the writer would reject, and only when short enough to read
+  // as one row of names — a long primary field keeps the inline buttons
+  // alone. Measures have their own Yes/No card.
+  const pickableCandidates = orderedCandidates
+    .map(({ candidate }) => candidate)
+    .filter((candidate) => candidate.status !== "withdrawn" && candidate.status !== "lost");
+  const stickyPickCandidates =
+    data.race_type !== "ballot_measure" && pickableCandidates.length <= STICKY_PICK_MAX_CANDIDATES
+      ? pickableCandidates
+      : [];
   const candidateNavState: CandidateNavState = {
     backTo: { path: `/elections/${data.id}`, label: data.official_ballot_title },
     // The election page's own incoming context rides along so the back hop
@@ -613,8 +553,8 @@ export function ElectionPage() {
     <div
       className={
         railContests !== null
-          ? "mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px] box:px-[11px] box:pt-[11px] box:pb-[29px] rail:grid rail:max-w-6xl rail:grid-cols-[18rem_minmax(0,1fr)] rail:gap-8 rail:pt-0 lg:grid-cols-[22rem_minmax(0,1fr)]"
-          : "mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px] box:px-[11px] box:pt-[11px] box:pb-[29px]"
+          ? "mx-auto max-w-3xl px-4 pt-[25px] sm:pt-[27px] box:px-[11px] box:pt-[11px] box:pb-[29px] rail:grid rail:max-w-6xl rail:grid-cols-[18rem_minmax(0,1fr)] rail:gap-8 rail:pt-0 lg:grid-cols-[22rem_minmax(0,1fr)]"
+          : "mx-auto max-w-3xl px-4 pt-[25px] sm:pt-[27px] box:px-[11px] box:pt-[11px] box:pb-[29px]"
       }
     >
       {railContests !== null && railNav !== null ? (
@@ -647,10 +587,42 @@ export function ElectionPage() {
             // old snapshot): naming WHAT the rows are never depends on the
             // sort/tab keys.
             <div className="flex flex-col gap-2">
-              <p className="text-base font-bold text-ink">My elections</p>
-              {/* Same bar as My Draft, count beside it as on that page:
-                  green = the "decided" color the pick names use; the
-                  sentence is the bar's accessible name. */}
+              {/* Title with the sort control beside it (owner, 2026-10-31): the
+                  select hugs its short labels instead of stretching across the
+                  rail, and the full-width progress bar sits under them. Same
+                  bar as My Draft, count beside it as on that page: green = the
+                  "decided" color the pick names use; the sentence is the
+                  bar's accessible name. */}
+              <div className="flex flex-wrap items-center justify-between gap-x-1.5 gap-y-1">
+                {/* Title, the word "Sort" and the select on ONE line at both
+                    rail widths, nothing clipped (owner, 2026-10-31). A native
+                    select is as wide as its widest option ("Smallest
+                    districts"), so on the 18rem rail everything steps down a
+                    size — title 14px, label and select 11px — and the select
+                    never shrinks; the row wraps only as a last resort. */}
+                <p className="shrink-0 text-sm font-bold text-ink lg:text-base">My elections</p>
+                {offeredRailSorts.length > 0 ? (
+                  <label className="flex shrink-0 items-center gap-1 text-[11px] text-ink-soft lg:gap-1.5 lg:text-xs">
+                    Sort
+                    <select
+                      value={railSort ?? ""}
+                      onChange={(event) => {
+                        track("detail_control", { control: "rail_sort", value: event.target.value });
+                        setRailSortState(event.target.value as RailSortKey);
+                      }}
+                      className="rounded-md border border-line bg-white px-1 py-1 text-[11px] text-ink focus:border-ink focus:outline-none lg:px-1.5 lg:text-xs"
+                    >
+                      {RAIL_SORTS.filter((option) => offeredRailSorts.includes(option.value)).map(
+                        (option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        )
+                      )}
+                    </select>
+                  </label>
+                ) : null}
+              </div>
               {railProgress !== null ? (
                 <div className="flex items-center gap-2">
                   <div
@@ -676,27 +648,6 @@ export function ElectionPage() {
                 </div>
               ) : null}
               <div className="flex flex-col gap-2">
-                {offeredRailSorts.length > 0 ? (
-                  <label className="flex items-center gap-1.5 text-xs text-ink-soft">
-                    Sort
-                    <select
-                      value={railSort ?? ""}
-                      onChange={(event) => {
-                        track("detail_control", { control: "rail_sort", value: event.target.value });
-                        setRailSortState(event.target.value as RailSortKey);
-                      }}
-                      className="min-w-0 flex-1 rounded-md border border-line bg-white px-1.5 py-1 text-xs text-ink focus:border-ink focus:outline-none"
-                    >
-                      {RAIL_SORTS.filter((option) => offeredRailSorts.includes(option.value)).map(
-                        (option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        )
-                      )}
-                    </select>
-                  </label>
-                ) : null}
                 {railAutoFill !== null ? (
                   <AutoPickFillControl
                     date={railAutoFill.date}
@@ -723,7 +674,13 @@ export function ElectionPage() {
           divider is the rail panel's own right edge (DetailRail). In rail
           mode the grid drops its top padding so the panel meets the header
           line, and the detail column carries that padding itself. */}
-      <div className="min-w-0 rail:max-w-3xl rail:pt-[25px]">
+      {/* The auto-advance's motion (useAdvanceAfterPick): this column fades
+          out before the move and the next race's fades in on arrival. */}
+      <div
+        className={`min-w-0 rail:max-w-3xl rail:pt-[25px]${
+          raceLeaving ? " motion-safe:animate-race-out" : raceEntering ? " motion-safe:animate-race-in" : ""
+        }`}
+      >
         {railContests !== null ? <div className="rail:hidden">{pagerBar}</div> : pagerBar}
         {/* Same width rule as the pager bar: in split view the rail's own
             progress bar is the confirmation, so the toast only shows where
@@ -790,12 +747,17 @@ export function ElectionPage() {
             }}
           />
         ) : null}
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-title font-bold">{data.official_ballot_title}</h1>
-          <ShareButton
-            path={`/elections/${data.id}`}
-            shareText={`${data.official_ballot_title} — ${formatElectionDate(data.election_date)}`}
-          />
+        {/* No wrap: a long title wraps inside its own column (min-w-0
+            flex-1) and Share stays on the first line at the right, instead
+            of dropping under the title (owner, 2026-10-31). */}
+        <div className="flex items-start justify-between gap-3">
+          <h1 className="min-w-0 flex-1 text-title font-bold">{data.official_ballot_title}</h1>
+          <div className="shrink-0">
+            <ShareButton
+              path={`/elections/${data.id}`}
+              shareText={`${data.official_ballot_title} — ${formatElectionDate(data.election_date)}`}
+            />
+          </div>
         </div>
         {/* District as a quiet subtitle, name only (no district type): ballot
             titles are often generic ("Governor", "Mayor"), and a direct-link
@@ -805,69 +767,71 @@ export function ElectionPage() {
         {/* A link, not just a label: the district page lists every race
             here, which is also the crawl path back up the browse catalog
             (district → state → all states). */}
-        <p className="mt-1 text-sm text-ink-soft">
+        {/* The vote-power verdict shares this line, after the district, as a
+            chip (owner, 2026-10-31) — and only when it earns one, Average or
+            above, so a race where the reader's vote carries weight stands
+            out and the rest say nothing rather than "Below average". The
+            chip opens a floating bubble with the brief explanation (the how
+            copy and the result line); the per-measure math left with the
+            old disclosure. A retention race gets a "Retention race" chip of
+            the same kind: the label alone means nothing to a first-time
+            reader, and its bubble says what the race is. No election date
+            line: the list's date headings, the page title and the Event
+            JSON-LD already carry it. */}
+        <div ref={votePowerRef} className="mt-1 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm text-ink-soft">
           <Link to={`/districts/${data.district.id}`} className="underline hover:text-ink">
             {formatDistrictName(data.district.name)}
           </Link>
-        </p>
-        {/* Header strip: label-over-value columns split by a hairline — the
-            vote-power verdict first, then one date column whose value carries
-            the stage ("General election") so "General" can't read as a
-            mystery word. Fixed grid tracks, not content-hugging flex, so the
-            divider sits at the same fraction of the width however short the
-            verdict is. Only the verdict is bold. */}
-        <div
-          ref={votePowerRef}
-          className={
-            data.vote_power.label !== "unknown"
-              ? "mt-3 grid grid-cols-[minmax(9rem,1fr)_2fr] gap-x-6"
-              : "mt-3"
-          }
-        >
-          {data.vote_power.label !== "unknown" ? (
-            // relative: the retention popover anchors to this column's left
-            // edge (under the label), not to the ⓘ, which can sit after a
-            // wrapped word and leave the bubble hanging mid-line.
-            <div ref={retentionInfoRef} className="relative">
-              <p className="text-sm text-ink">My vote power</p>
-              <p className={`mt-1 flex items-center gap-1.5 text-lg font-semibold ${votePowerBadgeClass(data.vote_power.label)}`}>
-                {formatVotePowerLabel(data.vote_power.label)}
-                {/* "Retention race" alone means nothing to a first-time
-                    reader; the ⓘ reveals the backend's one-line explanation
-                    below the grid (the value column is too narrow for it). */}
-                {data.vote_power.label === "retention" && data.vote_power.explanation ? (
-                  <button
-                    type="button"
-                    aria-expanded={retentionInfoOpen}
-                    aria-label="What is a retention race?"
-                    onClick={() => setRetentionInfoOpen((open) => !open)}
-                    className="text-ink-soft hover:text-ink"
+          {votePowerChip !== null ? (
+            // relative: the bubble anchors under the chip's left edge. The
+            // chip itself is text; the ⓘ after it is the control (owner,
+            // 2026-10-31), as the old retention ⓘ was.
+            <div ref={votePowerInfoRef} className="relative inline-flex items-center gap-1.5">
+              <span className={`${VOTE_POWER_CHIP_CLASS} ${votePowerChip.className}`}>{votePowerChip.label}</span>
+              {votePowerChip.explanation ? (
+                <button
+                  type="button"
+                  aria-expanded={votePowerInfoOpen}
+                  aria-label={votePowerChip.infoLabel}
+                  onClick={() => {
+                    track("detail_control", { control: "vote_power_how", value: votePowerInfoOpen ? "close" : "open" });
+                    setVotePowerInfoOpen((open) => !open);
+                  }}
+                  className="text-ink-soft hover:text-ink"
+                >
+                  <span
+                    aria-hidden
+                    className="flex h-4 w-4 items-center justify-center rounded-full border border-current text-[10px] font-serif italic"
                   >
-                    <span
-                      aria-hidden
-                      className="flex h-4 w-4 items-center justify-center rounded-full border border-current text-[10px] font-serif italic"
-                    >
-                      i
-                    </span>
-                  </button>
-                ) : null}
-              </p>
-              {retentionInfoOpen && data.vote_power.label === "retention" && data.vote_power.explanation ? (
-                // Absolutely positioned bubble under the column: floats over
-                // the page instead of reflowing it, flush with the label's
-                // left edge. Capped to the viewport so a phone never clips it.
+                    i
+                  </span>
+                </button>
+              ) : null}
+              {votePowerInfoOpen && votePowerChip.explanation ? (
+                // Absolutely positioned bubble under the chip: floats over the
+                // page instead of reflowing it. Capped to the viewport so a
+                // phone never clips it.
                 <div
                   role="note"
-                  className="absolute left-0 top-full z-20 mt-1 flex w-72 max-w-[calc(100vw-2rem)] items-start gap-2 rounded-lg border border-line bg-surface p-3 text-sm font-normal text-ink shadow-lg"
+                  className="absolute left-0 top-full z-20 mt-1 flex w-80 max-w-[calc(100vw-2rem)] items-start gap-2 rounded-lg border border-line bg-surface p-3 text-sm font-normal text-ink shadow-lg"
                 >
-                  <span className="min-w-0 flex-1">{data.vote_power.explanation.how}</span>
+                  <div className="min-w-0 flex-1">
+                    {/* The how copy arrives with blank lines between its
+                        points; preserve them so each reads as its own line. */}
+                    <p className="whitespace-pre-line">{votePowerChip.explanation.how}</p>
+                    {/* The result line only on a graded race: a retention
+                        race's result just repeats the chip. */}
+                    {votePowerChip.explanation.parts.length > 0 ? (
+                      <p className="mt-2 font-medium">{votePowerChip.explanation.result}</p>
+                    ) : null}
+                  </div>
                   {/* A visible way out, not only Escape / click-away — touch
                       users have no Escape key and may not guess that tapping
                       elsewhere closes it. */}
                   <button
                     type="button"
                     aria-label="Close"
-                    onClick={() => setRetentionInfoOpen(false)}
+                    onClick={() => setVotePowerInfoOpen(false)}
                     className="-mr-1 -mt-1 rounded p-1 leading-none text-ink-soft hover:text-ink"
                   >
                     <span aria-hidden>×</span>
@@ -876,15 +840,6 @@ export function ElectionPage() {
               ) : null}
             </div>
           ) : null}
-          <div className={data.vote_power.label !== "unknown" ? "border-l border-line pl-6" : undefined}>
-            <p className="text-sm text-ink">Election date</p>
-            <p className="mt-1 text-lg text-ink">
-              {formatElectionDate(data.election_date)}
-              {/* formatOutcome doubles as a stage prettifier: general → General */}
-              {data.election_stage ? <> · {formatOutcome(data.election_stage)} election</> : null}
-              {data.seats_to_fill != null && data.seats_to_fill > 1 ? <> · {data.seats_to_fill} seats</> : null}
-            </p>
-          </div>
         </div>
         <RankedChoiceNotice votingMethod={data.voting_method} className="text-body text-ink" />
         {/* The detail page has room for the whole caveat, where the ballot card
@@ -904,61 +859,6 @@ export function ElectionPage() {
             </span>
           </div>
         ) : null}
-        {/* No "how" panel on a retention race: nothing was graded, and the
-            header value already names the race kind. */}
-        {data.vote_power.label !== "unknown" && data.vote_power.label !== "retention" && data.vote_power.explanation ? (
-          <details
-            className="mt-2 text-sm"
-            onToggle={(event) =>
-              track("detail_control", { control: "vote_power_how", value: event.currentTarget.open ? "open" : "close" })
-            }
-          >
-            <summary className="cursor-pointer text-xs font-medium text-ink-soft underline decoration-dotted underline-offset-2 hover:text-ink">
-              How do we calculate my vote power?
-            </summary>
-            <div className="mt-2 rounded-xl border border-line bg-surface p-4 box:p-[11px]">
-              {/* The how copy arrives with blank lines between its points;
-                  preserve them so each axis reads as its own paragraph. */}
-              <p className="whitespace-pre-line text-ink">{data.vote_power.explanation.how}</p>
-              {/* One row per graded measure, formula-style: title, grade, this
-                  election's actual numbers, then a one-line why. */}
-              <div className="mt-3 space-y-2">
-                {data.vote_power.explanation.parts.map((part) => (
-                  <div key={part.title} className="rounded-lg bg-surface p-3">
-                    <p className="text-ink">
-                      <span className="font-semibold">{part.title}:</span>{" "}
-                      <span className="font-medium">{part.grade}</span>
-                      {part.stat ? <span className="text-ink-soft"> · {part.stat}</span> : null}
-                    </p>
-                    <p className="mt-1 text-xs text-ink-soft">{part.detail}</p>
-                    {part.formula ? (
-                      // Second disclosure layer: the plain-language detail is
-                      // for everyone; the exact scoring formula only unfolds
-                      // for readers who ask for it.
-                      <details className="mt-1">
-                        {/* Part name in the label: two of these can render
-                            side by side, and identical accessible names are
-                            indistinguishable to screen-reader and
-                            voice-control users. */}
-                        <summary className="cursor-pointer text-[11px] text-ink-soft underline decoration-dotted underline-offset-2 hover:text-ink">
-                          Show the {part.title.toLowerCase()} math
-                        </summary>
-                        <p className="mt-1 break-words font-mono text-[11px] leading-relaxed text-ink-soft">
-                          {part.formula}
-                        </p>
-                      </details>
-                    ) : null}
-                  </div>
-                ))}
-              </div>
-              <p className="mt-3 font-medium text-ink">{data.vote_power.explanation.result}</p>
-              {data.vote_power.explanation.caveat ? (
-                <p className="mt-2 text-xs text-ink-soft">{data.vote_power.explanation.caveat}</p>
-              ) : null}
-            </div>
-          </details>
-        ) : null}
-
         {showOfficeInfo ? (
           // Duties first, then which issues the election touches.
           <section className="mt-[29px] box:mt-[18px] rounded-xl border border-line bg-surface p-4 box:p-[11px]">
@@ -1208,7 +1108,7 @@ export function ElectionPage() {
         ) : data.candidates.length > 0 || (showChoiceControls && hasStrandedPicks) ? (
           <section className="mt-[29px] box:mt-[18px]">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 ref={candidatesRef} className="text-heading font-semibold">Who is running?</h2>
+              <h2 ref={candidatesRef} className="text-heading font-semibold">Candidates:</h2>
               {showChoiceControls && data.seats_to_fill != null && data.seats_to_fill > 1 ? (
                 <span className="text-xs text-ink">
                   Pick up to {data.seats_to_fill}
@@ -1252,30 +1152,8 @@ export function ElectionPage() {
                 <AddressNudge />
               </div>
             ) : null}
-            {showPartyFilter ? (
-              <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Filter candidates by party">
-                {[{ bucket: "all" as const, label: "All" }, ...presentPartyOptions].map((option) => (
-                  <button
-                    key={option.bucket}
-                    type="button"
-                    onClick={() => {
-                      track("detail_control", { control: "party_filter", value: option.bucket });
-                      setPartyPick({ electionId: data.id, bucket: option.bucket });
-                    }}
-                    aria-pressed={partyFilter === option.bucket}
-                    className={`rounded-full border px-3 py-1 text-sm font-medium transition ${
-                      partyFilter === option.bucket
-                        ? "border-ink bg-ink text-white"
-                        : "border-line bg-white text-ink hover:bg-surface"
-                    }`}
-                  >
-                    {option.bucket === "all"
-                      ? `All (${data.candidates.length})`
-                      : `${option.label} (${partyCounts[option.bucket]})`}
-                  </button>
-                ))}
-              </div>
-            ) : null}
+            {/* No party filter chips (owner, 2026-10-31): the roster is short
+                enough to read whole, and the chips hid candidates. */}
             {/* Race-level "Pick by my issues": one engine run for this election
                 (mode replace — a re-run refreshes the pick), with its "Why
                 this pick" panel below the button. Guests get a sign-in
@@ -1299,7 +1177,6 @@ export function ElectionPage() {
                   key={data.id}
                   electionId={data.id}
                   seatsToFill={data.seats_to_fill ?? null}
-                  onPicked={() => setPartyPick({ electionId: data.id, bucket: "all" })}
                 />
               </div>
             ) : null}
@@ -1322,6 +1199,17 @@ export function ElectionPage() {
                           "Jordan VoterAdvanced"), and the wrapper is a div
                           because a heading is flow content, invalid in a span. */}
                       <div className="flex items-center gap-2">
+                        {/* The rail's green check beside a picked candidate's
+                            name (owner, 2026-10-31): the card itself says
+                            "picked" now that it carries no pick button. Outside
+                            the heading so the heading's name stays the
+                            candidate's; the sr-only text speaks it. */}
+                        {myPickIds.has(candidate.candidate_id) ? (
+                          <>
+                            <PickedCheck />
+                            <span className="sr-only">My pick:</span>
+                          </>
+                        ) : null}
                         <h3 className="text-subheading font-semibold">
                           <Link
                             to={`/candidates/${candidate.candidate_id}`}
@@ -1364,15 +1252,21 @@ export function ElectionPage() {
                       {/* Withdrawn candidacies never reach this payload
                           (ballotLookup filters them), but the writer also
                           rejects withdrawn/lost — don't render a button whose
-                          only outcome is an error. */}
+                          only outcome is an error. Beside the sticky names
+                          card (owner, 2026-10-31) the card is the pick
+                          control, so this slot holds only an Unpick on the
+                          picked candidate's card — a button on every card as
+                          well read as two ways to do one thing. */}
                       {showChoiceControls &&
                       !retention &&
                       candidate.status !== "withdrawn" &&
-                      candidate.status !== "lost" ? (
+                      candidate.status !== "lost" &&
+                      (stickyPickCandidates.length === 0 || myPickIds.has(candidate.candidate_id)) ? (
                         // z-10 lifts the button above the card's stretched
                         // link so clicking it doesn't navigate.
                         <span className="relative z-10">
                           <CandidatePickButton
+                            variant={stickyPickCandidates.length === 0 ? "action" : "unpick"}
                             electionId={data.id}
                             candidateId={candidate.candidate_id}
                             candidateName={candidate.display_name}
@@ -1382,17 +1276,7 @@ export function ElectionPage() {
                             seatsToFill={data.seats_to_fill ?? null}
                             size="sm"
                             surface="election_inline"
-                            onPicked={() => {
-                              // First SHOWING on this browser only: the
-                              // toast is a lesson, not a receipt, and marks
-                              // itself seen once it is actually on screen
-                              // (a split-view mount is hidden and doesn't
-                              // count — see DraftToast).
-                              if (hasDraftToastBeenSeen()) {
-                                return;
-                              }
-                              setDraftToast((prev) => ({ electionId: data.id, n: (prev?.n ?? 0) + 1 }));
-                            }}
+                            onPicked={onRosterPicked}
                           />
                         </span>
                       ) : null}
@@ -1498,12 +1382,57 @@ export function ElectionPage() {
                 </div>
               ))}
             </div>
+            {/* The roster's pick control, pinned (owner, 2026-10-31): a sticky
+                card at the viewport bottom with each candidate's name as the
+                button — the office-race counterpart of the measure page's
+                Yes/No card — so a reader deep in the roster picks without
+                scrolling back up. When it renders, the cards carry no pick
+                button of their own; past the roster-size cap
+                (stickyPickCandidates) the inline buttons take over. Same
+                district gate either way. data-sticky-pick-cta lifts the
+                chatbot launcher clear of it. */}
+            {showChoiceControls && !retention && stickyPickCandidates.length > 0 ? (
+              <div
+                data-sticky-pick-cta="names"
+                className="sticky bottom-3 z-30 mt-[29px] box:mt-[18px] rounded-xl border border-line bg-surface p-3 shadow-lg"
+              >
+                <div className="flex w-full flex-wrap items-center gap-2">
+                  <span className="text-sm font-medium text-ink">
+                    {data.seats_to_fill != null && data.seats_to_fill > 1 ? `My picks (up to ${data.seats_to_fill}):` : "My pick:"}
+                  </span>
+                  {/* The names share the room after the label evenly (owner,
+                      2026-10-31) rather than packing left; a row that wraps
+                      spreads each line the same way. */}
+                  <div className="flex min-w-0 flex-1 flex-wrap items-center justify-evenly gap-2">
+                  {stickyPickCandidates.map((candidate) => (
+                    <CandidatePickButton
+                      key={candidate.candidate_id}
+                      variant="name"
+                      // Small pills: five names must fit in a couple of rows
+                      // on a phone, where the card is a quarter of the
+                      // screen at the roster buttons' size.
+                      size="sm"
+                      electionId={data.id}
+                      candidateId={candidate.candidate_id}
+                      candidateName={candidate.display_name}
+                      raceTitle={data.official_ballot_title}
+                      electionDate={data.election_date}
+                      choice={myChoice}
+                      seatsToFill={data.seats_to_fill ?? null}
+                      surface="election_inline"
+                      onPicked={onRosterPicked}
+                    />
+                  ))}
+                  </div>
+                </div>
+              </div>
+            ) : null}
           </section>
         ) : data.candidate_roster_status ? (
           // Empty office roster: say WHY instead of hiding the section (roster
           // awaiting certification, profiles being prepared, or unavailable).
           <section className="mt-[29px] box:mt-[18px]">
-            <h2 className="text-heading font-semibold">Who is running?</h2>
+            <h2 className="text-heading font-semibold">Candidates:</h2>
             <p className="mt-3 rounded-xl border border-line bg-surface p-4 box:p-[11px] text-sm text-ink-soft">
               {formatRosterStatus(data.candidate_roster_status).long}
             </p>
@@ -1551,14 +1480,9 @@ export function ElectionPage() {
             pages of one site (index + detail), and a heading plus a line per
             URL read as the same source printed twice. */}
         <SourceFootnote urls={electionOnlySources} className="mt-[29px] box:mt-[18px]" />
-        {/* Visible freshness, same as the candidate page's "Profile last
-            researched" line: engines weigh a dated page over an undated
-            one, and a reader deserves to know how old the roster is. */}
-        {data.updated_at ? (
-          <p className="mt-[29px] box:mt-[18px] text-xs text-ink-soft">
-            Last updated {formatElectionDate(data.updated_at.slice(0, 10))}.
-          </p>
-        ) : null}
+        {/* No visible "Last updated" line (owner, 2026-10-31: readers don't
+            need it); the page's freshness stays machine-readable as the
+            Event JSON-LD's dateModified above. */}
 
         {/* Last on purpose: reporting is a reaction to reading the page, not a
             headline action worth space above the candidates. Skipped when the
@@ -1567,7 +1491,9 @@ export function ElectionPage() {
             "Report an issue" (with the same source line above it) read as a
             duplicate. */}
         {measure === null ? (
-          <div className="mt-[29px] box:mt-[18px]">
+          // Close under the sources line: two small footnote-sized lines,
+          // not two sections (owner, 2026-10-31).
+          <div className="mt-3">
             <ReportContentButton
               entityType="election"
               entityId={data.id}
@@ -1607,6 +1533,7 @@ export function ElectionPage() {
               choice={myChoice}
               raceType={retention ? "office" : "ballot_measure"}
               fullWidth
+              onPicked={armAdvance}
             />
             {/* Back link only for election-list arrivals — a My-Picks
                 arrival would get a back link and a draft link to the same

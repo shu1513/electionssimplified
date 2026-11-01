@@ -10,7 +10,8 @@ import {
   type BallotSort,
   type BallotSummary,
 } from "@voteapp/api-client";
-import { ElectionList } from "../components/ElectionCard";
+import { ElectionList, splitViewEntry } from "../components/ElectionCard";
+import { useSplitViewForward, useSplitViewShortcut } from "../lib/useSplitViewShortcut";
 import { CandidateSearchBox } from "../components/CandidateSearchBox";
 import { HowToVoteControl } from "../components/HowToVoteControl";
 import {
@@ -101,7 +102,22 @@ export function BallotPage() {
   // (president, governor, U.S. Senate), the order a reader expects from a
   // ballot; a sort the reader picks still wins, as on the site.
   const embedSession = useEmbedSession();
-  const defaultSort: BallotSort = embedSession ? "district_size" : DEFAULT_BALLOT_SORT;
+  // Wide screens skip this list for the split view (useSplitViewShortcut).
+  // Held when the page has something to say first — a partial ballot or an
+  // ambiguous address match, whose banners the split view has no place
+  // for — and inside the newsroom box, which is too small for the rail.
+  const shortcut = useSplitViewShortcut({
+    hold: Boolean(embedSession) || isPartialBallot || Boolean(matchedAddress && ambiguousMatchCount),
+  });
+  // Split-view-sized screens default to ballot order (owner, 2026-10-31)
+  // when the URL names no sort — whether this list forwards to the split
+  // view or is shown (held, or asked for), since a card click from it
+  // seeds the rail with this list's sort. Narrow screens keep vote power.
+  const defaultSort: BallotSort = embedSession
+    ? "district_size"
+    : shortcut.wide
+      ? "state_baseline"
+      : DEFAULT_BALLOT_SORT;
   const rawSort = searchParams.get("sort") ?? "";
   // my_areas is only real once the viewer's saved areas confirm (hasSaved);
   // until then — and for anonymous visitors forever — it degrades to the
@@ -125,7 +141,10 @@ export function BallotPage() {
       apiRequest<BallotSummary>(
         `/api/ballot?district_ids=${encodeURIComponent(districtIds.join(","))}&sort=${fetchSort}`
       ),
-    enabled: districtIds.length > 0,
+    // hydrated: the shortcut's sort is undecided during the hydration render
+    // (the viewport reads as narrow there), and a fetch in the wrong sort
+    // would only be thrown away one paint later.
+    enabled: districtIds.length > 0 && hydrated,
   });
 
   useTrackBallotResult(ballot, {
@@ -209,6 +228,37 @@ export function BallotPage() {
   // scored against (saved research areas confirmed).
   const sortOptions = hasSaved ? BALLOT_SORTS : PUBLIC_BALLOT_SORTS;
 
+  // Where a detail page's back link returns: this exact list — same
+  // districts, sort, and filters (full query string). On a split-view-sized
+  // screen the ballot-order default is named explicitly, so "← All
+  // elections" shows the list in the order the rail had whatever screen it
+  // is opened on.
+  const listBackTo = {
+    path:
+      shortcut.wide && !searchParams.has("sort")
+        ? `${location.pathname}${location.search}${location.search ? "&" : "?"}sort=${sort}`
+        : location.pathname + location.search,
+    label: "All elections",
+  };
+  // The forward itself: the first displayed race, carrying the snapshot its
+  // card would have delivered. Not before identity settles: the guest draft
+  // effect above records the ballot's districts only once me reads null,
+  // and the election page's pick controls are gated on those districts —
+  // forwarding first would unmount this page with them unsaved.
+  const skippingList = useSplitViewForward(
+    shortcut,
+    ballot.isSuccess && !awaitingSavedAreas && me !== undefined
+      ? splitViewEntry({
+          elections: visibleElections,
+          contestsPool: filtersView.filteredElections,
+          sort,
+          backTo: listBackTo,
+          raceType: filtersView.raceType,
+          railSort: railSortForBallotSort(sort),
+        })
+      : null
+  );
+
   if (districtIds.length === 0) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-10">
@@ -219,6 +269,17 @@ export function BallotPage() {
             Start with your address
           </Link>
         </p>
+      </div>
+    );
+  }
+
+  if (skippingList) {
+    // The forward to the split view is in flight: the loading notice stays
+    // up rather than the list flashing for a frame.
+    return (
+      <div className="mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px]">
+        <h1 className="sr-only">Elections</h1>
+        <LoadingNotice text="Loading your elections…" />
       </div>
     );
   }
@@ -358,9 +419,7 @@ export function BallotPage() {
               elections={visibleElections}
               savedAreaWeights={savedAreaWeights}
               choicesByElectionId={isGuest ? draftChoicesByElectionId(draft) : choiceByElectionId}
-              // Full query string: the back link must return to this exact
-              // list — same districts, sort, and filters.
-              backTo={{ path: location.pathname + location.search, label: "All elections" }}
+              backTo={listBackTo}
               // Tab-unsliced pool + the engaged tab: the detail rail's own
               // race-type tabs start here and can reach the other tab's races.
               contestsPool={filtersView.filteredElections}

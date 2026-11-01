@@ -10,7 +10,8 @@ import type {
   ResearchAreaWeight,
   ResultChipTone,
 } from "@voteapp/api-client";
-import type { BackTo, ElectionNavState } from "../lib/detailNavContext";
+import type { BackTo, ElectionListState, ElectionNavState } from "../lib/detailNavContext";
+import type { SplitViewEntry } from "../lib/useSplitViewShortcut";
 import { RankedChoiceNotice } from "./RankedChoiceNotice";
 import { useElectionListState } from "../lib/useElectionListState";
 import {
@@ -360,6 +361,134 @@ function groupListElections(elections: ElectionSummary[], votePowerDates?: Reado
   return { groups, awaiting: contested.filter(isAwaitingCandidates), retentionIds };
 }
 
+/** Dates whose displayed non-retention races number ten or more: under the
+ * vote-power sort the list heads those dates' races with vote-power bands,
+ * and the nav snapshot orders them the same way. Empty under other sorts. */
+function votePowerBandDates(elections: ElectionSummary[], sort: BallotSort | undefined): Set<string> {
+  const nonRetentionCounts = new Map<string, number>();
+  if (sort === "vote_power") {
+    for (const election of elections) {
+      if (isRetentionRace(election) || isAwaitingCandidates(election)) continue;
+      const date = election.election_date;
+      nonRetentionCounts.set(date, (nonRetentionCounts.get(date) ?? 0) + 1);
+    }
+  }
+  return new Set([...nonRetentionCounts].filter(([, count]) => count >= 10).map(([date]) => date));
+}
+
+/**
+ * The nav snapshot every card of a list hands the election page: the pool
+ * in displayed order (date groups, contested then retention, then the
+ * awaiting-candidates tail), each contest stamped with the rail's sort
+ * keys, its level and section label, and its vote-power band. Navigation
+ * uses the same qualifying dates as the displayed list, even when its pool
+ * includes races hidden by the active tab.
+ */
+function buildElectionNavState({
+  pool: poolList,
+  votePowerDates,
+  backTo,
+  listState,
+  raceType,
+  railSort,
+}: {
+  pool: ElectionSummary[];
+  votePowerDates: ReadonlySet<string>;
+  backTo: BackTo;
+  listState?: ElectionListState;
+  raceType?: BallotRaceType | null;
+  railSort?: RailSortKey;
+}): ElectionNavState {
+  const pool = groupListElections(poolList, votePowerDates);
+  // Every contest carries its government level and the section label the
+  // district-size sorts head that level with ("City: Berkeley"), under EVERY
+  // list sort: the rail offers the district sorts from any arrival, ordering
+  // the levels itself (it cannot size districts) and grouping under these
+  // labels. One label per level over the whole pool, so the same level never
+  // splits into two headings. The retention and awaiting tails get theirs
+  // too, so a snapshot is either fully levelled or not at all
+  // (railSortsOffered).
+  const poolElections = [...pool.groups.flatMap((group) => [...group.contested, ...group.retention]), ...pool.awaiting];
+  const byLevel = new Map<BallotLevel, ElectionSummary[]>();
+  for (const election of poolElections) {
+    const level = ballotLevel(
+      election.office?.scope,
+      election.district.district_type,
+      election.discovery_contest_family,
+      election.office?.canonical_name
+    );
+    byLevel.set(level, [...(byLevel.get(level) ?? []), election]);
+  }
+  const levelById = new Map<string, { level: BallotLevel; group: string }>();
+  for (const [level, levelElections] of byLevel) {
+    const { label } = levelLocation(level, levelElections);
+    for (const election of levelElections) {
+      levelById.set(election.id, { level, group: label });
+    }
+  }
+  return {
+    backTo,
+    ...(listState ? { listState } : {}),
+    contests: poolElections.map((election) => ({
+      id: election.id,
+      title: election.official_ballot_title,
+      race_type: election.race_type === "ballot_measure" ? "ballot_measure" : "office",
+      // The rail's sort keys: score/date mirror the backend's sort
+      // inputs, the area ids feed the client My-issues scoring, and the
+      // awaiting flag keeps that tail sunk under every rail sort.
+      vote_power_score: election.vote_power.score,
+      election_date: election.election_date,
+      research_area_ids: election.research_areas.map((area) => area.id),
+      district_id: election.district_id,
+      ...(pool.retentionIds.has(election.id)
+        ? { retention: true }
+        : isAwaitingCandidates(election)
+          ? { awaiting_candidates: true }
+          : // The vote-power band (key) the list would head this race
+            // with; the rail shows those headings under its vote-power
+            // sort by the list's own ten-race rule. Tails carry none.
+            { vote_power_band: votePowerBand(election.vote_power.label) }),
+      ...(levelById.has(election.id) ? { ...levelById.get(election.id) } : {}),
+    })),
+    ...(raceType ? { raceType } : {}),
+    // railSort seeds the rail and is rewritten as it is switched;
+    // listSort records the order `contests` are in and never changes.
+    ...(railSort ? { railSort, listSort: railSort } : {}),
+  };
+}
+
+/**
+ * Where the wide-screen shortcut (lib/useSplitViewShortcut) sends a visitor
+ * instead of rendering this list: the first displayed race, with the
+ * snapshot its card would have delivered, so the split view opens exactly
+ * as a click on that card would have opened it. Null when the split view
+ * would not render — fewer than two contests in the pool (the election
+ * page's rail gate) or nothing displayed — so the list shows as before.
+ * Same inputs as ElectionList's props of the same names.
+ */
+export function splitViewEntry({
+  elections,
+  contestsPool,
+  sort,
+  backTo,
+  raceType,
+  railSort,
+}: {
+  elections: ElectionSummary[];
+  contestsPool?: ElectionSummary[];
+  sort?: BallotSort;
+  backTo: BackTo;
+  raceType?: BallotRaceType | null;
+  railSort?: RailSortKey;
+}): SplitViewEntry | null {
+  const votePowerDates = votePowerBandDates(elections, sort);
+  const { groups, awaiting } = groupListElections(elections, votePowerDates);
+  const first = [...groups.flatMap((group) => [...group.contested, ...group.retention]), ...awaiting][0];
+  if (first === undefined) return null;
+  const state = buildElectionNavState({ pool: contestsPool ?? elections, votePowerDates, backTo, raceType, railSort });
+  return (state.contests?.length ?? 0) >= 2 ? { electionId: first.id, state } : null;
+}
+
 /**
  * Date-grouped card list shared by both ballot pages. Elections cluster on
  * election days (a typical ballot is one or two dates), so the date renders
@@ -441,82 +570,14 @@ export function ElectionList({
     isSectionOpen,
     setSectionOpen,
   } = useElectionListState();
-  const nonRetentionCounts = new Map<string, number>();
-  if (sort === "vote_power") {
-    for (const election of elections) {
-      if (isRetentionRace(election) || isAwaitingCandidates(election)) continue;
-      const date = election.election_date;
-      nonRetentionCounts.set(date, (nonRetentionCounts.get(date) ?? 0) + 1);
-    }
-  }
-  const votePowerDates = new Set([...nonRetentionCounts].filter(([, count]) => count >= 10).map(([date]) => date));
+  const votePowerDates = votePowerBandDates(elections, sort);
   // The awaiting tail applies under every sort, ballot order included: the
   // backend skips its sink for state_baseline (the preview needs the raw
   // slot), but the list never surfaces a race with nothing to read.
   const { groups, awaiting: awaitingCandidates } = groupListElections(elections, votePowerDates);
-  // Navigation uses the same qualifying dates as the displayed list,
-  // even when its pool includes races hidden by the active tab.
-  const pool = groupListElections(contestsPool ?? elections, votePowerDates);
   const levelSections = sort === "district_size" || sort === "district_size_smallest";
-  // Every contest carries its government level and the section label the
-  // district-size sorts head that level with ("City: Berkeley"), under EVERY
-  // list sort: the rail offers the district sorts from any arrival, ordering
-  // the levels itself (it cannot size districts) and grouping under these
-  // labels. One label per level over the whole pool, so the same level never
-  // splits into two headings. The retention and awaiting tails get theirs
-  // too, so a snapshot is either fully levelled or not at all
-  // (railSortsOffered).
-  const poolElections = [...pool.groups.flatMap((group) => [...group.contested, ...group.retention]), ...pool.awaiting];
-  const byLevel = new Map<BallotLevel, ElectionSummary[]>();
-  for (const election of poolElections) {
-    const level = ballotLevel(
-      election.office?.scope,
-      election.district.district_type,
-      election.discovery_contest_family,
-      election.office?.canonical_name
-    );
-    byLevel.set(level, [...(byLevel.get(level) ?? []), election]);
-  }
-  const levelById = new Map<string, { level: BallotLevel; group: string }>();
-  for (const [level, levelElections] of byLevel) {
-    const { label } = levelLocation(level, levelElections);
-    for (const election of levelElections) {
-      levelById.set(election.id, { level, group: label });
-    }
-  }
   const navState: ElectionNavState | undefined = backTo
-    ? {
-        backTo,
-        ...(listState ? { listState } : {}),
-        contests: [
-          ...pool.groups.flatMap((group) => [...group.contested, ...group.retention]),
-          ...pool.awaiting,
-        ].map((election) => ({
-          id: election.id,
-          title: election.official_ballot_title,
-          race_type: election.race_type === "ballot_measure" ? "ballot_measure" : "office",
-          // The rail's sort keys: score/date mirror the backend's sort
-          // inputs, the area ids feed the client My-issues scoring, and the
-          // awaiting flag keeps that tail sunk under every rail sort.
-          vote_power_score: election.vote_power.score,
-          election_date: election.election_date,
-          research_area_ids: election.research_areas.map((area) => area.id),
-          district_id: election.district_id,
-          ...(pool.retentionIds.has(election.id)
-            ? { retention: true }
-            : isAwaitingCandidates(election)
-              ? { awaiting_candidates: true }
-              : // The vote-power band (key) the list would head this race
-                // with; the rail shows those headings under its vote-power
-                // sort by the list's own ten-race rule. Tails carry none.
-                { vote_power_band: votePowerBand(election.vote_power.label) }),
-          ...(levelById.has(election.id) ? { ...levelById.get(election.id) } : {}),
-        })),
-        ...(raceType ? { raceType } : {}),
-        // railSort seeds the rail and is rewritten as it is switched;
-        // listSort records the order `contests` are in and never changes.
-        ...(railSort ? { railSort, listSort: railSort } : {}),
-      }
+    ? buildElectionNavState({ pool: contestsPool ?? elections, votePowerDates, backTo, listState, raceType, railSort })
     : undefined;
   // Displayed position (1-based, readable cards then the awaiting tail) for
   // the election_open usage event — "which slot in THIS rendered list".

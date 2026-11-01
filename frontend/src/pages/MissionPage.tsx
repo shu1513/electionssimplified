@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import type { BackLinkState } from "../components/BackLink";
+import { BackLink } from "../components/BackLink";
 import type { MetaFunction } from "react-router";
 import { Link } from "react-router";
 import { APP_NAME, useMe } from "@voteapp/api-client";
@@ -182,6 +184,7 @@ export default function MissionPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-4 py-8">
+      <BackLink />
       <section className="space-y-3 text-body text-ink">
         <h1 className="text-title font-bold">Mission</h1>
 
@@ -252,7 +255,9 @@ export default function MissionPage() {
           vote-power and competitiveness ratings are calculated — is on the{" "}
           <Link
             to="/methodology"
-            state={{ backTo: { path: "/mission", label: "Mission" } }}
+            // from: the methodology page's "← Mission" then pops back here
+            // instead of pushing a second Mission entry (see BackLink).
+            state={{ backTo: { path: "/mission", label: "Mission" }, from: "/mission" } satisfies BackLinkState}
             className="font-semibold underline hover:text-ink"
           >
             How it works

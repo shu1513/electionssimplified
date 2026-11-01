@@ -31,3 +31,30 @@ describe("DetailPager", () => {
     expect(back.closest("div")).toHaveClass("sm:order-2");
   });
 });
+
+describe("DetailPager back link", () => {
+  it("stamps listRequested on the state it delivers, over the caller's own", async () => {
+    const { router } = renderRoutes(
+      [
+        {
+          path: "/",
+          element: (
+            <DetailPager
+              ariaLabel="Test navigation"
+              prev={null}
+              next={null}
+              backTo={BACK}
+              backToState={{ expandedRetentionDates: ["2026-11-03"] }}
+            />
+          ),
+        },
+        { path: "/ballot", element: <p>list</p> },
+      ],
+      "/"
+    );
+    const back = await screen.findByRole("link", { name: "Back to My elections" });
+    back.click();
+    await screen.findByText("list");
+    expect(router.state.location.state).toEqual({ expandedRetentionDates: ["2026-11-03"], listRequested: true });
+  });
+});

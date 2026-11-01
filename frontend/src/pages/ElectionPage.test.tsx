@@ -127,76 +127,72 @@ describe("ElectionPage", () => {
     expect(screen.queryByRole("button", { name: /follow/i })).not.toBeInTheDocument();
     // The report button sits at the end of the page, after the candidates.
     const reportButton = screen.getByRole("button", { name: "Report an issue with election" });
-    const candidatesHeading = screen.getByRole("heading", { name: "Who is running?" });
+    const candidatesHeading = screen.getByRole("heading", { name: "Candidates:" });
     expect(candidatesHeading.compareDocumentPosition(reportButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it("renders a collapsed vote power explanation when the detail payload carries one", async () => {
+  it("shows a vote power chip for Average or above, with an ⓘ that opens the brief explanation in a closable bubble", async () => {
     stubApiRoutes({ ...ANONYMOUS });
     renderElection(() => electionDetail({ vote_power: VOTE_POWER_WITH_EXPLANATION }));
 
     await screen.findByRole("heading", { name: "Governor" });
-    expect(screen.getByText("How do we calculate my vote power?")).toBeInTheDocument();
-    // Native <details> keeps content in the DOM while collapsed; the backend
-    // copy must arrive verbatim.
-    expect(screen.getByText("What determines the vote power rating:")).toBeInTheDocument();
-    // Each part renders formula-style: title, grade, stat, then the detail.
-    expect(screen.getByText("Representation:")).toBeInTheDocument();
-    expect(screen.getByText("· 50 out of 100")).toBeInTheDocument();
-    expect(screen.getByText("· 3.3-point margin in 2022")).toBeInTheDocument();
-    expect(
-      screen.getByText("Past results here were very close — a small number of votes could decide the winner.")
-    ).toBeInTheDocument();
-    expect(screen.getByText("Average representation + high decisiveness → My vote power: High.")).toBeInTheDocument();
-    expect(screen.getByText("Some data is missing.")).toBeInTheDocument();
-    // The exact formula sits behind its own per-part disclosure when the
-    // backend provides one; the null formula on the other part must not
-    // render a toggle at all. The label must be the real <summary> control,
-    // and the formula's own <details> starts collapsed — asserted on that
-    // inner element directly, since the closed outer panel would hide the
-    // formula either way.
-    expect(screen.getByText("Show the representation math").tagName).toBe("SUMMARY");
-    const formula = screen.getByText("score = 100 × ln(9,808,667 ÷ 104,650) ÷ ln(9,808,667 ÷ 1,204) = 50");
-    expect(formula.closest("details")).not.toHaveAttribute("open");
-    expect(screen.queryByText("Show the decisiveness math")).not.toBeInTheDocument();
+    // The old label-over-value cell and its disclosure are gone; the chip is
+    // text, and the ⓘ beside it is the control.
+    expect(screen.queryByText("Representation:")).not.toBeInTheDocument();
+    expect(screen.getByText("My vote power: High")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "My vote power: High" })).not.toBeInTheDocument();
+    const chip = screen.getByRole("button", { name: "How do we calculate my vote power?" });
+    expect(chip).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByRole("note")).not.toBeInTheDocument();
+
+    const user = userEvent.setup();
+    await user.click(chip);
+    const note = screen.getByRole("note");
+    // The brief explanation: the how copy and the result line — no
+    // per-measure parts, stats, or math.
+    expect(note).toHaveTextContent("What determines the vote power rating:");
+    expect(note).toHaveTextContent("Average representation + high decisiveness → My vote power: High.");
+    expect(note).not.toHaveTextContent("50 out of 100");
+    expect(screen.queryByText("Show the representation math")).not.toBeInTheDocument();
+    // A floating bubble, not in-flow text: it must not push the page down.
+    expect(note.className).toContain("absolute");
+    expect(chip).toHaveAttribute("aria-expanded", "true");
+    // Its own close button, Escape, and a click anywhere else all close it.
+    await user.click(within(note).getByRole("button", { name: "Close" }));
+    expect(screen.queryByRole("note")).not.toBeInTheDocument();
+    await user.click(chip);
+    await user.keyboard("{Escape}");
+    expect(screen.queryByRole("note")).not.toBeInTheDocument();
+    await user.click(chip);
+    await user.click(screen.getByRole("heading", { name: "Governor" }));
+    expect(screen.queryByRole("note")).not.toBeInTheDocument();
   });
 
-  it("names each math disclosure after its part when both formulas arrive", async () => {
+  it("shows no vote power chip below Average", async () => {
     stubApiRoutes({ ...ANONYMOUS });
-    const explanation = VOTE_POWER_WITH_EXPLANATION.explanation!;
-    renderElection(() =>
-      electionDetail({
-        vote_power: {
-          ...VOTE_POWER_WITH_EXPLANATION,
-          explanation: {
-            ...explanation,
-            parts: [
-              explanation.parts[0],
-              { ...explanation.parts[1], formula: 'margin = 3.3 points → "very competitive" → grade high' },
-            ],
-          },
-        },
-      })
-    );
+    renderElection(() => electionDetail({ vote_power: { ...VOTE_POWER_WITH_EXPLANATION, label: "low" } }));
 
     await screen.findByRole("heading", { name: "Governor" });
-    // Distinct labels on real <summary> controls — two bare "Show the math"
-    // toggles would be indistinguishable to screen-reader and voice-control
-    // users. (No getByRole here: <summary> has no reliable ARIA role.)
-    expect(screen.getByText("Show the representation math").tagName).toBe("SUMMARY");
-    expect(screen.getByText("Show the decisiveness math").tagName).toBe("SUMMARY");
+    expect(screen.queryByText(/My vote power/)).not.toBeInTheDocument();
+    expect(screen.queryByText("Below average")).not.toBeInTheDocument();
+    // And no election date line either: the header carries only the chip.
+    expect(screen.queryByText("Election date")).not.toBeInTheDocument();
   });
 
-  it("omits the vote power explanation when the payload has none or the label is unknown", async () => {
+  it("renders the chip without an ⓘ when the payload carries no explanation", async () => {
     stubApiRoutes({ ...ANONYMOUS });
+    // The default fixture: a High rating with no explanation (a list payload's shape).
     renderElection(() => electionDetail());
 
     await screen.findByRole("heading", { name: "Governor" });
-    expect(screen.queryByText("How do we calculate my vote power?")).not.toBeInTheDocument();
+    expect(screen.getByText("My vote power: High")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "How do we calculate my vote power?" })).not.toBeInTheDocument();
   });
 
-  it("names a retention race in the vote power slot, with no explanation panel", async () => {
+  it("gives a retention race a chip of its own whose bubble says what the race is", async () => {
     stubApiRoutes({ ...ANONYMOUS });
+    const how =
+      "A retention race asks Yes or No on keeping one judge in office. With no competing candidates, the normal vote power rating methods don't apply.";
     renderElection(() =>
       electionDetail({
         official_ballot_title: "Shall Judge Jordan Voter be retained in office?",
@@ -204,43 +200,27 @@ describe("ElectionPage", () => {
           ...VOTE_POWER_WITH_EXPLANATION,
           label: "retention",
           score: null,
-          explanation: {
-            how: "A retention race asks Yes or No on keeping one judge in office. With no competing candidates, the normal vote power rating methods don't apply.",
-            parts: [],
-            result: "Retention race",
-            caveat: null,
-          },
+          explanation: { how, parts: [], result: "Retention race", caveat: null },
         },
       })
     );
 
     await screen.findByRole("heading", { name: "Shall Judge Jordan Voter be retained in office?" });
-    expect(screen.getByText("My vote power").nextElementSibling).toHaveTextContent("Retention race");
-    // The label alone is opaque, but the header stays clean: the backend's
-    // one-line explanation sits behind an ⓘ toggle, not inline.
-    expect(screen.queryByText("A retention race asks Yes or No on keeping one judge in office. With no competing candidates, the normal vote power rating methods don't apply.")).not.toBeInTheDocument();
-    const info = screen.getByRole("button", { name: "What is a retention race?" });
-    expect(info).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByText(/My vote power/)).not.toBeInTheDocument();
+    expect(screen.getByText("Retention race")).toBeInTheDocument();
+    const chip = screen.getByRole("button", { name: "What is a retention race?" });
+    expect(screen.queryByText(how)).not.toBeInTheDocument();
     const user = userEvent.setup();
-    await user.click(info);
+    await user.click(chip);
     const note = screen.getByRole("note");
-    expect(note).toHaveTextContent("A retention race asks Yes or No on keeping one judge in office. With no competing candidates, the normal vote power rating methods don't apply.");
-    // A floating bubble, not in-flow text: it must not push the page down.
-    expect(note.className).toContain("absolute");
-    expect(info).toHaveAttribute("aria-expanded", "true");
-    // Its own close button, Escape, and a click anywhere else all close it.
+    expect(note).toHaveTextContent(how);
+    // No result line: it would only repeat the chip.
+    expect(within(note).queryByText("Retention race")).not.toBeInTheDocument();
     await user.click(within(note).getByRole("button", { name: "Close" }));
     expect(screen.queryByRole("note")).not.toBeInTheDocument();
-    await user.click(info);
-    await user.keyboard("{Escape}");
-    expect(screen.queryByRole("note")).not.toBeInTheDocument();
-    await user.click(info);
-    await user.click(screen.getByRole("heading", { name: "Shall Judge Jordan Voter be retained in office?" }));
-    expect(screen.queryByRole("note")).not.toBeInTheDocument();
-    expect(screen.queryByText("How do we calculate my vote power?")).not.toBeInTheDocument();
   });
 
-  it("hides the vote power explanation entirely for an unknown label", async () => {
+  it("shows no chip for an unknown label", async () => {
     stubApiRoutes({ ...ANONYMOUS });
     renderElection(() =>
       electionDetail({
@@ -249,25 +229,8 @@ describe("ElectionPage", () => {
     );
 
     await screen.findByRole("heading", { name: "Governor" });
-    expect(screen.queryByText(/My vote power:/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/My vote power/)).not.toBeInTheDocument();
     expect(screen.queryByText("How do we calculate my vote power?")).not.toBeInTheDocument();
-  });
-
-  it("shows the seat count for multi-seat contests and hides it otherwise", async () => {
-    stubApiRoutes({ ...ANONYMOUS });
-    renderElection(() => electionDetail({ seats_to_fill: 3 }));
-
-    expect(await screen.findByRole("heading", { name: "Governor" })).toBeInTheDocument();
-    // The header strip names the seat count.
-    expect(screen.getByText(/3 seats/)).toBeInTheDocument();
-  });
-
-  it("shows no seat count when seats_to_fill is absent or 1", async () => {
-    stubApiRoutes({ ...ANONYMOUS });
-    renderElection(() => electionDetail({ seats_to_fill: 1 }));
-
-    expect(await screen.findByRole("heading", { name: "Governor" })).toBeInTheDocument();
-    expect(screen.queryByText(/seats/)).not.toBeInTheDocument();
   });
 
   it("explains a seat whose electorate is smaller than the district, without claiming to filter", async () => {
@@ -288,198 +251,6 @@ describe("ElectionPage", () => {
     expect(screen.queryByText(/This seat represents/)).not.toBeInTheDocument();
   });
 
-  it("hides the party filter when the roster spans a single bucket", async () => {
-    stubApiRoutes({ ...ANONYMOUS });
-    // Default fixture: two Independent candidates — one "other" bucket.
-    renderElection(() => electionDetail());
-
-    await screen.findByRole("heading", { name: "Who is running?" });
-    expect(screen.queryByRole("group", { name: "Filter candidates by party" })).not.toBeInTheDocument();
-  });
-
-  it("filters candidates by party bucket and restores with All", async () => {
-    stubApiRoutes({ ...ANONYMOUS });
-    const user = userEvent.setup();
-    renderElection(() =>
-      electionDetail({
-        candidates: [
-          {
-            candidate_id: "c-1",
-            display_name: "Dana Democrat",
-            party: "Democratic",
-            is_incumbent: false,
-            status: "active",
-            summary: null,
-            finance_summary: null,
-            records: [],
-          },
-          {
-            candidate_id: "c-2",
-            display_name: "Riley Republican",
-            party: "Republican",
-            is_incumbent: false,
-            status: "active",
-            summary: null,
-            finance_summary: null,
-            records: [],
-          },
-          {
-            candidate_id: "c-3",
-            // The registration label buckets with its party for filtering,
-            // even though storage keeps it distinct.
-            display_name: "Alex Alaskan",
-            party: "Registered Democrat",
-            is_incumbent: false,
-            status: "active",
-            summary: null,
-            finance_summary: null,
-            records: [],
-          },
-          {
-            candidate_id: "c-4",
-            display_name: "Indy Other",
-            party: "Independent",
-            is_incumbent: false,
-            status: "active",
-            summary: null,
-            finance_summary: null,
-            records: [],
-          },
-        ],
-      })
-    );
-
-    await screen.findByRole("group", { name: "Filter candidates by party" });
-    // Chips carry counts; All is pressed by default.
-    expect(screen.getByRole("button", { name: "All (4)" })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByRole("button", { name: "Democrats (2)" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Republicans (1)" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Other (1)" })).toBeInTheDocument();
-
-    await user.click(screen.getByRole("button", { name: "Democrats (2)" }));
-    expect(screen.getByText("Dana Democrat")).toBeInTheDocument();
-    expect(screen.getByText("Alex Alaskan")).toBeInTheDocument();
-    expect(screen.queryByText("Riley Republican")).not.toBeInTheDocument();
-    expect(screen.queryByText("Indy Other")).not.toBeInTheDocument();
-
-    await user.click(screen.getByRole("button", { name: "All (4)" }));
-    expect(screen.getByText("Riley Republican")).toBeInTheDocument();
-    expect(screen.getByText("Indy Other")).toBeInTheDocument();
-  });
-
-  it("clears the party filter when auto-pick chooses a candidate the filter hid", async () => {
-    // The engine scores the whole roster, not the filtered view the button
-    // sits under. Filtered to Democrats, a Republican pick must not land on
-    // a hidden card.
-    stubApiRoutes({
-      "/api/me": { body: ME_VERIFIED },
-      "/api/me/districts": { body: MY_DISTRICTS },
-      "/api/me/candidate-follows": { body: { follows: [] } },
-      "/api/me/election-choices": { body: { choices: [] } },
-      "/api/me/research-area-preferences": {
-        body: {
-          preferences: [
-            { research_area_id: "a-1", slug: "housing", name: "Housing", description: null, rank: 1 },
-            { research_area_id: "a-2", slug: "health", name: "Health", description: null, rank: 2 },
-            { research_area_id: "a-3", slug: "safety", name: "Safety", description: null, rank: 3 },
-          ],
-        },
-      },
-      "/api/me/auto-picks": {
-        body: {
-          results: [
-            {
-              election_id: "e-1",
-              race_type: "office",
-              outcome: "picked",
-              reason: null,
-              picked_candidate_ids: ["c-2"],
-              measure_position: null,
-              shortlist_candidate_ids: [],
-              candidates: [],
-              measure_per_issue: [],
-              unresearched: [],
-            },
-          ],
-        },
-      },
-    });
-    const user = userEvent.setup();
-    renderElection(() =>
-      electionDetail({
-        candidates: [
-          {
-            candidate_id: "c-1",
-            display_name: "Dana Democrat",
-            party: "Democratic",
-            is_incumbent: false,
-            status: "active",
-            summary: null,
-            finance_summary: null,
-            records: [],
-          },
-          {
-            candidate_id: "c-2",
-            display_name: "Riley Republican",
-            party: "Republican",
-            is_incumbent: false,
-            status: "active",
-            summary: null,
-            finance_summary: null,
-            records: [],
-          },
-        ],
-      })
-    );
-
-    await user.click(await screen.findByRole("button", { name: "Democrats (1)" }));
-    expect(screen.queryByText("Riley Republican")).not.toBeInTheDocument();
-
-    const autoPick = await screen.findByRole("button", { name: "Auto-pick by my issues" });
-    await waitFor(() => expect(autoPick).toBeEnabled());
-    await user.click(autoPick);
-
-    expect(await screen.findByText("Riley Republican")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "All (2)" })).toHaveAttribute("aria-pressed", "true");
-  });
-
-  it("resets the party filter when navigating to a different election", async () => {
-    stubApiRoutes({ ...ANONYMOUS });
-    const user = userEvent.setup();
-    const candidate = (id: string, name: string, party: string) => ({
-      candidate_id: id,
-      display_name: name,
-      party,
-      is_incumbent: false,
-      status: "active",
-      summary: null,
-      finance_summary: null,
-      records: [],
-    });
-    // Same route stays mounted across param changes; both rosters offer the
-    // "Democrats" bucket, so a leaked pick WOULD apply — and must not.
-    const { router } = renderElection(({ params }) =>
-      params.electionId === "e-2"
-        ? electionDetail({
-            id: "e-2",
-            candidates: [candidate("c-5", "Casey Second", "Democratic"), candidate("c-6", "Robin Second", "Republican")],
-          })
-        : electionDetail({
-            id: "e-1",
-            candidates: [candidate("c-1", "Dana First", "Democratic"), candidate("c-2", "Riley First", "Republican")],
-          })
-    );
-
-    await user.click(await screen.findByRole("button", { name: "Democrats (1)" }));
-    expect(screen.queryByText("Riley First")).not.toBeInTheDocument();
-
-    await router.navigate("/elections/e-2");
-    // Fresh election, fresh filter: both candidates visible, All pressed.
-    expect(await screen.findByText("Robin Second")).toBeInTheDocument();
-    expect(screen.getByText("Casey Second")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "All (2)" })).toHaveAttribute("aria-pressed", "true");
-  });
-
   it("explains an empty candidate list instead of hiding the section", async () => {
     stubApiRoutes({ ...ANONYMOUS });
     renderElection(() =>
@@ -489,7 +260,7 @@ describe("ElectionPage", () => {
       })
     );
 
-    expect(await screen.findByRole("heading", { name: "Who is running?" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Candidates:" })).toBeInTheDocument();
     expect(
       screen.getByText(
         "We haven't found a final candidate list from election officials for this race yet. We'll check again after August 27, 2026."
@@ -502,7 +273,7 @@ describe("ElectionPage", () => {
     renderElection(() => electionDetail({ candidates: [], candidate_roster_status: null }));
 
     expect(await screen.findByRole("heading", { name: "Governor" })).toBeInTheDocument();
-    expect(screen.queryByRole("heading", { name: "Who is running?" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Candidates:" })).not.toBeInTheDocument();
   });
 
   it("falls back to generic copy for an unknown roster status reason", async () => {
@@ -1011,13 +782,13 @@ describe("ElectionPage", () => {
     // lists and voice control can tell the page's pick buttons apart. The
     // buttons only render once the 401 settles (no-flash rule), so their
     // presence proves the guest fork.
-    const jordanPick = await screen.findByRole("button", { name: "Make my pick: Jordan Voter" });
-    expect(screen.getByRole("button", { name: "Make my pick: Riley Runner" })).toBeInTheDocument();
+    const jordanPick = await screen.findByRole("button", { name: "Make Jordan Voter my pick" });
+    expect(screen.getByRole("button", { name: "Make Riley Runner my pick" })).toBeInTheDocument();
     await userEvent.setup().click(jordanPick);
 
     // The pick lands in the localStorage draft (no API write) and the button
     // flips to picked, same as the signed-in flow.
-    expect(await screen.findByRole("button", { name: "✓ My pick: Jordan Voter" })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Jordan Voter is my pick" })).toBeInTheDocument();
     expect(readBallotDraft().choices["e-1"].picks.map((pick) => pick.candidate_id)).toEqual(["c-1"]);
   });
 
@@ -1031,7 +802,7 @@ describe("ElectionPage", () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       renderElection(() => electionDetail());
 
-      const jordanPick = await screen.findByRole("button", { name: "Make my pick: Jordan Voter" });
+      const jordanPick = await screen.findByRole("button", { name: "Make Jordan Voter my pick" });
       expect(screen.queryByRole("link", { name: /My Draft/ })).not.toBeInTheDocument();
       await user.click(jordanPick);
 
@@ -1071,7 +842,7 @@ describe("ElectionPage", () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       const { unmount } = renderElection(() => electionDetail());
 
-      await user.click(await screen.findByRole("button", { name: "Make my pick: Jordan Voter" }));
+      await user.click(await screen.findByRole("button", { name: "Make Jordan Voter my pick" }));
       expect(await screen.findByRole("link", { name: "My Draft (1)" })).toBeInTheDocument();
       act(() => {
         vi.advanceTimersByTime(6500);
@@ -1079,15 +850,15 @@ describe("ElectionPage", () => {
       expect(screen.queryByRole("link", { name: /My Draft/ })).not.toBeInTheDocument();
 
       // A second pick, same page: no toast.
-      await user.click(await screen.findByRole("button", { name: "Make my pick: Riley Runner" }));
-      expect(await screen.findByRole("button", { name: "✓ My pick: Riley Runner" })).toBeInTheDocument();
+      await user.click(await screen.findByRole("button", { name: "Make Riley Runner my pick" }));
+      expect(await screen.findByRole("button", { name: "Riley Runner is my pick" })).toBeInTheDocument();
       expect(screen.queryByRole("link", { name: /My Draft/ })).not.toBeInTheDocument();
 
       // A later visit on the same browser: still no toast.
       unmount();
       renderElection(() => electionDetail());
-      await user.click(await screen.findByRole("button", { name: "Make my pick: Jordan Voter" }));
-      expect(await screen.findByRole("button", { name: "✓ My pick: Jordan Voter" })).toBeInTheDocument();
+      await user.click(await screen.findByRole("button", { name: "Make Jordan Voter my pick" }));
+      expect(await screen.findByRole("button", { name: "Jordan Voter is my pick" })).toBeInTheDocument();
       expect(screen.queryByRole("link", { name: /My Draft/ })).not.toBeInTheDocument();
     } finally {
       vi.useRealTimers();
@@ -1103,7 +874,7 @@ describe("ElectionPage", () => {
     stubApiRoutes({ ...ANONYMOUS });
     renderElection(() => electionDetail());
 
-    await userEvent.click(await screen.findByRole("button", { name: "Make my pick: Jordan Voter" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Make Jordan Voter my pick" }));
 
     expect(await screen.findByRole("link", { name: "My Draft ✓" })).toHaveClass("text-green-800");
     clearBallotDraft();
@@ -1119,7 +890,7 @@ describe("ElectionPage", () => {
       contests: [{ id: "e-1", title: "Governor" }, { id: "e-2", title: "Mayor" }],
     });
 
-    await userEvent.click(await screen.findByRole("button", { name: "Make my pick: Jordan Voter" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Make Jordan Voter my pick" }));
 
     // Same rule as the pager bar: rendered, but only for widths below the
     // rail breakpoint (jsdom applies no media queries, so the class is the
@@ -1140,7 +911,7 @@ describe("ElectionPage", () => {
     });
     renderElection(() => electionDetail());
 
-    await userEvent.click(await screen.findByRole("button", { name: "Make my pick: Jordan Voter" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Make Jordan Voter my pick" }));
 
     // No ballot loaded in this render, so the label is the plain form; the
     // destination is the signed-in draft page.
@@ -1233,7 +1004,7 @@ describe("ElectionPage", () => {
     // One question about one person: the judge inline (name as the section
     // heading, site, summary, records) instead of a "Candidates" list that
     // only linked to the profile.
-    expect(screen.queryByRole("heading", { name: "Who is running?" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Candidates:" })).not.toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Jordan Voter" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Official site" })).toHaveAttribute("href", "https://judge.example.gov");
     expect(screen.getByText("A candidate summary.")).toBeInTheDocument();
@@ -1304,7 +1075,7 @@ describe("ElectionPage", () => {
     });
     renderElection(() => electionDetail());
 
-    const pickButton = await screen.findByRole("button", { name: "Make my pick: Jordan Voter" });
+    const pickButton = await screen.findByRole("button", { name: "Make Jordan Voter my pick" });
     await userEvent.setup().click(pickButton);
 
     // The click writes a choice instead of opening the register dialog.
@@ -1434,8 +1205,8 @@ describe("ElectionPage", () => {
 
     expect(await screen.findByText(/is no longer listed in this race/)).toBeInTheDocument();
     // The still-rostered pick is not flagged, and the cap holds Riley shut.
-    expect(screen.getByRole("button", { name: "✓ My pick: Jordan Voter" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Make my pick: Riley Runner" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Jordan Voter is my pick" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Make Riley Runner my pick" })).toBeDisabled();
 
     await userEvent.setup().click(screen.getByRole("button", { name: "Remove pick: Quinn Quitter" }));
 
@@ -1444,7 +1215,7 @@ describe("ElectionPage", () => {
       expect(screen.queryByText(/is no longer listed in this race/)).not.toBeInTheDocument()
     );
     expect(readBallotDraft().choices["e-1"].picks.map((pick) => pick.candidate_id)).toEqual(["c-1"]);
-    expect(screen.getByRole("button", { name: "Make my pick: Riley Runner" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Make Riley Runner my pick" })).toBeEnabled();
   });
 
   it("pulls pick buttons once the guest's ballot context says the race is foreign", async () => {
@@ -1457,7 +1228,7 @@ describe("ElectionPage", () => {
     stubApiRoutes({ ...ANONYMOUS });
     renderElection(() => electionDetail());
 
-    await screen.findByRole("button", { name: "Make my pick: Jordan Voter" });
+    await screen.findByRole("button", { name: "Make Jordan Voter my pick" });
     // A ballot lookup for a different address rewrites the draft's district
     // context; the store change propagates without a remount.
     act(() => setDraftBallotContext(["dddddddd-2222-4222-8222-222222222222"], null));
@@ -1507,9 +1278,9 @@ describe("ElectionPage", () => {
     stubApiRoutes({ ...ANONYMOUS });
     renderElection(() => electionDetail());
 
-    expect(await screen.findByRole("button", { name: "✓ My pick: Jordan Voter" })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Jordan Voter is my pick" })).toBeInTheDocument();
     // The full control set returns, so the pick stays changeable.
-    expect(screen.getByRole("button", { name: "Make my pick: Riley Runner" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Make Riley Runner my pick" })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Enter your address" })).not.toBeInTheDocument();
   });
 
@@ -2122,7 +1893,9 @@ describe("ElectionPage back link and nav context", () => {
     await waitFor(() => expect(group()).toHaveAttribute("aria-expanded", "true"));
     expect(high()).toHaveAttribute("aria-expanded", "false");
     expect(router.state.location.search).toBe("?sort=vote_power");
-    expect(router.state.location.state).toEqual(listState);
+    // Plus the back link's listRequested stamp, so the list page's
+    // wide-screen shortcut shows the list instead of forwarding again.
+    expect(router.state.location.state).toEqual({ ...(listState as object), listRequested: true });
     clearBallotDraft();
   });
 
@@ -2138,7 +1911,7 @@ describe("ElectionPage back link and nav context", () => {
     });
     await userEvent.click(await screen.findByRole("button", { name: "No" }));
     await userEvent.click(await screen.findByRole("link", { name: "Back to elections" }));
-    expect(router.state.location.state).toEqual(backState);
+    expect(router.state.location.state).toEqual({ ...backState, listRequested: true });
     clearBallotDraft();
   });
 
@@ -2177,7 +1950,9 @@ describe("ElectionPage back link and nav context", () => {
     await user.click(await screen.findByRole("link", { name: "Back to Jordan Voter" }));
 
     expect(router.state.location.pathname).toBe("/candidates/c-1");
-    expect(router.state.location.state).toEqual(candidateContext);
+    // Plus the back link's listRequested stamp (DetailPager), which only
+    // the list pages read — the candidate context itself arrives intact.
+    expect(router.state.location.state).toEqual({ ...candidateContext, listRequested: true });
   });
 
   it("hands candidate links this election as back context plus the displayed roster order", async () => {
@@ -2232,44 +2007,6 @@ describe("ElectionPage back link and nav context", () => {
     expect(await screen.findByRole("combobox")).toHaveValue("alphabetical");
   });
 
-  it("scopes the handed-off roster order to the active party filter", async () => {
-    stubApiRoutes({ ...ANONYMOUS });
-    const user = userEvent.setup();
-    const { router } = renderElection(() =>
-      electionDetail({
-        candidates: [
-          {
-            candidate_id: "c-dem",
-            display_name: "Dana Democrat",
-            party: "Democratic",
-            is_incumbent: false,
-            status: "active",
-            summary: null,
-            finance_summary: null,
-            records: [],
-          },
-          {
-            candidate_id: "c-rep",
-            display_name: "Rory Republican",
-            party: "Republican",
-            is_incumbent: false,
-            status: "active",
-            summary: null,
-            finance_summary: null,
-            records: [],
-          },
-        ],
-      })
-    );
-
-    await user.click(await screen.findByRole("button", { name: "Democrats (1)" }));
-    await user.click(screen.getByRole("link", { name: "Dana Democrat" }));
-
-    const state = router.state.location.state as { candidates: unknown };
-    expect(state.candidates).toEqual([
-      { id: "c-dem", name: "Dana Democrat", research_area_records: [] },
-    ]);
-  });
 });
 
 describe("ElectionPage ballot pager", () => {
@@ -3092,5 +2829,254 @@ describe("ElectionPage ballot rail sort and pick checks", () => {
     const plainRow = within(rail).getByTitle("Proposition 33");
     expect(plainRow).not.toHaveTextContent("(decided)");
     expect(plainRow.querySelector("svg")).toBeNull();
+  });
+});
+
+// Post-pick auto-advance (lib/useAdvanceAfterPick): a pick made here that
+// decides the race moves the page to the rail's next row after a short
+// pause. Real timers: the pause is 1.2s, so the positive cases wait for the
+// route and the negative ones outwait the pause.
+describe("ElectionPage post-pick auto-advance", () => {
+  const LIST_BACK = { path: "/ballot", label: "All elections" };
+  const outwaitPause = () => new Promise((resolve) => setTimeout(resolve, 1600));
+
+  it("moves to the next race once a single-seat pick lands, with the sibling context", async () => {
+    clearBallotDraft();
+    setDraftBallotContext([DISTRICT.id], null);
+    stubApiRoutes({ ...ANONYMOUS });
+    const incoming = { backTo: LIST_BACK, contests: [{ id: "e-1", title: "Governor" }, { id: "e-2", title: "Mayor" }] };
+    // Per-id loader: the arrival fade-in is keyed to the race moved to.
+    const { router } = renderElection(({ params }) => electionDetail({ id: params.electionId }), "e-1", incoming);
+
+    await userEvent.click(await screen.findByRole("button", { name: "Make Jordan Voter my pick" }));
+    // The pick shows as landed before the move.
+    expect(await screen.findByRole("button", { name: "Jordan Voter is my pick" })).toBeInTheDocument();
+    await waitFor(() => expect(router.state.location.pathname).toBe("/elections/e-2"), { timeout: 3000 });
+    expect(router.state.location.state).toEqual(incoming);
+    // The arriving race plays the fade-in (the leaving one faded out first).
+    await waitFor(() => expect(document.querySelector('[class*="animate-race-in"]')).not.toBeNull());
+    clearBallotDraft();
+  });
+
+  it("waits for the last seat of a multi-seat race", async () => {
+    clearBallotDraft();
+    setDraftBallotContext([DISTRICT.id], null);
+    stubApiRoutes({ ...ANONYMOUS });
+    const incoming = { backTo: LIST_BACK, contests: [{ id: "e-1", title: "Council" }, { id: "e-2", title: "Mayor" }] };
+    const { router } = renderElection(() => electionDetail({ seats_to_fill: 2 }), "e-1", incoming);
+
+    await userEvent.click(await screen.findByRole("button", { name: "Make Jordan Voter my pick" }));
+    await outwaitPause();
+    // One of two seats: the reader is still picking.
+    expect(router.state.location.pathname).toBe("/elections/e-1");
+    await userEvent.click(screen.getByRole("button", { name: "Make Riley Runner my pick" }));
+    await waitFor(() => expect(router.state.location.pathname).toBe("/elections/e-2"), { timeout: 3000 });
+    clearBallotDraft();
+  });
+
+  it("moves on after a measure's Yes or No", async () => {
+    clearBallotDraft();
+    setDraftBallotContext([DISTRICT.id], null);
+    stubApiRoutes({ ...ANONYMOUS });
+    const retention = retentionElection("r-1");
+    const incoming = {
+      backTo: LIST_BACK,
+      contests: [{ id: "r-1", title: retention.official_ballot_title }, { id: "e-2", title: "Mayor" }],
+    };
+    const { router } = renderElection(
+      () => electionDetail({ id: "r-1", official_ballot_title: retention.official_ballot_title }),
+      "r-1",
+      incoming
+    );
+
+    await userEvent.click(await screen.findByRole("button", { name: "Yes" }));
+    await waitFor(() => expect(router.state.location.pathname).toBe("/elections/e-2"), { timeout: 3000 });
+    clearBallotDraft();
+  });
+
+  it("does not move again when the reader returns to a race they left before the pause ended", async () => {
+    clearBallotDraft();
+    setDraftBallotContext([DISTRICT.id], null);
+    stubApiRoutes({ ...ANONYMOUS });
+    const incoming = {
+      backTo: LIST_BACK,
+      contests: [{ id: "e-1", title: "Governor" }, { id: "e-2", title: "Mayor" }, { id: "e-3", title: "Sheriff" }],
+    };
+    const { router } = renderElection(
+      ({ params }) =>
+        electionDetail({ id: params.electionId, official_ballot_title: params.electionId === "e-2" ? "Mayor" : "Governor" }),
+      "e-1",
+      incoming
+    );
+
+    await userEvent.click(await screen.findByRole("button", { name: "Make Jordan Voter my pick" }));
+    // Inside the pause the reader walks to another race (rendered, as any
+    // real walk is) and back. The race is still decided, but the walk
+    // disarmed the advance: no second pick, no move.
+    await router.navigate("/elections/e-2", { state: incoming });
+    await screen.findByRole("heading", { name: "Mayor" });
+    await router.navigate("/elections/e-1", { state: incoming });
+    await screen.findByRole("button", { name: "Jordan Voter is my pick" });
+    await outwaitPause();
+    expect(router.state.location.pathname).toBe("/elections/e-1");
+    clearBallotDraft();
+  });
+
+  it("holds the move while a choice write is in flight, so a slow undo wins", async () => {
+    // Account picks are not optimistic: during an undo the cached choice
+    // still says "decided" until the server answers.
+    let picked = false;
+    let releaseUndo: (() => void) | null = null;
+    const choiceRow = {
+      election_id: "e-1",
+      race_type: "office",
+      official_ballot_title: "Governor",
+      election_date: "2026-11-03",
+      seats_to_fill: 1,
+      picks: [{ candidate_id: "c-1", display_name: "Jordan Voter", candidacy_status: "active" }],
+      measure_position: null,
+      updated_at: "2026-08-01T00:00:00.000Z",
+    };
+    stubApiRoutes({
+      "/api/me": { body: ME_VERIFIED },
+      "/api/me/districts": { body: MY_DISTRICTS },
+      "/api/me/candidate-follows": { body: { follows: [] } },
+      "/api/me/research-area-preferences": { body: { preferences: [] } },
+      "/api/me/election-choices": async (_url, init) => {
+        if (init?.method === "PUT") {
+          const body = JSON.parse(String(init.body)) as { chosen: boolean };
+          if (body.chosen) {
+            picked = true;
+            return { status: 200, body: { choice: null } };
+          }
+          // The undo: the server is slow, and the test decides when it answers.
+          await new Promise<void>((resolve) => {
+            releaseUndo = resolve;
+          });
+          picked = false;
+          return { status: 200, body: { choice: null } };
+        }
+        return { status: 200, body: { choices: picked ? [choiceRow] : [] } };
+      },
+    });
+    const incoming = { backTo: LIST_BACK, contests: [{ id: "e-1", title: "Governor" }, { id: "e-2", title: "Mayor" }] };
+    const { router } = renderElection(() => electionDetail(), "e-1", incoming);
+
+    await userEvent.click(await screen.findByRole("button", { name: "Make Jordan Voter my pick" }));
+    const landed = await screen.findByRole("button", { name: "Jordan Voter is my pick" });
+    // Undo at once, inside the pause.
+    await userEvent.click(landed);
+    await outwaitPause();
+    // The pause outwaited with the undo still pending: no move.
+    expect(router.state.location.pathname).toBe("/elections/e-1");
+    releaseUndo!();
+    await screen.findByRole("button", { name: "Make Jordan Voter my pick" });
+    await outwaitPause();
+    expect(router.state.location.pathname).toBe("/elections/e-1");
+  });
+
+  it("stays on the ballot's last race, and on a deep link with no ballot context", async () => {
+    clearBallotDraft();
+    setDraftBallotContext([DISTRICT.id], null);
+    stubApiRoutes({ ...ANONYMOUS });
+    const last = { backTo: LIST_BACK, contests: [{ id: "e-0", title: "Mayor" }, { id: "e-1", title: "Governor" }] };
+    const { router, unmount } = renderElection(() => electionDetail(), "e-1", last);
+    await userEvent.click(await screen.findByRole("button", { name: "Make Jordan Voter my pick" }));
+    await outwaitPause();
+    expect(router.state.location.pathname).toBe("/elections/e-1");
+    unmount();
+
+    clearBallotDraft();
+    setDraftBallotContext([DISTRICT.id], null);
+    const deep = renderElection(() => electionDetail());
+    await userEvent.click(await screen.findByRole("button", { name: "Make Jordan Voter my pick" }));
+    await outwaitPause();
+    expect(deep.router.state.location.pathname).toBe("/elections/e-1");
+    clearBallotDraft();
+  });
+});
+
+// The sticky names card: the roster's pick controls pinned to the viewport
+// bottom on office races, the counterpart of the measure page's Yes/No card.
+describe("ElectionPage sticky candidate picks", () => {
+  const rosterOf = (n: number) =>
+    Array.from({ length: n }, (_, i) => ({
+      candidate_id: `c-${i + 1}`,
+      display_name: `Candidate ${i + 1}`,
+      party: "Independent",
+      is_incumbent: false,
+      status: "active" as const,
+      summary: null,
+      finance_summary: null,
+      records: [],
+    }));
+
+  it("pins the roster's names as pick buttons, in place of the inline ones", async () => {
+    clearBallotDraft();
+    setDraftBallotContext([DISTRICT.id], null);
+    stubApiRoutes({ ...ANONYMOUS });
+    renderElection(() => electionDetail());
+
+    const jordan = await screen.findByRole("button", { name: "Make Jordan Voter my pick" });
+    const card = jordan.closest("[data-sticky-pick-cta]") as HTMLElement | null;
+    expect(card).not.toBeNull();
+    expect(card!.className).toContain("sticky");
+    expect(within(card!).getByText("My pick:")).toBeInTheDocument();
+    expect(within(card!).getByRole("button", { name: "Make Riley Runner my pick" })).toHaveTextContent("Riley Runner");
+    // The card is THE pick control: no "Make my pick" on the candidate cards.
+    expect(screen.queryByRole("button", { name: "Make my pick: Jordan Voter" })).not.toBeInTheDocument();
+
+    await userEvent.click(jordan);
+    expect(await screen.findByRole("button", { name: "Jordan Voter is my pick" })).toHaveTextContent("✓ Jordan Voter");
+    expect(readBallotDraft().choices["e-1"].picks.map((pick) => pick.candidate_id)).toEqual(["c-1"]);
+    // The picked candidate's card: the green check (spoken as "My pick:")
+    // beside the name, and an Unpick in the old button slot. Riley's card
+    // gets neither.
+    const jordanCard = screen.getByRole("heading", { name: "Jordan Voter" }).closest("div.group") as HTMLElement;
+    expect(within(jordanCard).getByText("My pick:")).toBeInTheDocument();
+    const unpick = within(jordanCard).getByRole("button", { name: "Unpick Jordan Voter" });
+    expect(unpick).toHaveTextContent("Unpick");
+    const rileyCard = screen.getByRole("heading", { name: "Riley Runner" }).closest("div.group") as HTMLElement;
+    expect(within(rileyCard).queryByText("My pick:")).not.toBeInTheDocument();
+    expect(within(rileyCard).queryByRole("button", { name: /Unpick/ })).not.toBeInTheDocument();
+
+    await userEvent.click(unpick);
+    expect(await screen.findByRole("button", { name: "Make Jordan Voter my pick" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Unpick Jordan Voter" })).not.toBeInTheDocument();
+    expect(readBallotDraft().choices["e-1"]?.picks ?? []).toEqual([]);
+    clearBallotDraft();
+  });
+
+  it("names the seat cap on a multi-seat race", async () => {
+    clearBallotDraft();
+    setDraftBallotContext([DISTRICT.id], null);
+    stubApiRoutes({ ...ANONYMOUS });
+    renderElection(() => electionDetail({ seats_to_fill: 2, candidates: rosterOf(3) }));
+
+    await screen.findByRole("button", { name: "Make Candidate 1 my pick" });
+    expect(screen.getByText("My picks (up to 2):")).toBeInTheDocument();
+    clearBallotDraft();
+  });
+
+  it("falls back to the inline buttons on a long roster", async () => {
+    clearBallotDraft();
+    setDraftBallotContext([DISTRICT.id], null);
+    stubApiRoutes({ ...ANONYMOUS });
+    renderElection(() => electionDetail({ candidates: rosterOf(6) }));
+
+    await screen.findByRole("button", { name: "Make my pick: Candidate 1" });
+    expect(document.querySelector("[data-sticky-pick-cta]")).toBeNull();
+    expect(screen.queryByRole("button", { name: "Make Candidate 1 my pick" })).not.toBeInTheDocument();
+    clearBallotDraft();
+  });
+
+  it("shows no card when the pick controls are hidden", async () => {
+    // A guest with no ballot context: the district gate hides every control.
+    clearBallotDraft();
+    stubApiRoutes({ ...ANONYMOUS });
+    renderElection(() => electionDetail());
+
+    await screen.findByRole("heading", { name: "Governor" });
+    expect(document.querySelector("[data-sticky-pick-cta]")).toBeNull();
   });
 });

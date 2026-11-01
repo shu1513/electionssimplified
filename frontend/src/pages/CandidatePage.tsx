@@ -44,6 +44,8 @@ import { useFollows } from "@voteapp/api-client";
 import { APP_NAME } from "@voteapp/api-client";
 import { useMe } from "@voteapp/api-client";
 import { useMyResearchAreas } from "@voteapp/api-client";
+import { railOrder } from "../lib/railOrder";
+import { useAdvanceAfterPick } from "../lib/useAdvanceAfterPick";
 import { sourceLinkProps, track, useSectionExposure } from "../lib/usage";
 
 // Loader payload: the candidate detail plus this candidate's finance for
@@ -418,6 +420,39 @@ export function CandidatePage() {
     navState?.backState !== undefined && railSort !== null
       ? { ...navState.backState, rosterSort: railSort }
       : navState?.backState;
+  // Post-pick auto-advance (lib/useAdvanceAfterPick): once the sticky
+  // card's pick decides its race, move to the NEXT RACE of the election
+  // the reader came from — not the next candidate — in the order that
+  // election's rail shows (railOrder over the carried election context).
+  // Only for an arrival from that very race, whose context names the
+  // ballot; a deep link or a My Picks arrival has nothing to move to.
+  const advanceNext = (() => {
+    const arrival = navState?.backState;
+    if (!primaryPickElection || !arrival || navState?.backTo.path !== `/elections/${primaryPickElection.election_id}`) {
+      return null;
+    }
+    const { displayedContests } = railOrder({
+      navState: arrival,
+      railSortOverride: null,
+      weights,
+      hasSaved,
+      savedAreasLoading,
+    });
+    const next = pagerNeighbors(displayedContests, primaryPickElection.election_id)?.next;
+    // The election's own sibling context: its rosterSort is this race's
+    // roster order and must not seed the next race's.
+    return next
+      ? { electionId: next.id, path: `/elections/${next.id}`, state: { ...arrival, rosterSort: undefined } }
+      : null;
+  })();
+  const { arm: armAdvance, leaving: raceLeaving } = useAdvanceAfterPick({
+    key: `${candidate.candidate_id}:${primaryPickElection?.election_id ?? ""}`,
+    decided:
+      primaryChoice !== undefined &&
+      (primaryChoice.measure_position !== null ||
+        primaryChoice.picks.length >= (primaryPickElection?.seats_to_fill ?? 1)),
+    next: advanceNext,
+  });
   // Every election link on this page (the back-link fallback and the
   // Elections history list) tells the election page to come back here. This
   // page's own arrival context rides along (backState) so the round trip
@@ -504,8 +539,8 @@ export function CandidatePage() {
     <div
       className={
         railCandidates !== null
-          ? "mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px] box:px-[11px] box:pt-[11px] box:pb-[29px] rail:grid rail:max-w-6xl rail:grid-cols-[18rem_minmax(0,1fr)] rail:gap-8 rail:pt-0 lg:grid-cols-[22rem_minmax(0,1fr)]"
-          : "mx-auto max-w-3xl px-4 pt-[25px] pb-8 sm:pt-[27px] box:px-[11px] box:pt-[11px] box:pb-[29px]"
+          ? "mx-auto max-w-3xl px-4 pt-[25px] sm:pt-[27px] box:px-[11px] box:pt-[11px] box:pb-[29px] rail:grid rail:max-w-6xl rail:grid-cols-[18rem_minmax(0,1fr)] rail:gap-8 rail:pt-0 lg:grid-cols-[22rem_minmax(0,1fr)]"
+          : "mx-auto max-w-3xl px-4 pt-[25px] sm:pt-[27px] box:px-[11px] box:pt-[11px] box:pb-[29px]"
       }
     >
       {railCandidates !== null && navState !== null ? (
@@ -562,7 +597,9 @@ export function CandidatePage() {
           divider is the rail panel's own right edge (DetailRail). In rail
           mode the grid drops its top padding so the panel meets the header
           line, and the detail column carries that padding itself. */}
-      <div className="min-w-0 rail:max-w-3xl rail:pt-[25px]">
+      {/* The auto-advance's motion (useAdvanceAfterPick): this column fades
+          out before the move to the next race. */}
+      <div className={`min-w-0 rail:max-w-3xl rail:pt-[25px]${raceLeaving ? " motion-safe:animate-race-out" : ""}`}>
         {railCandidates !== null ? <div className="rail:hidden">{pagerBar}</div> : pagerBar}
         <JsonLdScript
           data={{
@@ -590,9 +627,11 @@ export function CandidatePage() {
             subjectOf: { "@type": "WebPage", "@id": `${SITE_ORIGIN}/candidates/${candidate.candidate_id}`, publisher: { "@id": ORGANIZATION_ID } },
           }}
         />
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-title font-bold">{candidate.display_name}</h1>
-          <div className="flex items-center gap-2">
+        {/* No wrap, as on the election page: a long name wraps inside its
+            own column and the buttons stay on the first line at the right. */}
+        <div className="flex items-start justify-between gap-3">
+          <h1 className="min-w-0 flex-1 text-title font-bold">{candidate.display_name}</h1>
+          <div className="flex shrink-0 items-center gap-2">
             <ShareButton
               path={`/candidates/${candidate.candidate_id}`}
               shareText={candidateShareText(candidate)}
@@ -849,6 +888,7 @@ export function CandidatePage() {
                   choice={choiceForElection(primaryPickElection.election_id)}
                   raceType="office"
                   fullWidth
+                  onPicked={armAdvance}
                 />
               </>
             ) : (
@@ -867,6 +907,7 @@ export function CandidatePage() {
                 seatsToFill={primaryPickElection.seats_to_fill ?? null}
                 fullWidth
                 surface="candidate_card"
+                onPicked={armAdvance}
               />
             )}
             {/* "Back to election" only for election arrivals: a My-Picks

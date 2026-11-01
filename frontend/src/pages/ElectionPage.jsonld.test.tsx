@@ -56,8 +56,10 @@ describe("ElectionPage structured data", () => {
     expect(screen.getByRole("link", { name: "Congressional District 1, Alaska" })).toHaveAttribute("href", "/districts/d-1");
   });
 
-  // The FAQPage block repeats the question headings with the text under
-  // them, so an engine can lift "Who is running?" and its answer as a pair.
+  // The FAQPage block pairs each section's text with a question an engine
+  // can lift: "Who is running?" for the roster (the visible heading reads
+  // "Candidates:"; the FAQ keeps the question form), the office heading
+  // verbatim.
   it("adds FAQPage markup whose questions are the page's own headings", async () => {
     stubApiRoutes({ ...ANONYMOUS });
     renderRoutes(
@@ -77,7 +79,7 @@ describe("ElectionPage structured data", () => {
       "/elections/e-1"
     );
 
-    expect(await screen.findByRole("heading", { name: "Who is running?" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Candidates:" })).toBeInTheDocument();
     const scripts = [...document.querySelectorAll('script[type="application/ld+json"]')].map((script) =>
       JSON.parse(script.textContent ?? "{}")
     );
