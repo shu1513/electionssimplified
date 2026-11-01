@@ -108,10 +108,9 @@ function rewriteBackPath(
 // that the page says nothing — "Below average" over every low-stakes race
 // read as a put-down, not information.
 const VOTE_POWER_CHIP_LABELS: ReadonlySet<string> = new Set(["medium", "above_average", "high", "very_high"]);
-// Pill shape and background: this chip is a control (it opens the bubble),
-// which is what votePowerBadge.ts reserves pills for. Text color per band.
-const VOTE_POWER_CHIP_CLASS =
-  "inline-flex items-center rounded-full border border-line bg-white px-3 py-1 text-sm font-semibold transition";
+// The pill the owner asked for (2026-10-31), text color per band; the ⓘ
+// beside it is the control that opens the bubble.
+const VOTE_POWER_CHIP_CLASS = "inline-flex items-center rounded-full border border-line bg-white px-3 py-1 text-sm font-semibold";
 
 // The office summary is seeded (seedOffices.ts) as newline-separated
 // bullets, rendered as-is under the "About this office" heading. Blank lines
@@ -190,16 +189,21 @@ export function ElectionPage() {
   const competitiveness = competitivenessChip(data);
   // The header chip: "My vote power: High" for a rating of Average or above,
   // "Retention race" for a retention race, nothing for the rest (Below
-  // average, Very low, unknown). Its bubble needs the backend's explanation;
-  // without one the chip is plain text.
+  // average, Very low, unknown). The ⓘ beside it opens the bubble and needs
+  // the backend's explanation; without one the chip stands alone.
   const votePowerChip = (() => {
     const label = data.vote_power.label;
     const explanation = data.vote_power.explanation ?? null;
     if (label === "retention") {
-      return { label: "Retention race", className: "text-ink-soft", explanation };
+      return { label: "Retention race", className: "text-ink-soft", explanation, infoLabel: "What is a retention race?" };
     }
     if (!VOTE_POWER_CHIP_LABELS.has(label)) return null;
-    return { label: `My vote power: ${formatVotePowerLabel(label)}`, className: votePowerBadgeClass(label), explanation };
+    return {
+      label: `My vote power: ${formatVotePowerLabel(label)}`,
+      className: votePowerBadgeClass(label),
+      explanation,
+      infoLabel: "How do we calculate my vote power?",
+    };
   })()
   // Close the bubble on a walk to another race.
   useEffect(() => {
@@ -740,23 +744,30 @@ export function ElectionPage() {
             {formatDistrictName(data.district.name)}
           </Link>
           {votePowerChip !== null ? (
-            // relative: the bubble anchors under the chip's left edge.
-            <div ref={votePowerInfoRef} className="relative inline-block">
+            // relative: the bubble anchors under the chip's left edge. The
+            // chip itself is text; the ⓘ after it is the control (owner,
+            // 2026-10-31), as the old retention ⓘ was.
+            <div ref={votePowerInfoRef} className="relative inline-flex items-center gap-1.5">
+              <span className={`${VOTE_POWER_CHIP_CLASS} ${votePowerChip.className}`}>{votePowerChip.label}</span>
               {votePowerChip.explanation ? (
                 <button
                   type="button"
                   aria-expanded={votePowerInfoOpen}
+                  aria-label={votePowerChip.infoLabel}
                   onClick={() => {
                     track("detail_control", { control: "vote_power_how", value: votePowerInfoOpen ? "close" : "open" });
                     setVotePowerInfoOpen((open) => !open);
                   }}
-                  className={`${VOTE_POWER_CHIP_CLASS} ${votePowerChip.className} hover:bg-surface`}
+                  className="text-ink-soft hover:text-ink"
                 >
-                  {votePowerChip.label}
+                  <span
+                    aria-hidden
+                    className="flex h-4 w-4 items-center justify-center rounded-full border border-current text-[10px] font-serif italic"
+                  >
+                    i
+                  </span>
                 </button>
-              ) : (
-                <span className={`${VOTE_POWER_CHIP_CLASS} ${votePowerChip.className}`}>{votePowerChip.label}</span>
-              )}
+              ) : null}
               {votePowerInfoOpen && votePowerChip.explanation ? (
                 // Absolutely positioned bubble under the chip: floats over the
                 // page instead of reflowing it. Capped to the viewport so a

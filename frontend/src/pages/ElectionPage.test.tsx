@@ -131,15 +131,17 @@ describe("ElectionPage", () => {
     expect(candidatesHeading.compareDocumentPosition(reportButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it("shows a vote power chip for Average or above, with the brief explanation in a closable bubble", async () => {
+  it("shows a vote power chip for Average or above, with an ⓘ that opens the brief explanation in a closable bubble", async () => {
     stubApiRoutes({ ...ANONYMOUS });
     renderElection(() => electionDetail({ vote_power: VOTE_POWER_WITH_EXPLANATION }));
 
     await screen.findByRole("heading", { name: "Governor" });
-    // The old label-over-value cell and its disclosure are gone.
-    expect(screen.queryByText("How do we calculate my vote power?")).not.toBeInTheDocument();
+    // The old label-over-value cell and its disclosure are gone; the chip is
+    // text, and the ⓘ beside it is the control.
     expect(screen.queryByText("Representation:")).not.toBeInTheDocument();
-    const chip = screen.getByRole("button", { name: "My vote power: High" });
+    expect(screen.getByText("My vote power: High")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "My vote power: High" })).not.toBeInTheDocument();
+    const chip = screen.getByRole("button", { name: "How do we calculate my vote power?" });
     expect(chip).toHaveAttribute("aria-expanded", "false");
     expect(screen.queryByRole("note")).not.toBeInTheDocument();
 
@@ -177,14 +179,14 @@ describe("ElectionPage", () => {
     expect(screen.queryByText("Election date")).not.toBeInTheDocument();
   });
 
-  it("renders the chip as plain text when the payload carries no explanation", async () => {
+  it("renders the chip without an ⓘ when the payload carries no explanation", async () => {
     stubApiRoutes({ ...ANONYMOUS });
     // The default fixture: a High rating with no explanation (a list payload's shape).
     renderElection(() => electionDetail());
 
     await screen.findByRole("heading", { name: "Governor" });
     expect(screen.getByText("My vote power: High")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "My vote power: High" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "How do we calculate my vote power?" })).not.toBeInTheDocument();
   });
 
   it("gives a retention race a chip of its own whose bubble says what the race is", async () => {
@@ -205,7 +207,8 @@ describe("ElectionPage", () => {
 
     await screen.findByRole("heading", { name: "Shall Judge Jordan Voter be retained in office?" });
     expect(screen.queryByText(/My vote power/)).not.toBeInTheDocument();
-    const chip = screen.getByRole("button", { name: "Retention race" });
+    expect(screen.getByText("Retention race")).toBeInTheDocument();
+    const chip = screen.getByRole("button", { name: "What is a retention race?" });
     expect(screen.queryByText(how)).not.toBeInTheDocument();
     const user = userEvent.setup();
     await user.click(chip);
