@@ -138,6 +138,33 @@
       transform: translateY(0);
     }
   }
+  /* The post-pick auto-advance (lib/useAdvanceAfterPick): the decided
+     race's detail column fades up and out, then the next race's fades up
+     and in — one motion down the ballot instead of a cut. forwards on the
+     exit keeps the column out until the route changes. Used under
+     motion-safe only. */
+  --animate-race-out: race-out 180ms ease-in forwards;
+  --animate-race-in: race-in 240ms ease-out;
+  @keyframes race-out {
+    from {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-0.5rem);
+    }
+  }
+  @keyframes race-in {
+    from {
+      opacity: 0;
+      transform: translateY(0.5rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
   /* The header's My Draft counter (useDraftPulse): one short bump when the
      picked count rises, so the eye finds the running total. Used under
      motion-safe only. */

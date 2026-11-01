@@ -441,9 +441,11 @@ export function CandidatePage() {
     const next = pagerNeighbors(displayedContests, primaryPickElection.election_id)?.next;
     // The election's own sibling context: its rosterSort is this race's
     // roster order and must not seed the next race's.
-    return next ? { path: `/elections/${next.id}`, state: { ...arrival, rosterSort: undefined } } : null;
+    return next
+      ? { electionId: next.id, path: `/elections/${next.id}`, state: { ...arrival, rosterSort: undefined } }
+      : null;
   })();
-  const armAdvance = useAdvanceAfterPick({
+  const { arm: armAdvance, leaving: raceLeaving } = useAdvanceAfterPick({
     key: `${candidate.candidate_id}:${primaryPickElection?.election_id ?? ""}`,
     decided:
       primaryChoice !== undefined &&
@@ -595,7 +597,9 @@ export function CandidatePage() {
           divider is the rail panel's own right edge (DetailRail). In rail
           mode the grid drops its top padding so the panel meets the header
           line, and the detail column carries that padding itself. */}
-      <div className="min-w-0 rail:max-w-3xl rail:pt-[25px]">
+      {/* The auto-advance's motion (useAdvanceAfterPick): this column fades
+          out before the move to the next race. */}
+      <div className={`min-w-0 rail:max-w-3xl rail:pt-[25px]${raceLeaving ? " motion-safe:animate-race-out" : ""}`}>
         {railCandidates !== null ? <div className="rail:hidden">{pagerBar}</div> : pagerBar}
         <JsonLdScript
           data={{

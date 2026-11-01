@@ -3112,13 +3112,16 @@ describe("ElectionPage post-pick auto-advance", () => {
     setDraftBallotContext([DISTRICT.id], null);
     stubApiRoutes({ ...ANONYMOUS });
     const incoming = { backTo: LIST_BACK, contests: [{ id: "e-1", title: "Governor" }, { id: "e-2", title: "Mayor" }] };
-    const { router } = renderElection(() => electionDetail(), "e-1", incoming);
+    // Per-id loader: the arrival fade-in is keyed to the race moved to.
+    const { router } = renderElection(({ params }) => electionDetail({ id: params.electionId }), "e-1", incoming);
 
     await userEvent.click(await screen.findByRole("button", { name: "Make my pick: Jordan Voter" }));
     // The pick shows as landed before the move.
     expect(await screen.findByRole("button", { name: "✓ My pick: Jordan Voter" })).toBeInTheDocument();
     await waitFor(() => expect(router.state.location.pathname).toBe("/elections/e-2"), { timeout: 3000 });
     expect(router.state.location.state).toEqual(incoming);
+    // The arriving race plays the fade-in (the leaving one faded out first).
+    await waitFor(() => expect(document.querySelector('[class*="animate-race-in"]')).not.toBeNull());
     clearBallotDraft();
   });
 

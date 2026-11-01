@@ -5,8 +5,18 @@ import { useNavigate } from "react-router";
  * enough to see the control flip to "✓ My pick", short enough to read as
  * one motion. */
 export const ADVANCE_AFTER_PICK_MS = 1200;
+/** The leaving race's fade-out (index.css race-out); the move follows it. */
+export const ADVANCE_LEAVE_MS = 180;
+/** The arriving race's fade-in (index.css race-in). */
+export const ADVANCE_ENTER_MS = 240;
 
-export type AdvanceTarget = { path: string; state: unknown };
+export type AdvanceTarget = { electionId: string; path: string; state: unknown };
+
+// The race the advance is moving to, set just before the navigation and
+// read by the election page's useAdvanceEnter so only THAT arrival plays
+// the fade-in — a rail click or a back hop arrives plain. Module state,
+// not router state: it must not survive a reload or a shared link.
+let enteringElectionId: string | null = null;
 
 /**
  * Post-pick auto-advance (owner, 2026-10-31): once a pick the reader just
@@ -22,6 +32,10 @@ export type AdvanceTarget = { path: string; state: unknown };
  * belongs to, so a rail walk to another race disarms. No next race — a
  * deep link without ballot context, the last race of the ballot — means
  * no move; the post-pick links stay the exits there.
+ *
+ * Not a cut: after the pause `leaving` turns true for ADVANCE_LEAVE_MS
+ * (the page fades its detail column out, index.css race-out), then the
+ * navigation happens and the arriving race fades in (useAdvanceEnter).
  */
 export function useAdvanceAfterPick({
   key,
@@ -31,22 +45,62 @@ export function useAdvanceAfterPick({
   key: string;
   decided: boolean;
   next: AdvanceTarget | null;
-}): () => void {
+}): { arm: () => void; leaving: boolean } {
   const navigate = useNavigate();
   const [armedKey, setArmedKey] = useState<string | null>(null);
+  const [leavingKey, setLeavingKey] = useState<string | null>(null);
   // The target is read when the timer fires, not when it is set: its state
   // object is rebuilt every render and must not restart the pause.
   const nextRef = useRef(next);
   nextRef.current = next;
   const nextPath = next?.path ?? null;
+  // Set once the move has fired: the column must then STAY out while the
+  // next race loads (the route element keeps rendering this race until the
+  // loader resolves), so the disarm below must not read as a cancel.
+  const movedRef = useRef(false);
   useEffect(() => {
     if (armedKey !== key || !decided || nextPath === null) return;
-    const timer = setTimeout(() => {
+    movedRef.current = false;
+    const pause = setTimeout(() => setLeavingKey(key), ADVANCE_AFTER_PICK_MS);
+    const move = setTimeout(() => {
+      movedRef.current = true;
       setArmedKey(null);
       const target = nextRef.current;
-      if (target) void navigate(target.path, { state: target.state });
-    }, ADVANCE_AFTER_PICK_MS);
-    return () => clearTimeout(timer);
+      if (target) {
+        enteringElectionId = target.electionId;
+        void navigate(target.path, { state: target.state });
+      }
+    }, ADVANCE_AFTER_PICK_MS + ADVANCE_LEAVE_MS);
+    return () => {
+      clearTimeout(pause);
+      clearTimeout(move);
+      // An undo inside the window brings the column back; the disarm after
+      // a move does not.
+      if (!movedRef.current) setLeavingKey(null);
+    };
   }, [armedKey, key, decided, nextPath, navigate]);
-  return () => setArmedKey(key);
+  // The leaving state belongs to the race it was set on: once the page is
+  // on another race it is cleared, so walking back to the first race later
+  // finds its column in place.
+  useEffect(() => {
+    setLeavingKey((current) => (current !== null && current !== key ? null : current));
+  }, [key]);
+  return { arm: () => setArmedKey(key), leaving: leavingKey === key };
+}
+
+/**
+ * True while `electionId` is the race the auto-advance just moved to, so
+ * the election page plays the fade-in on that arrival only. Clears itself
+ * once the animation has run; a later visit to the same race arrives plain.
+ */
+export function useAdvanceEnter(electionId: string): boolean {
+  const entering = enteringElectionId === electionId;
+  useEffect(() => {
+    if (!entering) return;
+    const timer = setTimeout(() => {
+      if (enteringElectionId === electionId) enteringElectionId = null;
+    }, ADVANCE_ENTER_MS);
+    return () => clearTimeout(timer);
+  }, [entering, electionId]);
+  return entering;
 }

@@ -42,7 +42,7 @@ import {
 import { loadFromApi } from "../lib/loadFromApi";
 import { useHydrated } from "../lib/useHydrated";
 import { railOrder } from "../lib/railOrder";
-import { useAdvanceAfterPick } from "../lib/useAdvanceAfterPick";
+import { useAdvanceAfterPick, useAdvanceEnter } from "../lib/useAdvanceAfterPick";
 import { pageMeta, SITE_ORIGIN } from "../lib/pageMeta";
 import { ORGANIZATION_ID } from "../components/SiteJsonLd";
 import { usLatestLocalDate } from "../lib/usLatestLocalDate";
@@ -455,14 +455,20 @@ export function ElectionPage() {
   const raceDecided =
     myChoice !== undefined &&
     (myChoice.measure_position !== null || myChoice.picks.length >= (data.seats_to_fill ?? 1));
-  const armAdvance = useAdvanceAfterPick({
+  const { arm: armAdvance, leaving: raceLeaving } = useAdvanceAfterPick({
     key: data.id,
     decided: raceDecided,
     next:
       contestNeighbors?.next && railNav !== null
-        ? { path: `/elections/${contestNeighbors.next.id}`, state: railNav.forwarded }
+        ? {
+            electionId: contestNeighbors.next.id,
+            path: `/elections/${contestNeighbors.next.id}`,
+            state: railNav.forwarded,
+          }
         : null,
   });
+  // The arriving half of that motion: only the race the advance moved to.
+  const raceEntering = useAdvanceEnter(data.id);
   // Computed once, before render: the roster links hand the candidate page
   // this exact displayed order (sort + party + records filters applied), so
   // the JSX and the state payload must come from the same array.
@@ -639,7 +645,13 @@ export function ElectionPage() {
           divider is the rail panel's own right edge (DetailRail). In rail
           mode the grid drops its top padding so the panel meets the header
           line, and the detail column carries that padding itself. */}
-      <div className="min-w-0 rail:max-w-3xl rail:pt-[25px]">
+      {/* The auto-advance's motion (useAdvanceAfterPick): this column fades
+          out before the move and the next race's fades in on arrival. */}
+      <div
+        className={`min-w-0 rail:max-w-3xl rail:pt-[25px]${
+          raceLeaving ? " motion-safe:animate-race-out" : raceEntering ? " motion-safe:animate-race-in" : ""
+        }`}
+      >
         {railContests !== null ? <div className="rail:hidden">{pagerBar}</div> : pagerBar}
         {/* Same width rule as the pager bar: in split view the rail's own
             progress bar is the confirmation, so the toast only shows where
