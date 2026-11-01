@@ -2894,6 +2894,87 @@ describe("ElectionPage post-pick auto-advance", () => {
     clearBallotDraft();
   });
 
+  it("does not move again when the reader returns to a race they left before the pause ended", async () => {
+    clearBallotDraft();
+    setDraftBallotContext([DISTRICT.id], null);
+    stubApiRoutes({ ...ANONYMOUS });
+    const incoming = {
+      backTo: LIST_BACK,
+      contests: [{ id: "e-1", title: "Governor" }, { id: "e-2", title: "Mayor" }, { id: "e-3", title: "Sheriff" }],
+    };
+    const { router } = renderElection(
+      ({ params }) =>
+        electionDetail({ id: params.electionId, official_ballot_title: params.electionId === "e-2" ? "Mayor" : "Governor" }),
+      "e-1",
+      incoming
+    );
+
+    await userEvent.click(await screen.findByRole("button", { name: "Make Jordan Voter my pick" }));
+    // Inside the pause the reader walks to another race (rendered, as any
+    // real walk is) and back. The race is still decided, but the walk
+    // disarmed the advance: no second pick, no move.
+    await router.navigate("/elections/e-2", { state: incoming });
+    await screen.findByRole("heading", { name: "Mayor" });
+    await router.navigate("/elections/e-1", { state: incoming });
+    await screen.findByRole("button", { name: "Jordan Voter is my pick" });
+    await outwaitPause();
+    expect(router.state.location.pathname).toBe("/elections/e-1");
+    clearBallotDraft();
+  });
+
+  it("holds the move while a choice write is in flight, so a slow undo wins", async () => {
+    // Account picks are not optimistic: during an undo the cached choice
+    // still says "decided" until the server answers.
+    let picked = false;
+    let releaseUndo: (() => void) | null = null;
+    const choiceRow = {
+      election_id: "e-1",
+      race_type: "office",
+      official_ballot_title: "Governor",
+      election_date: "2026-11-03",
+      seats_to_fill: 1,
+      picks: [{ candidate_id: "c-1", display_name: "Jordan Voter", candidacy_status: "active" }],
+      measure_position: null,
+      updated_at: "2026-08-01T00:00:00.000Z",
+    };
+    stubApiRoutes({
+      "/api/me": { body: ME_VERIFIED },
+      "/api/me/districts": { body: MY_DISTRICTS },
+      "/api/me/candidate-follows": { body: { follows: [] } },
+      "/api/me/research-area-preferences": { body: { preferences: [] } },
+      "/api/me/election-choices": async (_url, init) => {
+        if (init?.method === "PUT") {
+          const body = JSON.parse(String(init.body)) as { chosen: boolean };
+          if (body.chosen) {
+            picked = true;
+            return { status: 200, body: { choice: null } };
+          }
+          // The undo: the server is slow, and the test decides when it answers.
+          await new Promise<void>((resolve) => {
+            releaseUndo = resolve;
+          });
+          picked = false;
+          return { status: 200, body: { choice: null } };
+        }
+        return { status: 200, body: { choices: picked ? [choiceRow] : [] } };
+      },
+    });
+    const incoming = { backTo: LIST_BACK, contests: [{ id: "e-1", title: "Governor" }, { id: "e-2", title: "Mayor" }] };
+    const { router } = renderElection(() => electionDetail(), "e-1", incoming);
+
+    await userEvent.click(await screen.findByRole("button", { name: "Make Jordan Voter my pick" }));
+    const landed = await screen.findByRole("button", { name: "Jordan Voter is my pick" });
+    // Undo at once, inside the pause.
+    await userEvent.click(landed);
+    await outwaitPause();
+    // The pause outwaited with the undo still pending: no move.
+    expect(router.state.location.pathname).toBe("/elections/e-1");
+    releaseUndo!();
+    await screen.findByRole("button", { name: "Make Jordan Voter my pick" });
+    await outwaitPause();
+    expect(router.state.location.pathname).toBe("/elections/e-1");
+  });
+
   it("stays on the ballot's last race, and on a deep link with no ballot context", async () => {
     clearBallotDraft();
     setDraftBallotContext([DISTRICT.id], null);

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
+import { useElectionChoiceSaving } from "@voteapp/api-client";
 
 /** How long a landed pick stays on screen before the page moves on: long
  * enough to see the control flip to "✓ My pick", short enough to read as
@@ -29,9 +30,16 @@ let enteringElectionId: string | null = null;
  * Only a pick made on this page arms it (the controls' onPicked calls the
  * returned `arm`): arriving at a race already decided moves no one, and
  * the rail's auto-fill never does either. `key` names the race the arming
- * belongs to, so a rail walk to another race disarms. No next race — a
- * deep link without ballot context, the last race of the ballot — means
- * no move; the post-pick links stay the exits there.
+ * belongs to: a walk to another race DISARMS (not just pauses — coming
+ * back to a race left mid-pause must not move the reader without a new
+ * pick), and a pick that lands after the reader has already left its race
+ * never arms. No next race — a deep link without ballot context, the last
+ * race of the ballot — means no move; the post-pick links stay the exits.
+ *
+ * A choice write in flight holds the pause: account picks are not
+ * optimistic (the choice list refetches after the PUT), so during an undo
+ * the race still reads as decided until the server answers — the move
+ * must wait for that answer, and the pause restarts once it lands.
  *
  * Not a cut: after the pause `leaving` turns true for ADVANCE_LEAVE_MS
  * (the page fades its detail column out, index.css race-out), then the
@@ -47,8 +55,12 @@ export function useAdvanceAfterPick({
   next: AdvanceTarget | null;
 }): { arm: () => void; leaving: boolean } {
   const navigate = useNavigate();
+  const saving = useElectionChoiceSaving();
   const [armedKey, setArmedKey] = useState<string | null>(null);
   const [leavingKey, setLeavingKey] = useState<string | null>(null);
+  // The race on screen right now, for a pick that lands late (below).
+  const keyRef = useRef(key);
+  keyRef.current = key;
   // The target is read when the timer fires, not when it is set: its state
   // object is rebuilt every render and must not restart the pause.
   const nextRef = useRef(next);
@@ -59,7 +71,7 @@ export function useAdvanceAfterPick({
   // loader resolves), so the disarm below must not read as a cancel.
   const movedRef = useRef(false);
   useEffect(() => {
-    if (armedKey !== key || !decided || nextPath === null) return;
+    if (armedKey !== key || !decided || saving || nextPath === null) return;
     movedRef.current = false;
     const pause = setTimeout(() => setLeavingKey(key), ADVANCE_AFTER_PICK_MS);
     const move = setTimeout(() => {
@@ -78,14 +90,22 @@ export function useAdvanceAfterPick({
       // a move does not.
       if (!movedRef.current) setLeavingKey(null);
     };
-  }, [armedKey, key, decided, nextPath, navigate]);
-  // The leaving state belongs to the race it was set on: once the page is
-  // on another race it is cleared, so walking back to the first race later
-  // finds its column in place.
+  }, [armedKey, key, decided, saving, nextPath, navigate]);
+  // Arming and leaving belong to the race they were set on: once the page
+  // is on another race both are cleared, so walking back to the first race
+  // later neither moves the reader again nor finds its column faded out.
   useEffect(() => {
+    setArmedKey((current) => (current !== null && current !== key ? null : current));
     setLeavingKey((current) => (current !== null && current !== key ? null : current));
   }, [key]);
-  return { arm: () => setArmedKey(key), leaving: leavingKey === key };
+  return {
+    // A pick that lands after the reader walked on (a slow account PUT)
+    // belongs to a race no longer on screen: ignore it.
+    arm: () => {
+      if (keyRef.current === key) setArmedKey(key);
+    },
+    leaving: leavingKey === key,
+  };
 }
 
 /**
