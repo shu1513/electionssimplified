@@ -587,12 +587,15 @@ export function ElectionPage() {
             // old snapshot): naming WHAT the rows are never depends on the
             // sort/tab keys.
             <div className="flex flex-col gap-2">
-              <p className="text-base font-bold text-ink">My elections</p>
-              {/* Same bar as My Draft, count beside it as on that page:
-                  green = the "decided" color the pick names use; the
-                  sentence is the bar's accessible name. */}
+              {/* Title and progress on one line (owner, 2026-10-31): the bar
+                  fills the room to the right of "My elections". Same bar as
+                  My Draft, count beside it as on that page: green = the
+                  "decided" color the pick names use; the sentence is the
+                  bar's accessible name. */}
+              <div className="flex items-center gap-3">
+              <p className="shrink-0 text-base font-bold text-ink">My elections</p>
               {railProgress !== null ? (
-                <div className="flex items-center gap-2">
+                <div className="flex min-w-0 flex-1 items-center gap-2">
                   <div
                     role="progressbar"
                     aria-label={`${railProgress.picked} of ${railProgress.total} races decided`}
@@ -615,6 +618,7 @@ export function ElectionPage() {
                   </span>
                 </div>
               ) : null}
+              </div>
               <div className="flex flex-col gap-2">
                 {offeredRailSorts.length > 0 ? (
                   <label className="flex items-center gap-1.5 text-xs text-ink-soft">

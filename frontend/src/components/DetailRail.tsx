@@ -229,7 +229,13 @@ export function DetailRail({
   // over. truncate + title on every row: contest titles run legal-length,
   // and the rail must stay a rail.
   return (
-    <div className="relative hidden border-r border-rail-line bg-rail before:absolute before:inset-y-0 before:right-full before:w-screen before:bg-rail rail:block">
+    <div className="relative hidden bg-rail before:absolute before:inset-y-0 before:right-full before:w-screen before:bg-rail rail:block">
+      {/* The hairline between rail and detail, drawn BEHIND the rows rather
+          than as the panel's border: the current row's white tab runs to the
+          panel's edge and covers it, so the tab connects to the page with no
+          grey seam (owner, 2026-10-31). First child, so the nav paints over
+          it; the nav has no background, so it shows through everywhere else. */}
+      <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 w-px bg-rail-line" />
       <nav
         aria-label={ariaLabel}
         className="sticky top-0 max-h-screen min-w-0 scrollbar-none overflow-y-auto pb-4 pl-3 pt-4"
