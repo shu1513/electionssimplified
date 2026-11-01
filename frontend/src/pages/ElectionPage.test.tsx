@@ -782,13 +782,13 @@ describe("ElectionPage", () => {
     // lists and voice control can tell the page's pick buttons apart. The
     // buttons only render once the 401 settles (no-flash rule), so their
     // presence proves the guest fork.
-    const jordanPick = await screen.findByRole("button", { name: "Make my pick: Jordan Voter" });
-    expect(screen.getByRole("button", { name: "Make my pick: Riley Runner" })).toBeInTheDocument();
+    const jordanPick = await screen.findByRole("button", { name: "Make Jordan Voter my pick" });
+    expect(screen.getByRole("button", { name: "Make Riley Runner my pick" })).toBeInTheDocument();
     await userEvent.setup().click(jordanPick);
 
     // The pick lands in the localStorage draft (no API write) and the button
     // flips to picked, same as the signed-in flow.
-    expect(await screen.findByRole("button", { name: "✓ My pick: Jordan Voter" })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Jordan Voter is my pick" })).toBeInTheDocument();
     expect(readBallotDraft().choices["e-1"].picks.map((pick) => pick.candidate_id)).toEqual(["c-1"]);
   });
 
@@ -802,7 +802,7 @@ describe("ElectionPage", () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       renderElection(() => electionDetail());
 
-      const jordanPick = await screen.findByRole("button", { name: "Make my pick: Jordan Voter" });
+      const jordanPick = await screen.findByRole("button", { name: "Make Jordan Voter my pick" });
       expect(screen.queryByRole("link", { name: /My Draft/ })).not.toBeInTheDocument();
       await user.click(jordanPick);
 
@@ -842,7 +842,7 @@ describe("ElectionPage", () => {
       const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
       const { unmount } = renderElection(() => electionDetail());
 
-      await user.click(await screen.findByRole("button", { name: "Make my pick: Jordan Voter" }));
+      await user.click(await screen.findByRole("button", { name: "Make Jordan Voter my pick" }));
       expect(await screen.findByRole("link", { name: "My Draft (1)" })).toBeInTheDocument();
       act(() => {
         vi.advanceTimersByTime(6500);
@@ -850,15 +850,15 @@ describe("ElectionPage", () => {
       expect(screen.queryByRole("link", { name: /My Draft/ })).not.toBeInTheDocument();
 
       // A second pick, same page: no toast.
-      await user.click(await screen.findByRole("button", { name: "Make my pick: Riley Runner" }));
-      expect(await screen.findByRole("button", { name: "✓ My pick: Riley Runner" })).toBeInTheDocument();
+      await user.click(await screen.findByRole("button", { name: "Make Riley Runner my pick" }));
+      expect(await screen.findByRole("button", { name: "Riley Runner is my pick" })).toBeInTheDocument();
       expect(screen.queryByRole("link", { name: /My Draft/ })).not.toBeInTheDocument();
 
       // A later visit on the same browser: still no toast.
       unmount();
       renderElection(() => electionDetail());
-      await user.click(await screen.findByRole("button", { name: "Make my pick: Jordan Voter" }));
-      expect(await screen.findByRole("button", { name: "✓ My pick: Jordan Voter" })).toBeInTheDocument();
+      await user.click(await screen.findByRole("button", { name: "Make Jordan Voter my pick" }));
+      expect(await screen.findByRole("button", { name: "Jordan Voter is my pick" })).toBeInTheDocument();
       expect(screen.queryByRole("link", { name: /My Draft/ })).not.toBeInTheDocument();
     } finally {
       vi.useRealTimers();
@@ -874,7 +874,7 @@ describe("ElectionPage", () => {
     stubApiRoutes({ ...ANONYMOUS });
     renderElection(() => electionDetail());
 
-    await userEvent.click(await screen.findByRole("button", { name: "Make my pick: Jordan Voter" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Make Jordan Voter my pick" }));
 
     expect(await screen.findByRole("link", { name: "My Draft ✓" })).toHaveClass("text-green-800");
     clearBallotDraft();
@@ -890,7 +890,7 @@ describe("ElectionPage", () => {
       contests: [{ id: "e-1", title: "Governor" }, { id: "e-2", title: "Mayor" }],
     });
 
-    await userEvent.click(await screen.findByRole("button", { name: "Make my pick: Jordan Voter" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Make Jordan Voter my pick" }));
 
     // Same rule as the pager bar: rendered, but only for widths below the
     // rail breakpoint (jsdom applies no media queries, so the class is the
@@ -911,7 +911,7 @@ describe("ElectionPage", () => {
     });
     renderElection(() => electionDetail());
 
-    await userEvent.click(await screen.findByRole("button", { name: "Make my pick: Jordan Voter" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Make Jordan Voter my pick" }));
 
     // No ballot loaded in this render, so the label is the plain form; the
     // destination is the signed-in draft page.
@@ -1075,7 +1075,7 @@ describe("ElectionPage", () => {
     });
     renderElection(() => electionDetail());
 
-    const pickButton = await screen.findByRole("button", { name: "Make my pick: Jordan Voter" });
+    const pickButton = await screen.findByRole("button", { name: "Make Jordan Voter my pick" });
     await userEvent.setup().click(pickButton);
 
     // The click writes a choice instead of opening the register dialog.
@@ -1205,8 +1205,8 @@ describe("ElectionPage", () => {
 
     expect(await screen.findByText(/is no longer listed in this race/)).toBeInTheDocument();
     // The still-rostered pick is not flagged, and the cap holds Riley shut.
-    expect(screen.getByRole("button", { name: "✓ My pick: Jordan Voter" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Make my pick: Riley Runner" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Jordan Voter is my pick" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Make Riley Runner my pick" })).toBeDisabled();
 
     await userEvent.setup().click(screen.getByRole("button", { name: "Remove pick: Quinn Quitter" }));
 
@@ -1215,7 +1215,7 @@ describe("ElectionPage", () => {
       expect(screen.queryByText(/is no longer listed in this race/)).not.toBeInTheDocument()
     );
     expect(readBallotDraft().choices["e-1"].picks.map((pick) => pick.candidate_id)).toEqual(["c-1"]);
-    expect(screen.getByRole("button", { name: "Make my pick: Riley Runner" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Make Riley Runner my pick" })).toBeEnabled();
   });
 
   it("pulls pick buttons once the guest's ballot context says the race is foreign", async () => {
@@ -1228,7 +1228,7 @@ describe("ElectionPage", () => {
     stubApiRoutes({ ...ANONYMOUS });
     renderElection(() => electionDetail());
 
-    await screen.findByRole("button", { name: "Make my pick: Jordan Voter" });
+    await screen.findByRole("button", { name: "Make Jordan Voter my pick" });
     // A ballot lookup for a different address rewrites the draft's district
     // context; the store change propagates without a remount.
     act(() => setDraftBallotContext(["dddddddd-2222-4222-8222-222222222222"], null));
@@ -1278,9 +1278,9 @@ describe("ElectionPage", () => {
     stubApiRoutes({ ...ANONYMOUS });
     renderElection(() => electionDetail());
 
-    expect(await screen.findByRole("button", { name: "✓ My pick: Jordan Voter" })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Jordan Voter is my pick" })).toBeInTheDocument();
     // The full control set returns, so the pick stays changeable.
-    expect(screen.getByRole("button", { name: "Make my pick: Riley Runner" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Make Riley Runner my pick" })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "Enter your address" })).not.toBeInTheDocument();
   });
 
@@ -2848,9 +2848,9 @@ describe("ElectionPage post-pick auto-advance", () => {
     // Per-id loader: the arrival fade-in is keyed to the race moved to.
     const { router } = renderElection(({ params }) => electionDetail({ id: params.electionId }), "e-1", incoming);
 
-    await userEvent.click(await screen.findByRole("button", { name: "Make my pick: Jordan Voter" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Make Jordan Voter my pick" }));
     // The pick shows as landed before the move.
-    expect(await screen.findByRole("button", { name: "✓ My pick: Jordan Voter" })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Jordan Voter is my pick" })).toBeInTheDocument();
     await waitFor(() => expect(router.state.location.pathname).toBe("/elections/e-2"), { timeout: 3000 });
     expect(router.state.location.state).toEqual(incoming);
     // The arriving race plays the fade-in (the leaving one faded out first).
@@ -2865,11 +2865,11 @@ describe("ElectionPage post-pick auto-advance", () => {
     const incoming = { backTo: LIST_BACK, contests: [{ id: "e-1", title: "Council" }, { id: "e-2", title: "Mayor" }] };
     const { router } = renderElection(() => electionDetail({ seats_to_fill: 2 }), "e-1", incoming);
 
-    await userEvent.click(await screen.findByRole("button", { name: "Make my pick: Jordan Voter" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Make Jordan Voter my pick" }));
     await outwaitPause();
     // One of two seats: the reader is still picking.
     expect(router.state.location.pathname).toBe("/elections/e-1");
-    await userEvent.click(screen.getByRole("button", { name: "Make my pick: Riley Runner" }));
+    await userEvent.click(screen.getByRole("button", { name: "Make Riley Runner my pick" }));
     await waitFor(() => expect(router.state.location.pathname).toBe("/elections/e-2"), { timeout: 3000 });
     clearBallotDraft();
   });
@@ -2900,7 +2900,7 @@ describe("ElectionPage post-pick auto-advance", () => {
     stubApiRoutes({ ...ANONYMOUS });
     const last = { backTo: LIST_BACK, contests: [{ id: "e-0", title: "Mayor" }, { id: "e-1", title: "Governor" }] };
     const { router, unmount } = renderElection(() => electionDetail(), "e-1", last);
-    await userEvent.click(await screen.findByRole("button", { name: "Make my pick: Jordan Voter" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Make Jordan Voter my pick" }));
     await outwaitPause();
     expect(router.state.location.pathname).toBe("/elections/e-1");
     unmount();
@@ -2908,7 +2908,7 @@ describe("ElectionPage post-pick auto-advance", () => {
     clearBallotDraft();
     setDraftBallotContext([DISTRICT.id], null);
     const deep = renderElection(() => electionDetail());
-    await userEvent.click(await screen.findByRole("button", { name: "Make my pick: Jordan Voter" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Make Jordan Voter my pick" }));
     await outwaitPause();
     expect(deep.router.state.location.pathname).toBe("/elections/e-1");
     clearBallotDraft();
@@ -2930,7 +2930,7 @@ describe("ElectionPage sticky candidate picks", () => {
       records: [],
     }));
 
-  it("pins the roster's names as pick buttons, in step with the inline buttons", async () => {
+  it("pins the roster's names as pick buttons, in place of the inline ones", async () => {
     clearBallotDraft();
     setDraftBallotContext([DISTRICT.id], null);
     stubApiRoutes({ ...ANONYMOUS });
@@ -2942,13 +2942,11 @@ describe("ElectionPage sticky candidate picks", () => {
     expect(card!.className).toContain("sticky");
     expect(within(card!).getByText("My pick:")).toBeInTheDocument();
     expect(within(card!).getByRole("button", { name: "Make Riley Runner my pick" })).toHaveTextContent("Riley Runner");
-    // The inline button for the same candidate keeps its own name.
-    expect(screen.getByRole("button", { name: "Make my pick: Jordan Voter" })).toBeInTheDocument();
+    // The card is THE pick control: no "Make my pick" on the candidate cards.
+    expect(screen.queryByRole("button", { name: "Make my pick: Jordan Voter" })).not.toBeInTheDocument();
 
     await userEvent.click(jordan);
-    // Both controls show the landed pick.
     expect(await screen.findByRole("button", { name: "Jordan Voter is my pick" })).toHaveTextContent("✓ Jordan Voter");
-    expect(screen.getByRole("button", { name: "✓ My pick: Jordan Voter" })).toBeInTheDocument();
     expect(readBallotDraft().choices["e-1"].picks.map((pick) => pick.candidate_id)).toEqual(["c-1"]);
     clearBallotDraft();
   });
@@ -2964,7 +2962,7 @@ describe("ElectionPage sticky candidate picks", () => {
     clearBallotDraft();
   });
 
-  it("keeps the inline buttons alone on a long roster", async () => {
+  it("falls back to the inline buttons on a long roster", async () => {
     clearBallotDraft();
     setDraftBallotContext([DISTRICT.id], null);
     stubApiRoutes({ ...ANONYMOUS });

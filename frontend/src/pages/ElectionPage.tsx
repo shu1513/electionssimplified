@@ -1227,9 +1227,13 @@ export function ElectionPage() {
                       {/* Withdrawn candidacies never reach this payload
                           (ballotLookup filters them), but the writer also
                           rejects withdrawn/lost — don't render a button whose
-                          only outcome is an error. */}
+                          only outcome is an error. Not beside the sticky
+                          names card either (owner, 2026-10-31): the card is
+                          the pick control then, and a button on every card
+                          as well read as two ways to do one thing. */}
                       {showChoiceControls &&
                       !retention &&
+                      stickyPickCandidates.length === 0 &&
                       candidate.status !== "withdrawn" &&
                       candidate.status !== "lost" ? (
                         // z-10 lifts the button above the card's stretched
@@ -1351,13 +1355,15 @@ export function ElectionPage() {
                 </div>
               ))}
             </div>
-            {/* The roster's pick controls, pinned (owner, 2026-10-31): a sticky
+            {/* The roster's pick control, pinned (owner, 2026-10-31): a sticky
                 card at the viewport bottom with each candidate's name as the
                 button — the office-race counterpart of the measure page's
                 Yes/No card — so a reader deep in the roster picks without
-                scrolling back up. Same gate as the inline buttons; see
-                stickyPickCandidates for the roster-size cap. data-sticky-
-                pick-cta lifts the chatbot launcher clear of it. */}
+                scrolling back up. When it renders, the cards carry no pick
+                button of their own; past the roster-size cap
+                (stickyPickCandidates) the inline buttons take over. Same
+                district gate either way. data-sticky-pick-cta lifts the
+                chatbot launcher clear of it. */}
             {showChoiceControls && !retention && stickyPickCandidates.length > 0 ? (
               <div
                 data-sticky-pick-cta="names"
@@ -1367,6 +1373,10 @@ export function ElectionPage() {
                   <span className="text-sm font-medium text-ink">
                     {data.seats_to_fill != null && data.seats_to_fill > 1 ? `My picks (up to ${data.seats_to_fill}):` : "My pick:"}
                   </span>
+                  {/* The names share the room after the label evenly (owner,
+                      2026-10-31) rather than packing left; a row that wraps
+                      spreads each line the same way. */}
+                  <div className="flex min-w-0 flex-1 flex-wrap items-center justify-evenly gap-2">
                   {stickyPickCandidates.map((candidate) => (
                     <CandidatePickButton
                       key={candidate.candidate_id}
@@ -1386,6 +1396,7 @@ export function ElectionPage() {
                       onPicked={onRosterPicked}
                     />
                   ))}
+                  </div>
                 </div>
               </div>
             ) : null}
@@ -1453,7 +1464,9 @@ export function ElectionPage() {
             "Report an issue" (with the same source line above it) read as a
             duplicate. */}
         {measure === null ? (
-          <div className="mt-[29px] box:mt-[18px]">
+          // Close under the sources line: two small footnote-sized lines,
+          // not two sections (owner, 2026-10-31).
+          <div className="mt-3">
             <ReportContentButton
               entityType="election"
               entityId={data.id}
