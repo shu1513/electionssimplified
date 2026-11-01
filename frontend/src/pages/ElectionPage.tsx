@@ -593,26 +593,24 @@ export function ElectionPage() {
                   bar as My Draft, count beside it as on that page: green = the
                   "decided" color the pick names use; the sentence is the
                   bar's accessible name. */}
-              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
-                <p className="shrink-0 text-base font-bold text-ink">My elections</p>
+              <div className="flex flex-wrap items-center justify-between gap-x-1.5 gap-y-1">
+                {/* Title, the word "Sort" and the select on ONE line at both
+                    rail widths, nothing clipped (owner, 2026-10-31). A native
+                    select is as wide as its widest option ("Smallest
+                    districts"), so on the 18rem rail everything steps down a
+                    size — title 14px, label and select 11px — and the select
+                    never shrinks; the row wraps only as a last resort. */}
+                <p className="shrink-0 text-sm font-bold text-ink lg:text-base">My elections</p>
                 {offeredRailSorts.length > 0 ? (
-                  // The select never shrinks (a clipped "My vote po…" is worse
-                  // than anything), and it must share the title's line on the
-                  // 18rem rail too (owner, 2026-10-31): a native select is as
-                  // wide as its widest option ("Smallest districts"), so there
-                  // its type steps down to 11px, which is what fits beside the
-                  // title; the word "Sort" shows only on the wide rail, and the
-                  // select carries "Sort" as its accessible name either way.
-                  <label className="flex shrink-0 items-center gap-1.5 text-xs text-ink-soft">
-                    <span className="hidden lg:inline">Sort</span>
+                  <label className="flex shrink-0 items-center gap-1 text-[11px] text-ink-soft lg:gap-1.5 lg:text-xs">
+                    Sort
                     <select
-                      aria-label="Sort"
                       value={railSort ?? ""}
                       onChange={(event) => {
                         track("detail_control", { control: "rail_sort", value: event.target.value });
                         setRailSortState(event.target.value as RailSortKey);
                       }}
-                      className="rounded-md border border-line bg-white px-1.5 py-1 text-[11px] text-ink focus:border-ink focus:outline-none lg:text-xs"
+                      className="rounded-md border border-line bg-white px-1 py-1 text-[11px] text-ink focus:border-ink focus:outline-none lg:px-1.5 lg:text-xs"
                     >
                       {RAIL_SORTS.filter((option) => offeredRailSorts.includes(option.value)).map(
                         (option) => (

@@ -258,7 +258,10 @@ export function DetailRail({
         {/* No divider under the back link: on the tinted panel the title
           and controls read as one block with it (the mockup's "← All
           elections" / "Your ballot"); spacing alone separates them. */}
-        {headerSlot ? <div className="mr-3 mt-4 px-3">{headerSlot}</div> : null}
+        {/* px-3 only, no extra right margin: the header's content then ends
+            where the rows' text ends (rows have px-3 too), and the 18rem
+            rail's title line needs that room (owner, 2026-10-31). */}
+        {headerSlot ? <div className="mt-4 px-3">{headerSlot}</div> : null}
         <ul className="mt-2.5 space-y-1">
           {main.map((entry, index) => [
             // role="presentation": a heading, not a list item — the rows keep
