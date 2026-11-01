@@ -755,6 +755,31 @@ describe("BallotPage wide-screen shortcut", () => {
     expect(router.state.location.pathname).toBe("/ballot");
   });
 
+  it("lists a wide screen's ballot in ballot order even when the list is shown, and its cards carry it", async () => {
+    vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: true }));
+    const ballotUrls: string[] = [];
+    stubApiRoutes({
+      ...ANONYMOUS,
+      "/api/ballot": (url) => {
+        ballotUrls.push(String(url));
+        return { body: TWO_RACES };
+      },
+    });
+    const user = userEvent.setup();
+    // Asked for the list (listRequested): no forward, but the split view's
+    // default order all the same, so a card click seeds the rail with it.
+    const { router } = renderBallot({ pathname: "/ballot", search: "?d=d-1", state: { listRequested: true } });
+
+    expect(await screen.findByRole("heading", { name: "Elections on November 3, 2026" })).toBeInTheDocument();
+    expect(ballotUrls[0]).toContain("sort=state_baseline");
+    await user.click(screen.getAllByRole("link", { name: /Governor/ })[0]);
+    expect(router.state.location.pathname).toBe("/elections/e-1");
+    const state = router.state.location.state as { backTo: { path: string }; railSort: unknown; listSort: unknown };
+    expect(state.railSort).toBe("ballot_order");
+    expect(state.listSort).toBe("ballot_order");
+    expect(state.backTo.path).toBe("/ballot?d=d-1&sort=state_baseline");
+  });
+
   it("keeps the list on a partial ballot, whose banner has no place in the split view", async () => {
     vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: true }));
     stubApiRoutes({ ...ANONYMOUS, "/api/ballot": { body: TWO_RACES } });

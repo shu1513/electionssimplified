@@ -12,7 +12,16 @@ export type SplitViewEntry = { electionId: string; state: ElectionNavState };
  * `intended` says the page is heading for the split view, so it fetches
  * the split view's own default sort; `navigated` is useSplitViewForward's
  * once-only guard. */
-export type SplitViewShortcut = { intended: boolean; navigated: RefObject<boolean> };
+export type SplitViewShortcut = {
+  intended: boolean;
+  /** The viewport half of the decision alone: a split-view-sized screen,
+   * decided at the same first hydrated render. The list pages fetch the
+   * split view's sort (ballot order) whenever this is true — held or
+   * requested lists included — so a card click from a wide-screen list
+   * carries the same order the forward would have. */
+  wide: boolean;
+  navigated: RefObject<boolean>;
+};
 
 /**
  * The wide-screen shortcut past the list pages (owner, 2026-10-31). From
@@ -45,12 +54,16 @@ export function useSplitViewShortcut({ hold = false }: { hold?: boolean } = {}):
   const location = useLocation();
   const hydrated = useHydrated();
   const wide = useMediaQuery(RAIL_MEDIA_QUERY);
-  const decision = useRef<boolean | null>(null);
+  const decision = useRef<{ wide: boolean; forward: boolean } | null>(null);
   if (hydrated && decision.current === null) {
-    decision.current = wide && !isListRequested(location.state);
+    decision.current = { wide, forward: wide && !isListRequested(location.state) };
   }
   const navigated = useRef(false);
-  return { intended: decision.current === true && !hold, navigated };
+  return {
+    intended: decision.current?.forward === true && !hold,
+    wide: decision.current?.wide === true,
+    navigated,
+  };
 }
 
 /**

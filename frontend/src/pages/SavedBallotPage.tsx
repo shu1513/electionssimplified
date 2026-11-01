@@ -183,9 +183,10 @@ export function SavedBallotPage() {
       Boolean((location.state as Partial<AddressSavedLocationState> | null)?.addressSaved),
   });
   // The sort the ballot is requested in: the ?sort= override, else ballot
-  // order for the split view (owner, 2026-10-31), else none — the server
-  // applies the saved preference.
-  const fetchSort: BallotSort | null = sortOverride ?? (shortcut.intended ? "state_baseline" : null);
+  // order on a split-view-sized screen (owner, 2026-10-31 — the split
+  // view's default, and a card click from this list seeds the rail with
+  // it), else none — the server applies the saved preference.
+  const fetchSort: BallotSort | null = sortOverride ?? (shortcut.wide ? "state_baseline" : null);
   const { choiceByElectionId } = useElectionChoices();
   // The sort this list is ACTUALLY in (a requested sort wins server-side,
   // else the saved preference) — seeds the detail rail's always-engaged
@@ -233,7 +234,7 @@ export function SavedBallotPage() {
   // rail's usual sort carry-over.
   const listBackTo = {
     path:
-      shortcut.intended && !searchParams.has("sort")
+      shortcut.wide && !searchParams.has("sort")
         ? `${location.pathname}${location.search}${location.search ? "&" : "?"}sort=${fetchSort}`
         : location.pathname + location.search,
     label: "All elections",

@@ -109,11 +109,13 @@ export function BallotPage() {
   const shortcut = useSplitViewShortcut({
     hold: Boolean(embedSession) || isPartialBallot || Boolean(matchedAddress && ambiguousMatchCount),
   });
-  // The split view opens in ballot order (owner, 2026-10-31) when the URL
-  // names no sort; the list itself keeps vote power as its default.
+  // Split-view-sized screens default to ballot order (owner, 2026-10-31)
+  // when the URL names no sort — whether this list forwards to the split
+  // view or is shown (held, or asked for), since a card click from it
+  // seeds the rail with this list's sort. Narrow screens keep vote power.
   const defaultSort: BallotSort = embedSession
     ? "district_size"
-    : shortcut.intended
+    : shortcut.wide
       ? "state_baseline"
       : DEFAULT_BALLOT_SORT;
   const rawSort = searchParams.get("sort") ?? "";
@@ -227,12 +229,13 @@ export function BallotPage() {
   const sortOptions = hasSaved ? BALLOT_SORTS : PUBLIC_BALLOT_SORTS;
 
   // Where a detail page's back link returns: this exact list — same
-  // districts, sort, and filters (full query string). A forward to the
-  // split view names its ballot-order sort explicitly, so "← All elections"
-  // shows the list in the order the rail had, not the list's own default.
+  // districts, sort, and filters (full query string). On a split-view-sized
+  // screen the ballot-order default is named explicitly, so "← All
+  // elections" shows the list in the order the rail had whatever screen it
+  // is opened on.
   const listBackTo = {
     path:
-      shortcut.intended && !searchParams.has("sort")
+      shortcut.wide && !searchParams.has("sort")
         ? `${location.pathname}${location.search}${location.search ? "&" : "?"}sort=${sort}`
         : location.pathname + location.search,
     label: "All elections",
