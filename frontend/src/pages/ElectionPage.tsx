@@ -104,6 +104,15 @@ function rewriteBackPath(
   return url.pathname + url.search + url.hash;
 }
 
+// Ratings that earn the header's vote-power chip: Average and above. Below
+// that the page says nothing — "Below average" over every low-stakes race
+// read as a put-down, not information.
+const VOTE_POWER_CHIP_LABELS: ReadonlySet<string> = new Set(["medium", "above_average", "high", "very_high"]);
+// Pill shape and background: this chip is a control (it opens the bubble),
+// which is what votePowerBadge.ts reserves pills for. Text color per band.
+const VOTE_POWER_CHIP_CLASS =
+  "inline-flex items-center rounded-full border border-line bg-white px-3 py-1 text-sm font-semibold transition";
+
 // The office summary is seeded (seedOffices.ts) as newline-separated
 // bullets, rendered as-is under the "About this office" heading. Blank lines
 // are dropped; nothing else is parsed — no hook, no label.
@@ -179,6 +188,23 @@ export function ElectionPage() {
   const candidateSort = effectiveChosenSort ?? (hasSaved ? "my_issues" : "alphabetical");
   const data = useLoaderData<typeof loader>();
   const competitiveness = competitivenessChip(data);
+  // The header chip: "My vote power: High" for a rating of Average or above,
+  // "Retention race" for a retention race, nothing for the rest (Below
+  // average, Very low, unknown). Its bubble needs the backend's explanation;
+  // without one the chip is plain text.
+  const votePowerChip = (() => {
+    const label = data.vote_power.label;
+    const explanation = data.vote_power.explanation ?? null;
+    if (label === "retention") {
+      return { label: "Retention race", className: "text-ink-soft", explanation };
+    }
+    if (!VOTE_POWER_CHIP_LABELS.has(label)) return null;
+    return { label: `My vote power: ${formatVotePowerLabel(label)}`, className: votePowerBadgeClass(label), explanation };
+  })()
+  // Close the bubble on a walk to another race.
+  useEffect(() => {
+    setVotePowerInfoOpen(false);
+  }, [data.id]);
   // The one-paragraph answer (electionAnswerText) feeds the Event JSON-LD
   // description, and its first sentences are the meta description. It is
   // not rendered on the page: every fact in it (title, place, date, roster,
@@ -188,22 +214,24 @@ export function ElectionPage() {
   // The ⓘ next to "Retention race": the one-line explanation is a tap
   // target, not a title tooltip (touch never sees tooltips). Component
   // state, so it closes again on a sibling walk to the next race.
-  const [retentionInfoOpen, setRetentionInfoOpen] = useState(false);
-  const retentionInfoRef = useRef<HTMLDivElement>(null);
-  // Popover, not in-flow text: opening it must not push the page down. It
-  // closes on Escape or a click anywhere outside the ⓘ and its bubble.
+  // The header chip's bubble (vote power / retention race). Popover, not
+  // in-flow text: opening it must not push the page down. It closes on
+  // Escape, on a click anywhere outside the chip and its bubble, and on a
+  // walk to another race (this element stays mounted across rail walks).
+  const [votePowerInfoOpen, setVotePowerInfoOpen] = useState(false);
+  const votePowerInfoRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (!retentionInfoOpen) {
+    if (!votePowerInfoOpen) {
       return;
     }
     const onPointerDown = (event: PointerEvent) => {
-      if (!retentionInfoRef.current?.contains(event.target as Node)) {
-        setRetentionInfoOpen(false);
+      if (!votePowerInfoRef.current?.contains(event.target as Node)) {
+        setVotePowerInfoOpen(false);
       }
     };
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setRetentionInfoOpen(false);
+        setVotePowerInfoOpen(false);
       }
     };
     document.addEventListener("pointerdown", onPointerDown);
@@ -212,7 +240,7 @@ export function ElectionPage() {
       document.removeEventListener("pointerdown", onPointerDown);
       document.removeEventListener("keydown", onKeyDown);
     };
-  }, [retentionInfoOpen]);
+  }, [votePowerInfoOpen]);
   // Usage: which parts of the page reached the viewport, once per election
   // (this element stays mounted across rail walks, hence the key).
   const votePowerRef = useSectionExposure("vote_power", data.id);
@@ -696,64 +724,61 @@ export function ElectionPage() {
             {formatDistrictName(data.district.name)}
           </Link>
         </p>
-        {/* Header strip: label-over-value columns split by a hairline — the
-            vote-power verdict first, then one date column whose value carries
+        {/* Header strip (owner, 2026-10-31): the vote-power verdict is a chip,
+            and only when it earns one — Average or above — so a race where
+            the reader's vote carries weight stands out and the rest say
+            nothing rather than "Below average". The chip opens a floating
+            bubble with the brief explanation (the how copy and the result
+            line); the per-measure math left with the old disclosure. A
+            retention race gets a "Retention race" chip of the same kind:
+            the label alone means nothing to a first-time reader, and its
+            bubble says what the race is. Then the date, whose value carries
             the stage ("General election") so "General" can't read as a
-            mystery word. Fixed grid tracks, not content-hugging flex, so the
-            divider sits at the same fraction of the width however short the
-            verdict is. Only the verdict is bold. */}
-        <div
-          ref={votePowerRef}
-          className={
-            data.vote_power.label !== "unknown"
-              ? "mt-3 grid grid-cols-[minmax(9rem,1fr)_2fr] gap-x-6"
-              : "mt-3"
-          }
-        >
-          {data.vote_power.label !== "unknown" ? (
-            // relative: the retention popover anchors to this column's left
-            // edge (under the label), not to the ⓘ, which can sit after a
-            // wrapped word and leave the bubble hanging mid-line.
-            <div ref={retentionInfoRef} className="relative">
-              <p className="text-sm text-ink">My vote power</p>
-              <p className={`mt-1 flex items-center gap-1.5 text-lg font-semibold ${votePowerBadgeClass(data.vote_power.label)}`}>
-                {formatVotePowerLabel(data.vote_power.label)}
-                {/* "Retention race" alone means nothing to a first-time
-                    reader; the ⓘ reveals the backend's one-line explanation
-                    below the grid (the value column is too narrow for it). */}
-                {data.vote_power.label === "retention" && data.vote_power.explanation ? (
-                  <button
-                    type="button"
-                    aria-expanded={retentionInfoOpen}
-                    aria-label="What is a retention race?"
-                    onClick={() => setRetentionInfoOpen((open) => !open)}
-                    className="text-ink-soft hover:text-ink"
-                  >
-                    <span
-                      aria-hidden
-                      className="flex h-4 w-4 items-center justify-center rounded-full border border-current text-[10px] font-serif italic"
-                    >
-                      i
-                    </span>
-                  </button>
-                ) : null}
-              </p>
-              {retentionInfoOpen && data.vote_power.label === "retention" && data.vote_power.explanation ? (
-                // Absolutely positioned bubble under the column: floats over
-                // the page instead of reflowing it, flush with the label's
-                // left edge. Capped to the viewport so a phone never clips it.
+            mystery word. */}
+        <div ref={votePowerRef} className="mt-3">
+          {votePowerChip !== null ? (
+            // relative: the bubble anchors under the chip's left edge.
+            <div ref={votePowerInfoRef} className="relative mb-3 inline-block">
+              {votePowerChip.explanation ? (
+                <button
+                  type="button"
+                  aria-expanded={votePowerInfoOpen}
+                  onClick={() => {
+                    track("detail_control", { control: "vote_power_how", value: votePowerInfoOpen ? "close" : "open" });
+                    setVotePowerInfoOpen((open) => !open);
+                  }}
+                  className={`${VOTE_POWER_CHIP_CLASS} ${votePowerChip.className} hover:bg-surface`}
+                >
+                  {votePowerChip.label}
+                </button>
+              ) : (
+                <span className={`${VOTE_POWER_CHIP_CLASS} ${votePowerChip.className}`}>{votePowerChip.label}</span>
+              )}
+              {votePowerInfoOpen && votePowerChip.explanation ? (
+                // Absolutely positioned bubble under the chip: floats over the
+                // page instead of reflowing it. Capped to the viewport so a
+                // phone never clips it.
                 <div
                   role="note"
-                  className="absolute left-0 top-full z-20 mt-1 flex w-72 max-w-[calc(100vw-2rem)] items-start gap-2 rounded-lg border border-line bg-surface p-3 text-sm font-normal text-ink shadow-lg"
+                  className="absolute left-0 top-full z-20 mt-1 flex w-80 max-w-[calc(100vw-2rem)] items-start gap-2 rounded-lg border border-line bg-surface p-3 text-sm font-normal text-ink shadow-lg"
                 >
-                  <span className="min-w-0 flex-1">{data.vote_power.explanation.how}</span>
+                  <div className="min-w-0 flex-1">
+                    {/* The how copy arrives with blank lines between its
+                        points; preserve them so each reads as its own line. */}
+                    <p className="whitespace-pre-line">{votePowerChip.explanation.how}</p>
+                    {/* The result line only on a graded race: a retention
+                        race's result just repeats the chip. */}
+                    {votePowerChip.explanation.parts.length > 0 ? (
+                      <p className="mt-2 font-medium">{votePowerChip.explanation.result}</p>
+                    ) : null}
+                  </div>
                   {/* A visible way out, not only Escape / click-away — touch
                       users have no Escape key and may not guess that tapping
                       elsewhere closes it. */}
                   <button
                     type="button"
                     aria-label="Close"
-                    onClick={() => setRetentionInfoOpen(false)}
+                    onClick={() => setVotePowerInfoOpen(false)}
                     className="-mr-1 -mt-1 rounded p-1 leading-none text-ink-soft hover:text-ink"
                   >
                     <span aria-hidden>×</span>
@@ -762,7 +787,7 @@ export function ElectionPage() {
               ) : null}
             </div>
           ) : null}
-          <div className={data.vote_power.label !== "unknown" ? "border-l border-line pl-6" : undefined}>
+          <div>
             <p className="text-sm text-ink">Election date</p>
             <p className="mt-1 text-lg text-ink">
               {formatElectionDate(data.election_date)}
@@ -790,61 +815,6 @@ export function ElectionPage() {
             </span>
           </div>
         ) : null}
-        {/* No "how" panel on a retention race: nothing was graded, and the
-            header value already names the race kind. */}
-        {data.vote_power.label !== "unknown" && data.vote_power.label !== "retention" && data.vote_power.explanation ? (
-          <details
-            className="mt-2 text-sm"
-            onToggle={(event) =>
-              track("detail_control", { control: "vote_power_how", value: event.currentTarget.open ? "open" : "close" })
-            }
-          >
-            <summary className="cursor-pointer text-xs font-medium text-ink-soft underline decoration-dotted underline-offset-2 hover:text-ink">
-              How do we calculate my vote power?
-            </summary>
-            <div className="mt-2 rounded-xl border border-line bg-surface p-4 box:p-[11px]">
-              {/* The how copy arrives with blank lines between its points;
-                  preserve them so each axis reads as its own paragraph. */}
-              <p className="whitespace-pre-line text-ink">{data.vote_power.explanation.how}</p>
-              {/* One row per graded measure, formula-style: title, grade, this
-                  election's actual numbers, then a one-line why. */}
-              <div className="mt-3 space-y-2">
-                {data.vote_power.explanation.parts.map((part) => (
-                  <div key={part.title} className="rounded-lg bg-surface p-3">
-                    <p className="text-ink">
-                      <span className="font-semibold">{part.title}:</span>{" "}
-                      <span className="font-medium">{part.grade}</span>
-                      {part.stat ? <span className="text-ink-soft"> · {part.stat}</span> : null}
-                    </p>
-                    <p className="mt-1 text-xs text-ink-soft">{part.detail}</p>
-                    {part.formula ? (
-                      // Second disclosure layer: the plain-language detail is
-                      // for everyone; the exact scoring formula only unfolds
-                      // for readers who ask for it.
-                      <details className="mt-1">
-                        {/* Part name in the label: two of these can render
-                            side by side, and identical accessible names are
-                            indistinguishable to screen-reader and
-                            voice-control users. */}
-                        <summary className="cursor-pointer text-[11px] text-ink-soft underline decoration-dotted underline-offset-2 hover:text-ink">
-                          Show the {part.title.toLowerCase()} math
-                        </summary>
-                        <p className="mt-1 break-words font-mono text-[11px] leading-relaxed text-ink-soft">
-                          {part.formula}
-                        </p>
-                      </details>
-                    ) : null}
-                  </div>
-                ))}
-              </div>
-              <p className="mt-3 font-medium text-ink">{data.vote_power.explanation.result}</p>
-              {data.vote_power.explanation.caveat ? (
-                <p className="mt-2 text-xs text-ink-soft">{data.vote_power.explanation.caveat}</p>
-              ) : null}
-            </div>
-          </details>
-        ) : null}
-
         {showOfficeInfo ? (
           // Duties first, then which issues the election touches.
           <section className="mt-[29px] box:mt-[18px] rounded-xl border border-line bg-surface p-4 box:p-[11px]">

@@ -131,72 +131,66 @@ describe("ElectionPage", () => {
     expect(candidatesHeading.compareDocumentPosition(reportButton) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it("renders a collapsed vote power explanation when the detail payload carries one", async () => {
+  it("shows a vote power chip for Average or above, with the brief explanation in a closable bubble", async () => {
     stubApiRoutes({ ...ANONYMOUS });
     renderElection(() => electionDetail({ vote_power: VOTE_POWER_WITH_EXPLANATION }));
 
     await screen.findByRole("heading", { name: "Governor" });
-    expect(screen.getByText("How do we calculate my vote power?")).toBeInTheDocument();
-    // Native <details> keeps content in the DOM while collapsed; the backend
-    // copy must arrive verbatim.
-    expect(screen.getByText("What determines the vote power rating:")).toBeInTheDocument();
-    // Each part renders formula-style: title, grade, stat, then the detail.
-    expect(screen.getByText("Representation:")).toBeInTheDocument();
-    expect(screen.getByText("· 50 out of 100")).toBeInTheDocument();
-    expect(screen.getByText("· 3.3-point margin in 2022")).toBeInTheDocument();
-    expect(
-      screen.getByText("Past results here were very close — a small number of votes could decide the winner.")
-    ).toBeInTheDocument();
-    expect(screen.getByText("Average representation + high decisiveness → My vote power: High.")).toBeInTheDocument();
-    expect(screen.getByText("Some data is missing.")).toBeInTheDocument();
-    // The exact formula sits behind its own per-part disclosure when the
-    // backend provides one; the null formula on the other part must not
-    // render a toggle at all. The label must be the real <summary> control,
-    // and the formula's own <details> starts collapsed — asserted on that
-    // inner element directly, since the closed outer panel would hide the
-    // formula either way.
-    expect(screen.getByText("Show the representation math").tagName).toBe("SUMMARY");
-    const formula = screen.getByText("score = 100 × ln(9,808,667 ÷ 104,650) ÷ ln(9,808,667 ÷ 1,204) = 50");
-    expect(formula.closest("details")).not.toHaveAttribute("open");
-    expect(screen.queryByText("Show the decisiveness math")).not.toBeInTheDocument();
+    // The old label-over-value cell and its disclosure are gone.
+    expect(screen.queryByText("How do we calculate my vote power?")).not.toBeInTheDocument();
+    expect(screen.queryByText("Representation:")).not.toBeInTheDocument();
+    const chip = screen.getByRole("button", { name: "My vote power: High" });
+    expect(chip).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByRole("note")).not.toBeInTheDocument();
+
+    const user = userEvent.setup();
+    await user.click(chip);
+    const note = screen.getByRole("note");
+    // The brief explanation: the how copy and the result line — no
+    // per-measure parts, stats, or math.
+    expect(note).toHaveTextContent("What determines the vote power rating:");
+    expect(note).toHaveTextContent("Average representation + high decisiveness → My vote power: High.");
+    expect(note).not.toHaveTextContent("50 out of 100");
+    expect(screen.queryByText("Show the representation math")).not.toBeInTheDocument();
+    // A floating bubble, not in-flow text: it must not push the page down.
+    expect(note.className).toContain("absolute");
+    expect(chip).toHaveAttribute("aria-expanded", "true");
+    // Its own close button, Escape, and a click anywhere else all close it.
+    await user.click(within(note).getByRole("button", { name: "Close" }));
+    expect(screen.queryByRole("note")).not.toBeInTheDocument();
+    await user.click(chip);
+    await user.keyboard("{Escape}");
+    expect(screen.queryByRole("note")).not.toBeInTheDocument();
+    await user.click(chip);
+    await user.click(screen.getByRole("heading", { name: "Governor" }));
+    expect(screen.queryByRole("note")).not.toBeInTheDocument();
   });
 
-  it("names each math disclosure after its part when both formulas arrive", async () => {
+  it("shows no vote power chip below Average", async () => {
     stubApiRoutes({ ...ANONYMOUS });
-    const explanation = VOTE_POWER_WITH_EXPLANATION.explanation!;
-    renderElection(() =>
-      electionDetail({
-        vote_power: {
-          ...VOTE_POWER_WITH_EXPLANATION,
-          explanation: {
-            ...explanation,
-            parts: [
-              explanation.parts[0],
-              { ...explanation.parts[1], formula: 'margin = 3.3 points → "very competitive" → grade high' },
-            ],
-          },
-        },
-      })
-    );
+    renderElection(() => electionDetail({ vote_power: { ...VOTE_POWER_WITH_EXPLANATION, label: "low" } }));
 
     await screen.findByRole("heading", { name: "Governor" });
-    // Distinct labels on real <summary> controls — two bare "Show the math"
-    // toggles would be indistinguishable to screen-reader and voice-control
-    // users. (No getByRole here: <summary> has no reliable ARIA role.)
-    expect(screen.getByText("Show the representation math").tagName).toBe("SUMMARY");
-    expect(screen.getByText("Show the decisiveness math").tagName).toBe("SUMMARY");
+    expect(screen.queryByText(/My vote power/)).not.toBeInTheDocument();
+    expect(screen.queryByText("Below average")).not.toBeInTheDocument();
+    // The date stands on its own.
+    expect(screen.getByText("Election date")).toBeInTheDocument();
   });
 
-  it("omits the vote power explanation when the payload has none or the label is unknown", async () => {
+  it("renders the chip as plain text when the payload carries no explanation", async () => {
     stubApiRoutes({ ...ANONYMOUS });
+    // The default fixture: a High rating with no explanation (a list payload's shape).
     renderElection(() => electionDetail());
 
     await screen.findByRole("heading", { name: "Governor" });
-    expect(screen.queryByText("How do we calculate my vote power?")).not.toBeInTheDocument();
+    expect(screen.getByText("My vote power: High")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "My vote power: High" })).not.toBeInTheDocument();
   });
 
-  it("names a retention race in the vote power slot, with no explanation panel", async () => {
+  it("gives a retention race a chip of its own whose bubble says what the race is", async () => {
     stubApiRoutes({ ...ANONYMOUS });
+    const how =
+      "A retention race asks Yes or No on keeping one judge in office. With no competing candidates, the normal vote power rating methods don't apply.";
     renderElection(() =>
       electionDetail({
         official_ballot_title: "Shall Judge Jordan Voter be retained in office?",
@@ -204,43 +198,26 @@ describe("ElectionPage", () => {
           ...VOTE_POWER_WITH_EXPLANATION,
           label: "retention",
           score: null,
-          explanation: {
-            how: "A retention race asks Yes or No on keeping one judge in office. With no competing candidates, the normal vote power rating methods don't apply.",
-            parts: [],
-            result: "Retention race",
-            caveat: null,
-          },
+          explanation: { how, parts: [], result: "Retention race", caveat: null },
         },
       })
     );
 
     await screen.findByRole("heading", { name: "Shall Judge Jordan Voter be retained in office?" });
-    expect(screen.getByText("My vote power").nextElementSibling).toHaveTextContent("Retention race");
-    // The label alone is opaque, but the header stays clean: the backend's
-    // one-line explanation sits behind an ⓘ toggle, not inline.
-    expect(screen.queryByText("A retention race asks Yes or No on keeping one judge in office. With no competing candidates, the normal vote power rating methods don't apply.")).not.toBeInTheDocument();
-    const info = screen.getByRole("button", { name: "What is a retention race?" });
-    expect(info).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByText(/My vote power/)).not.toBeInTheDocument();
+    const chip = screen.getByRole("button", { name: "Retention race" });
+    expect(screen.queryByText(how)).not.toBeInTheDocument();
     const user = userEvent.setup();
-    await user.click(info);
+    await user.click(chip);
     const note = screen.getByRole("note");
-    expect(note).toHaveTextContent("A retention race asks Yes or No on keeping one judge in office. With no competing candidates, the normal vote power rating methods don't apply.");
-    // A floating bubble, not in-flow text: it must not push the page down.
-    expect(note.className).toContain("absolute");
-    expect(info).toHaveAttribute("aria-expanded", "true");
-    // Its own close button, Escape, and a click anywhere else all close it.
+    expect(note).toHaveTextContent(how);
+    // No result line: it would only repeat the chip.
+    expect(within(note).queryByText("Retention race")).not.toBeInTheDocument();
     await user.click(within(note).getByRole("button", { name: "Close" }));
     expect(screen.queryByRole("note")).not.toBeInTheDocument();
-    await user.click(info);
-    await user.keyboard("{Escape}");
-    expect(screen.queryByRole("note")).not.toBeInTheDocument();
-    await user.click(info);
-    await user.click(screen.getByRole("heading", { name: "Shall Judge Jordan Voter be retained in office?" }));
-    expect(screen.queryByRole("note")).not.toBeInTheDocument();
-    expect(screen.queryByText("How do we calculate my vote power?")).not.toBeInTheDocument();
   });
 
-  it("hides the vote power explanation entirely for an unknown label", async () => {
+  it("shows no chip for an unknown label", async () => {
     stubApiRoutes({ ...ANONYMOUS });
     renderElection(() =>
       electionDetail({
@@ -249,7 +226,7 @@ describe("ElectionPage", () => {
     );
 
     await screen.findByRole("heading", { name: "Governor" });
-    expect(screen.queryByText(/My vote power:/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/My vote power/)).not.toBeInTheDocument();
     expect(screen.queryByText("How do we calculate my vote power?")).not.toBeInTheDocument();
   });
 
