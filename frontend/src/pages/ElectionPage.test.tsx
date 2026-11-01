@@ -3098,3 +3098,83 @@ describe("ElectionPage ballot rail sort and pick checks", () => {
     expect(plainRow.querySelector("svg")).toBeNull();
   });
 });
+
+// Post-pick auto-advance (lib/useAdvanceAfterPick): a pick made here that
+// decides the race moves the page to the rail's next row after a short
+// pause. Real timers: the pause is 1.2s, so the positive cases wait for the
+// route and the negative ones outwait the pause.
+describe("ElectionPage post-pick auto-advance", () => {
+  const LIST_BACK = { path: "/ballot", label: "All elections" };
+  const outwaitPause = () => new Promise((resolve) => setTimeout(resolve, 1600));
+
+  it("moves to the next race once a single-seat pick lands, with the sibling context", async () => {
+    clearBallotDraft();
+    setDraftBallotContext([DISTRICT.id], null);
+    stubApiRoutes({ ...ANONYMOUS });
+    const incoming = { backTo: LIST_BACK, contests: [{ id: "e-1", title: "Governor" }, { id: "e-2", title: "Mayor" }] };
+    const { router } = renderElection(() => electionDetail(), "e-1", incoming);
+
+    await userEvent.click(await screen.findByRole("button", { name: "Make my pick: Jordan Voter" }));
+    // The pick shows as landed before the move.
+    expect(await screen.findByRole("button", { name: "✓ My pick: Jordan Voter" })).toBeInTheDocument();
+    await waitFor(() => expect(router.state.location.pathname).toBe("/elections/e-2"), { timeout: 3000 });
+    expect(router.state.location.state).toEqual(incoming);
+    clearBallotDraft();
+  });
+
+  it("waits for the last seat of a multi-seat race", async () => {
+    clearBallotDraft();
+    setDraftBallotContext([DISTRICT.id], null);
+    stubApiRoutes({ ...ANONYMOUS });
+    const incoming = { backTo: LIST_BACK, contests: [{ id: "e-1", title: "Council" }, { id: "e-2", title: "Mayor" }] };
+    const { router } = renderElection(() => electionDetail({ seats_to_fill: 2 }), "e-1", incoming);
+
+    await userEvent.click(await screen.findByRole("button", { name: "Make my pick: Jordan Voter" }));
+    await outwaitPause();
+    // One of two seats: the reader is still picking.
+    expect(router.state.location.pathname).toBe("/elections/e-1");
+    await userEvent.click(screen.getByRole("button", { name: "Make my pick: Riley Runner" }));
+    await waitFor(() => expect(router.state.location.pathname).toBe("/elections/e-2"), { timeout: 3000 });
+    clearBallotDraft();
+  });
+
+  it("moves on after a measure's Yes or No", async () => {
+    clearBallotDraft();
+    setDraftBallotContext([DISTRICT.id], null);
+    stubApiRoutes({ ...ANONYMOUS });
+    const retention = retentionElection("r-1");
+    const incoming = {
+      backTo: LIST_BACK,
+      contests: [{ id: "r-1", title: retention.official_ballot_title }, { id: "e-2", title: "Mayor" }],
+    };
+    const { router } = renderElection(
+      () => electionDetail({ id: "r-1", official_ballot_title: retention.official_ballot_title }),
+      "r-1",
+      incoming
+    );
+
+    await userEvent.click(await screen.findByRole("button", { name: "Yes" }));
+    await waitFor(() => expect(router.state.location.pathname).toBe("/elections/e-2"), { timeout: 3000 });
+    clearBallotDraft();
+  });
+
+  it("stays on the ballot's last race, and on a deep link with no ballot context", async () => {
+    clearBallotDraft();
+    setDraftBallotContext([DISTRICT.id], null);
+    stubApiRoutes({ ...ANONYMOUS });
+    const last = { backTo: LIST_BACK, contests: [{ id: "e-0", title: "Mayor" }, { id: "e-1", title: "Governor" }] };
+    const { router, unmount } = renderElection(() => electionDetail(), "e-1", last);
+    await userEvent.click(await screen.findByRole("button", { name: "Make my pick: Jordan Voter" }));
+    await outwaitPause();
+    expect(router.state.location.pathname).toBe("/elections/e-1");
+    unmount();
+
+    clearBallotDraft();
+    setDraftBallotContext([DISTRICT.id], null);
+    const deep = renderElection(() => electionDetail());
+    await userEvent.click(await screen.findByRole("button", { name: "Make my pick: Jordan Voter" }));
+    await outwaitPause();
+    expect(deep.router.state.location.pathname).toBe("/elections/e-1");
+    clearBallotDraft();
+  });
+});

@@ -44,6 +44,8 @@ import { useFollows } from "@voteapp/api-client";
 import { APP_NAME } from "@voteapp/api-client";
 import { useMe } from "@voteapp/api-client";
 import { useMyResearchAreas } from "@voteapp/api-client";
+import { railOrder } from "../lib/railOrder";
+import { useAdvanceAfterPick } from "../lib/useAdvanceAfterPick";
 import { sourceLinkProps, track, useSectionExposure } from "../lib/usage";
 
 // Loader payload: the candidate detail plus this candidate's finance for
@@ -418,6 +420,37 @@ export function CandidatePage() {
     navState?.backState !== undefined && railSort !== null
       ? { ...navState.backState, rosterSort: railSort }
       : navState?.backState;
+  // Post-pick auto-advance (lib/useAdvanceAfterPick): once the sticky
+  // card's pick decides its race, move to the NEXT RACE of the election
+  // the reader came from — not the next candidate — in the order that
+  // election's rail shows (railOrder over the carried election context).
+  // Only for an arrival from that very race, whose context names the
+  // ballot; a deep link or a My Picks arrival has nothing to move to.
+  const advanceNext = (() => {
+    const arrival = navState?.backState;
+    if (!primaryPickElection || !arrival || navState?.backTo.path !== `/elections/${primaryPickElection.election_id}`) {
+      return null;
+    }
+    const { displayedContests } = railOrder({
+      navState: arrival,
+      railSortOverride: null,
+      weights,
+      hasSaved,
+      savedAreasLoading,
+    });
+    const next = pagerNeighbors(displayedContests, primaryPickElection.election_id)?.next;
+    // The election's own sibling context: its rosterSort is this race's
+    // roster order and must not seed the next race's.
+    return next ? { path: `/elections/${next.id}`, state: { ...arrival, rosterSort: undefined } } : null;
+  })();
+  const armAdvance = useAdvanceAfterPick({
+    key: `${candidate.candidate_id}:${primaryPickElection?.election_id ?? ""}`,
+    decided:
+      primaryChoice !== undefined &&
+      (primaryChoice.measure_position !== null ||
+        primaryChoice.picks.length >= (primaryPickElection?.seats_to_fill ?? 1)),
+    next: advanceNext,
+  });
   // Every election link on this page (the back-link fallback and the
   // Elections history list) tells the election page to come back here. This
   // page's own arrival context rides along (backState) so the round trip
@@ -849,6 +882,7 @@ export function CandidatePage() {
                   choice={choiceForElection(primaryPickElection.election_id)}
                   raceType="office"
                   fullWidth
+                  onPicked={armAdvance}
                 />
               </>
             ) : (
@@ -867,6 +901,7 @@ export function CandidatePage() {
                 seatsToFill={primaryPickElection.seats_to_fill ?? null}
                 fullWidth
                 surface="candidate_card"
+                onPicked={armAdvance}
               />
             )}
             {/* "Back to election" only for election arrivals: a My-Picks

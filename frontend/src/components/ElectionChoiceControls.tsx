@@ -458,6 +458,9 @@ export function StrandedPicksNotice({
 }
 
 type MeasureChoiceButtonsProps = {
+  /** Fires once a Yes/No LANDS (guest: on the draft write; account: when
+   * the PUT resolves) — never on a removal or a failed save. */
+  onPicked?: () => void;
   electionId: string;
   /** The measure's official ballot title — stored on guest draft rows. */
   raceTitle: string;
@@ -486,6 +489,7 @@ export function MeasureChoiceButtons({
   choice,
   fullWidth = false,
   raceType = "ballot_measure",
+  onPicked,
 }: MeasureChoiceButtonsProps) {
   const { me } = useMe();
   const isGuest = me === null;
@@ -506,9 +510,17 @@ export function MeasureChoiceButtons({
     if (isGuest) {
       setDraftMeasureChoice({ electionId, raceTitle, electionDate, position: next, raceType });
       recordPick(pickBase, null);
+      if (next !== null) {
+        onPicked?.();
+      }
       return;
     }
-    recordPick(pickBase, setChoice.mutateAsync({ election_id: electionId, measure_position: next }));
+    const request = setChoice.mutateAsync({ election_id: electionId, measure_position: next });
+    recordPick(pickBase, request);
+    if (next !== null && onPicked) {
+      // Rejections already surface under the buttons; nothing to confirm then.
+      request.then(onPicked, () => undefined);
+    }
   }
 
   return (
