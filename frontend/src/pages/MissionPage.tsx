@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { BackLinkState } from "../components/BackLink";
 import { BackLink } from "../components/BackLink";
 import type { MetaFunction } from "react-router";
 import { Link } from "react-router";
@@ -254,7 +255,9 @@ export default function MissionPage() {
           vote-power and competitiveness ratings are calculated — is on the{" "}
           <Link
             to="/methodology"
-            state={{ backTo: { path: "/mission", label: "Mission" } }}
+            // from: the methodology page's "← Mission" then pops back here
+            // instead of pushing a second Mission entry (see BackLink).
+            state={{ backTo: { path: "/mission", label: "Mission" }, from: "/mission" } satisfies BackLinkState}
             className="font-semibold underline hover:text-ink"
           >
             How it works

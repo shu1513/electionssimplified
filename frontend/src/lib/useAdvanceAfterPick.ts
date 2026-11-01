@@ -60,11 +60,15 @@ export function useAdvanceAfterPick({
   const [leavingKey, setLeavingKey] = useState<string | null>(null);
   // The race on screen right now, for a pick that lands late (below).
   const keyRef = useRef(key);
-  keyRef.current = key;
   // The target is read when the timer fires, not when it is set: its state
-  // object is rebuilt every render and must not restart the pause.
+  // object is rebuilt every render and must not restart the pause. Both
+  // refs are synced after commit (not during render) so a render React
+  // discards can never leave a target that never reached the screen.
   const nextRef = useRef(next);
-  nextRef.current = next;
+  useEffect(() => {
+    keyRef.current = key;
+    nextRef.current = next;
+  });
   const nextPath = next?.path ?? null;
   // Set once the move has fired: the column must then STAY out while the
   // next race loads (the route element keeps rendering this race until the

@@ -77,8 +77,9 @@ function BallotSortPreference({
   sortOverride,
   onClearOverride,
 }: {
-  /** A ?sort= URL override (the rail's sort carry-over): session-scoped,
-   * wins over the saved preference server-side, never persisted. */
+  /** The sort the list was requested in when it is not the saved
+   * preference: a ?sort= URL override (the rail's sort carry-over) or the
+   * wide-screen ballot-order default. Session-scoped, never persisted. */
   sortOverride: BallotSort | null;
   onClearOverride: () => void;
 }) {
@@ -185,8 +186,13 @@ export function SavedBallotPage() {
   // The sort the ballot is requested in: the ?sort= override, else ballot
   // order on a split-view-sized screen (owner, 2026-10-31 — the split
   // view's default, and a card click from this list seeds the rail with
-  // it), else none — the server applies the saved preference.
-  const fetchSort: BallotSort | null = sortOverride ?? (shortcut.wide ? "state_baseline" : null);
+  // it), else none — the server applies the saved preference. The wide
+  // default ends for this visit once the reader saves a sort here: the
+  // select below shows the order the list is in, so a choice made on it
+  // must take over the list (review, 2026-10-31).
+  const [wideDefaultDropped, setWideDefaultDropped] = useState(false);
+  const fetchSort: BallotSort | null =
+    sortOverride ?? (shortcut.wide && !wideDefaultDropped ? "state_baseline" : null);
   const { choiceByElectionId } = useElectionChoices();
   // The sort this list is ACTUALLY in (a requested sort wins server-side,
   // else the saved preference) — seeds the detail rail's always-engaged
@@ -234,7 +240,7 @@ export function SavedBallotPage() {
   // rail's usual sort carry-over.
   const listBackTo = {
     path:
-      shortcut.wide && !searchParams.has("sort")
+      fetchSort !== null && !searchParams.has("sort")
         ? `${location.pathname}${location.search}${location.search ? "&" : "?"}sort=${fetchSort}`
         : location.pathname + location.search,
     label: "All elections",
@@ -342,7 +348,7 @@ export function SavedBallotPage() {
   // errored query to pending (retryOnMount), so gating on pending alone
   // flip-flops forever between this notice and the list. An engaged ?sort=
   // override needs no wait: it IS the effective sort.
-  if (!sortOverride && ballotPreferencesQuery.isLoading && ballotPreferencesQuery.errorUpdateCount === 0) {
+  if (!fetchSort && ballotPreferencesQuery.isLoading && ballotPreferencesQuery.errorUpdateCount === 0) {
     return <LoadingNotice text="Loading your ballot…" />;
   }
 
@@ -397,7 +403,16 @@ export function SavedBallotPage() {
           here). */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-3">
-          <BallotSortPreference sortOverride={sortOverride} onClearOverride={clearSortOverride} />
+          <BallotSortPreference
+            // The requested sort (URL override or the wide-screen default), so
+            // the select shows the order the list is in; saving a choice clears
+            // both and the list follows the saved preference.
+            sortOverride={fetchSort}
+            onClearOverride={() => {
+              clearSortOverride();
+              setWideDefaultDropped(true);
+            }}
+          />
           <CandidateSearchBox
             backTo={{ path: location.pathname + location.search, label: "All elections" }}
             label="Candidate:"

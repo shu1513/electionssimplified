@@ -408,6 +408,45 @@ describe("SavedBallotPage wide-screen shortcut", () => {
     expect(state.railSort).toBe("ballot_order");
   });
 
+  it("shows the wide screen's ballot order in the select, and a saved choice takes the list over", async () => {
+    vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: true }));
+    const ballotUrls: string[] = [];
+    stubApiRoutes({
+      ...VERIFIED_BASE,
+      "/api/me/ballot": (url) => {
+        ballotUrls.push(String(url));
+        return { body: TWO_RACES };
+      },
+      "/api/me/ballot-preferences": (_url, init) => {
+        if (init?.method === "PUT") {
+          return { body: JSON.parse(String(init.body)) };
+        }
+        return { body: { sort: "vote_power", followed_first: true } };
+      },
+    });
+    const user = userEvent.setup();
+    const { router } = renderSavedBallot({ listRequested: true });
+
+    await screen.findByRole("heading", { name: "Elections on November 3, 2026" });
+    // The list is in ballot order (the wide-screen default), and the select
+    // says so rather than showing the saved preference it is not using.
+    expect(ballotUrls[0]).toContain("sort=state_baseline");
+    const select = await screen.findByRole("combobox", { name: /Sort/ });
+    expect(select).toHaveValue("state_baseline");
+    // Cards carry that order into the rail, naming it in the back path.
+    await user.click(screen.getAllByRole("link", { name: /Governor/ })[0]);
+    expect((router.state.location.state as { backTo: { path: string } }).backTo.path).toBe(
+      "/me/ballot?sort=state_baseline"
+    );
+    await router.navigate(-1);
+
+    // Saving a sort here ends the default: the list reloads under the saved
+    // preference and the select follows.
+    await user.selectOptions(await screen.findByRole("combobox", { name: /Sort/ }), "vote_power");
+    await waitFor(() => expect(ballotUrls.at(-1)).not.toContain("sort="));
+    expect(await screen.findByRole("combobox", { name: /Sort/ })).toHaveValue("vote_power");
+  });
+
   it("keeps the list when the reader came back for it", async () => {
     vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: true }));
     stubApiRoutes({ ...VERIFIED_BASE, "/api/me/ballot": { body: TWO_RACES } });
