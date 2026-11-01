@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useRef, useState } from "react";
 import { isRouteErrorResponse, Link, useLoaderData, useLocation, useRouteError } from "react-router";
 import type { LoaderFunctionArgs, MetaFunction } from "react-router";
-import type { AutoPickElectionResult, ElectionDetail, PartyBucket, RailSortKey } from "@voteapp/api-client";
+import type { AutoPickElectionResult, ElectionDetail, RailSortKey } from "@voteapp/api-client";
 import { RankedChoiceNotice } from "../components/RankedChoiceNotice";
 import {
   RAIL_SORTS,
@@ -65,7 +65,6 @@ import { APP_NAME } from "@voteapp/api-client";
 import { useMe } from "@voteapp/api-client";
 import { useMyResearchAreas } from "@voteapp/api-client";
 import { aggregateRecordAreaStances, scoreStanceRelevance } from "@voteapp/api-client";
-import { partyBucket } from "@voteapp/api-client";
 import { positionBucket, sourceLinkProps, track, useSectionExposure } from "../lib/usage";
 
 // "alphabetical" is the payload's own order: the API sorts candidates by
@@ -104,14 +103,6 @@ function rewriteBackPath(
   }
   return url.pathname + url.search + url.hash;
 }
-
-// The party filter over the candidates list. Order fixes the chip row;
-// labels are plural because the chips answer "show me the …".
-const PARTY_FILTER_OPTIONS: { bucket: PartyBucket; label: string }[] = [
-  { bucket: "democratic", label: "Democrats" },
-  { bucket: "republican", label: "Republicans" },
-  { bucket: "other", label: "Other" },
-];
 
 // The office summary is seeded (seedOffices.ts) as newline-separated
 // bullets, rendered as-is under the "About this office" heading. Blank lines
@@ -186,17 +177,6 @@ export function ElectionPage() {
   const chosenSort = chosenSortOverride ?? navState?.rosterSort ?? null;
   const effectiveChosenSort = chosenSort === "my_issues" && !hasSaved ? null : chosenSort;
   const candidateSort = effectiveChosenSort ?? (hasSaved ? "my_issues" : "alphabetical");
-  // The pick carries the election it was made on: this component stays
-  // mounted across param changes, and unlike the sort (a preference that
-  // travels), a party filter is a per-race choice — carrying it into the
-  // next election would silently hide candidates there. A pick from another
-  // election reads as "all"; no effect needed, stale state is simply never
-  // read.
-  const [partyPick, setPartyPick] = useState<{ electionId: string; bucket: PartyBucket | "all" }>({
-    electionId: "",
-    bucket: "all",
-  });
-
   const data = useLoaderData<typeof loader>();
   const competitiveness = competitivenessChip(data);
   // The one-paragraph answer (electionAnswerText) feeds the Event JSON-LD
@@ -241,28 +221,6 @@ export function ElectionPage() {
   const measureYesNoRef = useSectionExposure("measure_yes_no", data.id);
   const candidatesRef = useSectionExposure("candidates", data.id);
   const resultsRef = useSectionExposure("results", data.id);
-  const chosenPartyFilter = partyPick.electionId === data.id ? partyPick.bucket : "all";
-  // Data-driven visibility: the filter renders only when the roster spans
-  // >= 2 buckets — a nonpartisan or one-party roster gets no filter because
-  // it could not change anything. is_partisan is deliberately not consulted
-  // (it can be null, and a partisan race whose roster is all one bucket
-  // still has nothing to filter). The count guard mirrors the sort's
-  // resilience: a picked bucket is ignored — not cleared — while the filter
-  // is hidden.
-  const partyCounts: Record<PartyBucket, number> = { democratic: 0, republican: 0, other: 0 };
-  for (const candidate of data.candidates) {
-    partyCounts[partyBucket(candidate.party)] += 1;
-  }
-  const presentPartyOptions = PARTY_FILTER_OPTIONS.filter((option) => partyCounts[option.bucket] > 0);
-  const showPartyFilter = presentPartyOptions.length >= 2;
-  const partyFilter =
-    showPartyFilter && chosenPartyFilter !== "all" && partyCounts[chosenPartyFilter] > 0
-      ? chosenPartyFilter
-      : "all";
-  const partyFilteredCandidates =
-    partyFilter === "all"
-      ? data.candidates
-      : data.candidates.filter((candidate) => partyBucket(candidate.party) === partyFilter);
   const measure = data.ballot_measure;
   // Election-level sources the measure section did NOT already show. A
   // measure election's sources are usually the same page the measure was
@@ -472,7 +430,7 @@ export function ElectionPage() {
   // Computed once, before render: the roster links hand the candidate page
   // this exact displayed order (sort + party + records filters applied), so
   // the JSX and the state payload must come from the same array.
-  const orderedCandidates = sortCandidatesByStance(partyFilteredCandidates, candidateSort, weights);
+  const orderedCandidates = sortCandidatesByStance(data.candidates, candidateSort, weights);
   const candidateNavState: CandidateNavState = {
     backTo: { path: `/elections/${data.id}`, label: data.official_ballot_title },
     // The election page's own incoming context rides along so the back hop
@@ -1136,7 +1094,7 @@ export function ElectionPage() {
         ) : data.candidates.length > 0 || (showChoiceControls && hasStrandedPicks) ? (
           <section className="mt-[29px] box:mt-[18px]">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 ref={candidatesRef} className="text-heading font-semibold">Who is running?</h2>
+              <h2 ref={candidatesRef} className="text-heading font-semibold">Candidates:</h2>
               {showChoiceControls && data.seats_to_fill != null && data.seats_to_fill > 1 ? (
                 <span className="text-xs text-ink">
                   Pick up to {data.seats_to_fill}
@@ -1180,30 +1138,8 @@ export function ElectionPage() {
                 <AddressNudge />
               </div>
             ) : null}
-            {showPartyFilter ? (
-              <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Filter candidates by party">
-                {[{ bucket: "all" as const, label: "All" }, ...presentPartyOptions].map((option) => (
-                  <button
-                    key={option.bucket}
-                    type="button"
-                    onClick={() => {
-                      track("detail_control", { control: "party_filter", value: option.bucket });
-                      setPartyPick({ electionId: data.id, bucket: option.bucket });
-                    }}
-                    aria-pressed={partyFilter === option.bucket}
-                    className={`rounded-full border px-3 py-1 text-sm font-medium transition ${
-                      partyFilter === option.bucket
-                        ? "border-ink bg-ink text-white"
-                        : "border-line bg-white text-ink hover:bg-surface"
-                    }`}
-                  >
-                    {option.bucket === "all"
-                      ? `All (${data.candidates.length})`
-                      : `${option.label} (${partyCounts[option.bucket]})`}
-                  </button>
-                ))}
-              </div>
-            ) : null}
+            {/* No party filter chips (owner, 2026-10-31): the roster is short
+                enough to read whole, and the chips hid candidates. */}
             {/* Race-level "Pick by my issues": one engine run for this election
                 (mode replace — a re-run refreshes the pick), with its "Why
                 this pick" panel below the button. Guests get a sign-in
@@ -1227,7 +1163,6 @@ export function ElectionPage() {
                   key={data.id}
                   electionId={data.id}
                   seatsToFill={data.seats_to_fill ?? null}
-                  onPicked={() => setPartyPick({ electionId: data.id, bucket: "all" })}
                 />
               </div>
             ) : null}
@@ -1432,7 +1367,7 @@ export function ElectionPage() {
           // Empty office roster: say WHY instead of hiding the section (roster
           // awaiting certification, profiles being prepared, or unavailable).
           <section className="mt-[29px] box:mt-[18px]">
-            <h2 className="text-heading font-semibold">Who is running?</h2>
+            <h2 className="text-heading font-semibold">Candidates:</h2>
             <p className="mt-3 rounded-xl border border-line bg-surface p-4 box:p-[11px] text-sm text-ink-soft">
               {formatRosterStatus(data.candidate_roster_status).long}
             </p>

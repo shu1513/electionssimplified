@@ -138,7 +138,7 @@ export function AutoPickControl({
     setPrompt(null);
     // UI work stays in the per-call onSuccess: react-query skips it once
     // this control has unmounted, so a run started on election A can't
-    // clear election B's party filter through a stale onPicked. The usage
+    // touch election B's page through a stale onPicked. The usage
     // outcome rides the promise instead — it must land even after unmount.
     // The rejection is observed by the hook's own isError.
     const attribution = currentAttribution();
