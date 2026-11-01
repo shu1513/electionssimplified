@@ -593,18 +593,23 @@ export function ElectionPage() {
                   bar as My Draft, count beside it as on that page: green = the
                   "decided" color the pick names use; the sentence is the
                   bar's accessible name. */}
-              <div className="flex items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
                 <p className="shrink-0 text-base font-bold text-ink">My elections</p>
                 {offeredRailSorts.length > 0 ? (
-                  <label className="flex min-w-0 items-center gap-1.5 text-xs text-ink-soft">
-                    Sort
+                  // The select never shrinks (a clipped "My vote po…" is worse
+                  // than a wrap); the word "Sort" shows only on the wide rail,
+                  // where title + word + select fit on one line — the select
+                  // carries "Sort" as its accessible name either way.
+                  <label className="flex shrink-0 items-center gap-1.5 text-xs text-ink-soft">
+                    <span className="hidden lg:inline">Sort</span>
                     <select
+                      aria-label="Sort"
                       value={railSort ?? ""}
                       onChange={(event) => {
                         track("detail_control", { control: "rail_sort", value: event.target.value });
                         setRailSortState(event.target.value as RailSortKey);
                       }}
-                      className="min-w-0 rounded-md border border-line bg-white px-1.5 py-1 text-xs text-ink focus:border-ink focus:outline-none"
+                      className="rounded-md border border-line bg-white px-1.5 py-1 text-xs text-ink focus:border-ink focus:outline-none"
                     >
                       {RAIL_SORTS.filter((option) => offeredRailSorts.includes(option.value)).map(
                         (option) => (
