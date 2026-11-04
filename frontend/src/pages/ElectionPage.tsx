@@ -360,17 +360,18 @@ export function ElectionPage() {
   const resultBadges = deriveCandidateResultBadges(data.results, data.candidates, data.seats_to_fill ?? null);
   // One result line under the title replaced the "Who won?" / "Did it
   // pass?" cards (owner, 2026-11-03): the chip the ballot list already shows,
-  // so the answer reads the same on both surfaces. The certified row wins
-  // when there is one, else the latest row; "Unofficial" is in the chip text
-  // until then. Measures keep their rows on the measure object.
+  // so the answer reads the same on both surfaces. results[0] is the
+  // authoritative row (the API sorts the certified pass first, then
+  // freshest) — the same row the candidate badges read, so the chip and the
+  // badges can never name different winners. Measures keep their rows on
+  // the measure object. An "unknown" outcome has nothing to announce.
   const resultRows: readonly {
     result_status: string;
     outcome: string;
     source_url: string;
     winners?: ElectionDetail["results"][number]["winners"];
   }[] = data.results.length > 0 ? data.results : (measure?.results ?? []);
-  const currentResult =
-    resultRows.find((row) => row.result_status === "certified") ?? resultRows[resultRows.length - 1] ?? null;
+  const currentResult = resultRows.length > 0 && resultRows[0].outcome !== "unknown" ? resultRows[0] : null;
   const resultChip = currentResult
     ? (() => {
         const parts = buildResultChipParts(
@@ -378,12 +379,18 @@ export function ElectionPage() {
           currentResult.winners ?? [],
           myChoice && myChoice.picks.length > 0 ? new Set(myChoice.picks.map((pick) => pick.candidate_id)) : undefined
         );
-        const heading =
-          currentResult.result_status === "certified" ? parts.heading : parts.heading.replace(/^Result:/, "Unofficial result:");
-        const names = parts.winners.map((winner) => winner.label).join(", ");
+        // The status is the one word that tells a news projection from an
+        // election authority's count from the certified result.
+        const prefix =
+          currentResult.result_status === "certified"
+            ? "Result"
+            : currentResult.result_status === "projected"
+              ? "Projected result"
+              : "Unofficial result";
         return {
           tone: resultChipTone(currentResult.outcome),
-          text: names ? `${heading} — ${names}` : heading,
+          heading: parts.heading.replace(/^Result:/, `${prefix}:`),
+          winners: parts.winners,
           marker: parts.myPickMarker,
           sourceUrl: currentResult.source_url,
         };
@@ -794,13 +801,24 @@ export function ElectionPage() {
         {resultChip ? (
           <div ref={resultsRef} className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
             <span className={RESULT_CHIP_CLASSES[resultChip.tone]}>
-              {resultChip.text}
-              {resultChip.marker ? (
-                <>
-                  {" "}
-                  <span className="whitespace-nowrap rounded bg-green-700 px-1.5 font-semibold text-white">{resultChip.marker}</span>
-                </>
-              ) : null}
+              {resultChip.heading}
+              {resultChip.winners.length > 0 ? " — " : null}
+              {resultChip.winners.map((winner, index) => (
+                // Marker right after the matched name, as on the ballot card,
+                // so a multi-winner row never pins "My pick" to the last name.
+                <Fragment key={`${winner.label}-${index}`}>
+                  {winner.label}
+                  {winner.isMyPick && resultChip.marker ? (
+                    <>
+                      {" "}
+                      <span className="whitespace-nowrap rounded bg-green-700 px-1.5 font-semibold text-white">
+                        {resultChip.marker}
+                      </span>
+                    </>
+                  ) : null}
+                  {index < resultChip.winners.length - 1 ? ", " : null}
+                </Fragment>
+              ))}
             </span>
             <SourceLine url={resultChip.sourceUrl} kind="result_source" />
           </div>

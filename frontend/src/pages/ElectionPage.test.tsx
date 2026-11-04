@@ -1712,6 +1712,26 @@ describe("ElectionPage candidate result badges", () => {
     expect(screen.queryByRole("heading", { name: "Who won?" })).not.toBeInTheDocument();
   });
 
+  it("reads the chip off the first (authoritative) row, like the badges", async () => {
+    stubApiRoutes({ ...ANONYMOUS });
+    renderElection(() =>
+      electionDetail({
+        results: [
+          officeResult({ id: "r-cert", pass_type: "certified", result_status: "unofficial", outcome: "too_close", winners: [] }),
+          officeResult({ id: "r-night", outcome: "won" }),
+        ],
+      })
+    );
+    expect(await screen.findByText("Unofficial result: Too close")).toBeInTheDocument();
+    expect(screen.queryByText(/Jordan Voter \(Independent\)/)).not.toBeInTheDocument();
+  });
+
+  it("labels a news projection as projected", async () => {
+    stubApiRoutes({ ...ANONYMOUS });
+    renderElection(() => electionDetail({ results: [officeResult({ outcome: "won", result_status: "projected" })] }));
+    expect(await screen.findByText("Projected result: Won — Jordan Voter (Independent)")).toBeInTheDocument();
+  });
+
   it("badges nobody when no winner matched the roster", async () => {
     // A name-only (write-in) winner set is not exhaustive over the roster —
     // marking every listed candidate as a loser would be a false statement.
