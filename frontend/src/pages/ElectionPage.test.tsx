@@ -1499,15 +1499,13 @@ describe("ElectionPage", () => {
       })
     );
 
-    expect(await screen.findByText("Passed")).toBeInTheDocument();
-    expect(screen.getByText("· Unofficial")).toBeInTheDocument();
-    // Nothing certified yet, so the pre-certification notice applies.
-    expect(screen.getByText("Unofficial until certified by the relevant election authority.")).toBeInTheDocument();
+    // One chip under the title, "Unofficial" in its text until a certified row lands.
+    expect(await screen.findByText("Unofficial result: Passed")).toBeInTheDocument();
     const source = screen.getByRole("link", { name: /results\.example\.gov/ });
     expect(source).toHaveAttribute("href", "https://results.example.gov/measure-1");
   });
 
-  it("drops the pre-certification notice once a certified result row exists", async () => {
+  it("drops the Unofficial wording once a certified result row exists", async () => {
     stubApiRoutes({ ...ANONYMOUS });
     renderElection(() =>
       electionDetail({
@@ -1538,13 +1536,10 @@ describe("ElectionPage", () => {
       })
     );
 
-    expect(await screen.findByText("Passed")).toBeInTheDocument();
-    expect(screen.getByText("· Certified")).toBeInTheDocument();
-    // "Unofficial until certified" above a row labeled Certified is
-    // contradictory for official election information.
-    expect(
-      screen.queryByText("Unofficial until certified by the relevant election authority.")
-    ).not.toBeInTheDocument();
+    expect(await screen.findByText("Result: Passed")).toBeInTheDocument();
+    // "Unofficial" next to a certified result is contradictory for official
+    // election information.
+    expect(screen.queryByText(/Unofficial/)).not.toBeInTheDocument();
   });
 
   it("links the official measure text and lists the remaining measure sources", async () => {
@@ -1703,6 +1698,18 @@ describe("ElectionPage candidate result badges", () => {
     await screen.findByRole("heading", { name: "Governor" });
     expect(badgeFor("Jordan Voter")).toBe("In runoff");
     expect(badgeFor("Riley Runner")).toBeNull();
+  });
+
+  it("names the winner in one chip under the title, with the source", async () => {
+    stubApiRoutes({ ...ANONYMOUS });
+    renderElection(() => electionDetail({ results: [officeResult({ outcome: "won" })] }));
+    expect(await screen.findByText("Unofficial result: Won — Jordan Voter (Independent)")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /results\.example\.gov/ })).toHaveAttribute(
+      "href",
+      "https://results.example.gov/governor"
+    );
+    // The old "Who won?" card is gone (owner, 2026-11-03).
+    expect(screen.queryByRole("heading", { name: "Who won?" })).not.toBeInTheDocument();
   });
 
   it("badges nobody when no winner matched the roster", async () => {

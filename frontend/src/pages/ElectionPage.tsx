@@ -35,7 +35,8 @@ import {
   electionAnswerText,
   formatDistrictName,
   formatElectionDate,
-  formatOutcome,
+  buildResultChipParts,
+  resultChipTone,
   formatRosterStatus,
   formatVotePowerLabel,
 } from "@voteapp/api-client";
@@ -46,7 +47,7 @@ import { useAdvanceAfterPick, useAdvanceEnter } from "../lib/useAdvanceAfterPick
 import { pageMeta, SITE_ORIGIN } from "../lib/pageMeta";
 import { ORGANIZATION_ID } from "../components/SiteJsonLd";
 import { usLatestLocalDate } from "../lib/usLatestLocalDate";
-import { AREA_TEXT_CLASS, SAVED_AREA_TEXT_CLASS } from "../components/ElectionCard";
+import { AREA_TEXT_CLASS, RESULT_CHIP_CLASSES, SAVED_AREA_TEXT_CLASS } from "../components/ElectionCard";
 import { CappedInlineList } from "../components/CappedInlineList";
 import { AutoPickControl } from "../components/AutoPickControl";
 import { AutoPickFillControl, autoFillSummary } from "../components/AutoPickFillControl";
@@ -357,6 +358,37 @@ export function ElectionPage() {
   // outcome's own signal proves the race decided — live in
   // deriveCandidateResultBadges.
   const resultBadges = deriveCandidateResultBadges(data.results, data.candidates, data.seats_to_fill ?? null);
+  // One result line under the title replaced the "Who won?" / "Did it
+  // pass?" cards (owner, 2026-11-03): the chip the ballot list already shows,
+  // so the answer reads the same on both surfaces. The certified row wins
+  // when there is one, else the latest row; "Unofficial" is in the chip text
+  // until then. Measures keep their rows on the measure object.
+  const resultRows: readonly {
+    result_status: string;
+    outcome: string;
+    source_url: string;
+    winners?: ElectionDetail["results"][number]["winners"];
+  }[] = data.results.length > 0 ? data.results : (measure?.results ?? []);
+  const currentResult =
+    resultRows.find((row) => row.result_status === "certified") ?? resultRows[resultRows.length - 1] ?? null;
+  const resultChip = currentResult
+    ? (() => {
+        const parts = buildResultChipParts(
+          currentResult.outcome,
+          currentResult.winners ?? [],
+          myChoice && myChoice.picks.length > 0 ? new Set(myChoice.picks.map((pick) => pick.candidate_id)) : undefined
+        );
+        const heading =
+          currentResult.result_status === "certified" ? parts.heading : parts.heading.replace(/^Result:/, "Unofficial result:");
+        const names = parts.winners.map((winner) => winner.label).join(", ");
+        return {
+          tone: resultChipTone(currentResult.outcome),
+          text: names ? `${heading} — ${names}` : heading,
+          marker: parts.myPickMarker,
+          sourceUrl: currentResult.source_url,
+        };
+      })()
+    : null;
   // Same fork as StrandedPicksNotice: signed-in picks carry candidacy_status,
   // guest draft rows are always "active" so absence from the roster is the
   // only signal.
@@ -759,6 +791,20 @@ export function ElectionPage() {
             />
           </div>
         </div>
+        {resultChip ? (
+          <div ref={resultsRef} className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+            <span className={RESULT_CHIP_CLASSES[resultChip.tone]}>
+              {resultChip.text}
+              {resultChip.marker ? (
+                <>
+                  {" "}
+                  <span className="whitespace-nowrap rounded bg-green-700 px-1.5 font-semibold text-white">{resultChip.marker}</span>
+                </>
+              ) : null}
+            </span>
+            <SourceLine url={resultChip.sourceUrl} kind="result_source" />
+          </div>
+        ) : null}
         {/* District as a quiet subtitle, name only (no district type): ballot
             titles are often generic ("Governor", "Mayor"), and a direct-link
             visitor needs to see WHERE the race is — the list card shows the
@@ -1036,38 +1082,6 @@ export function ElectionPage() {
             {/* Right after what Yes and No mean: who is paying to push each
                 answer. A measure's title can flatter it; its donors cannot. */}
             {measure.funding ? <MeasureFundingSection funding={measure.funding} homeState={data.district.state} /> : null}
-            {measure.results.length > 0 ? (
-              <div className="mt-3">
-                <h3 className="text-subheading font-semibold">Did it pass?</h3>
-                {hasCertifiedRow(measure.results) ? null : (
-                  <p className="mt-1 text-xs text-ink-soft">
-                    Unofficial until certified by the relevant election authority.
-                  </p>
-                )}
-                <ul className="mt-2 space-y-3">
-                  {measure.results.map((result) => (
-                    <li key={result.id} className="text-sm">
-                      <p className="text-ink">
-                        <span className="font-medium">{formatOutcome(result.outcome)}</span>
-                        {result.result_status ? (
-                          <span className="text-ink-soft"> · {formatOutcome(result.result_status)}</span>
-                        ) : null}
-                      </p>
-                      <SourceLine
-                        url={result.source_url}
-                        kind="result_source"
-                      />
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ) : measure.result ? (
-              // Legacy canonical outcome kept as a fallback for measures whose
-              // result predates the per-pass results rows.
-              <p className="mt-3 text-sm font-medium">
-                Result: <span className={measure.result === "passed" ? "text-green-700" : "text-red-700"}>{measure.result}</span>
-              </p>
-            ) : null}
             <SourceFootnote
               urls={measure.source_urls.filter(
                 (url) => url !== measure.official_measure_url && url !== measure.proposed_by?.source_url
@@ -1439,43 +1453,6 @@ export function ElectionPage() {
           </section>
         ) : null}
 
-        {data.results.length > 0 ? (
-          <section className="mt-[29px] box:mt-[18px] rounded-xl border border-line bg-surface p-4 box:p-[11px]">
-            <h2 ref={resultsRef} className="text-heading font-semibold">Who won?</h2>
-            {hasCertifiedRow(data.results) ? null : (
-              <p className="mt-1 text-xs text-ink-soft">
-                Unofficial until certified by the relevant election authority.
-              </p>
-            )}
-            <ul className="mt-2 space-y-3">
-              {data.results.map((result) => (
-                <li key={result.id} className="text-sm">
-                  <p className="text-ink">
-                    <span className="font-medium">{formatOutcome(result.outcome)}</span>
-                    {result.result_status ? (
-                      <span className="text-ink-soft"> · {formatOutcome(result.result_status)}</span>
-                    ) : null}
-                  </p>
-                  {result.winners.length > 0 ? (
-                    <p className="text-ink-soft">
-                      Winner{result.winners.length === 1 ? "" : "s"}:{" "}
-                      {result.winners
-                        .map((winner) =>
-                          winner.party ? `${winner.candidate_name ?? "Unknown"} (${winner.party})` : winner.candidate_name ?? "Unknown"
-                        )
-                        .join(", ")}
-                    </p>
-                  ) : null}
-                  <SourceLine
-                    url={result.source_url}
-                    kind="result_source"
-                  />
-                </li>
-              ))}
-            </ul>
-          </section>
-        ) : null}
-
         {/* One footnote line, no heading: the research trail is usually two
             pages of one site (index + detail), and a heading plus a line per
             URL read as the same source printed twice. */}
@@ -1569,10 +1546,6 @@ export default ElectionPage;
 
 // The blanket pre-certification notice contradicts a row already labeled
 // "Certified"; show it only while everything listed is pre-certification.
-function hasCertifiedRow(results: readonly { result_status: string }[]): boolean {
-  return results.some((result) => result.result_status === "certified");
-}
-
 function isPdfUrl(url: string): boolean {
   return /\.pdf($|[?#])/i.test(url);
 }

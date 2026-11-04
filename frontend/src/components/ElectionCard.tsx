@@ -38,7 +38,7 @@ import { positionBucket, track } from "../lib/usage";
 
 // Same green/red as the election page's candidate result badges (and the
 // measure No chip's red) — one color language for "called" across surfaces.
-const RESULT_CHIP_CLASSES: Record<ResultChipTone, string> = {
+export const RESULT_CHIP_CLASSES: Record<ResultChipTone, string> = {
   positive: "rounded border border-green-700 bg-green-50 px-2 py-0.5 font-medium text-green-900",
   negative: "rounded border border-red-700 bg-red-50 px-2 py-0.5 font-medium text-red-900",
   neutral: "rounded bg-surface px-2 py-0.5 text-ink",
