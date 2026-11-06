@@ -1,6 +1,14 @@
 import { SendEmailCommand, type SESv2Client } from "@aws-sdk/client-sesv2";
 import { APP_NAME, COPYRIGHT_LINE } from "../../constants/brand.js";
 
+// The opening line says "Preliminary" whenever any result in the email is not
+// yet certified, so an election-night count never reads as final.
+function buildIntroLine(brand: string, hasUnofficialResults: boolean | undefined): string {
+  return hasUnofficialResults
+    ? `Preliminary election results are in for your districts on ${brand}:`
+    : `Election results are in for your districts on ${brand}:`;
+}
+
 export type ElectionResultAlertItem = {
   electionTitle: string;
   electionDate: string;
@@ -21,6 +29,12 @@ export type ElectionResultAlertEmailInput = {
    */
   items: readonly ElectionResultAlertItem[];
   totalEventCount: number;
+  /**
+   * True when at least one of the user's pending results is not certified
+   * (an election-night unofficial count or a news projection). The opening
+   * line then calls the results preliminary.
+   */
+  hasUnofficialResults?: boolean;
   /**
    * Signed per-user unsubscribe link scoped to the email digest (result
    * alerts ride the digest opt-in). When present it is rendered in the footer
@@ -128,13 +142,71 @@ export function buildResultAlertTextBody(
     : "";
   return (
     `Hi ${input.firstName.trim() || "there"},\n\n` +
-    `Election results are in for your districts on ${brand}:\n\n` +
+    `${buildIntroLine(brand, input.hasUnofficialResults)}\n\n` +
     `${sections.join("\n\n")}\n` +
     remainderLine +
-    `\nYou are receiving this because you have the email digest enabled ` +
-    `on ${brand}. You can change this in your account settings.` +
     unsubscribeLine +
     `\n\n${COPYRIGHT_LINE}`
+  );
+}
+
+// HTML styling. Email clients ignore <style> blocks and classes, so every
+// rule is inline. The colors mirror the site's tokens in
+// frontend/src/index.css (ink, ink-soft, surface) and the green of its result
+// chip, so the email reads as the same product. No images: nothing to block.
+const EMAIL_FONT =
+  "font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;";
+const EMAIL_INK = "#222222";
+const EMAIL_INK_SOFT = "#717171";
+const EMAIL_SURFACE = "#faf7f2";
+const EMAIL_LINE = "#ece7df";
+const EMAIL_GREEN = "#15803d";
+const EMAIL_AMBER = "#b45309";
+
+function outcomeChip(item: ElectionResultAlertItem): { label: string; color: string } {
+  const winnerCount = item.winnerNames.filter((name) => name.trim().length > 0).length;
+  switch (item.outcome) {
+    case "won":
+      return { label: winnerCount > 1 ? "Winners" : winnerCount === 1 ? "Winner" : "Decided", color: EMAIL_GREEN };
+    case "advanced":
+      return { label: "Advancing", color: EMAIL_GREEN };
+    case "runoff":
+      return { label: "Runoff", color: EMAIL_AMBER };
+    case "passed":
+      return { label: "Passed", color: EMAIL_GREEN };
+    case "failed":
+      return { label: "Failed", color: EMAIL_INK_SOFT };
+    default:
+      return { label: "Results available", color: EMAIL_INK_SOFT };
+  }
+}
+
+// Winner names arrive as "Name (Party)"; the name is set bold and the party
+// muted so a long list still scans by name.
+function renderWinnerNameHtml(raw: string): string {
+  const name = raw.trim();
+  const partyStart = name.endsWith(")") ? name.lastIndexOf(" (") : -1;
+  if (partyStart <= 0) {
+    return `<span style="font-weight:600;color:${EMAIL_INK};">${escapeHtml(name)}</span>`;
+  }
+  return (
+    `<span style="font-weight:600;color:${EMAIL_INK};">${escapeHtml(name.slice(0, partyStart))}</span>` +
+    ` <span style="color:${EMAIL_INK_SOFT};">${escapeHtml(name.slice(partyStart + 1))}</span>`
+  );
+}
+
+function renderItemHtml(item: ElectionResultAlertItem): string {
+  const chip = outcomeChip(item);
+  const winners = item.winnerNames
+    .filter((name) => name.trim().length > 0)
+    .map(renderWinnerNameHtml)
+    .join(", ");
+  return (
+    `        <tr><td style="padding:8px 28px;${EMAIL_FONT}">` +
+    `<div style="font-size:15px;line-height:1.45;color:${EMAIL_INK};">${escapeHtml(item.electionTitle.trim() || "Election")}</div>` +
+    `<div style="font-size:14px;line-height:1.5;margin-top:3px;">` +
+    `<span style="display:inline-block;background:${chip.color};color:#ffffff;font-size:12px;font-weight:600;line-height:1;padding:4px 7px;border-radius:4px;margin-right:8px;">${escapeHtml(chip.label)}</span>` +
+    `${winners}</div></td></tr>`
   );
 }
 
@@ -143,34 +215,42 @@ export function buildResultAlertHtmlBody(
   input: ElectionResultAlertEmailInput
 ): string {
   const brand = escapeHtml(resolveBrandName(appName));
-  const groups = groupItemsByDistrict(input.items);
-  const sections = groups
-    .map(
-      (group) =>
-        `    <h3>${escapeHtml(group.districtName)}</h3>\n` +
-        `    <ul>\n${group.lines.map((line) => `      <li>${escapeHtml(line)}</li>`).join("\n")}\n    </ul>`
-    )
-    .join("\n");
+  const rows: string[] = [];
+  let currentDistrict: string | null = null;
+  for (const item of input.items) {
+    if (item.districtName !== currentDistrict) {
+      currentDistrict = item.districtName;
+      rows.push(
+        `        <tr><td style="padding:22px 28px 6px 28px;${EMAIL_FONT}font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:${EMAIL_INK_SOFT};border-top:1px solid ${EMAIL_LINE};">${escapeHtml(item.districtName)}</td></tr>`
+      );
+    }
+    rows.push(renderItemHtml(item));
+  }
   const remainder = input.totalEventCount - input.items.length;
   const remainderHtml =
     remainder > 0
-      ? `    <p>…and results for ${remainder} more election${remainder === 1 ? "" : "s"}.</p>\n`
+      ? `        <tr><td style="padding:14px 28px 0 28px;${EMAIL_FONT}font-size:14px;line-height:1.5;color:${EMAIL_INK_SOFT};">…and results for ${remainder} more election${remainder === 1 ? "" : "s"}.</td></tr>\n`
       : "";
+  const unsubscribeHtml = input.unsubscribeUrl
+    ? `<a href="${escapeHtml(input.unsubscribeUrl)}" style="color:${EMAIL_INK_SOFT};">Unsubscribe from these emails</a><br>`
+    : "";
+  const bodyText = `${EMAIL_FONT}font-size:15px;line-height:1.6;color:${EMAIL_INK};`;
   return `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
   </head>
-  <body>
-    <p>Hi ${escapeHtml(input.firstName.trim() || "there")},</p>
-    <p>Election results are in for your districts on ${brand}:</p>
-${sections}
-${remainderHtml}    <p>You are receiving this because you have the email digest enabled on ${brand}. You can change this in your account settings.</p>
-${
-    input.unsubscribeUrl
-      ? `    <p><a href="${escapeHtml(input.unsubscribeUrl)}">Unsubscribe from these emails</a></p>\n`
-      : ""
-  }    <p>${escapeHtml(COPYRIGHT_LINE)}</p>
+  <body style="margin:0;padding:0;background:${EMAIL_SURFACE};">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${EMAIL_SURFACE};"><tr><td align="center" style="padding:24px 12px 32px 12px;">
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border:1px solid ${EMAIL_LINE};border-radius:10px;">
+        <tr><td style="padding:22px 28px 0 28px;${EMAIL_FONT}font-size:17px;font-weight:700;color:${EMAIL_INK};">${brand}</td></tr>
+        <tr><td style="padding:18px 28px 4px 28px;${bodyText}">Hi ${escapeHtml(input.firstName.trim() || "there")},</td></tr>
+        <tr><td style="padding:4px 28px 20px 28px;${bodyText}">${buildIntroLine(brand, input.hasUnofficialResults)}</td></tr>
+${rows.join("\n")}
+${remainderHtml}        <tr><td style="padding:26px 28px 24px 28px;border-top:1px solid ${EMAIL_LINE};${EMAIL_FONT}font-size:12px;line-height:1.6;color:${EMAIL_INK_SOFT};">${unsubscribeHtml}${escapeHtml(COPYRIGHT_LINE)}</td></tr>
+      </table>
+    </td></tr></table>
   </body>
 </html>`;
 }

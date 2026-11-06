@@ -26,7 +26,11 @@ import {
 // the unsubscribe link is the digest unsubscribe.
 
 export const DEFAULT_RESULT_ALERT_MAX_USERS = 500;
-export const DEFAULT_RESULT_ALERT_MAX_ITEMS_PER_EMAIL = 20;
+// High enough that a general election lists every result: after the Nov 2026
+// general the median subscriber had 84 results and the largest had 121, and a
+// lower cap left most readers with "…and results for N more elections" and
+// nowhere to see them.
+export const DEFAULT_RESULT_ALERT_MAX_ITEMS_PER_EMAIL = 200;
 
 export const DECISIVE_RESULT_OUTCOMES_SQL = "('won', 'advanced', 'runoff', 'passed', 'failed')";
 
@@ -84,7 +88,7 @@ export function parseSendElectionResultAlertsArgs(argv: readonly string[]): Send
 // unknown) is an authoritative correction that must suppress the alert
 // instead of letting an older, retracted winner go out.
 const INFORMATIVE_RESULT_ROWS_SQL = `
-  SELECT election_id, outcome, winners, pass_type, retrieved_at
+  SELECT election_id, outcome, winners, pass_type, retrieved_at, result_status
   FROM public.election_results
   WHERE result_status NOT IN ('not_found', 'not_final_yet')
 
@@ -95,7 +99,8 @@ const INFORMATIVE_RESULT_ROWS_SQL = `
     bmr.outcome,
     '[]'::jsonb AS winners,
     bmr.pass_type,
-    bmr.retrieved_at
+    bmr.retrieved_at,
+    bmr.result_status
   FROM public.ballot_measure_results AS bmr
   JOIN public.ballot_measures AS bm
     ON bm.id = bmr.ballot_measure_id
@@ -211,6 +216,7 @@ type PendingEventRow = {
   district_name: string;
   outcome: string;
   winners: unknown;
+  result_status: string;
 };
 
 async function selectPendingEvents(db: Queryable, userId: string): Promise<PendingEventRow[]> {
@@ -227,6 +233,7 @@ async function selectPendingEvents(db: Queryable, userId: string): Promise<Pendi
           er.election_id,
           er.outcome,
           er.winners,
+          er.result_status,
           row_number() OVER (
             PARTITION BY er.election_id
             ORDER BY
@@ -241,7 +248,8 @@ async function selectPendingEvents(db: Queryable, userId: string): Promise<Pendi
         el.election_date::text AS election_date,
         d.name AS district_name,
         r.outcome,
-        r.winners
+        r.winners,
+        r.result_status
       FROM public.user_election_result_notification_events AS e
       JOIN public.elections AS el
         ON el.id = e.election_id
@@ -344,6 +352,9 @@ export async function sendElectionResultAlerts(
         firstName: user.first_name,
         items: pendingEvents.slice(0, options.maxItemsPerEmail).map(toAlertItem),
         totalEventCount: pendingEvents.length,
+        // Anything short of certified (an unofficial count, a projection) gets
+        // the one-line "unofficial" note in the body.
+        hasUnofficialResults: pendingEvents.some((row) => row.result_status !== "certified"),
         ...(unsubscribeUrl ? { unsubscribeUrl } : {}),
       });
     } catch (error) {

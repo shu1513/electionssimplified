@@ -2,6 +2,7 @@ import { SendEmailCommand } from "@aws-sdk/client-sesv2";
 import { describe, expect, it, vi } from "vitest";
 
 import {
+  buildResultAlertHtmlBody,
   buildResultAlertSubject,
   buildResultAlertTextBody,
   createConsoleElectionResultAlertMailer,
@@ -58,6 +59,43 @@ describe("result alert message builders", () => {
       "Texas Senate District 19\n- State Senator, District 19 (2026-11-03) — Headed to a runoff: Ann Alpha (Republican), Bob Beta (Democratic)"
     );
     expect(body).not.toContain("more election");
+  });
+
+  it("renders each result as a title, a colored outcome chip, and bold winner names", () => {
+    const html = buildResultAlertHtmlBody(undefined, { ...baseInput, unsubscribeUrl: "https://example.com/u?t=1&p=2" });
+    // District heading once per group, in ballot order.
+    expect(html.match(/>Los Angeles County<\/td>/g)).toHaveLength(1);
+    expect(html.indexOf(">Los Angeles County<")).toBeLessThan(html.indexOf(">Texas Senate District 19<"));
+    // Outcome chips: green for a win or a passed measure, amber for a runoff.
+    expect(html).toContain("background:#15803d;color:#ffffff;font-size:12px;font-weight:600;line-height:1;padding:4px 7px;border-radius:4px;margin-right:8px;\">Winner</span>");
+    expect(html).toContain("\">Passed</span>");
+    expect(html).toContain("background:#b45309;color:#ffffff;font-size:12px;font-weight:600;line-height:1;padding:4px 7px;border-radius:4px;margin-right:8px;\">Runoff</span>");
+    // Name bold, party muted; the per-line date stays out of the HTML.
+    expect(html).toContain("<span style=\"font-weight:600;color:#222222;\">Jane Doe</span> <span style=\"color:#717171;\">(Democratic)</span>");
+    expect(html).not.toContain("2026-11-03");
+    // Footer: escaped unsubscribe link and the copyright line.
+    expect(html).toContain("href=\"https://example.com/u?t=1&amp;p=2\"");
+    expect(html).toContain("© 2026 Elections Simplified Inc.");
+  });
+
+  it("calls uncertified results preliminary and keeps the footer to the unsubscribe link", () => {
+    const plain = buildResultAlertTextBody(undefined, baseInput);
+    expect(plain).not.toContain("You are receiving this");
+    expect(plain).not.toContain("See the details");
+    expect(plain).toContain("\n\nElection results are in for your districts on Elections Simplified:\n\nLos Angeles County\n");
+    expect(plain).not.toContain("Preliminary");
+
+    const flagged = buildResultAlertTextBody(undefined, { ...baseInput, hasUnofficialResults: true });
+    expect(flagged).toContain(
+      "\n\nPreliminary election results are in for your districts on Elections Simplified:\n\nLos Angeles County\n"
+    );
+
+    const html = buildResultAlertHtmlBody(undefined, { ...baseInput, hasUnofficialResults: true });
+    expect(html).toContain(">Preliminary election results are in for your districts on Elections Simplified:</td>");
+    expect(html).not.toContain("You are receiving this");
+    expect(buildResultAlertHtmlBody(undefined, baseInput)).toContain(
+      ">Election results are in for your districts on Elections Simplified:</td>"
+    );
   });
 
   it("notes the remainder when rendered items are capped below the total", () => {
