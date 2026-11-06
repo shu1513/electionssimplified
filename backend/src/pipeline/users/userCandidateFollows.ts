@@ -2,7 +2,7 @@ import type { Pool, PoolClient } from "pg";
 
 import { isUuid } from "../../utils/uuid.js";
 import { displayElectionTitle } from "../../utils/displayElectionTitle.js";
-import { US_LATEST_LOCAL_DATE_SQL } from "../../utils/usLocalDate.js";
+import { inactiveCandidacyStatusesSql, usLatestLocalDateSql } from "../../utils/usLocalDate.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 type TransactionalDb = Pick<Pool, "connect">;
@@ -249,8 +249,8 @@ export async function listUserCandidateFollows(db: Queryable, userId: string): P
         JOIN public.elections AS election
           ON election.id = candidate_election.election_id
         WHERE candidate_election.candidate_id = candidate.id
-          AND candidate_election.status NOT IN ('withdrawn', 'lost')
-          AND election.election_date >= ${US_LATEST_LOCAL_DATE_SQL}
+          AND candidate_election.status NOT IN ${inactiveCandidacyStatusesSql()}
+          AND election.election_date >= ${usLatestLocalDateSql()}
         ORDER BY election.election_date ASC, election.official_ballot_title ASC, candidate_election.id ASC
         LIMIT 1
       ) AS active_election ON true

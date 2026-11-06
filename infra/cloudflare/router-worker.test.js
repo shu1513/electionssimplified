@@ -388,6 +388,16 @@ describe("isCacheablePublicPage", () => {
     // /browse/:state is two letters; anything else is the catch-all.
     "/browse/kentucky",
     "/browse/ky/junk",
+    // Demo pages (frontend/src/lib/demoMode.ts) render a fixed past date
+    // and must never be stored: every cacheable page has an uncached twin
+    // under /demo.
+    "/demo",
+    "/demo/ballot",
+    "/demo/browse",
+    "/demo/browse/ky",
+    "/demo/elections/x",
+    "/demo/candidates/x",
+    "/demo/districts/x",
   ];
   for (const path of uncacheable) {
     it(`does not cache ${path}`, () => {

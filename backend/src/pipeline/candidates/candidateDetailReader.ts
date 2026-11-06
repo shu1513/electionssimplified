@@ -4,7 +4,7 @@ import type { ElectionDistrictType, ElectionRaceType, ElectionStage, OfficeScope
 import type { CandidateElectionStatus } from "../../types/electionResults.js";
 import { isUuid } from "../../utils/uuid.js";
 import { displayElectionTitle } from "../../utils/displayElectionTitle.js";
-import { US_LATEST_LOCAL_DATE_SQL } from "../../utils/usLocalDate.js";
+import { usLatestLocalDateSql } from "../../utils/usLocalDate.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
@@ -349,9 +349,9 @@ async function lookupCandidateElections(
               AND own_link.election_id = candidate_election.election_id
           )))
       ORDER BY
-        CASE WHEN election.election_date >= ${US_LATEST_LOCAL_DATE_SQL} THEN 0 ELSE 1 END ASC,
-        CASE WHEN election.election_date >= ${US_LATEST_LOCAL_DATE_SQL} THEN election.election_date END ASC,
-        CASE WHEN election.election_date < ${US_LATEST_LOCAL_DATE_SQL} THEN election.election_date END DESC,
+        CASE WHEN election.election_date >= ${usLatestLocalDateSql()} THEN 0 ELSE 1 END ASC,
+        CASE WHEN election.election_date >= ${usLatestLocalDateSql()} THEN election.election_date END ASC,
+        CASE WHEN election.election_date < ${usLatestLocalDateSql()} THEN election.election_date END DESC,
         election.official_ballot_title ASC,
         candidate_election.id ASC
     `,

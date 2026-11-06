@@ -1,7 +1,9 @@
+import { AsyncLocalStorage } from "node:async_hooks";
 import { execSync } from "node:child_process";
 import path from "node:path";
 import { defineConfig, type Plugin } from "vite";
 import { reactRouter } from "@react-router/dev/vite";
+import { createRequestListener } from "@react-router/node";
 import tailwindcss from "@tailwindcss/vite";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
 
@@ -64,10 +66,41 @@ const devGeoHintPlugin: Plugin = {
   },
 };
 
+// Demo mode in dev (src/lib/demoMode.ts): the same thing server.js does in
+// production. /demo and everything under it is rendered by the app with the
+// router basename set to /demo, inside the AsyncLocalStorage context the
+// server render reads to know it is a demo request.
+const DEMO_BASENAME = "/demo";
+const demoDevPlugin: Plugin = {
+  name: "voteapp-dev-demo",
+  configureServer(server) {
+    const demoRequest = new AsyncLocalStorage<true>();
+    (globalThis as { __voteappDemoRequest?: AsyncLocalStorage<true> }).__voteappDemoRequest = demoRequest;
+    server.middlewares.use(async (req, res, next) => {
+      const pathname = (req.url ?? "").split("?")[0].toLowerCase();
+      if (pathname !== DEMO_BASENAME && !pathname.startsWith(`${DEMO_BASENAME}/`)) {
+        next();
+        return;
+      }
+      try {
+        const build = await server.ssrLoadModule("virtual:react-router/server-build");
+        const listener = createRequestListener({
+          build: { ...build, basename: DEMO_BASENAME } as Parameters<typeof createRequestListener>[0]["build"],
+          mode: "development",
+        });
+        await demoRequest.run(true, () => listener(req, res));
+      } catch (error) {
+        next(error);
+      }
+    });
+  },
+};
+
 export default defineConfig({
   plugins: [
     reactRouter(),
     tailwindcss(),
+    demoDevPlugin,
     ...(devGeoHint ? [devGeoHintPlugin] : []),
     ...(uploadSourceMaps
       ? [

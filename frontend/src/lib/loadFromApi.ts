@@ -28,6 +28,8 @@
 // the API would trust it, re-opening per-IP rate-limit bypass for the
 // endpoints loaders reach.
 
+import { DEMO_API_HEADERS, isDemoMode } from "./demoMode";
+
 // Generous for a loopback/private-network hop (normally milliseconds): a
 // stalled API must fail the render fast instead of pinning SSR request
 // handlers until undici's ~300s default timeouts fire.
@@ -129,6 +131,12 @@ export async function loadFromApi<T>(path: string, incomingRequest: Request): Pr
   // is honored for per-user rate buckets instead of ignored.
   if (edgeSharedSecret) {
     headers.set("x-edge-secret", edgeSharedSecret);
+  }
+  // A /demo page's loader asks for demo data (lib/demoMode.ts).
+  if (isDemoMode()) {
+    for (const [name, value] of Object.entries(DEMO_API_HEADERS)) {
+      headers.set(name, value);
+    }
   }
 
   let response: Response;

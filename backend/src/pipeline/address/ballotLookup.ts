@@ -10,7 +10,7 @@ import type {
   OfficeScope,
 } from "../../types/election.js";
 import type { CandidateElectionStatus, ElectionResultPassType } from "../../types/electionResults.js";
-import { US_LATEST_LOCAL_DATE_SQL, usLatestLocalDateIso } from "../../utils/usLocalDate.js";
+import { usLatestLocalDateIso, usLatestLocalDateSql } from "../../utils/usLocalDate.js";
 import { displayElectionTitle } from "../../utils/displayElectionTitle.js";
 import {
   loadBallotMeasureFundingByMeasure,
@@ -1814,7 +1814,7 @@ export async function lookupBallotSummariesByDistrictIds(
         ${
           options.electionDate
             ? "AND e.election_date = $2::date"
-            : `AND e.election_date >= ${US_LATEST_LOCAL_DATE_SQL} - ${BALLOT_PAST_ELECTION_VISIBILITY_DAYS}`
+            : `AND e.election_date >= ${usLatestLocalDateSql()} - ${BALLOT_PAST_ELECTION_VISIBILITY_DAYS}`
         }
       ORDER BY e.election_date ASC, e.race_type ASC, e.official_ballot_title ASC, e.id ASC
     `,

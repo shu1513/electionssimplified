@@ -30,6 +30,14 @@ import type { AddressApiServerOptions } from "./addressApiTypes.js";
 import { mapErrorToResponse } from "./apiErrors.js";
 import { isPoBoxAddress } from "../pipeline/address/addressResolverService.js";
 import { createCorsRejectionLogThrottle, readHeader, resolveCorsHeaders, truncateForLog } from "./apiCors.js";
+import { isDemoRequest, runAsDemoRequest } from "../utils/usLocalDate.js";
+import {
+  toDemoBallotSummary,
+  toDemoBrowseDistrict,
+  toDemoCandidateDetail,
+  toDemoElectionChoice,
+  toDemoElectionDetail,
+} from "./demoView.js";
 import {
   ADDRESS_AUTOCOMPLETE_PATH,
   ADDRESS_AUTOCOMPLETE_RETRIEVE_PATH,
@@ -324,6 +332,8 @@ async function requireVerifiedAuthenticatedUser(
 // id in the response body (for Bearer use); web responses stay cookie-only so
 // the id is never readable by browser JS.
 const MOBILE_CLIENT_HEADER_NAME = "x-voteapp-client";
+const DEMO_HEADER_NAME = "x-voteapp-demo";
+const DEMO_HEADER_VALUE = "1";
 const MOBILE_CLIENT_HEADER_VALUE = "mobile";
 
 // The mobile-client header alone is not a trust boundary: browser JS can set
@@ -844,14 +854,18 @@ async function dispatchApiRequest(
       result = await options.getBrowseState(parseBrowseState(url));
       notFound = "No elections researched for that state";
     } else {
-      result = await options.getBrowseDistrict(parseBrowseDistrictId(url));
+      const district = await options.getBrowseDistrict(parseBrowseDistrictId(url));
+      result = district && isDemoRequest() ? toDemoBrowseDistrict(district) : district;
       notFound = "District not found";
     }
     if (!result) {
       sendApiResponse(response, toErrorResponse(404, "not_found", notFound, corsHeaders));
       return;
     }
-    sendApiResponse(response, toJsonResponse(200, result, { ...corsHeaders, "cache-control": BROWSE_CACHE_CONTROL }));
+    // A demo answer must never be stored where a normal request for the same
+    // URL could be served it.
+    const browseCacheControl = isDemoRequest() ? "no-store" : BROWSE_CACHE_CONTROL;
+    sendApiResponse(response, toJsonResponse(200, result, { ...corsHeaders, "cache-control": browseCacheControl }));
     return;
   }
 
@@ -1389,7 +1403,7 @@ async function dispatchApiRequest(
     const districtIds = parseDistrictIds(url);
     const summaryOptions = parseBallotSummaryOptions(url);
     const result = await options.lookupBallotSummaries(districtIds, summaryOptions);
-    sendApiResponse(response, toJsonResponse(200, result, corsHeaders));
+    sendApiResponse(response, toJsonResponse(200, isDemoRequest() ? toDemoBallotSummary(result) : result, corsHeaders));
     return;
   }
 
@@ -1433,7 +1447,7 @@ async function dispatchApiRequest(
       summaryOptions.followedFirst = summaryOptions.followedFirst ?? saved.followed_first;
     }
     const result = await options.lookupAuthenticatedBallotSummaries(userId, summaryOptions);
-    sendApiResponse(response, toJsonResponse(200, result, corsHeaders));
+    sendApiResponse(response, toJsonResponse(200, isDemoRequest() ? toDemoBallotSummary(result) : result, corsHeaders));
     return;
   }
 
@@ -1715,7 +1729,7 @@ async function dispatchApiRequest(
 
     const payload = parseAuthenticatedAddressBodyValue(request.body);
     const result = await options.updateAuthenticatedAddressDistricts(userId, payload.address, payload.coordinates);
-    sendApiResponse(response, toJsonResponse(200, result, corsHeaders));
+    sendApiResponse(response, toJsonResponse(200, isDemoRequest() ? toDemoBallotSummary(result) : result, corsHeaders));
     return;
   }
 
@@ -1798,7 +1812,14 @@ async function dispatchApiRequest(
       }
 
       const result = await options.listAuthenticatedElectionChoices(userId);
-      sendApiResponse(response, toJsonResponse(200, result, corsHeaders));
+      sendApiResponse(
+        response,
+        toJsonResponse(
+          200,
+          isDemoRequest() ? { ...result, choices: result.choices.map(toDemoElectionChoice) } : result,
+          corsHeaders
+        )
+      );
       return;
     }
 
@@ -1812,7 +1833,14 @@ async function dispatchApiRequest(
 
     const payload = parseElectionChoiceBodyValue(request.body);
     const result = await options.setAuthenticatedElectionChoice(userId, payload);
-    sendApiResponse(response, toJsonResponse(200, result, corsHeaders));
+    sendApiResponse(
+      response,
+      toJsonResponse(
+        200,
+        isDemoRequest() ? { ...result, choice: toDemoElectionChoice(result.choice) } : result,
+        corsHeaders
+      )
+    );
     return;
   }
 
@@ -2529,7 +2557,7 @@ async function dispatchApiRequest(
       sendApiResponse(response, toErrorResponse(404, "not_found", "Candidate not found", corsHeaders));
       return;
     }
-    sendApiResponse(response, toJsonResponse(200, result, corsHeaders));
+    sendApiResponse(response, toJsonResponse(200, isDemoRequest() ? toDemoCandidateDetail(result) : result, corsHeaders));
     return;
   }
 
@@ -2591,7 +2619,7 @@ async function dispatchApiRequest(
       sendApiResponse(response, toErrorResponse(404, "not_found", "Election not found", corsHeaders));
       return;
     }
-    sendApiResponse(response, toJsonResponse(200, result, corsHeaders));
+    sendApiResponse(response, toJsonResponse(200, isDemoRequest() ? toDemoElectionDetail(result) : result, corsHeaders));
     return;
   }
 
@@ -2911,7 +2939,16 @@ export function createApiApp(options: AddressApiServerOptions): Express {
   app.use(createJsonBodyParser());
   app.use(createEmailUnsubscribeFormBodyParser());
   app.use((request, response, next) => {
-    void dispatchApiRequest(request, response, options).catch(next);
+    const dispatch = (): void => {
+      void dispatchApiRequest(request, response, options).catch(next);
+    };
+    // The site's /demo pages send this header; the request is then answered
+    // on the demo clock (usLocalDate.ts).
+    if (readHeader(request.headers, DEMO_HEADER_NAME) === DEMO_HEADER_VALUE) {
+      runAsDemoRequest(dispatch);
+      return;
+    }
+    dispatch();
   });
   app.use(createApiErrorMiddleware(options));
 

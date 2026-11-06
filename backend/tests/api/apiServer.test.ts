@@ -4,6 +4,7 @@ import express, { type Express } from "express";
 import { describe, expect, it, vi } from "vitest";
 
 import { createApiApp } from "../../src/api/apiServer.js";
+import { isDemoRequest } from "../../src/utils/usLocalDate.js";
 import { MAX_INITIALIZE_DISTRICT_IDS } from "../../src/api/apiValidation.js";
 import { CURRENT_TERMS_VERSION, GRACE_TERMS_VERSIONS } from "../../src/constants/legal.js";
 import { lookupCandidateElectionFinanceSummaryById, type CandidateElectionFinanceResult } from "../../src/pipeline/address/ballotLookup.js";
@@ -5471,5 +5472,134 @@ describe("GET /api/healthz", () => {
     const post = await invokeExpressApp(app, { method: "POST", path: "/api/healthz" });
     expect(post.statusCode).toBe(405);
     expect(post.headers.allow).toBe("GET");
+  });
+});
+
+describe("demo requests (x-voteapp-demo header)", () => {
+  const candidateId = "22222222-2222-4222-8222-000000000001";
+
+  it("answers on the demo clock only when the header is present", async () => {
+    const seen: boolean[] = [];
+    const lookupBallotSummaries = vi.fn(async () => {
+      // Read after an await: the context must survive the async handler.
+      await Promise.resolve();
+      seen.push(isDemoRequest());
+      return { district_ids: [], districts: [], elections: [] };
+    });
+    const app = createApiApp({ resolveAddress: vi.fn(), lookupBallotSummaries });
+    const path = `/api/ballot?district_ids=${makeDistrictId(1)}`;
+
+    const demo = await invokeExpressApp(app, { method: "GET", path, headers: { "x-voteapp-demo": "1" } });
+    const normal = await invokeExpressApp(app, { method: "GET", path });
+    const wrongValue = await invokeExpressApp(app, { method: "GET", path, headers: { "x-voteapp-demo": "true" } });
+
+    expect([demo.statusCode, normal.statusCode, wrongValue.statusCode]).toEqual([200, 200, 200]);
+    expect(seen).toEqual([true, false, false]);
+  });
+
+  it("keeps the visitor's session on a demo request", async () => {
+    const resolveAuthenticatedUserId = vi.fn(async () => "user-1");
+    const lookupCandidateDetail = vi.fn(async () => ({
+      candidate: { candidate_id: candidateId, records: [], elections: [] },
+    }));
+    const app = createApiApp({
+      resolveAddress: vi.fn(),
+      resolveAuthenticatedUserId,
+      lookupCandidateDetail: lookupCandidateDetail as never,
+    });
+
+    const demo = await invokeExpressApp(app, {
+      method: "GET",
+      path: `/api/candidates/${candidateId}`,
+      headers: { "x-voteapp-demo": "1" },
+    });
+
+    expect(demo.statusCode).toBe(200);
+    expect(lookupCandidateDetail).toHaveBeenCalledWith(candidateId, "user-1");
+  });
+
+  it("hides results in the visitor's own picks and saved ballot on a demo request", async () => {
+    const choice = {
+      election_id: "e1",
+      election_date: "2026-11-03",
+      picks: [{ candidate_id: "c1", display_name: "Jane Smith", candidacy_status: "lost" }],
+      measure_position: null,
+      measure_result: null,
+      current_result_outcome: "won",
+      current_result_winners: [{ candidate_name: "Someone Else" }],
+    };
+    const app = createApiApp({
+      resolveAddress: vi.fn(),
+      resolveAuthenticatedUserId: vi.fn(async () => "99999999-9999-4999-8999-999999999999"),
+      lookupAuthenticatedUserEmailVerified: vi.fn(async () => true),
+      listAuthenticatedElectionChoices: vi.fn(async () => ({ choices: [choice] })) as never,
+      setAuthenticatedElectionChoice: vi.fn(async () => ({ choice })) as never,
+      updateAuthenticatedAddressDistricts: vi.fn(async () => ({
+        district_ids: [],
+        districts: [],
+        elections: [{ id: "e1", election_date: "2026-11-03", has_results: true, current_result_outcome: "won", current_result_winners: [] }],
+        matched_address: "1 MAIN ST, SPRINGFIELD, IL, 62701",
+        address_match_count: 1,
+      })) as never,
+      lookupAuthenticatedBallotSummaries: vi.fn(async () => ({
+        district_ids: [],
+        districts: [],
+        elections: [{ id: "e1", election_date: "2026-11-03", has_results: true, current_result_outcome: "won", current_result_winners: [] }],
+      })) as never,
+    });
+    const get = (path: string, demo: boolean) =>
+      invokeExpressApp(app, { method: "GET", path, headers: demo ? { "x-voteapp-demo": "1" } : {} });
+
+    const normalChoices = (await get("/api/me/election-choices", false)).body as { choices: (typeof choice)[] };
+    const demoChoices = (await get("/api/me/election-choices", true)).body as { choices: (typeof choice)[] };
+    expect(normalChoices.choices[0].current_result_outcome).toBe("won");
+    expect(demoChoices.choices[0]).toMatchObject({
+      current_result_outcome: null,
+      current_result_winners: [],
+      picks: [{ display_name: "Jane Smith", candidacy_status: "declared" }],
+    });
+
+    const written = await invokeExpressApp(app, {
+      method: "PUT",
+      path: "/api/me/election-choices",
+      headers: { "x-voteapp-demo": "1", "content-type": "application/json" },
+      body: JSON.stringify({ election_id: "11111111-1111-4111-8111-000000000001", candidate_id: candidateId, chosen: true }),
+    });
+    expect((written.body as { choice: typeof choice }).choice.picks[0].candidacy_status).toBe("declared");
+
+    const demoBallot = (await get("/api/me/ballot", true)).body as { elections: { has_results: boolean }[] };
+    expect(demoBallot.elections[0].has_results).toBe(false);
+
+    const savedAddress = await invokeExpressApp(app, {
+      method: "PUT",
+      path: "/api/me/address",
+      headers: { "x-voteapp-demo": "1", "content-type": "application/json" },
+      body: JSON.stringify({ address: "1 Main St, Springfield, IL 62701" }),
+    });
+    expect(savedAddress.statusCode).toBe(200);
+    expect(savedAddress.body).toMatchObject({
+      matched_address: "1 MAIN ST, SPRINGFIELD, IL, 62701",
+      elections: [{ id: "e1", has_results: false, current_result_outcome: null }],
+    });
+  });
+
+  it("never lets a demo browse answer be stored by a cache", async () => {
+    const listBrowseStates = vi.fn(async () => ({ states: [] }));
+    const app = createApiApp({
+      resolveAddress: vi.fn(),
+      listBrowseStates: listBrowseStates as never,
+      getBrowseState: vi.fn() as never,
+      getBrowseDistrict: vi.fn() as never,
+    });
+
+    const normal = await invokeExpressApp(app, { method: "GET", path: "/api/browse/states" });
+    const demo = await invokeExpressApp(app, {
+      method: "GET",
+      path: "/api/browse/states",
+      headers: { "x-voteapp-demo": "1" },
+    });
+
+    expect(normal.headers["cache-control"]).toBe("public, max-age=3600");
+    expect(demo.headers["cache-control"]).toBe("no-store");
   });
 });

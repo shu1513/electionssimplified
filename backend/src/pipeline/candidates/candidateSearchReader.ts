@@ -1,5 +1,5 @@
 import type { Pool, PoolClient } from "pg";
-import { US_LATEST_LOCAL_DATE_SQL } from "../../utils/usLocalDate.js";
+import { usLatestLocalDateSql } from "../../utils/usLocalDate.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
@@ -92,7 +92,7 @@ export async function searchCandidatesByName(
           JOIN public.elections AS election ON election.id = candidate_election.election_id
           WHERE candidate_election.candidate_id = named.id
             AND election.district_id = ANY($3::uuid[])
-            AND election.election_date >= ${US_LATEST_LOCAL_DATE_SQL}
+            AND election.election_date >= ${usLatestLocalDateSql()}
         ) DESC,
         named.display_name ILIKE '%' || $1 || '%' DESC,
         named.display_name ILIKE $1 || '%' DESC,
