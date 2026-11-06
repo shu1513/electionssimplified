@@ -62,6 +62,7 @@ import {
 import { applyBallotElectionOrdering } from "../pipeline/address/ballotElectionOrdering.js";
 import { resolveAddressToDistricts } from "../pipeline/address/addressResolverService.js";
 import { createAutoDistrictResearchTrigger } from "../pipeline/address/autoDistrictResearch.js";
+import { isDemoRequest } from "../utils/usLocalDate.js";
 import {
   enqueueManualDistrictResearchRequestsForStaleDistricts,
   type ManualResearchTriggerSource,
@@ -411,6 +412,12 @@ async function main(): Promise<void> {
     districts: Awaited<ReturnType<typeof resolveAddressToDistricts>>["districts"],
     triggerSource: Exclude<ManualResearchTriggerSource, "manual_seed">
   ) => {
+    // An address search from the demo (usLocalDate.ts) is a look at a past
+    // election, not demand for research: on the demo clock every race of
+    // that election would count as upcoming and be queued again.
+    if (isDemoRequest()) {
+      return;
+    }
     if (autoDistrictResearchMode === "ai") {
       void triggerAutoDistrictResearchAi(districts).catch((error) => {
         console.warn("auto district research (ai) trigger failed; address response unaffected", error);

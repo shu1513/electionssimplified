@@ -1,6 +1,7 @@
 import type { Pool, PoolClient } from "pg";
 import { STATE_NAME_BY_ABBREVIATION } from "../constants/usStates.js";
 import { displayElectionTitle } from "../utils/displayElectionTitle.js";
+import { isDemoRequest, usLatestLocalDateSql } from "../utils/usLocalDate.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
 
@@ -72,6 +73,12 @@ export function normalizeBrowseState(raw: string): string | null {
   return STATE_NAME_BY_ABBREVIATION[state] ? state : null;
 }
 
+// "Today" for the upcoming counts: CURRENT_DATE, except inside a demo request
+// (usLocalDate.ts), where it is the demo date.
+function browseTodaySql(): string {
+  return isDemoRequest() ? usLatestLocalDateSql() : "CURRENT_DATE";
+}
+
 type StateRow = { state: string; district_count: string | number; upcoming_election_count: string | number };
 
 export async function listBrowseStates(db: Queryable): Promise<BrowseStatesResult> {
@@ -80,7 +87,7 @@ export async function listBrowseStates(db: Queryable): Promise<BrowseStatesResul
       SELECT
         d.state,
         COUNT(DISTINCT d.id) AS district_count,
-        COUNT(e.id) FILTER (WHERE e.election_date >= CURRENT_DATE) AS upcoming_election_count
+        COUNT(e.id) FILTER (WHERE e.election_date >= ${browseTodaySql()}) AS upcoming_election_count
       FROM public.districts d
       JOIN public.elections e ON e.district_id = d.id
       GROUP BY d.state
@@ -126,8 +133,8 @@ export async function getBrowseState(db: Queryable, rawState: string): Promise<B
         d.name,
         d.district_type,
         COUNT(e.id) AS election_count,
-        COUNT(e.id) FILTER (WHERE e.election_date >= CURRENT_DATE) AS upcoming_election_count,
-        (MIN(e.election_date) FILTER (WHERE e.election_date >= CURRENT_DATE))::text AS next_election_date
+        COUNT(e.id) FILTER (WHERE e.election_date >= ${browseTodaySql()}) AS upcoming_election_count,
+        (MIN(e.election_date) FILTER (WHERE e.election_date >= ${browseTodaySql()}))::text AS next_election_date
       FROM public.districts d
       JOIN public.elections e ON e.district_id = d.id
       WHERE d.state = $1

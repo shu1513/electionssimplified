@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from "react";
 import { ApiError, apiRequest, isDecidedChoice, splitRetentionRaces } from "@voteapp/api-client";
 import type { ElectionChoice, ElectionSummary, PickProgress } from "@voteapp/api-client";
+import { isDemoMode } from "./demoMode";
 
 // Moved to @voteapp/api-client so mobile shares the one "decided" rule;
 // re-exported here so this module stays the web's import site for it.
@@ -18,6 +19,14 @@ export { isDecidedChoice };
 // visitor has no durable server identity to key one on.
 
 const STORAGE_KEY = "voteapp_ballot_draft";
+// The demo (lib/demoMode.ts) keeps its own draft: picks made there are for an
+// election that is already over, and must neither show up in the real draft
+// nor be replayed into an account at sign-up.
+const DEMO_STORAGE_KEY = "voteapp_ballot_draft_demo";
+
+function storageKey(): string {
+  return isDemoMode() ? DEMO_STORAGE_KEY : STORAGE_KEY;
+}
 
 // Mirror of the backend's UUID_PATTERN (backend/src/utils/uuid.ts),
 // version and variant nibbles included: the guard exists so a corrupt
@@ -159,7 +168,7 @@ function readStorage(): BallotDraft {
     return EMPTY_DRAFT;
   }
   try {
-    return parseDraft(window.localStorage.getItem(STORAGE_KEY));
+    return parseDraft(window.localStorage.getItem(storageKey()));
   } catch {
     // Storage unavailable (private mode): fall back to the in-memory cache
     // so picks at least last the tab's lifetime.
@@ -176,7 +185,7 @@ function emit(): void {
 function writeDraft(next: BallotDraft): void {
   cache = next;
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+    window.localStorage.setItem(storageKey(), JSON.stringify(next));
   } catch {
     // Keep the in-memory copy; persistence just won't happen.
   }
@@ -309,7 +318,7 @@ function subscribe(listener: () => void): () => void {
 // has no window.
 if (typeof window !== "undefined") {
   window.addEventListener("storage", (event) => {
-    if (event.key === STORAGE_KEY || event.key === null) {
+    if (event.key === storageKey() || event.key === null) {
       cache = null;
       emit();
     }
@@ -327,7 +336,7 @@ export function useBallotDraft(): BallotDraft {
 export function clearBallotDraft(): void {
   cache = EMPTY_DRAFT;
   try {
-    window.localStorage.removeItem(STORAGE_KEY);
+    window.localStorage.removeItem(storageKey());
   } catch {
     // Ignore.
   }

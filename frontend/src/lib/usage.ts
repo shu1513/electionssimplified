@@ -4,6 +4,7 @@ import { ApiError, hasFinanceContent, useMe } from "@voteapp/api-client";
 import { readCandidateNavState, readElectionNavState } from "./detailNavContext";
 import { isEmbedPublisherCode } from "./embedPublisher";
 import { rememberEmbedSource } from "./embedSession";
+import { isDemoMode } from "./demoMode";
 import { usLatestLocalDate } from "./usLatestLocalDate";
 
 // First-party usage analytics (docs/plans/usage-analytics.md). What leaves
@@ -291,6 +292,8 @@ let view: { id: string; key: string; startedAt: number; visibleMs: number; visib
 function isEnabled(): boolean {
   if (typeof window === "undefined" || typeof navigator === "undefined") return false;
   if (import.meta.env.VITE_USAGE_ANALYTICS_ENABLED !== "true") return false;
+  // Demo visits (lib/demoMode.ts) are not real use of a live election.
+  if (isDemoMode()) return false;
   if (navigator.webdriver) return false;
   if (serverDisabled) return false;
   return !isUsageOptedOut();

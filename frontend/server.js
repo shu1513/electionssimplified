@@ -10,6 +10,7 @@
 // redirects and filed those pages as "duplicate without user-selected
 // canonical". Here the index.html is sent directly and the directory
 // redirect is off, so "/privacy" is a 200 like every other page.
+import { AsyncLocalStorage } from "node:async_hooks";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -66,6 +67,25 @@ app.use(express.static(clientDir, { redirect: false }));
 app.use(express.static(path.join(here, "public"), { maxAge: "1h" }));
 
 app.use(morgan("tiny"));
+
+// Demo mode (src/lib/demoMode.ts): /demo and everything under it is the same
+// app with the router basename set to /demo, so every in-app link stays under
+// /demo. Each demo request runs inside this AsyncLocalStorage context, which
+// is how the server render knows to use the demo date and ask the API for
+// demo data while normal requests render beside it. Demo pages are copies of
+// real pages, so search engines are told not to index them.
+const DEMO_BASENAME = "/demo";
+const demoRequest = new AsyncLocalStorage();
+globalThis.__voteappDemoRequest = demoRequest;
+const handleDemoRequest = createRequestHandler({
+  build: { ...serverBuild, basename: DEMO_BASENAME },
+  mode: process.env.NODE_ENV,
+});
+app.all([DEMO_BASENAME, `${DEMO_BASENAME}/*`], (req, res, next) => {
+  res.setHeader("X-Robots-Tag", "noindex");
+  demoRequest.run(true, () => handleDemoRequest(req, res, next));
+});
+
 app.all("*", createRequestHandler({ build: serverBuild, mode: process.env.NODE_ENV }));
 
 const port = Number(process.env.PORT) || 3000;

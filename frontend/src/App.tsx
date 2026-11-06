@@ -7,7 +7,15 @@ import { DraftHandoffGate } from "./components/DraftHandoffGate";
 import { EmbedHeader } from "./components/EmbedHeader";
 import { RouteError } from "./components/RouteError";
 import { TermsRenewalGate } from "./components/TermsRenewalGate";
-import { APP_NAME, apiRequest, COPYRIGHT_LINE, purgeAccountScopedQueries, useMe } from "@voteapp/api-client";
+import {
+  APP_NAME,
+  apiRequest,
+  COPYRIGHT_LINE,
+  formatElectionDate,
+  purgeAccountScopedQueries,
+  useMe,
+} from "@voteapp/api-client";
+import { DEMO_TODAY, isDemoMode, isOutsideDemo } from "./lib/demoMode";
 import { guardEmbedClick, useEmbedSession, useReportEmbedHeight } from "./lib/embedSession";
 import { useFlushBallotDraft } from "./lib/useFlushBallotDraft";
 import { useDistrictHandoffRunner } from "./lib/districtHandoff";
@@ -295,6 +303,20 @@ export function App() {
   // foreground time, auth transitions. Inert unless the build flag is set.
   useUsageTracking();
 
+  // Demo mode (lib/demoMode.ts). The same page outside /demo is this URL:
+  // the router's location has the /demo prefix already removed.
+  // (No hash: the server render never sees one, and the link must match.)
+  const demo = isDemoMode();
+  const realUrl = `${location.pathname}${location.search}`;
+  // Account and payment pages are not part of the demo, so a demo link to
+  // one loads the real page instead.
+  const leavingDemo = demo && isOutsideDemo(location.pathname);
+  useEffect(() => {
+    if (leavingDemo) {
+      window.location.replace(realUrl);
+    }
+  }, [leavingDemo, realUrl]);
+
   // In-app navigation keeps focus wherever it was in the old page; move it
   // to the new page's content so keyboard and screen-reader users land where
   // sighted users look. Compared against the previous pathname (not a
@@ -332,6 +354,16 @@ export function App() {
 
   return (
     <div className="min-h-screen bg-page text-ink">
+      {demo ? (
+        <p className="border-b border-line bg-surface px-4 py-2 text-center text-xs text-ink-soft">
+          Demo: the site as it was on {formatElectionDate(DEMO_TODAY)}, the day before the election.{" "}
+          {/* A plain link on purpose: a full page load of the same page
+              outside /demo. */}
+          <a href={realUrl} className="underline hover:text-ink">
+            Exit demo
+          </a>
+        </p>
+      ) : null}
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-20 focus:rounded-lg focus:bg-white focus:px-3 focus:py-2 focus:shadow-md"
@@ -376,7 +408,7 @@ export function App() {
         <DraftCompleteNotice />
       </header>
       <main id="main" ref={mainRef} tabIndex={-1} className="outline-none">
-        <Outlet />
+        {leavingDemo ? null : <Outlet />}
       </main>
       <TermsRenewalGate />
       {/* Picks carried over from the newsroom box (its "Save" link). */}
@@ -384,7 +416,9 @@ export function App() {
       {/* Flag-guarded chatbot widget (docs/plans/chatbot-rag.md): floating
           lower-right bubble on most pages; the component owns its own
           per-route visibility and auth-wall rules. */}
-      {import.meta.env.VITE_CHATBOT_ENABLED === "true" && <ChatWidget />}
+      {/* Not in the demo: the chatbot answers from today's data, results
+          included. */}
+      {import.meta.env.VITE_CHATBOT_ENABLED === "true" && !demo && <ChatWidget />}
       <ScrollRestoration />
       {/* The old footer repeated the home page's pitch line and buried the
           Disclaimer inside it. The pitch now sits in the hero where it is

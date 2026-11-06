@@ -4,6 +4,7 @@ import express, { type Express } from "express";
 import { describe, expect, it, vi } from "vitest";
 
 import { createApiApp } from "../../src/api/apiServer.js";
+import { isDemoRequest } from "../../src/utils/usLocalDate.js";
 import { MAX_INITIALIZE_DISTRICT_IDS } from "../../src/api/apiValidation.js";
 import { CURRENT_TERMS_VERSION, GRACE_TERMS_VERSIONS } from "../../src/constants/legal.js";
 import { lookupCandidateElectionFinanceSummaryById, type CandidateElectionFinanceResult } from "../../src/pipeline/address/ballotLookup.js";
@@ -5471,5 +5472,68 @@ describe("GET /api/healthz", () => {
     const post = await invokeExpressApp(app, { method: "POST", path: "/api/healthz" });
     expect(post.statusCode).toBe(405);
     expect(post.headers.allow).toBe("GET");
+  });
+});
+
+describe("demo requests (x-voteapp-demo header)", () => {
+  const candidateId = "22222222-2222-4222-8222-000000000001";
+
+  it("answers on the demo clock only when the header is present", async () => {
+    const seen: boolean[] = [];
+    const lookupBallotSummaries = vi.fn(async () => {
+      // Read after an await: the context must survive the async handler.
+      await Promise.resolve();
+      seen.push(isDemoRequest());
+      return { district_ids: [], districts: [], elections: [] };
+    });
+    const app = createApiApp({ resolveAddress: vi.fn(), lookupBallotSummaries });
+    const path = `/api/ballot?district_ids=${makeDistrictId(1)}`;
+
+    const demo = await invokeExpressApp(app, { method: "GET", path, headers: { "x-voteapp-demo": "1" } });
+    const normal = await invokeExpressApp(app, { method: "GET", path });
+    const wrongValue = await invokeExpressApp(app, { method: "GET", path, headers: { "x-voteapp-demo": "true" } });
+
+    expect([demo.statusCode, normal.statusCode, wrongValue.statusCode]).toEqual([200, 200, 200]);
+    expect(seen).toEqual([true, false, false]);
+  });
+
+  it("treats a demo request as signed out even with a valid session", async () => {
+    const resolveAuthenticatedUserId = vi.fn(async () => "user-1");
+    const lookupCandidateDetail = vi.fn(async () => ({
+      candidate: { candidate_id: candidateId, records: [], elections: [] },
+    }));
+    const app = createApiApp({
+      resolveAddress: vi.fn(),
+      resolveAuthenticatedUserId,
+      lookupCandidateDetail: lookupCandidateDetail as never,
+    });
+    const path = `/api/candidates/${candidateId}`;
+
+    const normal = await invokeExpressApp(app, { method: "GET", path });
+    const demo = await invokeExpressApp(app, { method: "GET", path, headers: { "x-voteapp-demo": "1" } });
+
+    expect([normal.statusCode, demo.statusCode]).toEqual([200, 200]);
+    expect(lookupCandidateDetail.mock.calls.map((call) => (call as unknown[])[1])).toEqual(["user-1", null]);
+    expect(resolveAuthenticatedUserId).toHaveBeenCalledTimes(1);
+  });
+
+  it("never lets a demo browse answer be stored by a cache", async () => {
+    const listBrowseStates = vi.fn(async () => ({ states: [] }));
+    const app = createApiApp({
+      resolveAddress: vi.fn(),
+      listBrowseStates: listBrowseStates as never,
+      getBrowseState: vi.fn() as never,
+      getBrowseDistrict: vi.fn() as never,
+    });
+
+    const normal = await invokeExpressApp(app, { method: "GET", path: "/api/browse/states" });
+    const demo = await invokeExpressApp(app, {
+      method: "GET",
+      path: "/api/browse/states",
+      headers: { "x-voteapp-demo": "1" },
+    });
+
+    expect(normal.headers["cache-control"]).toBe("public, max-age=3600");
+    expect(demo.headers["cache-control"]).toBe("no-store");
   });
 });
