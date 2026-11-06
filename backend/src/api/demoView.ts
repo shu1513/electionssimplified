@@ -29,7 +29,9 @@ function knownOnDemoDate(record: { event_date: string }): boolean {
   return record.event_date <= DEMO_TODAY_ISO;
 }
 
-export function toDemoBallotSummary(result: BallotSummaryResult): BallotSummaryResult {
+// Generic because the saved-address update answers with a ballot summary
+// plus fields of its own, which pass through untouched.
+export function toDemoBallotSummary<Result extends BallotSummaryResult>(result: Result): Result {
   return {
     ...result,
     elections: result.elections.map((election) => {

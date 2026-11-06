@@ -5534,6 +5534,13 @@ describe("demo requests (x-voteapp-demo header)", () => {
       lookupAuthenticatedUserEmailVerified: vi.fn(async () => true),
       listAuthenticatedElectionChoices: vi.fn(async () => ({ choices: [choice] })) as never,
       setAuthenticatedElectionChoice: vi.fn(async () => ({ choice })) as never,
+      updateAuthenticatedAddressDistricts: vi.fn(async () => ({
+        district_ids: [],
+        districts: [],
+        elections: [{ id: "e1", election_date: "2026-11-03", has_results: true, current_result_outcome: "won", current_result_winners: [] }],
+        matched_address: "1 MAIN ST, SPRINGFIELD, IL, 62701",
+        address_match_count: 1,
+      })) as never,
       lookupAuthenticatedBallotSummaries: vi.fn(async () => ({
         district_ids: [],
         districts: [],
@@ -5562,6 +5569,18 @@ describe("demo requests (x-voteapp-demo header)", () => {
 
     const demoBallot = (await get("/api/me/ballot", true)).body as { elections: { has_results: boolean }[] };
     expect(demoBallot.elections[0].has_results).toBe(false);
+
+    const savedAddress = await invokeExpressApp(app, {
+      method: "PUT",
+      path: "/api/me/address",
+      headers: { "x-voteapp-demo": "1", "content-type": "application/json" },
+      body: JSON.stringify({ address: "1 Main St, Springfield, IL 62701" }),
+    });
+    expect(savedAddress.statusCode).toBe(200);
+    expect(savedAddress.body).toMatchObject({
+      matched_address: "1 MAIN ST, SPRINGFIELD, IL, 62701",
+      elections: [{ id: "e1", has_results: false, current_result_outcome: null }],
+    });
   });
 
   it("never lets a demo browse answer be stored by a cache", async () => {

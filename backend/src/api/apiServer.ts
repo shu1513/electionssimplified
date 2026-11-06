@@ -1729,7 +1729,7 @@ async function dispatchApiRequest(
 
     const payload = parseAuthenticatedAddressBodyValue(request.body);
     const result = await options.updateAuthenticatedAddressDistricts(userId, payload.address, payload.coordinates);
-    sendApiResponse(response, toJsonResponse(200, result, corsHeaders));
+    sendApiResponse(response, toJsonResponse(200, isDemoRequest() ? toDemoBallotSummary(result) : result, corsHeaders));
     return;
   }
 
