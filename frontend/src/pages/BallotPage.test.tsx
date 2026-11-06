@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
@@ -668,6 +668,35 @@ it("excludes grouped retention from the guest header and target", async () => {
 // matches every query; the stock environment reads as narrow.
 describe("BallotPage wide-screen shortcut", () => {
   const TWO_RACES = ballotSummary([electionSummary(), electionSummary({ id: "e-2", official_ballot_title: "Mayor" })]);
+
+  // Frozen clock, same reason as DraftPage.test: the forward only happens
+  // while the ballot's elections are still ahead, and the 2026-11-03
+  // fixtures must stay upcoming.
+  beforeEach(() => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.setSystemTime(new Date("2026-08-01T12:00:00Z"));
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("keeps the list once election day has passed, so results are the first thing shown", async () => {
+    // Two days after the fixtures' 2026-11-03 election, everywhere in the US.
+    vi.setSystemTime(new Date("2026-11-05T18:00:00Z"));
+    vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: true }));
+    stubApiRoutes({ ...ANONYMOUS, "/api/ballot": { body: TWO_RACES } });
+    const { router } = renderBallot({ pathname: "/ballot", search: "?d=d-1", state: { matchedAddress: "1 Main St" } });
+    expect(await screen.findByRole("heading", { name: "Elections on November 3, 2026" })).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe("/ballot");
+  });
+
+  it("still forwards on election day itself", async () => {
+    vi.setSystemTime(new Date("2026-11-03T20:00:00Z"));
+    vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: true }));
+    stubApiRoutes({ ...ANONYMOUS, "/api/ballot": { body: TWO_RACES } });
+    const { router } = renderBallot("/ballot?d=d-1");
+    await waitFor(() => expect(router.state.location.pathname).toBe("/elections/e-1"));
+  });
 
   it("forwards a wide screen straight to the first race, in ballot order, with the card's snapshot", async () => {
     vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: true }));

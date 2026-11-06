@@ -38,7 +38,9 @@ export type SplitViewShortcut = {
  * ("← All elections") stamps listRequested on the state it delivers, and
  * without that exception the link would bounce straight back. `hold`
  * keeps the list for a load that has something to say first (a partial
- * ballot, an ambiguous address match, an address-saved notice).
+ * ballot, an ambiguous address match, an address-saved notice). And
+ * never once an election on the ballot is past its day: the list is the
+ * better place to read results (splitViewEntry returns no entry then).
  *
  * The viewport and arrival parts are decided once per mount, at the first
  * hydrated render — wide reads false during hydration (useMediaQuery), so

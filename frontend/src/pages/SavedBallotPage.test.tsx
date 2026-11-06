@@ -384,6 +384,27 @@ describe("SavedBallotPage nav context", () => {
 describe("SavedBallotPage wide-screen shortcut", () => {
   const TWO_RACES = ballotSummary([electionSummary(), electionSummary({ id: "e-2", official_ballot_title: "Mayor" })]);
 
+  // Frozen clock, same reason as DraftPage.test: the forward only happens
+  // while the ballot's elections are still ahead, and the 2026-11-03
+  // fixtures must stay upcoming.
+  beforeEach(() => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.setSystemTime(new Date("2026-08-01T12:00:00Z"));
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("keeps the list once election day has passed, so results are the first thing shown", async () => {
+    // Two days after the fixtures' 2026-11-03 election, everywhere in the US.
+    vi.setSystemTime(new Date("2026-11-05T18:00:00Z"));
+    vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: true }));
+    stubApiRoutes({ ...VERIFIED_BASE, "/api/me/ballot": { body: TWO_RACES } });
+    const { router } = renderSavedBallot();
+    expect(await screen.findByRole("heading", { name: "Elections on November 3, 2026" })).toBeInTheDocument();
+    expect(router.state.location.pathname).toBe("/me/ballot");
+  });
+
   it("forwards a wide screen to the first race in ballot order, over the saved sort", async () => {
     vi.stubGlobal("matchMedia", vi.fn().mockReturnValue({ matches: true }));
     const ballotUrls: string[] = [];
