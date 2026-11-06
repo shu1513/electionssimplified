@@ -171,6 +171,17 @@ function stubNearbyFetch({
 }
 
 describe("HomePage nearby elections", () => {
+  // Frozen clock, same reason as DraftPage.test: the sample shows the nearest
+  // election on or after today, and the 2026-11-03 fixtures must stay
+  // upcoming (ahead of the 2027 spring runoff).
+  beforeEach(() => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    vi.setSystemTime(new Date("2026-08-01T12:00:00Z"));
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it("lists the hinted city's races under the search in the ballot page's cards", async () => {
     stubNearbyFetch();
     renderHome();

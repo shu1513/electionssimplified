@@ -52,7 +52,16 @@ function renderElection(
   );
 }
 
+// Frozen clock, same reason as DraftPage.test: picks, the rail's progress
+// bar, and the auto-advance only show for an election still ahead, and the
+// 2026-11-03 fixtures must stay upcoming.
+beforeEach(() => {
+  vi.useFakeTimers({ shouldAdvanceTime: true });
+  vi.setSystemTime(new Date("2026-08-01T12:00:00Z"));
+});
+
 afterEach(() => {
+  vi.useRealTimers();
   vi.unstubAllGlobals();
 });
 
