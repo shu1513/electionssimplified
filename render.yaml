@@ -458,6 +458,8 @@ services:
   #       value: "true"
   #     - key: SAN_FRANCISCO_CAMPAIGN_FINANCE_SYNC_ENABLED
   #       value: "true"
+  # SUSPENDED in the dashboard since 2026-11-06 together with the workers:
+  # nothing new is written to prune. Resume it when the workers resume.
   - name: voteapp-notifications-prune
     type: cron
     runtime: node
