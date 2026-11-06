@@ -187,26 +187,31 @@ function renderWinnerNameHtml(raw: string): string {
   const name = raw.trim();
   const partyStart = name.endsWith(")") ? name.lastIndexOf(" (") : -1;
   if (partyStart <= 0) {
-    return `<span style="font-weight:600;color:${EMAIL_INK};">${escapeHtml(name)}</span>`;
+    return `<b>${escapeHtml(name)}</b>`;
   }
   return (
-    `<span style="font-weight:600;color:${EMAIL_INK};">${escapeHtml(name.slice(0, partyStart))}</span>` +
-    ` <span style="color:${EMAIL_INK_SOFT};">${escapeHtml(name.slice(partyStart + 1))}</span>`
+    `<b>${escapeHtml(name.slice(0, partyStart))}</b>` +
+    ` <span style="color:${EMAIL_INK_SOFT}">${escapeHtml(name.slice(partyStart + 1))}</span>`
   );
 }
 
-function renderItemHtml(item: ElectionResultAlertItem): string {
+// One race: its title, then the outcome chip and winners on the next line.
+// Kept deliberately light: Gmail clips an HTML part past about 102 KB and
+// hides the rest (including the unsubscribe link) behind "View entire
+// message", and this markup repeats once per result. Font, size and ink
+// color are inherited from the district cell rather than restated here.
+function renderItemHtml(item: ElectionResultAlertItem, showDate: boolean): string {
   const chip = outcomeChip(item);
   const winners = item.winnerNames
     .filter((name) => name.trim().length > 0)
     .map(renderWinnerNameHtml)
     .join(", ");
+  const date = item.electionDate.trim();
+  const dateHtml = showDate && date ? ` <span style="color:${EMAIL_INK_SOFT}">(${escapeHtml(date)})</span>` : "";
   return (
-    `        <tr><td style="padding:8px 28px;${EMAIL_FONT}">` +
-    `<div style="font-size:15px;line-height:1.45;color:${EMAIL_INK};">${escapeHtml(item.electionTitle.trim() || "Election")}</div>` +
-    `<div style="font-size:14px;line-height:1.5;margin-top:3px;">` +
-    `<span style="display:inline-block;background:${chip.color};color:#ffffff;font-size:12px;font-weight:600;line-height:1;padding:4px 7px;border-radius:4px;margin-right:8px;">${escapeHtml(chip.label)}</span>` +
-    `${winners}</div></td></tr>`
+    `<div style="margin-top:12px">${escapeHtml(item.electionTitle.trim() || "Election")}${dateHtml}<br>` +
+    `<span style="background:${chip.color};color:#fff;font-size:12px;font-weight:600;padding:2px 7px;border-radius:4px;margin-right:8px">${escapeHtml(chip.label)}</span>` +
+    `${winners}</div>`
   );
 }
 
@@ -215,17 +220,32 @@ export function buildResultAlertHtmlBody(
   input: ElectionResultAlertEmailInput
 ): string {
   const brand = escapeHtml(resolveBrandName(appName));
-  const rows: string[] = [];
+  // Every result in one email is normally from the same election day, so the
+  // date is noise. It comes back when the batch spans more than one day (a
+  // special and a regular election for the same office share a title).
+  const showDates = new Set(input.items.map((item) => item.electionDate.trim())).size > 1;
+  const sections: string[] = [];
   let currentDistrict: string | null = null;
+  let currentRows: string[] = [];
+  const flushSection = (): void => {
+    if (currentDistrict === null) {
+      return;
+    }
+    sections.push(
+      `        <tr><td style="padding:18px 28px 6px 28px;border-top:1px solid ${EMAIL_LINE};${EMAIL_FONT}font-size:15px;line-height:1.5;color:${EMAIL_INK};">` +
+        `<div style="font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:${EMAIL_INK_SOFT}">${escapeHtml(currentDistrict)}</div>\n` +
+        `${currentRows.join("\n")}</td></tr>`
+    );
+  };
   for (const item of input.items) {
     if (item.districtName !== currentDistrict) {
+      flushSection();
       currentDistrict = item.districtName;
-      rows.push(
-        `        <tr><td style="padding:22px 28px 6px 28px;${EMAIL_FONT}font-size:13px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:${EMAIL_INK_SOFT};border-top:1px solid ${EMAIL_LINE};">${escapeHtml(item.districtName)}</td></tr>`
-      );
+      currentRows = [];
     }
-    rows.push(renderItemHtml(item));
+    currentRows.push(renderItemHtml(item, showDates));
   }
+  flushSection();
   const remainder = input.totalEventCount - input.items.length;
   const remainderHtml =
     remainder > 0
@@ -247,8 +267,9 @@ export function buildResultAlertHtmlBody(
         <tr><td style="padding:22px 28px 0 28px;${EMAIL_FONT}font-size:17px;font-weight:700;color:${EMAIL_INK};">${brand}</td></tr>
         <tr><td style="padding:18px 28px 4px 28px;${bodyText}">Hi ${escapeHtml(input.firstName.trim() || "there")},</td></tr>
         <tr><td style="padding:4px 28px 20px 28px;${bodyText}">${buildIntroLine(brand, input.hasUnofficialResults)}</td></tr>
-${rows.join("\n")}
-${remainderHtml}        <tr><td style="padding:26px 28px 24px 28px;border-top:1px solid ${EMAIL_LINE};${EMAIL_FONT}font-size:12px;line-height:1.6;color:${EMAIL_INK_SOFT};">${unsubscribeHtml}${escapeHtml(COPYRIGHT_LINE)}</td></tr>
+${sections.join("\n")}
+        <tr><td style="padding:0 28px 22px 28px;font-size:0;line-height:0;">&nbsp;</td></tr>
+${remainderHtml}        <tr><td style="padding:22px 28px 24px 28px;border-top:1px solid ${EMAIL_LINE};${EMAIL_FONT}font-size:12px;line-height:1.6;color:${EMAIL_INK_SOFT};">${unsubscribeHtml}${escapeHtml(COPYRIGHT_LINE)}</td></tr>
       </table>
     </td></tr></table>
   </body>

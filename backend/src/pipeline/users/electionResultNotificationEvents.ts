@@ -1,5 +1,6 @@
 import type { Pool, PoolClient } from "pg";
 
+import { isJudicialRetentionTitle } from "../../ai/electionPartisanshipPolicy.js";
 import { isUuid } from "../../utils/uuid.js";
 
 type Queryable = Pick<Pool | PoolClient, "query">;
@@ -41,6 +42,24 @@ export async function createElectionResultNotificationEvents(
     return normalized;
   });
 
+  // Judicial retention questions ("Shall Judge X be retained?") are left out
+  // of result alerts: they are near-certain yes votes and crowd the email.
+  // The title rule is the same one the partisanship policy uses.
+  const titles = await db.query<{ id: string; official_ballot_title: string }>(
+    `
+      SELECT id, official_ballot_title
+      FROM public.elections
+      WHERE id = ANY($1::uuid[])
+    `,
+    [normalizedElectionIds]
+  );
+  const alertableElectionIds = titles.rows
+    .filter((row) => !isJudicialRetentionTitle(row.official_ballot_title))
+    .map((row) => row.id);
+  if (alertableElectionIds.length === 0) {
+    return { createdCount: 0 };
+  }
+
   const result = await db.query<{ id: string }>(
     `
       WITH source_elections AS (
@@ -73,7 +92,7 @@ export async function createElectionResultNotificationEvents(
       ON CONFLICT DO NOTHING
       RETURNING id
     `,
-    [normalizedElectionIds]
+    [alertableElectionIds]
   );
 
   return { createdCount: result.rowCount ?? result.rows.length };
