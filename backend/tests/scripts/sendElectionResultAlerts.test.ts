@@ -22,6 +22,7 @@ type PendingRow = {
   district_name: string;
   outcome: string;
   winners: unknown;
+  result_status: string;
 };
 
 function pendingRow(id: string, district: string, overrides: Partial<PendingRow> = {}): PendingRow {
@@ -32,6 +33,7 @@ function pendingRow(id: string, district: string, overrides: Partial<PendingRow>
     district_name: district,
     outcome: "won",
     winners: [{ candidate_name: "Jane Doe", party: "Democratic" }],
+    result_status: "unofficial",
     ...overrides,
   };
 }
@@ -147,7 +149,7 @@ describe("sendElectionResultAlerts", () => {
             winners: [],
           }),
         ],
-        [USER_BETA]: [pendingRow("e3", "Texas Senate District 19")],
+        [USER_BETA]: [pendingRow("e3", "Texas Senate District 19", { result_status: "certified" })],
       },
     });
     const mailer = createMailerMock();
@@ -174,6 +176,9 @@ describe("sendElectionResultAlerts", () => {
       winnerNames: ["Jane Doe (Democratic)"],
     });
     expect(mailer.sent[0]?.items[1]).toMatchObject({ outcome: "passed", winnerNames: [] });
+    // Any result short of certified flags the whole email as unofficial.
+    expect(mailer.sent[0]?.hasUnofficialResults).toBe(true);
+    expect(mailer.sent[1]?.hasUnofficialResults).toBe(false);
     expect(db.markedEventIds).toEqual([["e1", "e2"], ["e3"]]);
   });
 
