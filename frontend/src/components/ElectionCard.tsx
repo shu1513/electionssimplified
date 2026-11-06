@@ -464,7 +464,11 @@ function buildElectionNavState({
  * as a click on that card would have opened it. Null when the split view
  * would not render — fewer than two contests in the pool (the election
  * page's rail gate) or nothing displayed — so the list shows as before.
- * Same inputs as ElectionList's props of the same names.
+ * Null too once any displayed election's day has passed (owner,
+ * 2026-11-05): after election day the reader came for results, and the
+ * list shows every race's result at a glance where the split view opens
+ * on one race. The forward resumes when the finished elections age out
+ * of the ballot. Same inputs as ElectionList's props of the same names.
  */
 export function splitViewEntry({
   elections,
@@ -481,6 +485,8 @@ export function splitViewEntry({
   raceType?: BallotRaceType | null;
   railSort?: RailSortKey;
 }): SplitViewEntry | null {
+  const today = usLatestLocalDate();
+  if (elections.some((election) => election.election_date < today)) return null;
   const votePowerDates = votePowerBandDates(elections, sort);
   const { groups, awaiting } = groupListElections(elections, votePowerDates);
   const first = [...groups.flatMap((group) => [...group.contested, ...group.retention]), ...awaiting][0];
