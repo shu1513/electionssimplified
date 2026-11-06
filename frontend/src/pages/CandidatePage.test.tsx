@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { CandidatePage, ErrorBoundary, loader } from "./CandidatePage";
@@ -43,6 +43,18 @@ function renderCandidate(
 
 afterEach(() => {
   vi.unstubAllGlobals();
+});
+
+// Frozen clock: the page classifies races as upcoming/past against the real
+// date (usLatestLocalDate), so the 2026-11-03 fixtures flip into the past —
+// and these assertions fail — once that day passes.
+beforeEach(() => {
+  vi.useFakeTimers({ shouldAdvanceTime: true });
+  vi.setSystemTime(new Date("2026-08-01T12:00:00Z"));
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 describe("CandidatePage", () => {

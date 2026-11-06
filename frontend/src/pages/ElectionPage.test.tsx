@@ -56,6 +56,18 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
+// Frozen clock: the page classifies races as upcoming/past against the real
+// date (usLatestLocalDate), so the 2026-11-03 fixtures flip into the past —
+// and these assertions fail — once that day passes.
+beforeEach(() => {
+  vi.useFakeTimers({ shouldAdvanceTime: true });
+  vi.setSystemTime(new Date("2026-08-01T12:00:00Z"));
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+});
+
 describe("ElectionPage", () => {
   it("renders not-found UI when the loader throws a 404", async () => {
     stubApiRoutes({ ...ANONYMOUS });
