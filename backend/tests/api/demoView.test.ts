@@ -4,6 +4,7 @@ import {
   toDemoBallotSummary,
   toDemoBrowseDistrict,
   toDemoCandidateDetail,
+  toDemoElectionChoice,
   toDemoElectionDetail,
 } from "../../src/api/demoView.js";
 
@@ -145,5 +146,32 @@ describe("toDemoBrowseDistrict", () => {
       ],
     } as never);
     expect(result.elections.map((election) => election.candidates[0].status)).toEqual(["declared", "advanced"]);
+  });
+});
+
+describe("toDemoElectionChoice", () => {
+  const choice = (electionDate: string) =>
+    ({
+      election_id: "e1",
+      election_date: electionDate,
+      picks: [
+        { candidate_id: "c1", candidacy_status: "won" },
+        { candidate_id: "c2", candidacy_status: "withdrawn" },
+      ],
+      measure_position: "yes",
+      measure_result: "passed",
+      current_result_outcome: "won",
+      current_result_winners: [{ candidate_name: "Ada Winner" }],
+    }) as never;
+
+  it("hides how a pick turned out when its election is still ahead", () => {
+    const result = toDemoElectionChoice(choice(GENERAL));
+    expect(result.picks.map((pick) => pick.candidacy_status)).toEqual(["declared", "withdrawn"]);
+    expect(result).toMatchObject({ measure_position: "yes", measure_result: null, current_result_outcome: null, current_result_winners: [] });
+  });
+
+  it("leaves a pick in an election already held as it is", () => {
+    const input = choice(PRIMARY);
+    expect(toDemoElectionChoice(input)).toBe(input);
   });
 });

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   DEMO_TODAY_ISO,
+  inactiveCandidacyStatusesSql,
   isDemoRequest,
   runAsDemoRequest,
   US_LATEST_LOCAL_DATE_SQL,
@@ -45,6 +46,13 @@ describe("demo clock", () => {
       expect(usLatestLocalDateSql()).toBe("(DATE '2026-11-02')");
     });
     expect(isDemoRequest()).toBe(false);
+  });
+
+  it("counts a result-assigned loss as out of the race only outside the demo", () => {
+    expect(inactiveCandidacyStatusesSql()).toBe("('withdrawn', 'lost')");
+    runAsDemoRequest(() => {
+      expect(inactiveCandidacyStatusesSql()).toBe("('withdrawn')");
+    });
   });
 
   it("keeps an explicit date inside a demo request", () => {

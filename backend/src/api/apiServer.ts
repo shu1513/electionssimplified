@@ -31,7 +31,13 @@ import { mapErrorToResponse } from "./apiErrors.js";
 import { isPoBoxAddress } from "../pipeline/address/addressResolverService.js";
 import { createCorsRejectionLogThrottle, readHeader, resolveCorsHeaders, truncateForLog } from "./apiCors.js";
 import { isDemoRequest, runAsDemoRequest } from "../utils/usLocalDate.js";
-import { toDemoBallotSummary, toDemoBrowseDistrict, toDemoCandidateDetail, toDemoElectionDetail } from "./demoView.js";
+import {
+  toDemoBallotSummary,
+  toDemoBrowseDistrict,
+  toDemoCandidateDetail,
+  toDemoElectionChoice,
+  toDemoElectionDetail,
+} from "./demoView.js";
 import {
   ADDRESS_AUTOCOMPLETE_PATH,
   ADDRESS_AUTOCOMPLETE_RETRIEVE_PATH,
@@ -276,11 +282,6 @@ async function resolveAuthenticatedUserId(
   request: Request
 ): Promise<string | null> {
   if (!options.resolveAuthenticatedUserId) {
-    return null;
-  }
-  // The demo is a signed-out experience: a demo request never resolves to an
-  // account, so it can neither read nor change one.
-  if (isDemoRequest()) {
     return null;
   }
   const resolved = await Promise.resolve(options.resolveAuthenticatedUserId({ headers: request.headers }));
@@ -1446,7 +1447,7 @@ async function dispatchApiRequest(
       summaryOptions.followedFirst = summaryOptions.followedFirst ?? saved.followed_first;
     }
     const result = await options.lookupAuthenticatedBallotSummaries(userId, summaryOptions);
-    sendApiResponse(response, toJsonResponse(200, result, corsHeaders));
+    sendApiResponse(response, toJsonResponse(200, isDemoRequest() ? toDemoBallotSummary(result) : result, corsHeaders));
     return;
   }
 
@@ -1811,7 +1812,14 @@ async function dispatchApiRequest(
       }
 
       const result = await options.listAuthenticatedElectionChoices(userId);
-      sendApiResponse(response, toJsonResponse(200, result, corsHeaders));
+      sendApiResponse(
+        response,
+        toJsonResponse(
+          200,
+          isDemoRequest() ? { ...result, choices: result.choices.map(toDemoElectionChoice) } : result,
+          corsHeaders
+        )
+      );
       return;
     }
 
@@ -1825,7 +1833,14 @@ async function dispatchApiRequest(
 
     const payload = parseElectionChoiceBodyValue(request.body);
     const result = await options.setAuthenticatedElectionChoice(userId, payload);
-    sendApiResponse(response, toJsonResponse(200, result, corsHeaders));
+    sendApiResponse(
+      response,
+      toJsonResponse(
+        200,
+        isDemoRequest() ? { ...result, choice: toDemoElectionChoice(result.choice) } : result,
+        corsHeaders
+      )
+    );
     return;
   }
 

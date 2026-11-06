@@ -1,7 +1,7 @@
 import type { Pool, PoolClient } from "pg";
 
 import { isUuid } from "../../utils/uuid.js";
-import { US_LATEST_LOCAL_DATE_SQL } from "../../utils/usLocalDate.js";
+import { inactiveCandidacyStatusesSql, usLatestLocalDateSql } from "../../utils/usLocalDate.js";
 import { isJudicialRetentionTitle } from "../../ai/electionPartisanshipPolicy.js";
 import { researchAreaWeightForRank } from "./userResearchAreaScoring.js";
 
@@ -593,7 +593,7 @@ async function loadElection(db: Queryable, normalizedElectionId: string): Promis
         official_ballot_title,
         seats_to_fill,
         office_id::text AS office_id,
-        election_date >= ${US_LATEST_LOCAL_DATE_SQL} AS is_upcoming
+        election_date >= ${usLatestLocalDateSql()} AS is_upcoming
       FROM public.elections
       WHERE id = $1::uuid
     `,
@@ -630,7 +630,7 @@ async function loadCandidates(db: Queryable, normalizedElectionId: string): Prom
        AND candidate.deleted_at IS NULL
        AND candidate.merged_into_candidate_id IS NULL
       WHERE candidate_election.election_id = $1::uuid
-        AND candidate_election.status NOT IN ('withdrawn', 'lost')
+        AND candidate_election.status NOT IN ${inactiveCandidacyStatusesSql()}
       ORDER BY display_name ASC, candidate.id ASC
     `,
     [normalizedElectionId]
@@ -897,7 +897,7 @@ export async function clearAutoPicks(
       WHERE election.id = choice.election_id
         AND choice.user_id = $1::uuid
         AND choice.origin = 'auto'
-        AND election.election_date >= ${US_LATEST_LOCAL_DATE_SQL}
+        AND election.election_date >= ${usLatestLocalDateSql()}
         AND ($2::date IS NULL OR election.election_date = $2::date)
     `,
     [normalizedUserId, electionDate ?? null]
@@ -1048,7 +1048,7 @@ async function writeMeasurePosition(
       FROM public.elections AS election
       WHERE election.id = $2::uuid
         AND election.race_type = $4
-        AND election.election_date >= ${US_LATEST_LOCAL_DATE_SQL}
+        AND election.election_date >= ${usLatestLocalDateSql()}
       ON CONFLICT (user_id, election_id) WHERE measure_position IS NOT NULL
       DO UPDATE SET measure_position = EXCLUDED.measure_position, origin = 'auto', updated_at = now()
     `,
@@ -1086,10 +1086,10 @@ async function writeDecision(
          AND candidate.merged_into_candidate_id IS NULL
         JOIN public.elections AS election
           ON election.id = candidate_election.election_id
-         AND election.election_date >= ${US_LATEST_LOCAL_DATE_SQL}
+         AND election.election_date >= ${usLatestLocalDateSql()}
         WHERE candidate_election.candidate_id = $3::uuid
           AND candidate_election.election_id = $2::uuid
-          AND candidate_election.status NOT IN ('withdrawn', 'lost')
+          AND candidate_election.status NOT IN ${inactiveCandidacyStatusesSql()}
         ON CONFLICT (user_id, election_id, candidate_id) WHERE candidate_id IS NOT NULL
         DO UPDATE SET origin = 'auto', updated_at = now()
       `,

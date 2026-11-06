@@ -28,14 +28,12 @@ describe("isDemoPath", () => {
 });
 
 describe("isOutsideDemo", () => {
-  it("covers sign-in, account, shared-pick and payment pages", () => {
-    for (const path of ["/login", "/register", "/reset-password", "/me/picks", "/me", "/picks/tok", "/support", "/support/once"]) {
-      expect(isOutsideDemo(path), path).toBe(true);
-    }
+  it("covers only shared pick cards", () => {
+    expect(isOutsideDemo("/picks/tok")).toBe(true);
   });
 
-  it("leaves the public pages in the demo", () => {
-    for (const path of ["/", "/ballot", "/draft", "/elections/e-1", "/candidates/c-1", "/browse/ky", "/mission", "/methodology"]) {
+  it("keeps sign-in, account and public pages in the demo", () => {
+    for (const path of ["/", "/ballot", "/draft", "/elections/e-1", "/candidates/c-1", "/login", "/register", "/me/picks", "/me/settings", "/support"]) {
       expect(isOutsideDemo(path), path).toBe(false);
     }
   });

@@ -2,7 +2,7 @@ import type { Pool, PoolClient } from "pg";
 
 import { isUuid } from "../../utils/uuid.js";
 import { displayElectionTitle } from "../../utils/displayElectionTitle.js";
-import { US_LATEST_LOCAL_DATE_SQL } from "../../utils/usLocalDate.js";
+import { inactiveCandidacyStatusesSql, usLatestLocalDateSql } from "../../utils/usLocalDate.js";
 import { isJudicialRetentionTitle } from "../../ai/electionPartisanshipPolicy.js";
 import { loadCanonicalElectionResults } from "../electionResults/canonicalElectionResults.js";
 import type { CanonicalElectionResultWinner } from "../electionResults/canonicalElectionResults.js";
@@ -352,7 +352,7 @@ async function readElection(db: Queryable, normalizedElectionId: string): Promis
         official_ballot_title,
         election_date::text AS election_date,
         seats_to_fill,
-        election_date >= ${US_LATEST_LOCAL_DATE_SQL} AS is_upcoming
+        election_date >= ${usLatestLocalDateSql()} AS is_upcoming
       FROM public.elections
       WHERE id = $1::uuid
       -- Do not add a row-locking clause here. PostgreSQL requires UPDATE
@@ -386,7 +386,7 @@ async function assertCandidacyAvailable(
        AND candidate.merged_into_candidate_id IS NULL
       WHERE candidate_election.candidate_id = $1::uuid
         AND candidate_election.election_id = $2::uuid
-        AND candidate_election.status NOT IN ('withdrawn', 'lost')
+        AND candidate_election.status NOT IN ${inactiveCandidacyStatusesSql()}
     `,
     [normalizedCandidateId, normalizedElectionId]
   );
@@ -421,7 +421,7 @@ async function writeMeasurePosition(
       FROM public.elections AS election
       WHERE election.id = $2::uuid
         AND election.race_type = ANY($4::text[])
-        AND election.election_date >= ${US_LATEST_LOCAL_DATE_SQL}
+        AND election.election_date >= ${usLatestLocalDateSql()}
       ON CONFLICT (user_id, election_id) WHERE measure_position IS NOT NULL
       DO UPDATE SET measure_position = EXCLUDED.measure_position, origin = 'manual', updated_at = now()
     `,
@@ -559,10 +559,10 @@ export async function setUserElectionChoice(
              AND candidate.merged_into_candidate_id IS NULL
             JOIN public.elections AS election
               ON election.id = candidate_election.election_id
-             AND election.election_date >= ${US_LATEST_LOCAL_DATE_SQL}
+             AND election.election_date >= ${usLatestLocalDateSql()}
             WHERE candidate_election.candidate_id = $3::uuid
               AND candidate_election.election_id = $2::uuid
-              AND candidate_election.status NOT IN ('withdrawn', 'lost')
+              AND candidate_election.status NOT IN ${inactiveCandidacyStatusesSql()}
             ON CONFLICT (user_id, election_id, candidate_id) WHERE candidate_id IS NOT NULL
             DO UPDATE SET origin = 'manual', updated_at = now()
           `,

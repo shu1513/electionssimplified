@@ -5497,7 +5497,7 @@ describe("demo requests (x-voteapp-demo header)", () => {
     expect(seen).toEqual([true, false, false]);
   });
 
-  it("treats a demo request as signed out even with a valid session", async () => {
+  it("keeps the visitor's session on a demo request", async () => {
     const resolveAuthenticatedUserId = vi.fn(async () => "user-1");
     const lookupCandidateDetail = vi.fn(async () => ({
       candidate: { candidate_id: candidateId, records: [], elections: [] },
@@ -5507,14 +5507,61 @@ describe("demo requests (x-voteapp-demo header)", () => {
       resolveAuthenticatedUserId,
       lookupCandidateDetail: lookupCandidateDetail as never,
     });
-    const path = `/api/candidates/${candidateId}`;
 
-    const normal = await invokeExpressApp(app, { method: "GET", path });
-    const demo = await invokeExpressApp(app, { method: "GET", path, headers: { "x-voteapp-demo": "1" } });
+    const demo = await invokeExpressApp(app, {
+      method: "GET",
+      path: `/api/candidates/${candidateId}`,
+      headers: { "x-voteapp-demo": "1" },
+    });
 
-    expect([normal.statusCode, demo.statusCode]).toEqual([200, 200]);
-    expect(lookupCandidateDetail.mock.calls.map((call) => (call as unknown[])[1])).toEqual(["user-1", null]);
-    expect(resolveAuthenticatedUserId).toHaveBeenCalledTimes(1);
+    expect(demo.statusCode).toBe(200);
+    expect(lookupCandidateDetail).toHaveBeenCalledWith(candidateId, "user-1");
+  });
+
+  it("hides results in the visitor's own picks and saved ballot on a demo request", async () => {
+    const choice = {
+      election_id: "e1",
+      election_date: "2026-11-03",
+      picks: [{ candidate_id: "c1", display_name: "Jane Smith", candidacy_status: "lost" }],
+      measure_position: null,
+      measure_result: null,
+      current_result_outcome: "won",
+      current_result_winners: [{ candidate_name: "Someone Else" }],
+    };
+    const app = createApiApp({
+      resolveAddress: vi.fn(),
+      resolveAuthenticatedUserId: vi.fn(async () => "99999999-9999-4999-8999-999999999999"),
+      lookupAuthenticatedUserEmailVerified: vi.fn(async () => true),
+      listAuthenticatedElectionChoices: vi.fn(async () => ({ choices: [choice] })) as never,
+      setAuthenticatedElectionChoice: vi.fn(async () => ({ choice })) as never,
+      lookupAuthenticatedBallotSummaries: vi.fn(async () => ({
+        district_ids: [],
+        districts: [],
+        elections: [{ id: "e1", election_date: "2026-11-03", has_results: true, current_result_outcome: "won", current_result_winners: [] }],
+      })) as never,
+    });
+    const get = (path: string, demo: boolean) =>
+      invokeExpressApp(app, { method: "GET", path, headers: demo ? { "x-voteapp-demo": "1" } : {} });
+
+    const normalChoices = (await get("/api/me/election-choices", false)).body as { choices: (typeof choice)[] };
+    const demoChoices = (await get("/api/me/election-choices", true)).body as { choices: (typeof choice)[] };
+    expect(normalChoices.choices[0].current_result_outcome).toBe("won");
+    expect(demoChoices.choices[0]).toMatchObject({
+      current_result_outcome: null,
+      current_result_winners: [],
+      picks: [{ display_name: "Jane Smith", candidacy_status: "declared" }],
+    });
+
+    const written = await invokeExpressApp(app, {
+      method: "PUT",
+      path: "/api/me/election-choices",
+      headers: { "x-voteapp-demo": "1", "content-type": "application/json" },
+      body: JSON.stringify({ election_id: "11111111-1111-4111-8111-000000000001", candidate_id: candidateId, chosen: true }),
+    });
+    expect((written.body as { choice: typeof choice }).choice.picks[0].candidacy_status).toBe("declared");
+
+    const demoBallot = (await get("/api/me/ballot", true)).body as { elections: { has_results: boolean }[] };
+    expect(demoBallot.elections[0].has_results).toBe(false);
   });
 
   it("never lets a demo browse answer be stored by a cache", async () => {

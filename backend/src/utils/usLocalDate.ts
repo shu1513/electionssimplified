@@ -17,7 +17,9 @@ export const US_LATEST_LOCAL_DATE_SQL = "(now() AT TIME ZONE 'Pacific/Honolulu')
 // today were the day before the November 3, 2026 general election, so a
 // visitor can see the election-season experience at any time of year. The API
 // server enters this context for a request that carries the demo header; the
-// two helpers below then return the fixed date instead of the real one. The
+// date helpers below then return the fixed date instead of the real one. A
+// signed-in visitor keeps their real account there: picks, follows and
+// auto-pick work on the demo date too. The
 // date is a server constant, so the SQL fragment is still never built from
 // user input.
 export const DEMO_TODAY_ISO = "2026-11-02";
@@ -36,6 +38,14 @@ export function isDemoRequest(): boolean {
 // request, US_LATEST_LOCAL_DATE_SQL otherwise.
 export function usLatestLocalDateSql(): string {
   return isDemoRequest() ? DEMO_TODAY_SQL : US_LATEST_LOCAL_DATE_SQL;
+}
+
+// The candidacy statuses that take a candidate out of a race that is still
+// ahead, as a SQL list. 'lost' is assigned by a result, and every race a demo
+// request treats as upcoming has no result yet on the demo date, so there
+// only a withdrawal counts.
+export function inactiveCandidacyStatusesSql(): string {
+  return isDemoRequest() ? "('withdrawn')" : "('withdrawn', 'lost')";
 }
 
 // JS-side equivalent for code that stamps date-only research checkpoints.

@@ -8,6 +8,7 @@
 // demo requests only, so a normal response never passes through here.
 import type { BallotLookupElection, BallotSummaryResult } from "../pipeline/address/ballotLookup.js";
 import type { CandidateDetailResult } from "../pipeline/candidates/candidateDetailReader.js";
+import type { UserElectionChoice } from "../pipeline/users/userElectionChoices.js";
 import { DEMO_TODAY_ISO } from "../utils/usLocalDate.js";
 import type { BrowseDistrictResult } from "./browseCatalog.js";
 
@@ -86,5 +87,22 @@ export function toDemoBrowseDistrict(result: BrowseDistrictResult): BrowseDistri
         ? { ...election, candidates: election.candidates.map(withoutResultStatus) }
         : election
     ),
+  };
+}
+
+/** One of the signed-in visitor's own picks (the list read and the read-back
+ * after a write share this shape). */
+export function toDemoElectionChoice(choice: UserElectionChoice): UserElectionChoice {
+  if (!isUndecided(choice.election_date)) {
+    return choice;
+  }
+  return {
+    ...choice,
+    picks: choice.picks.map((pick) =>
+      RESULT_STATUSES.has(pick.candidacy_status) ? { ...pick, candidacy_status: "declared" } : pick
+    ),
+    measure_result: null,
+    current_result_outcome: null,
+    current_result_winners: [],
   };
 }

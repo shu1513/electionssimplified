@@ -308,8 +308,8 @@ export function App() {
   // (No hash: the server render never sees one, and the link must match.)
   const demo = isDemoMode();
   const realUrl = `${location.pathname}${location.search}`;
-  // Account and payment pages are not part of the demo, so a demo link to
-  // one loads the real page instead.
+  // A page the demo does not cover (a shared pick card) loads as the real
+  // page instead.
   const leavingDemo = demo && isOutsideDemo(location.pathname);
   useEffect(() => {
     if (leavingDemo) {

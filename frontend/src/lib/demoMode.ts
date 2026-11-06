@@ -9,7 +9,7 @@
 // - usLatestLocalDate() returns DEMO_TODAY, so every upcoming/past check
 //   treats that election as still ahead.
 // - API requests carry DEMO_API_HEADERS; the backend then answers on the same
-//   date, leaves out results, and treats the visitor as signed out
+//   date and leaves out results, for signed-in visitors too
 //   (backend/src/utils/usLocalDate.ts, backend/src/api/demoView.ts).
 
 /** Keep in step with DEMO_BASENAME in server.js and vite.config.ts. */
@@ -45,16 +45,11 @@ export function isDemoMode(): boolean {
   return (globalThis as DemoRequestGlobal).__voteappDemoRequest?.getStore() === true;
 }
 
-// Signing in, account pages and payments are not part of the demo: the demo
-// is a signed-out walk through a past election. Paths are the router's
-// (basename already removed).
-const OUTSIDE_DEMO_PATHS = [
-  /^\/(?:login|register|forgot-password|reset-password|verify-email|verify-email-change)\/?$/,
-  /^\/me(?:\/|$)/,
-  // A shared pick card is an account's real picks, results included.
-  /^\/picks\//,
-  /^\/support(?:\/|$)/,
-];
+// The one page the demo does not cover: a shared pick card is a public page
+// about an account's real picks, results included. Signing in and the
+// account pages DO work in the demo — the account is the visitor's real one,
+// seen on the demo date. Paths are the router's (basename already removed).
+const OUTSIDE_DEMO_PATHS = [/^\/picks\//];
 
 /** True for a page the demo does not cover; the app then loads the real page. */
 export function isOutsideDemo(pathname: string): boolean {
