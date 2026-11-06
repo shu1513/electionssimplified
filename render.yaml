@@ -148,8 +148,11 @@ services:
       # The hostport property is deliberately NOT used: observed 2026-08-12
       # resolving a stale reserved :10000 while the app listened on 8080.
       # readChatbotEmbeddingsFromEnv composes http://<host>:<port>.
+      # OFF since 2026-11-06 (off-cycle cost reduction): voteapp-embeddings
+      # is suspended in the dashboard. To bring the chatbot back, resume
+      # that service first, then set this to "true" and rebuild voteapp-ssr.
       - key: CHATBOT_ENABLED
-        value: "true"
+        value: "false"
       - key: CHATBOT_EMBEDDINGS_HOST
         fromService:
           name: voteapp-embeddings
@@ -383,6 +386,9 @@ services:
   # (`notifications:election-results -- --live` after each results sweep).
   # SENTRY_DSN is dashboard-managed (docs/deploy-checklist.md); set it on this
   # service and the prune cron when enabling monitoring.
+  # SUSPENDED in the dashboard since 2026-11-06 (off-cycle cost reduction):
+  # follow notifications and digests do not send until it is resumed. A
+  # Blueprint cannot express "suspended", so this entry stays as-is.
   - name: voteapp-notification-workers
     type: worker
     runtime: node
@@ -452,6 +458,8 @@ services:
   #       value: "true"
   #     - key: SAN_FRANCISCO_CAMPAIGN_FINANCE_SYNC_ENABLED
   #       value: "true"
+  # SUSPENDED in the dashboard since 2026-11-06 together with the workers:
+  # nothing new is written to prune. Resume it when the workers resume.
   - name: voteapp-notifications-prune
     type: cron
     runtime: node
@@ -495,6 +503,7 @@ services:
   # --port 8080 because the TEI image defaults to 80 and Render RESERVES
   # port 10000 (it cannot carry private-network traffic). PORT matches so
   # Render's port detection agrees with where the app listens.
+  # SUSPENDED in the dashboard since 2026-11-06 (see CHATBOT_ENABLED above).
   - name: voteapp-embeddings
     type: pserv
     runtime: image
@@ -530,7 +539,10 @@ databases:
     # per-state finance syncs). basic-1gb keeps the hot set cached and gives
     # 0.5 CPU instead of 0.1. Storage is not part of the tier on paid plans —
     # it expands at $0.30/GB.
-    plan: basic-1gb
+    # Downsized to basic-256mb on 2026-11-06 (off-cycle cost reduction, with
+    # ~3.2 GB stored). Expect slower batch pipelines; go back to basic-1gb
+    # before heavy backfills or the next election season.
+    plan: basic-256mb
     # Matches the live instance (autoscaling enabled 2026-08-08). Omitting
     # this would not drift THIS database — the blueprint spec retains the
     # current value for an existing database — but one created fresh from
