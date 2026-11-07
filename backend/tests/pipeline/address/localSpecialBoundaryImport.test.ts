@@ -9,6 +9,7 @@ import {
   dropDegenerateHoles,
   kmlZipToFeatureCollection,
   parseLocalBoundaryImport,
+  regroupMisnestedRings,
 } from "../../../src/pipeline/address/localSpecialBoundaryImport.js";
 
 const square = (minLon: number, minLat: number, maxLon: number, maxLat: number) => ({
@@ -335,5 +336,34 @@ describe("degenerate holes", () => {
     const geometry = { type: "Polygon", coordinates: [outer, bowtie] };
     expect(dropDegenerateHoles(geometry)).toEqual(geometry);
     expect(isValidLocalBoundaryGeometry(geometry)).toBe(false);
+  });
+});
+
+describe("regroupMisnestedRings", () => {
+  const ring = (minX: number, minY: number, maxX: number, maxY: number) =>
+    [[minX, minY], [maxX, minY], [maxX, maxY], [minX, maxY], [minX, minY]];
+
+  it("leaves consistently nested geometry untouched", () => {
+    const polygon = { type: "Polygon", coordinates: [ring(0, 0, 10, 10), ring(4, 4, 5, 5)] };
+    expect(regroupMisnestedRings(polygon)).toBe(polygon);
+  });
+
+  it("promotes a hole larger than its outer to the outer, and nests the small rings inside it", () => {
+    // Served as: tiny island outer with the whole district as its "hole",
+    // plus one real pocket inside the district as a separate piece.
+    const served = {
+      type: "MultiPolygon",
+      coordinates: [
+        [ring(20, 20, 21, 21), ring(0, 0, 10, 10)],
+        [ring(4, 4, 5, 5)],
+      ],
+    };
+    expect(regroupMisnestedRings(served)).toEqual({
+      type: "MultiPolygon",
+      coordinates: [
+        [ring(0, 0, 10, 10), ring(4, 4, 5, 5)],
+        [ring(20, 20, 21, 21)],
+      ],
+    });
   });
 });

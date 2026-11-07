@@ -137,6 +137,33 @@ skill needs a short section on special-district seat titles (for example
    review note.
 4. Other states' special districts, driven by user demand data.
 
+## Council wards and trustee areas (2026-11-07)
+
+A city council ward or a school board trustee area is the same problem one
+level down: the seat's election sits on the whole-city or whole-school row,
+so every resident sees every ward. `npm run manual:ward-boundaries:import`
+(`backend/src/scripts/importWardBoundaries.ts`) loads one body's official
+ward map as reviewed `local_special` rows keyed `<STATE>:<BODY>:<CC|SB>:<seat>`
+and moves the ward seats' elections from the jurisdiction row onto their
+ward rows. The office on each moved election is unchanged, so a council
+ward still lists under City and a trustee area under School. The moved
+identity goes into the retired ledger so a later discovery pass on the
+city row cannot write the seat back.
+
+Edge rule: a point within the margin of the line between two wards of one
+body returns both wards (layer `reviewed_local_boundary_edge`) and the
+seat badge shows for them; a point on a body's outer edge is still refused.
+
+A payload is one JSON file per body: jurisdiction row, body key, seat name
+template, official layer and seat field, every seat's source value,
+eligibility page and vintage, and the reviewed layer hash. The first batch
+covered 33 of the 40 largest bodies with numbered seats; Chicago's board
+(no official layer), Duval County (board districts are pairs of council
+districts; `source_values` supports that once the charter mapping is
+recorded), Kern High School District, and Jefferson Parish schools (map
+vintage unconfirmed) are still on their whole rows, as are the Florida and
+Maryland boards that vote countywide.
+
 ## Open questions
 
 - One generic state-board type, or one type per body (BOE, NH Executive

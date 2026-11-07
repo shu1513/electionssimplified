@@ -78,7 +78,7 @@ function httpsUrl(value: unknown): URL | null {
   }
 }
 
-function parseSource(value: unknown, label: string): BoundarySourceSpec {
+export function parseBoundarySourceSpec(value: unknown, label: string): BoundarySourceSpec {
   if (!isRecord(value) ||
     (value.kind !== "arcgis" && value.kind !== "geojson" && value.kind !== "kml_zip" && value.kind !== "html_geojson")) {
     throw new Error(`${label}.kind must be "arcgis", "geojson", "kml_zip", or "html_geojson"`);
@@ -147,8 +147,8 @@ export function parseLocalBoundaryImport(value: unknown): LocalBoundaryImport {
     boundary_vintage: value.boundary_vintage,
     eligibility_source_url: value.eligibility_source_url as string,
     review_note: value.review_note,
-    sources: value.sources.map((entry, index) => parseSource(entry, `sources[${index}]`)),
-    exclusion_sources: exclusions.map((entry, index) => parseSource(entry, `exclusion_sources[${index}]`)),
+    sources: value.sources.map((entry, index) => parseBoundarySourceSpec(entry, `sources[${index}]`)),
+    exclusion_sources: exclusions.map((entry, index) => parseBoundarySourceSpec(entry, `exclusion_sources[${index}]`)),
     expected_source_sha256: hash,
   };
 }
@@ -161,10 +161,16 @@ export function stableJson(value: unknown): string {
   return JSON.stringify(value);
 }
 
-function sourceRequestUrl(spec: BoundarySourceSpec): URL {
+// Some ArcGIS servers refuse a quoted literal against a number field
+// ("Failed to execute query"); when every value is a plain integer the query
+// is retried with bare numbers. The hash covers the features, not the URL.
+const INTEGER_RE = /^(?:0|[1-9][0-9]*)$/;
+
+function sourceRequestUrl(spec: BoundarySourceSpec, quoteValues = true): URL {
   if (spec.kind === "geojson" || spec.kind === "kml_zip" || spec.kind === "html_geojson") return new URL(spec.url);
   const url = new URL(`${spec.url}/query`);
-  url.searchParams.set("where", `${spec.match.field} IN (${spec.match.values.map((entry) => `'${entry}'`).join(",")})`);
+  const literal = (entry: string) => (quoteValues ? `'${entry}'` : entry);
+  url.searchParams.set("where", `${spec.match.field} IN (${spec.match.values.map(literal).join(",")})`);
   url.searchParams.set("outFields", "*");
   url.searchParams.set("outSR", "4326");
   url.searchParams.set("f", "geojson");
@@ -357,6 +363,59 @@ export function dropDegenerateHoles(geometry: unknown): unknown {
   return geometry;
 }
 
+class ArcGisQueryError extends Error {}
+
+function ringArea(ring: number[][]): number {
+  let twice = 0;
+  for (let index = 1; index < ring.length; index += 1) {
+    const [ax = 0, ay = 0] = ring[index - 1] as number[];
+    const [bx = 0, by = 0] = ring[index] as number[];
+    twice += ax * by - bx * ay;
+  }
+  return Math.abs(twice) / 2;
+}
+
+function ringContainsPoint(ring: number[][], point: number[]): boolean {
+  let inside = false;
+  for (let index = 1; index < ring.length; index += 1) {
+    const [ax = 0, ay = 0] = ring[index - 1] as number[];
+    const [bx = 0, by = 0] = ring[index] as number[];
+    const [px = 0, py = 0] = point;
+    if ((ay > py) !== (by > py) && px < (bx - ax) * (py - ay) / (by - ay) + ax) inside = !inside;
+  }
+  return inside;
+}
+
+/** An ArcGIS server groups rings into polygons by orientation, so a layer
+ * whose district body was digitized the "wrong" way round comes back as a
+ * tiny outer ring with the whole district as its hole (Portland's Council
+ * District 4, 2026-11-07: an 85-point island "containing" the 2,845-point
+ * district). A hole larger than its outer is that mistake, and the feature's
+ * rings are regrouped by containment instead: largest ring first, each
+ * smaller ring a hole of the smallest outer that contains it, otherwise an
+ * outer of its own. Features with consistent nesting are left exactly as
+ * served, so their reviewed hashes do not move. */
+export function regroupMisnestedRings(geometry: unknown): unknown {
+  if (!isRecord(geometry) || !Array.isArray(geometry.coordinates)) return geometry;
+  const polygons: number[][][][] = geometry.type === "Polygon"
+    ? [geometry.coordinates as number[][][]]
+    : geometry.type === "MultiPolygon" ? geometry.coordinates as number[][][][] : [];
+  const misnested = polygons.some((polygon) =>
+    Array.isArray(polygon) && polygon.length > 1 && polygon.slice(1).some((hole) => ringArea(hole) > ringArea(polygon[0] as number[][])));
+  if (!misnested) return geometry;
+  const rings = polygons.flat().filter((ring) => Array.isArray(ring) && ring.length >= 4)
+    .sort((a, b) => ringArea(b) - ringArea(a));
+  const outers: number[][][][] = [];
+  for (const ring of rings) {
+    const point = ring[0] as number[];
+    const parent = [...outers].reverse().find((polygon) =>
+      ringContainsPoint(polygon[0] as number[][], point) && !polygon.slice(1).some((hole) => ringContainsPoint(hole, point)));
+    if (parent) parent.push(ring);
+    else outers.push([ring]);
+  }
+  return outers.length === 1 ? { type: "Polygon", coordinates: outers[0] } : { type: "MultiPolygon", coordinates: outers };
+}
+
 async function readFeatureCollection(
   spec: BoundarySourceSpec,
   url: URL,
@@ -369,6 +428,9 @@ async function readFeatureCollection(
     : spec.kind === "html_geojson"
       ? extractEmbeddedFeatureCollection(new TextDecoder("utf-8").decode(await readArrayBuffer(response, url)))
       : await response.json();
+  if (isRecord(body) && isRecord(body.error)) {
+    throw new ArcGisQueryError(`Official boundary source rejected the query (${String(body.error.message ?? "error")}): ${url}`);
+  }
   if (!isRecord(body) || body.type !== "FeatureCollection" || !Array.isArray(body.features)) {
     throw new Error(`Official boundary source did not return a GeoJSON FeatureCollection: ${url}`);
   }
@@ -382,18 +444,27 @@ async function readFeatureCollection(
 // truncated page; any other source kind must come back whole.
 const MAX_ARCGIS_PAGES = 50;
 
-async function fetchSourceFeatures(
+export async function fetchSourceFeatures(
   spec: BoundarySourceSpec,
   fetchImpl: FetchLike
 ): Promise<{ url: string; features: Record<string, unknown>[] }> {
-  const url = sourceRequestUrl(spec);
+  let url = sourceRequestUrl(spec);
   const collected: unknown[] = [];
   let page = 0;
   let truncated = true;
   while (truncated) {
     const pageUrl = new URL(url);
     if (page > 0) pageUrl.searchParams.set("resultOffset", String(collected.length));
-    const result = await readFeatureCollection(spec, pageUrl, fetchImpl);
+    let result;
+    try {
+      result = await readFeatureCollection(spec, pageUrl, fetchImpl);
+    } catch (error) {
+      const retryBare = error instanceof ArcGisQueryError && page === 0 && spec.kind === "arcgis" &&
+        spec.match.values.every((entry) => INTEGER_RE.test(entry));
+      if (!retryBare) throw error;
+      url = sourceRequestUrl(spec, false);
+      result = await readFeatureCollection(spec, url, fetchImpl);
+    }
     collected.push(...result.features);
     truncated = result.truncated;
     page += 1;
@@ -411,7 +482,7 @@ async function fetchSourceFeatures(
     throw new Error(`Official boundary source feature set is incomplete or duplicated (${spec.match.field}; missing: ${missing.join(", ") || "none"}): ${url}`);
   }
   for (const feature of features) {
-    feature.geometry = dropDegenerateHoles(feature.geometry);
+    feature.geometry = dropDegenerateHoles(regroupMisnestedRings(feature.geometry));
     if (!isValidLocalBoundaryGeometry(feature.geometry)) {
       throw new Error(`Official boundary source returned unusable geometry for ${spec.match.field}=${String((feature.properties as Record<string, unknown>)[spec.match.field])}`);
     }
@@ -428,7 +499,7 @@ function polygonsOf(geometry: unknown): Polygon[] {
 
 /** Pieces are kept side by side as one MultiPolygon. The eligibility check
  * treats that as their union, so a line shared by two pieces is not an edge. */
-function combine(features: Record<string, unknown>[]): unknown {
+export function combineFeatureGeometries(features: Record<string, unknown>[]): unknown {
   const polygons = features.flatMap((feature) => polygonsOf(feature.geometry));
   return polygons.length === 1
     ? { type: "Polygon", coordinates: polygons[0] }
@@ -451,8 +522,8 @@ export async function fetchLocalBoundarySource(
     .digest("hex");
   const sourceUrls = [...included, ...excluded].map((entry) => entry.url);
   return {
-    geometry: combine(included.flatMap((entry) => entry.features)),
-    exclusionGeometry: excluded.length === 0 ? null : combine(excluded.flatMap((entry) => entry.features)),
+    geometry: combineFeatureGeometries(included.flatMap((entry) => entry.features)),
+    exclusionGeometry: excluded.length === 0 ? null : combineFeatureGeometries(excluded.flatMap((entry) => entry.features)),
     sourceSha256,
     sourceUrl: sourceUrls[0] as string,
     sourceUrls,

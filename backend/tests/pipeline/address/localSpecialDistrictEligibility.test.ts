@@ -1,7 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
+  ambiguousLocalSpecialBodies,
   boundaryEdgeMarginMeters,
+  localSpecialBodyKey,
   clearLocalSpecialBoundaryCache,
   LOCAL_BOUNDARY_CACHE_TTL_MS,
   lookupLocalSpecialDistrictKeys,
@@ -228,6 +230,41 @@ describe("local-special district eligibility", () => {
     const keys = await lookupLocalSpecialDistrictKeys({ query }, "39", tenMetersInside);
     expect(keys.map((key) => key.geoid_compact)).toEqual(["DC:ANC:1A01"]);
     expect(query.mock.calls[1]?.[0]).toContain("boundary.edge_margin_meters");
+  });
+
+  it("returns both wards of one body when the point sits on their shared line", async () => {
+    // Two council wards meet at lng = -81.30; the point is 5 m east of it,
+    // inside ward 2 but within the 25 m margin of its edge with ward 1.
+    const ward1 = square(-81.32, 40.62, -81.30, 40.66);
+    const ward2 = square(-81.30, 40.62, -81.28, 40.66);
+    const query = fakeDb([
+      { geoid_compact: "OH:CANTON:CC:1", geometry: ward1, exclusion_geometry: null },
+      { geoid_compact: "OH:CANTON:CC:2", geometry: ward2, exclusion_geometry: null },
+    ]);
+    const keys = await lookupLocalSpecialDistrictKeys({ query }, "39", { lng: -81.29994, lat: 40.64 });
+    expect(keys.map((key) => [key.geoid_compact, key.layer_name])).toEqual([
+      ["OH:CANTON:CC:1", "reviewed_local_boundary_edge"],
+      ["OH:CANTON:CC:2", "reviewed_local_boundary_edge"],
+    ]);
+    expect(ambiguousLocalSpecialBodies(keys)).toEqual(new Set(["OH:CANTON:CC"]));
+    // Well inside ward 2: only ward 2, and nothing ambiguous.
+    const inside = await lookupLocalSpecialDistrictKeys({ query }, "39", { lng: -81.29, lat: 40.64 });
+    expect(inside.map((key) => [key.geoid_compact, key.layer_name])).toEqual([["OH:CANTON:CC:2", "reviewed_local_boundary"]]);
+    expect(ambiguousLocalSpecialBodies(inside).size).toBe(0);
+  });
+
+  it("still refuses a point on a body's outer edge, and a whole-body key near another body", async () => {
+    const ward1 = square(-81.32, 40.62, -81.30, 40.66);
+    const whole = square(-81.32, 40.62, -81.30, 40.66);
+    const query = fakeDb([
+      { geoid_compact: "OH:CANTON:CC:1", geometry: ward1, exclusion_geometry: null },
+      { geoid_compact: "OH:CANTONPARKS", geometry: whole, exclusion_geometry: null },
+    ]);
+    // 5 m inside the shared west edge: one ward touched, so the outer edge
+    // stays refused; the two-part key never takes part in the fallback.
+    await expect(lookupLocalSpecialDistrictKeys({ query }, "39", { lng: -81.31994, lat: 40.64 })).resolves.toEqual([]);
+    expect(localSpecialBodyKey("OH:CANTON:CC:1")).toBe("OH:CANTON:CC");
+    expect(localSpecialBodyKey("OH:CANTONPARKS")).toBeNull();
   });
 
   it("does not cache a failed read", async () => {

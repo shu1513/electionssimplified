@@ -53,6 +53,7 @@ import { loadArizonaCandidateFinanceSummariesByCandidateElection } from "../ariz
 import { loadFloridaCandidateFinanceSummariesByCandidateElection } from "../floridaFinance/floridaFinanceBallotSummary.js";
 import { loadLouisianaCandidateFinanceSummariesByCandidateElection } from "../louisianaFinance/louisianaBallotLookupFinanceLoader.js";
 import { extractSubDistrictSeat } from "../elections/subDistrictSeat.js";
+import { ambiguousLocalSpecialBodies, localSpecialBodyKey } from "./localSpecialDistrictEligibility.js";
 import { loadPennsylvaniaCandidateFinanceSummariesByCandidateElection } from "../pennsylvaniaFinance/pennsylvaniaBallotLookupFinance.js";
 import { loadUtahCandidateFinanceSummariesByCandidateElection } from "../utahFinance/utahBallotLookupFinanceLoader.js";
 import { loadVermontCandidateFinanceSummariesByCandidateElection } from "../vermontFinance/vermontBallotLookupFinanceLoader.js";
@@ -419,6 +420,22 @@ export type BallotSummaryResult = {
   districts: BallotLookupDistrict[];
   elections: BallotLookupElectionSummary[];
 };
+
+// Whether a seat on a reviewed ward row may still not be the reader's: the
+// address touched two wards of the same body (it sits on their shared line)
+// and both reached this ballot. Read off the election rows themselves, which
+// carry their district; a ward with no contest has nothing to badge anyway.
+function localAreaAmbiguityByDistrict(
+  rows: readonly { district_id: string; district_type: string; geoid_compact: string }[]
+): (row: { district_type: string; geoid_compact: string }) => boolean {
+  const districts = new Map(rows.map((row) => [row.district_id, row]));
+  const ambiguous = ambiguousLocalSpecialBodies([...districts.values()]);
+  return (row) => {
+    if (row.district_type !== "local_special") return false;
+    const body = localSpecialBodyKey(row.geoid_compact);
+    return body !== null && ambiguous.has(body);
+  };
+}
 
 type DistrictRow = Omit<BallotLookupDistrict, "representation_power_score" | "population"> & {
   representation_power_score: string | number | null;
@@ -1681,6 +1698,7 @@ async function loadFullElectionDetails(
   );
 
   const officeResultsByElection = groupBy(officeResult.rows, (row) => row.election_id);
+  const localAreaAmbiguous = localAreaAmbiguityByDistrict(electionRows);
   return electionRows.map((row) => ({
     id: row.election_id,
     district_id: row.district_id,
@@ -1692,6 +1710,8 @@ async function loadFullElectionDetails(
       state: row.state,
       districtName: row.district_name,
       electionStage: row.election_stage,
+      districtType: row.district_type,
+      localAreaAmbiguous: localAreaAmbiguous(row),
     }),
     election_date: row.election_date,
     election_stage: row.election_stage,
@@ -1977,6 +1997,7 @@ export async function lookupBallotSummariesByDistrictIds(
   // test mocks keep their slots (same convention as the loaders above).
   const currentRatingByElection = await loadCurrentCompetitivenessByElection(db, electionResult.rows);
 
+  const localAreaAmbiguous = localAreaAmbiguityByDistrict(electionResult.rows);
   const elections: BallotLookupElectionSummary[] = electionResult.rows.map((row) => {
     const currentResultOutcome = resultOutcomeByElection.get(row.election_id) ?? null;
     // Office columns are nullable only because this is a LEFT JOIN; resolved office rows have non-empty fields.
@@ -2023,6 +2044,8 @@ export async function lookupBallotSummariesByDistrictIds(
         state: row.state,
         districtName: row.district_name,
         electionStage: row.election_stage,
+        districtType: row.district_type,
+        localAreaAmbiguous: localAreaAmbiguous(row),
       }),
       election_date: row.election_date,
       election_stage: row.election_stage,

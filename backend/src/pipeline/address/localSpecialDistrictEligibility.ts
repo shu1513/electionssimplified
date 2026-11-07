@@ -182,8 +182,11 @@ function boundingBox(geometry: MultiPolygon): BoundingBox {
   return box;
 }
 
-function inBoundingBox(point: Point, box: BoundingBox): boolean {
-  return point[0] > box.minLon && point[0] < box.maxLon && point[1] > box.minLat && point[1] < box.maxLat;
+function inBoundingBox(point: Point, box: BoundingBox, paddingMeters = 0): boolean {
+  const padLat = paddingMeters / METERS_PER_DEGREE_LAT;
+  const padLon = paddingMeters / metersPerDegreeLon(point[1]);
+  return point[0] > box.minLon - padLon && point[0] < box.maxLon + padLon &&
+    point[1] > box.minLat - padLat && point[1] < box.maxLat + padLat;
 }
 
 function pointInParsedBoundary(
@@ -330,6 +333,35 @@ async function loadBoundaryShape(db: Queryable, boundaryId: string): Promise<Par
   };
 }
 
+/** The body a seat-level key belongs to: "TX:AUSTIN:CC" for
+ * "TX:AUSTIN:CC:7", null for a two-part key ("CA:BART") that names a whole
+ * body. Sibling wards of one body share this prefix. */
+export function localSpecialBodyKey(geoidCompact: string | null | undefined): string | null {
+  if (typeof geoidCompact !== "string") return null;
+  const parts = geoidCompact.split(":");
+  return parts.length >= 3 ? parts.slice(0, -1).join(":") : null;
+}
+
+/** Bodies with more than one of their wards among the given keys. Wards of
+ * one body are disjoint, so this happens only when the address sits on the
+ * line between two wards and both were returned (see
+ * lookupLocalSpecialDistrictKeys); the ballot then marks those seats as
+ * possibly not the reader's. */
+export function ambiguousLocalSpecialBodies(keys: readonly { district_type: string; geoid_compact: string }[]): Set<string> {
+  const counts = new Map<string, number>();
+  for (const key of keys) {
+    if (key.district_type !== "local_special") continue;
+    const body = localSpecialBodyKey(key.geoid_compact);
+    if (body) counts.set(body, (counts.get(body) ?? 0) + 1);
+  }
+  return new Set([...counts].filter(([, count]) => count > 1).map(([body]) => body));
+}
+
+const LOCAL_BOUNDARY_LAYER = "reviewed_local_boundary";
+// A ward returned because the point lies on or within the margin of the line
+// it shares with a sibling ward, not strictly inside it.
+export const LOCAL_BOUNDARY_EDGE_LAYER = "reviewed_local_boundary_edge";
+
 export async function lookupLocalSpecialDistrictKeys(
   db: Queryable,
   stateFips: string,
@@ -341,16 +373,51 @@ export async function lookupLocalSpecialDistrictKeys(
   const point: Point = [coordinates.lng, coordinates.lat];
   const index = await cachedStateBoundaryIndex(db, stateFips);
   const keys: AddressDistrictKey[] = [];
+  const matchedBodies = new Set<string>();
+  // Ward rows the point touches (inside, or within the margin of an edge)
+  // without being strictly eligible, grouped by body.
+  const edgeCandidates = new Map<string, string[]>();
   for (const entry of index) {
-    if (!inBoundingBox(point, entry.bbox)) continue;
+    // A ward the point lies just outside of (within the margin) is still a
+    // candidate for the shared-line case below, so the box is padded by the
+    // full margin; two-part keys never take part, so their box is not.
+    const padding = localSpecialBodyKey(entry.geoid_compact) ? LOCAL_BOUNDARY_MARGIN_METERS : 0;
+    if (!inBoundingBox(point, entry.bbox, padding)) continue;
     const shape = await loadBoundaryShape(db, entry.boundary_id);
-    if (!shape || !pointInParsedBoundary(point, shape.geometry, shape.exclusions, shape.edgeMarginMeters)) continue;
-    keys.push({
-      district_type: "local_special",
-      geoid_compact: shape.geoid_compact,
-      source: "verified_polygon",
-      layer_name: "reviewed_local_boundary",
-    });
+    if (!shape) continue;
+    if (pointInParsedBoundary(point, shape.geometry, shape.exclusions, shape.edgeMarginMeters)) {
+      keys.push({
+        district_type: "local_special",
+        geoid_compact: shape.geoid_compact,
+        source: "verified_polygon",
+        layer_name: LOCAL_BOUNDARY_LAYER,
+      });
+      const body = localSpecialBodyKey(shape.geoid_compact);
+      if (body) matchedBodies.add(body);
+      continue;
+    }
+    const body = localSpecialBodyKey(shape.geoid_compact);
+    if (!body) continue;
+    if (shape.exclusions && geometryContains(point, shape.exclusions)) continue;
+    if (geometryContains(point, shape.geometry) || nearEdge(point, shape.geometry, shape.edgeMarginMeters)) {
+      edgeCandidates.set(body, [...(edgeCandidates.get(body) ?? []), shape.geoid_compact]);
+    }
+  }
+  // On the line between two wards of one body the margin refuses both. The
+  // voter is in one of them, so both come back and the ballot says so; the
+  // alternative is a city whose council race vanishes for everyone living on
+  // a ward-boundary street. One touched ward alone is the body's outer edge,
+  // and stays refused: the point may be outside the body altogether.
+  for (const [body, candidates] of edgeCandidates) {
+    if (matchedBodies.has(body) || candidates.length < 2) continue;
+    for (const geoidCompact of candidates) {
+      keys.push({
+        district_type: "local_special",
+        geoid_compact: geoidCompact,
+        source: "verified_polygon",
+        layer_name: LOCAL_BOUNDARY_EDGE_LAYER,
+      });
+    }
   }
   return keys;
 }
