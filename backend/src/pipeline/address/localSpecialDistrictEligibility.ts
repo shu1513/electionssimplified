@@ -375,8 +375,10 @@ export async function lookupLocalSpecialDistrictKeys(
   const keys: AddressDistrictKey[] = [];
   const matchedBodies = new Set<string>();
   // Ward rows the point touches (inside, or within the margin of an edge)
-  // without being strictly eligible, grouped by body.
+  // without being strictly eligible, grouped by body; and the bodies with a
+  // ward the point is actually inside, margin aside.
   const edgeCandidates = new Map<string, string[]>();
+  const containedBodies = new Set<string>();
   for (const entry of index) {
     // A ward the point lies just outside of (within the margin) is still a
     // candidate for the shared-line case below, so the box is padded by the
@@ -399,17 +401,21 @@ export async function lookupLocalSpecialDistrictKeys(
     const body = localSpecialBodyKey(shape.geoid_compact);
     if (!body) continue;
     if (shape.exclusions && geometryContains(point, shape.exclusions)) continue;
-    if (geometryContains(point, shape.geometry) || nearEdge(point, shape.geometry, shape.edgeMarginMeters)) {
+    const contained = geometryContains(point, shape.geometry);
+    if (contained) containedBodies.add(body);
+    if (contained || nearEdge(point, shape.geometry, shape.edgeMarginMeters)) {
       edgeCandidates.set(body, [...(edgeCandidates.get(body) ?? []), shape.geoid_compact]);
     }
   }
   // On the line between two wards of one body the margin refuses both. The
   // voter is in one of them, so both come back and the ballot says so; the
   // alternative is a city whose council race vanishes for everyone living on
-  // a ward-boundary street. One touched ward alone is the body's outer edge,
-  // and stays refused: the point may be outside the body altogether.
+  // a ward-boundary street. The point must lie inside one of the two: where
+  // a ward line meets the body's outer edge, a point just outside the body
+  // is within the margin of both wards too, and it stays refused. One
+  // touched ward alone is the outer edge as well.
   for (const [body, candidates] of edgeCandidates) {
-    if (matchedBodies.has(body) || candidates.length < 2) continue;
+    if (matchedBodies.has(body) || candidates.length < 2 || !containedBodies.has(body)) continue;
     for (const geoidCompact of candidates) {
       keys.push({
         district_type: "local_special",

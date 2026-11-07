@@ -263,6 +263,18 @@ describe("local-special district eligibility", () => {
     // 5 m inside the shared west edge: one ward touched, so the outer edge
     // stays refused; the two-part key never takes part in the fallback.
     await expect(lookupLocalSpecialDistrictKeys({ query }, "39", { lng: -81.31994, lat: 40.64 })).resolves.toEqual([]);
+  });
+
+  it("refuses a point just outside the body where a ward line meets its outer edge", async () => {
+    const ward1 = square(-81.32, 40.62, -81.30, 40.66);
+    const ward2 = square(-81.30, 40.62, -81.28, 40.66);
+    const query = fakeDb([
+      { geoid_compact: "OH:CANTON:CC:1", geometry: ward1, exclusion_geometry: null },
+      { geoid_compact: "OH:CANTON:CC:2", geometry: ward2, exclusion_geometry: null },
+    ]);
+    // 10 m north of the shared corner at (-81.30, 40.66): within 25 m of
+    // both wards, inside neither.
+    await expect(lookupLocalSpecialDistrictKeys({ query }, "39", { lng: -81.30, lat: 40.66009 })).resolves.toEqual([]);
     expect(localSpecialBodyKey("OH:CANTON:CC:1")).toBe("OH:CANTON:CC");
     expect(localSpecialBodyKey("OH:CANTONPARKS")).toBeNull();
   });

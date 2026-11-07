@@ -140,16 +140,19 @@ describe("ward layer fetch", () => {
 
 type Call = { sql: string; params: unknown[] };
 
-function fakeDb(options: { existingWard?: boolean; clash?: boolean } = {}) {
+function fakeDb(options: { existingWard?: boolean; clash?: boolean; mixedOffices?: boolean } = {}) {
   const calls: Call[] = [];
   const query = vi.fn(async (sql: string, params: unknown[] = []) => {
     calls.push({ sql, params });
     if (sql.includes("FROM public.districts WHERE district_type = $1")) return { rows: [{ id: "city-1", name: "Austin city, Texas" }] };
-    if (sql.includes("WHERE district_id = $1 AND race_type = 'office'")) {
+    if (sql.includes("WHERE e.district_id = $1 AND e.race_type = 'office'")) {
       return { rows: [
-        { id: "e1", official_ballot_title: "City Council Member District 1", official_ballot_title_key: "city council member district 1", election_date: "2026-11-03", race_type: "office" },
-        { id: "e10", official_ballot_title: "City Council Member District 10", official_ballot_title_key: "city council member district 10", election_date: "2026-11-03", race_type: "office" },
-        { id: "m", official_ballot_title: "Mayor", official_ballot_title_key: "mayor", election_date: "2026-11-03", race_type: "office" },
+        { id: "e1", official_ballot_title: "City Council Member District 1", official_ballot_title_key: "city council member district 1", election_date: "2026-11-03", race_type: "office", office_canonical_name: "City Council Member" },
+        { id: "e10", official_ballot_title: "City Council Member District 10", official_ballot_title_key: "city council member district 10", election_date: "2026-11-03", race_type: "office", office_canonical_name: "City Council Member" },
+        { id: "m", official_ballot_title: "Mayor", official_ballot_title_key: "mayor", election_date: "2026-11-03", race_type: "office", office_canonical_name: "Mayor" },
+        ...(options.mixedOffices ? [
+          { id: "c2", official_ballot_title: "County Commissioner District 2", official_ballot_title_key: "county commissioner district 2", election_date: "2026-11-03", race_type: "office", office_canonical_name: "County Commissioner" },
+        ] : []),
       ] };
     }
     if (sql.startsWith("INSERT INTO public.districts")) {
@@ -181,6 +184,14 @@ describe("ward election plan and import", () => {
     expect(plan.unmatched.map((entry) => entry.id)).toEqual(["e10"]);
     await expect(importWardBoundaries(db, { ...parsed, expected_source_sha256: "a".repeat(64) },
       { sourceUrl: "u", sourceSha256: "a".repeat(64), boundaries: [] }, plan)).rejects.toThrow("does not list");
+  });
+
+  it("refuses a plan whose seats span two offices unless the payload names one", async () => {
+    const parsed = parseWardBoundaryImport(payload());
+    await expect(planWardElections(fakeDb({ mixedOffices: true }), parsed)).rejects.toThrow("several offices (City Council Member, County Commissioner)");
+    const scoped = await planWardElections(fakeDb({ mixedOffices: true }), parseWardBoundaryImport(payload({ office: "City Council Member" })));
+    expect(scoped.seats.flatMap((entry) => entry.elections.map((election) => election.id))).toEqual(["e1", "e10"]);
+    expect(scoped.seats.find((entry) => entry.seat === "2")?.elections).toEqual([]);
   });
 
   it("writes districts and boundaries, moves elections with their deferrals, and records the old identity", async () => {

@@ -48,6 +48,9 @@ export type WardBoundaryImport = {
   edge_margin_meters: number;
   source: BoundarySourceSpec;
   seats: WardSeat[];
+  /** Catalog office of the seats to move (for example "City Council
+   * Member"); when absent, every matched election must share one office. */
+  office: string | null;
   from_election_date: string;
   expected_source_sha256: string | null;
 };
@@ -62,12 +65,13 @@ type ElectionRow = {
   official_ballot_title_key: string;
   election_date: string;
   race_type: string;
+  office_canonical_name?: string | null;
 };
 
 export type WardSeatElections = {
   seat: string;
   district_key: string;
-  elections: { id: string; official_ballot_title: string; election_date: string }[];
+  elections: { id: string; official_ballot_title: string; election_date: string; office: string | null }[];
 };
 
 export type WardElectionPlan = {
@@ -164,6 +168,10 @@ export function parseWardBoundaryImport(value: unknown): WardBoundaryImport {
   if (hash !== null && (typeof hash !== "string" || !/^[a-f0-9]{64}$/.test(hash))) {
     throw new Error("expected_source_sha256 must be a lowercase SHA-256 hex digest");
   }
+  const office = value.office ?? null;
+  if (office !== null && (typeof office !== "string" || office.trim().length < 3)) {
+    throw new Error("office must be a catalog office name");
+  }
   return {
     state,
     jurisdiction: { district_type: jurisdiction.district_type, geoid_compact: jurisdiction.geoid_compact },
@@ -175,6 +183,7 @@ export function parseWardBoundaryImport(value: unknown): WardBoundaryImport {
     edge_margin_meters: margin,
     source: spec,
     seats,
+    office: office === null ? null : office.trim(),
     from_election_date: fromDate,
     expected_source_sha256: hash,
   };
@@ -241,7 +250,11 @@ export function matchSeat(title: string, seats: readonly WardSeat[]): WardSeat |
 /** Which elections on the jurisdiction row move to which ward row. Only
  * office contests dated on or after from_election_date are considered; a
  * title that names a ward the payload does not list is reported, since a
- * half-moved body would show one ward correctly and another to everyone. */
+ * half-moved body would show one ward correctly and another to everyone.
+ * A county row carries several bodies with numbered seats (commission
+ * districts, school districts, justice precincts), so the matched elections
+ * must all belong to one catalog office: the payload's `office`, or the one
+ * office they share. */
 export async function planWardElections(db: Queryable, payload: WardBoundaryImport): Promise<WardElectionPlan> {
   const district = await db.query<{ id: string; name: string }>(
     `SELECT id, name FROM public.districts WHERE district_type = $1 AND geoid_compact = $2`,
@@ -250,10 +263,12 @@ export async function planWardElections(db: Queryable, payload: WardBoundaryImpo
   const row = district.rows[0];
   if (!row) throw new Error(`Jurisdiction ${payload.jurisdiction.district_type} ${payload.jurisdiction.geoid_compact} is not in districts`);
   const elections = await db.query<ElectionRow>(
-    `SELECT id, official_ballot_title, official_ballot_title_key, election_date::text AS election_date, race_type
-     FROM public.elections
-     WHERE district_id = $1 AND race_type = 'office' AND election_date >= $2::date
-     ORDER BY election_date, official_ballot_title`,
+    `SELECT e.id, e.official_ballot_title, e.official_ballot_title_key, e.election_date::text AS election_date,
+            e.race_type, office.canonical_name AS office_canonical_name
+     FROM public.elections AS e
+     LEFT JOIN public.offices AS office ON office.id = e.office_id
+     WHERE e.district_id = $1 AND e.race_type = 'office' AND e.election_date >= $2::date
+     ORDER BY e.election_date, e.official_ballot_title`,
     [row.id, payload.from_election_date]
   );
   const bySeat = new Map<string, WardSeatElections>(payload.seats.map((entry) => [entry.seat, {
@@ -262,17 +277,25 @@ export async function planWardElections(db: Queryable, payload: WardBoundaryImpo
     elections: [],
   }]));
   const unmatched: WardElectionPlan["unmatched"] = [];
+  const offices = new Set<string>();
   for (const election of elections.rows) {
+    const office = election.office_canonical_name ?? null;
+    if (payload.office !== null && office !== payload.office) continue;
     const seat = matchSeat(election.official_ballot_title, payload.seats);
     if (seat) {
+      offices.add(office ?? "(no office)");
       bySeat.get(seat.seat)?.elections.push({
         id: election.id,
         official_ballot_title: election.official_ballot_title,
         election_date: election.election_date,
+        office,
       });
     } else if (!AT_LARGE_RE.test(election.official_ballot_title) && ANY_SEAT_RE.test(election.official_ballot_title)) {
       unmatched.push({ id: election.id, official_ballot_title: election.official_ballot_title });
     }
+  }
+  if (offices.size > 1) {
+    throw new Error(`Matched elections belong to several offices (${[...offices].sort().join(", ")}); set "office" to the body being imported`);
   }
   return { jurisdiction_district_id: row.id, jurisdiction_name: row.name, seats: [...bySeat.values()], unmatched };
 }

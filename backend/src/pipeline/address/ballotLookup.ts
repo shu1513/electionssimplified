@@ -423,12 +423,14 @@ export type BallotSummaryResult = {
 
 // Whether a seat on a reviewed ward row may still not be the reader's: the
 // address touched two wards of the same body (it sits on their shared line)
-// and both reached this ballot. Read off the election rows themselves, which
-// carry their district; a ward with no contest has nothing to badge anyway.
+// and both are among the resolved districts. The ballot summary reads the
+// resolved district rows, so a sibling ward with no contest this cycle still
+// counts; the single-election detail page has only its own row and never
+// flags, which is accepted.
 function localAreaAmbiguityByDistrict(
-  rows: readonly { district_id: string; district_type: string; geoid_compact: string }[]
+  rows: readonly { district_type: string; geoid_compact: string }[]
 ): (row: { district_type: string; geoid_compact: string }) => boolean {
-  const districts = new Map(rows.map((row) => [row.district_id, row]));
+  const districts = new Map(rows.map((row) => [row.geoid_compact, row]));
   const ambiguous = ambiguousLocalSpecialBodies([...districts.values()]);
   return (row) => {
     if (row.district_type !== "local_special") return false;
@@ -1997,7 +1999,7 @@ export async function lookupBallotSummariesByDistrictIds(
   // test mocks keep their slots (same convention as the loaders above).
   const currentRatingByElection = await loadCurrentCompetitivenessByElection(db, electionResult.rows);
 
-  const localAreaAmbiguous = localAreaAmbiguityByDistrict(electionResult.rows);
+  const localAreaAmbiguous = localAreaAmbiguityByDistrict(districtResult.rows);
   const elections: BallotLookupElectionSummary[] = electionResult.rows.map((row) => {
     const currentResultOutcome = resultOutcomeByElection.get(row.election_id) ?? null;
     // Office columns are nullable only because this is a LEFT JOIN; resolved office rows have non-empty fields.
