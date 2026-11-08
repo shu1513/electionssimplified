@@ -141,9 +141,25 @@ function toDisplaySeat(rawMatch: string): string {
 export function extractSubDistrictSeat(
   officialBallotTitle: string,
   officeCanonicalName: string | null | undefined,
-  jurisdiction?: { state?: string | null; districtName?: string | null; electionStage?: string | null; officeScope?: string | null }
+  jurisdiction?: {
+    state?: string | null;
+    districtName?: string | null;
+    electionStage?: string | null;
+    officeScope?: string | null;
+    districtType?: string | null;
+    /** The address touched more than one ward of this seat's body (it sits on
+     * their shared line), so the seat may still not be the reader's. */
+    localAreaAmbiguous?: boolean;
+  }
 ): string | null {
   if (typeof officeCanonicalName !== "string" || !SUB_JURISDICTION_SEAT_OFFICES.has(officeCanonicalName)) {
+    return null;
+  }
+  // A seat on a reviewed local_special row (a council ward or trustee area
+  // with its own polygon) reached this ballot because the address lies in
+  // that ward, so the warning would be wrong — unless the address sits on the
+  // line between two wards and both were returned.
+  if (jurisdiction?.districtType === "local_special" && !jurisdiction.localAreaAmbiguous) {
     return null;
   }
   // This catalog variant is attached to the reviewed trustee-area polygon,

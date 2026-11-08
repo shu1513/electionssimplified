@@ -292,6 +292,50 @@ describe("extractSubDistrictSeat", () => {
     });
   });
 
+  describe("reviewed ward rows", () => {
+    it("stays silent for a council ward or trustee area on its own reviewed row", () => {
+      expect(
+        extractSubDistrictSeat("City Council Member District 7", "City Council Member", {
+          state: "TX",
+          districtName: "Austin City Council District 7",
+          officeScope: "place",
+          districtType: "local_special",
+        })
+      ).toBeNull();
+      expect(
+        extractSubDistrictSeat("Wake Board of Education District 01", "School Board Member", {
+          state: "NC",
+          districtName: "Wake County Board of Education District 1",
+          officeScope: "school_unified",
+          districtType: "local_special",
+        })
+      ).toBeNull();
+    });
+
+    it("flags the seat again when the address touched two wards of the body", () => {
+      expect(
+        extractSubDistrictSeat("City Council Member District 7", "City Council Member", {
+          state: "TX",
+          districtName: "Austin City Council District 7",
+          officeScope: "place",
+          districtType: "local_special",
+          localAreaAmbiguous: true,
+        })
+      ).toBe("District 7");
+    });
+
+    it("keeps flagging a ward seat still on the whole-city row", () => {
+      expect(
+        extractSubDistrictSeat("City Council Member District 7", "City Council Member", {
+          state: "TX",
+          districtName: "Austin city, Texas",
+          officeScope: "place",
+          districtType: "place",
+        })
+      ).toBe("District 7");
+    });
+  });
+
   it("is stable across calls despite module-level global patterns", () => {
     const title = "County Commissioner District 4";
     expect(extractSubDistrictSeat(title, "County Commissioner")).toBe("District 4");
