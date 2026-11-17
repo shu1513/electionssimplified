@@ -54,6 +54,8 @@ describe("lookupAddressDistricts", () => {
     expect(query.mock.calls[0]?.[1]).toEqual([
       ["statewide", "county"],
       ["06", "06037"],
+      ["county"],
+      ["06037"],
     ]);
     expect(result).toEqual({
       districts: [
@@ -109,6 +111,8 @@ describe("lookupAddressDistricts", () => {
     expect(query.mock.calls[0]?.[1]).toEqual([
       ["county", "place"],
       ["06037", "0603666"],
+      ["county"],
+      ["06037"],
     ]);
     expect(result.districts.map((district) => district.id)).toEqual(["district-la"]);
     expect(result.missing_district_keys).toEqual([

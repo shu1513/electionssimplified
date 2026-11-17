@@ -432,6 +432,7 @@ const BALLOT_LEVEL_RANKS: Record<string, number> = {
   state_upper: 2,
   state_lower: 2,
   state_executive_council: 2,
+  state_board: 2,
   county: 3,
   place: 4,
   school_unified: 5,

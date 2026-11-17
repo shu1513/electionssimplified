@@ -33,7 +33,7 @@ describe("resolveAddressToDistricts", () => {
     const result = await resolveAddressToDistricts({ query }, "100 Main St Carrollton OH", { geocodeAddress });
     expect(query).toHaveBeenCalledTimes(3);
     expect(query.mock.calls[2]?.[1]).toEqual([
-      ["statewide", "county", "local_special"], ["39", "39019", "OH:CARROLL:FOX"],
+      ["statewide", "county", "local_special"], ["39", "39019", "OH:CARROLL:FOX"], ["county"], ["39019"],
     ]);
     expect(result.districts.map((district) => district.id)).toEqual(["fox-id"]);
     expect(result.district_keys.at(-1)?.source).toBe("verified_polygon");
@@ -78,6 +78,8 @@ describe("resolveAddressToDistricts", () => {
     expect(query.mock.calls[0]?.[1]).toEqual([
       ["county", "place"],
       ["06037", "0603666"],
+      ["county"],
+      ["06037"],
     ]);
     expect(result).toEqual({
       matched_address: "3921 HARLAN AVE, BALDWIN PARK, CA, 91706",
@@ -199,7 +201,7 @@ describe("resolveAddressToDistricts", () => {
     expect(geocodeAddress).not.toHaveBeenCalled();
     expect(cache.set).not.toHaveBeenCalled();
     expect(query).toHaveBeenCalledTimes(1);
-    expect(query.mock.calls[0]?.[1]).toEqual([["county"], ["06037"]]);
+    expect(query.mock.calls[0]?.[1]).toEqual([["county"], ["06037"], ["county"], ["06037"]]);
     expect(result.districts).toEqual([
       {
         id: "district-la",
@@ -482,6 +484,8 @@ describe("resolveAddressToDistricts ZIP partial path", () => {
     expect(query.mock.calls[3]?.[1]).toEqual([
       ["statewide", "county"],
       ["48", "48453"],
+      ["county"],
+      ["48453"],
     ]);
     expect(result).toMatchObject({
       matched_address: "78701",
@@ -602,6 +606,8 @@ describe("resolveAddressToDistricts ZIP partial path", () => {
     expect(query.mock.calls[3]?.[1]).toEqual([
       ["statewide", "county", "place"],
       ["48", "48453", "4805000"],
+      ["county"],
+      ["48453"],
     ]);
     expect(result.scope).toBe("zip");
     expect(result.districts.map((district) => district.id)).toEqual([
@@ -664,8 +670,8 @@ describe("resolveAddressToDistricts ZIP partial path", () => {
     expect(query.mock.calls[3]?.[1]).toEqual([
       ["statewide", "county", "state_lower", "state_upper"],
       ["02", "02105", "02003", "0200B"],
-      ["state_lower"],
-      ["02003"],
+      ["county", "state_lower"],
+      ["02105", "02003"],
     ]);
     expect(result.scope).toBe("zip");
     expect(result.district_keys.filter((key) => key.layer_name === "zcta_legislative_crosswalk")).toHaveLength(2);
@@ -688,6 +694,8 @@ describe("resolveAddressToDistricts ZIP partial path", () => {
     expect(query.mock.calls[3]?.[1]).toEqual([
       ["statewide", "county", "state_upper"],
       ["48", "48453", "48014"],
+      ["county"],
+      ["48453"],
     ]);
   });
 
@@ -836,8 +844,8 @@ describe("resolveAddressToDistricts region partial path", () => {
     expect(query.mock.calls[2]?.[1]).toEqual([
       ["statewide", "county", "state_lower", "state_upper"],
       ["02", "02105", "02003", "0200B"],
-      ["state_lower"],
-      ["02003"],
+      ["county", "state_lower"],
+      ["02105", "02003"],
     ]);
     expect(result.scope).toBe("region");
     expect(result.district_keys.filter((key) => key.layer_name === "zcta_legislative_crosswalk")).toHaveLength(2);
@@ -956,6 +964,8 @@ describe("resolveAddressToDistricts 2026 House redistricting override", () => {
     expect(query.mock.calls[0]?.[1]).toEqual([
       ["us_house", "county"],
       ["4705", "47157"],
+      ["county"],
+      ["47157"],
     ]);
     expect(result.district_keys).toEqual([
       expect.objectContaining({ district_type: "us_house", geoid_compact: "4705", layer_name: "120th Congressional Districts" }),

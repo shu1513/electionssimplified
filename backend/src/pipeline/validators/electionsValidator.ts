@@ -157,6 +157,10 @@ const EXECUTIVE_COUNCIL_MARKERS = [
   /\bcouncil(?:or|lor)\b/,
 ];
 
+// A board or commission elected by district (Mississippi's Public Service
+// and Transportation Commissioners, Louisiana's BESE members).
+const STATE_BOARD_MARKERS = [/\bcommission(?:er)?s?\b/, /\bboard\b/, /\bbese\b/];
+
 const STATE_LOWER_MARKERS = [
   ...STATE_LOWER_STRICT_MARKERS,
   /\brepresentative in the general assembly\b/,
@@ -343,6 +347,15 @@ function isHardScopeMismatch(
     return "state_executive_council scope contains clearly non-council race";
   }
 
+  // School markers are left out: a state education board district elects a
+  // board of education seat.
+  if (
+    districtType === "state_board" &&
+    (usSenate || usHouse || stateSenate || stateHouse || governorLike || countyLike || cityLike)
+  ) {
+    return "state_board scope contains clearly non-board race";
+  }
+
   if (
     districtType.startsWith("school_") &&
     (usSenate ||
@@ -410,6 +423,10 @@ function isSoftScopeAmbiguous(
 
   if (districtType === "state_executive_council" && !hasAny(text, EXECUTIVE_COUNCIL_MARKERS)) {
     return "state_executive_council entry lacks clear council markers";
+  }
+
+  if (districtType === "state_board" && !hasAny(text, STATE_BOARD_MARKERS)) {
+    return "state_board entry lacks clear board or commission markers";
   }
 
   if (districtType === "county") {

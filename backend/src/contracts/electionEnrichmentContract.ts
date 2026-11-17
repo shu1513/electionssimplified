@@ -24,6 +24,7 @@ export const ELECTION_ALLOWED_DISTRICT_TYPES: readonly ElectionDistrictType[] = 
   "state_upper",
   "state_lower",
   "state_executive_council",
+  "state_board",
   "county",
   "place",
   "school_elementary",

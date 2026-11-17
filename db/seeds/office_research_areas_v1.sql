@@ -3553,6 +3553,10 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     -- legal_competence), state contracts (spending, efficiency, corruption;
     -- NH family-planning contracts are its best-known votes), and pardons.
     ('state_executive_council', 'Executive Councilor', ARRAY['anti_corruption', 'civil_rights', 'criminal_justice_and_civil_liberties', 'government_efficiency', 'government_spending_reduction', 'impartiality', 'legal_competence', 'public_safety_and_crime_control', 'womens_reproductive_rights']::text[]),
+    -- Mississippi district boards (migration 397): utility rates, and road
+    -- building contracts and spending.
+    ('state_board', 'Public Service Commissioner', ARRAY['corporate_accountability', 'cost_of_living_reduction', 'environment_and_public_health', 'public_infrastructure']::text[]),
+    ('state_board', 'Transportation Commissioner', ARRAY['anti_corruption', 'government_efficiency', 'government_spending_reduction', 'public_infrastructure']::text[]),
     ('statewide', 'Superintendent of Public Instruction', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]);
 
 -- Fail fast rather than silently mis-shaping an office. The reconcile below

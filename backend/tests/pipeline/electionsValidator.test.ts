@@ -3515,4 +3515,38 @@ describe("runElectionsValidator", () => {
     );
     expect(updateValidatedCall).toBeTruthy();
   });
+
+  function boardPayload(title: string) {
+    return {
+      ...councilPayload(title),
+      district_id: "d-ms-board-3",
+      district_name: "Northern District (Supreme Court District 3); Mississippi",
+      district_type: "state_board",
+      state: "MS",
+    };
+  }
+
+  it("keeps a Public Service Commissioner race on a Mississippi board district", async () => {
+    queueCouncilPayload(boardPayload("Public Service Commissioner - Northern District") as never);
+
+    await runElectionsValidator({ once: true, batchSize: 5, blockMs: 10 });
+
+    const failCall = poolQueryMock.mock.calls.find((call) => String(call[1]?.[1] ?? "").includes("state_board"));
+    expect(failCall).toBeUndefined();
+    const updateValidatedCall = poolQueryMock.mock.calls.find((call) =>
+      String(call[0]).includes("SET status = 'validated'")
+    );
+    expect(updateValidatedCall).toBeTruthy();
+  });
+
+  it("hard-rejects a State Senate race filed on a board district", async () => {
+    queueCouncilPayload(boardPayload("State Senator District 3") as never);
+
+    await runElectionsValidator({ once: true, batchSize: 5, blockMs: 10 });
+
+    const hardFailCall = poolQueryMock.mock.calls.find((call) =>
+      String(call[1]?.[1] ?? "").includes("state_board scope contains clearly non-board race")
+    );
+    expect(hardFailCall).toBeTruthy();
+  });
 });

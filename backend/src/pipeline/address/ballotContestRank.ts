@@ -92,6 +92,11 @@ export function stateBaselineContestRank(
       // New Hampshire prints Executive Councilor after Governor and before
       // State Senator.
       return 35;
+    case "state_board":
+      // Mississippi prints the Public Service and Transportation
+      // Commissioners after the statewide offices and before the
+      // legislature.
+      return 35;
     case "county":
       return judicial ? 86 + courtOffset : 60;
     case "place":

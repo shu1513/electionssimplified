@@ -304,6 +304,29 @@ const SEED_OFFICES: SeedOffice[] = [
     ].join("\n"),
   },
   {
+    // Mississippi elects one Public Service Commissioner from each of three
+    // districts (Miss. Code 77-1-1). Districts: migration 397.
+    scope: "state_board",
+    canonicalName: "Public Service Commissioner",
+    summary: [
+      "Setting how much you pay for electricity, gas, and water",
+      "Handling your complaints about utility companies",
+      "Approving new power plants and power lines",
+    ].join("\n"),
+  },
+  {
+    // Mississippi's three Transportation Commissioners run the state
+    // transportation department and hire its executive director (Miss. Code
+    // 65-1-3, 65-1-9). Districts: migration 397.
+    scope: "state_board",
+    canonicalName: "Transportation Commissioner",
+    summary: [
+      "Deciding which state highways and bridges get built or repaired",
+      "Approving contracts for state road and bridge work",
+      "Hiring the head of the state transportation department",
+    ].join("\n"),
+  },
+  {
     // The District of Columbia elects a member of its State Board of Education
     // from each Council ward (DC Code § 38-2651), on the ward ballot the
     // matcher already routes to state_upper for the Council seat. The board
@@ -1609,6 +1632,36 @@ const SEED_OFFICE_ALIASES: SeedOfficeAlias[] = [
     scope: "state_executive_council",
     officeCanonicalName: "Executive Councilor",
     aliasText: "Governor's Councillor",
+  },
+  {
+    scope: "state_board",
+    officeCanonicalName: "Public Service Commissioner",
+    aliasText: "Public Service Commissioner",
+  },
+  {
+    scope: "state_board",
+    officeCanonicalName: "Public Service Commissioner",
+    aliasText: "Public Service Commission",
+  },
+  {
+    scope: "state_board",
+    officeCanonicalName: "Public Service Commissioner",
+    aliasText: "Member, Public Service Commission",
+  },
+  {
+    scope: "state_board",
+    officeCanonicalName: "Transportation Commissioner",
+    aliasText: "Transportation Commissioner",
+  },
+  {
+    scope: "state_board",
+    officeCanonicalName: "Transportation Commissioner",
+    aliasText: "Transportation Commission",
+  },
+  {
+    scope: "state_board",
+    officeCanonicalName: "Transportation Commissioner",
+    aliasText: "Member, Transportation Commission",
   },
   {
     scope: "state_lower",
