@@ -3419,6 +3419,7 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     ('place', 'Alderman', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),
     ('place', 'City Clerk', ARRAY['anti_corruption', 'data_privacy', 'election_integrity', 'government_efficiency']::text[]),
     ('place', 'City Council Member', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),
+    ('place', 'City Council President', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),
     -- Elected public-library board. civil_rights is the board's most contested
     -- lever (challenges to materials, who may access them); data_privacy is
     -- the library-specific one, since patron borrowing records are

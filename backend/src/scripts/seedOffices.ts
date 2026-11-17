@@ -777,6 +777,18 @@ const SEED_OFFICES: SeedOffice[] = [
     ].join("\n"),
   },
   {
+    // A council head elected citywide on its own line: St. Louis' President
+    // of the Board of Aldermen, Atlanta's and Baltimore's City Council
+    // President, Nashville's Metropolitan Vice Mayor (migration 398).
+    scope: "place",
+    canonicalName: "City Council President",
+    summary: [
+      "Running city council meetings and deciding which bills come up for a vote",
+      "Helping decide the city budget and city laws",
+      "Filling in for the mayor when the mayor is away",
+    ].join("\n"),
+  },
+  {
     scope: "place",
     canonicalName: "Library Board Member",
     summary: [
@@ -1632,6 +1644,46 @@ const SEED_OFFICE_ALIASES: SeedOfficeAlias[] = [
     scope: "state_executive_council",
     officeCanonicalName: "Executive Councilor",
     aliasText: "Governor's Councillor",
+  },
+  {
+    scope: "place",
+    officeCanonicalName: "City Council President",
+    aliasText: "City Council President",
+  },
+  {
+    scope: "place",
+    officeCanonicalName: "City Council President",
+    aliasText: "President of the City Council",
+  },
+  {
+    scope: "place",
+    officeCanonicalName: "City Council President",
+    aliasText: "Council President",
+  },
+  {
+    scope: "place",
+    officeCanonicalName: "City Council President",
+    aliasText: "President of the Board of Aldermen",
+  },
+  {
+    scope: "place",
+    officeCanonicalName: "City Council President",
+    aliasText: "Board of Aldermen President",
+  },
+  {
+    scope: "place",
+    officeCanonicalName: "City Council President",
+    aliasText: "Metropolitan Vice Mayor",
+  },
+  {
+    scope: "place",
+    officeCanonicalName: "Alderman",
+    aliasText: "Alder",
+  },
+  {
+    scope: "place",
+    officeCanonicalName: "City Council Member",
+    aliasText: "Member of Council at Large",
   },
   {
     scope: "state_board",
