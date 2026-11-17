@@ -15,6 +15,12 @@ describe("ballotLevel", () => {
     expect(ballotLevel("some_new_scope", "some_new_scope")).toBe("other");
   });
 
+  it("groups state-board offices and office-less races under State", () => {
+    expect(ballotLevel("state_board", "state_board")).toBe("state");
+    expect(ballotLevel(null, "state_board", "ballot_measure")).toBe("state");
+    expect(ballotLevel(undefined, "state_board")).toBe("state");
+  });
+
   it("puts Colorado's congressional-district board seats under State", () => {
     // Their offices are scope "us_house" (one seat per congressional
     // district), but they are state offices.

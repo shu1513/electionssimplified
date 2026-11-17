@@ -121,6 +121,7 @@ describe("formatDistrictType", () => {
   it("maps known types and humanizes unknown ones", () => {
     expect(formatDistrictType("state_upper")).toBe("State senate district");
     expect(formatDistrictType("us_house")).toBe("U.S. House district");
+    expect(formatDistrictType("state_board")).toBe("State board district");
     expect(formatDistrictType("water_board_zone")).toBe("water board zone");
   });
 });
