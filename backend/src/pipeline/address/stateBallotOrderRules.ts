@@ -144,7 +144,7 @@ function caJudicialOffset(title: string): number {
 }
 
 // Baseline tier anchors, for reading the numbers below: presidential 0,
-// us_senate 10, us_house 20, statewide 30, state_executive_council 35,
+// us_senate 10, us_house 20, statewide 30, state_executive_council 35, state_board 35,
 // state_upper 40, state_lower 50,
 // county 60, place 70, school 80, judicial 82-90, unknown 95, measures 100.
 

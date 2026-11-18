@@ -6,6 +6,7 @@ export const ADDRESS_DISTRICT_TYPES = [
   // No Census layer carries these; they come back from the district lookup
   // through district_components, never from a geocoder key.
   "state_executive_council",
+  "state_board",
   "county",
   "place",
   "school_unified",

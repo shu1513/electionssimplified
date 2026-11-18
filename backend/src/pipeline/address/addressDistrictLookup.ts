@@ -91,18 +91,20 @@ function toResolvedDistrict(row: DistrictRow): AddressResolvedDistrict {
 }
 
 // Districts Census does not publish (New Hampshire's floterial House seats
-// and Executive Council districts) are stored as the union of Census units in
-// district_components. The address is inside such a district when any of its
-// units is: a base House district from the keys, or a town from the
-// component keys.
+// and Executive Council districts, Mississippi's board districts) are stored
+// as the union of Census units in district_components. The address is inside
+// such a district when any of its units is: a base House district or a
+// county from the keys, or a town from the component keys.
+const COMPONENT_DISTRICT_KEY_TYPES = new Set(["state_lower", "county"]);
+
 function componentLookupPairs(
   keys: readonly AddressDistrictLookupKey[],
   componentKeys: readonly AddressComponentKey[]
 ): { types: string[]; geoids: string[] } {
   const pairs = new Map<string, [string, string]>();
   for (const key of keys) {
-    if (key.district_type === "state_lower") {
-      pairs.set(`state_lower::${key.geoid_compact}`, ["state_lower", key.geoid_compact]);
+    if (COMPONENT_DISTRICT_KEY_TYPES.has(key.district_type)) {
+      pairs.set(`${key.district_type}::${key.geoid_compact}`, [key.district_type, key.geoid_compact]);
     }
   }
   for (const key of componentKeys) {

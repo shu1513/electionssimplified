@@ -139,8 +139,8 @@ describe("lookupAddressDistricts: component-built districts", () => {
     expect(query.mock.calls[0]?.[1]).toEqual([
       ["state_lower", "county"],
       ["33523", "33011"],
-      ["state_lower", "county_subdivision"],
-      ["33523", "3301145140"],
+      ["state_lower", "county", "county_subdivision"],
+      ["33523", "33011", "3301145140"],
     ]);
     expect(result.districts.map((district) => district.id)).toEqual(["base-23", "council-4", "floterial-40"]);
     // Found-through-components rows never count as answering a requested key.

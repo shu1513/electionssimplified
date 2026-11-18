@@ -3419,6 +3419,7 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     ('place', 'Alderman', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),
     ('place', 'City Clerk', ARRAY['anti_corruption', 'data_privacy', 'election_integrity', 'government_efficiency']::text[]),
     ('place', 'City Council Member', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),
+    ('place', 'City Council President', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'environment_and_public_health', 'government_efficiency', 'government_spending_reduction', 'housing_affordability', 'public_infrastructure', 'public_safety_and_crime_control', 'social_programs_and_welfare']::text[]),
     -- Elected public-library board. civil_rights is the board's most contested
     -- lever (challenges to materials, who may access them); data_privacy is
     -- the library-specific one, since patron borrowing records are
@@ -3553,6 +3554,10 @@ INSERT INTO curated_office_core_areas (scope, canonical_name, slugs) VALUES
     -- legal_competence), state contracts (spending, efficiency, corruption;
     -- NH family-planning contracts are its best-known votes), and pardons.
     ('state_executive_council', 'Executive Councilor', ARRAY['anti_corruption', 'civil_rights', 'criminal_justice_and_civil_liberties', 'government_efficiency', 'government_spending_reduction', 'impartiality', 'legal_competence', 'public_safety_and_crime_control', 'womens_reproductive_rights']::text[]),
+    -- Mississippi district boards (migration 397): utility rates, and road
+    -- building contracts and spending.
+    ('state_board', 'Public Service Commissioner', ARRAY['corporate_accountability', 'cost_of_living_reduction', 'environment_and_public_health', 'public_infrastructure']::text[]),
+    ('state_board', 'Transportation Commissioner', ARRAY['anti_corruption', 'government_efficiency', 'government_spending_reduction', 'public_infrastructure']::text[]),
     ('statewide', 'Superintendent of Public Instruction', ARRAY['civil_rights', 'criminal_justice_and_civil_liberties', 'data_privacy', 'government_efficiency', 'government_spending_reduction', 'public_education_quality']::text[]);
 
 -- Fail fast rather than silently mis-shaping an office. The reconcile below

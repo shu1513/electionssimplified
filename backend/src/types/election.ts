@@ -22,6 +22,10 @@ export type ElectionDistrictType =
   // (New Hampshire's Executive Council). Census has no layer for it; rows
   // are built from towns in district_components.
   | "state_executive_council"
+  // A district drawn only for a statewide board or commission (Mississippi's
+  // Public Service and Transportation Commissions). Census has no layer for
+  // it; rows are built from whole counties in district_components.
+  | "state_board"
   | "county"
   | "place"
   | "school_elementary"
