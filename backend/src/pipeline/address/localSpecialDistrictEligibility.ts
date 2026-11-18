@@ -227,8 +227,8 @@ export function pointInVerifiedLocalBoundary(
 // Full shapes are never cached: one state's verified shapes reached ~100 MB
 // of jsonb (California, 2026-10-21) and holding them parsed ran the API out
 // of memory. A lookup fetches only the shapes whose box holds the point.
-// Building California's index takes Postgres a few seconds, so it is kept
-// for 30 minutes; a newly reviewed boundary appears within that window.
+// The index is kept for 30 minutes; a newly reviewed boundary appears
+// within that window.
 export const LOCAL_BOUNDARY_CACHE_TTL_MS = 30 * 60 * 1000;
 
 type BoundaryIndexEntry = { boundary_id: string; geoid_compact: string; bbox: BoundingBox };
@@ -249,30 +249,20 @@ export function clearLocalSpecialBoundaryCache(): void {
 }
 
 // The box spans every polygon's outer ring, the same rings boundingBox()
-// reads, so a point outside it is outside the shape. Postgres does the walk,
-// so the API never holds the full shapes just to build the index.
+// reads, so a point outside it is outside the shape. Postgres stores it on
+// the row (the generated bbox column, migration 396), so this reads four
+// numbers per boundary and never touches the shapes. Computing the boxes
+// here, per lookup, walked every coordinate in the state and passed the
+// statement timeout for California.
 const BOUNDARY_INDEX_SQL = `
   SELECT boundary.district_id::text AS boundary_id, district.geoid_compact,
-         min((pt->>0)::float8) AS min_lon, min((pt->>1)::float8) AS min_lat,
-         max((pt->>0)::float8) AS max_lon, max((pt->>1)::float8) AS max_lat
+         boundary.bbox[1] AS min_lon, boundary.bbox[2] AS min_lat,
+         boundary.bbox[3] AS max_lon, boundary.bbox[4] AS max_lat
   FROM public.local_special_boundaries AS boundary
   JOIN public.districts AS district ON district.id = boundary.district_id
-  CROSS JOIN LATERAL jsonb_array_elements(
-    CASE
-      WHEN boundary.geometry->>'type' = 'Polygon' AND jsonb_typeof(boundary.geometry->'coordinates') = 'array'
-        THEN jsonb_build_array(boundary.geometry->'coordinates')
-      WHEN boundary.geometry->>'type' = 'MultiPolygon' AND jsonb_typeof(boundary.geometry->'coordinates') = 'array'
-        THEN boundary.geometry->'coordinates'
-      ELSE '[]'::jsonb
-    END
-  ) AS polygon
-  CROSS JOIN LATERAL jsonb_array_elements(
-    CASE WHEN jsonb_typeof(polygon->0) = 'array' THEN polygon->0 ELSE '[]'::jsonb END
-  ) AS pt
   WHERE district.state_fips = $1 AND district.district_type = 'local_special'
     AND boundary.review_status = 'verified'
-    AND jsonb_typeof(pt) = 'array' AND jsonb_typeof(pt->0) = 'number' AND jsonb_typeof(pt->1) = 'number'
-  GROUP BY boundary.district_id, district.geoid_compact
+    AND boundary.bbox IS NOT NULL
   ORDER BY district.geoid_compact`;
 
 function toFiniteNumber(value: number | string | null): number | null {

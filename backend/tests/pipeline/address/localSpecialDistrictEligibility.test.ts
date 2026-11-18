@@ -126,8 +126,8 @@ describe("local-special district eligibility", () => {
     expect(pointInVerifiedLocalBoundary({ lng: -81.31, lat: 40.63 }, township, { type: "Polygon" })).toBe(false);
   });
 
-  // The fake database answers the index query with one box per row (built the
-  // way Postgres builds it, from outer rings) and the shape query by id.
+  // The fake database answers the index query with one box per row (the stored
+  // bbox column: outer rings only) and the shape query by id.
   type Row = { geoid_compact: string; geometry: unknown; exclusion_geometry: unknown; edge_margin_meters?: number | string };
   const box = (geometry: unknown) => {
     const g = geometry as { type?: string; coordinates?: unknown };
@@ -140,7 +140,7 @@ describe("local-special district eligibility", () => {
     };
   };
   const fakeDb = (rows: Row[]) => vi.fn(async (sql: string, params: unknown[]) => {
-    if (sql.includes("GROUP BY boundary.district_id")) {
+    if (sql.includes("boundary.bbox[1]")) {
       return {
         rows: rows.flatMap((row, i) => {
           const b = box(row.geometry);
@@ -152,7 +152,7 @@ describe("local-special district eligibility", () => {
     return { rows: rows[i] ? [rows[i]] : [] };
   });
   const indexCalls = (query: ReturnType<typeof fakeDb>) =>
-    query.mock.calls.filter((call) => String(call[0]).includes("GROUP BY boundary.district_id")).length;
+    query.mock.calls.filter((call) => String(call[0]).includes("boundary.bbox[1]")).length;
 
   it("reads only reviewed local boundaries in the address state", async () => {
     const query = fakeDb([{ geoid_compact: "OH:CARROLL:FOX", geometry: township, exclusion_geometry: null }]);
