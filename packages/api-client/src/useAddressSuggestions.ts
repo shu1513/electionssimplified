@@ -52,6 +52,7 @@ export type UseAddressSuggestionsResult = {
    * provides them) and the server's granularity classification, or null when
    * retrieve failed or was superseded by newer typing or another selection. */
   selectSuggestion: (suggestion: AddressSuggestion) => Promise<SelectedSuggestion | null>;
+  /** Empties the list and cancels any suggest still debouncing or in flight. */
   clearSuggestions: () => void;
   /** Call on input focus: warms connections before the first keystroke. */
   warmup: () => void;
@@ -62,6 +63,9 @@ export function useAddressSuggestions(): UseAddressSuggestionsResult {
   const [enabled, setEnabled] = useState(true);
   const sessionTokenRef = useRef<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  // The latest suggest's controller only (abortRef may hold a retrieve), so
+  // clearSuggestions can drop a pending suggest without cancelling a pick.
+  const suggestAbortRef = useRef<AbortController | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const requestSeqRef = useRef(0);
   const enabledRef = useRef(true);
@@ -85,6 +89,7 @@ export function useAddressSuggestions(): UseAddressSuggestionsResult {
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
+    suggestAbortRef.current = controller;
     const seq = ++requestSeqRef.current;
     try {
       const response = await apiRequest<AddressAutocompleteResponse>("/api/address/autocomplete", {
@@ -92,7 +97,7 @@ export function useAddressSuggestions(): UseAddressSuggestionsResult {
         body: { input, session_token: sessionTokenRef.current },
         signal: controller.signal,
       });
-      if (seq === requestSeqRef.current) {
+      if (seq === requestSeqRef.current && !controller.signal.aborted) {
         // Defensive: the contract above says autocomplete failing must never
         // block the form — that includes a malformed 200 whose body lacks a
         // suggestions array, which would otherwise crash the page at
@@ -229,6 +234,14 @@ export function useAddressSuggestions(): UseAddressSuggestionsResult {
   }, []);
 
   const clearSuggestions = useCallback(() => {
+    // Also drop a suggest that is still debouncing or in flight: without
+    // this, its reply reopens the dropdown after the caller closed it (the
+    // box lost focus, or the visitor already pressed Enter to search). A
+    // retrieve in flight is left alone — the pick it belongs to still stands.
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+    suggestAbortRef.current?.abort();
     setSuggestions([]);
   }, []);
 
