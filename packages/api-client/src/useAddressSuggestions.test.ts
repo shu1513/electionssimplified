@@ -110,6 +110,68 @@ describe("useAddressSuggestions", () => {
     expect(result.current.suggestions).toEqual([]);
   });
 
+  it("clearSuggestions cancels a suggest in flight and one still debouncing", async () => {
+    let firstSignal: AbortSignal | undefined;
+    let resolveFirst!: (value: unknown) => void;
+    apiRequestMock.mockImplementationOnce((_path: string, options: { signal?: AbortSignal }) => {
+      firstSignal = options.signal;
+      return new Promise((resolve) => {
+        resolveFirst = resolve;
+      });
+    });
+    const { result } = renderHook(() => useAddressSuggestions());
+
+    // "029" goes out at once and hangs; "02912" is waiting on the debounce.
+    act(() => {
+      result.current.onInputChanged("029");
+    });
+    act(() => {
+      result.current.onInputChanged("02912");
+    });
+    act(() => {
+      result.current.clearSuggestions();
+    });
+    expect(firstSignal?.aborted).toBe(true);
+
+    // Neither the late reply nor the debounced request brings the list back.
+    await act(async () => {
+      resolveFirst({ suggestions: [SUGGESTION] });
+      await vi.advanceTimersByTimeAsync(SUGGEST_DEBOUNCE_MS + 10);
+    });
+    expect(apiRequestMock).toHaveBeenCalledTimes(1);
+    expect(result.current.suggestions).toEqual([]);
+  });
+
+  it("clearSuggestions leaves a retrieve in flight alone", async () => {
+    apiRequestMock.mockResolvedValueOnce({ suggestions: [SUGGESTION] });
+    const { result } = renderHook(() => useAddressSuggestions());
+    await act(async () => {
+      result.current.onInputChanged("200 N");
+    });
+
+    let retrieveSignal: AbortSignal | undefined;
+    let resolveRetrieve!: (value: unknown) => void;
+    apiRequestMock.mockImplementationOnce((_path: string, options: { signal?: AbortSignal }) => {
+      retrieveSignal = options.signal;
+      return new Promise((resolve) => {
+        resolveRetrieve = resolve;
+      });
+    });
+    let retrievedPromise!: Promise<unknown>;
+    act(() => {
+      retrievedPromise = result.current.selectSuggestion(SUGGESTION);
+    });
+    // The box losing focus mid-retrieve must not throw the pick away.
+    act(() => {
+      result.current.clearSuggestions();
+    });
+    expect(retrieveSignal?.aborted).toBe(false);
+    await act(async () => {
+      resolveRetrieve({ address: SUGGESTION.description, location: null, granularity: "address" });
+    });
+    await expect(retrievedPromise).resolves.toMatchObject({ address: SUGGESTION.description });
+  });
+
   it("warmup fires one throwaway request, dedupes, and never creates a session token", async () => {
     apiRequestMock.mockRejectedValue(new ApiError(400, "invalid_request", "input too short"));
     const { result } = renderHook(() => useAddressSuggestions());

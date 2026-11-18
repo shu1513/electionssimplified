@@ -75,6 +75,45 @@ export function AddressAutocomplete({
   // Search while a later retrieve is still in flight.
   const retrievesInFlight = useRef(0);
 
+  // The suggestion list the visitor last stepped into with the arrow keys.
+  // Enter picks a suggestion only when that list is still the one on screen;
+  // otherwise Enter searches the typed text as it stands. Headless UI marks
+  // the first option active on every keystroke, so without this a fast
+  // "type a ZIP, press Enter" replaced the text with whatever suggestion sat
+  // first — often one fetched for an earlier, shorter prefix.
+  const arrowedList = useRef<AddressSuggestion[] | null>(null);
+
+  function onKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+    if (event.nativeEvent.isComposing) {
+      return;
+    }
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      if (suggestions.length === 0) {
+        return;
+      }
+      const firstStep = arrowedList.current !== suggestions;
+      arrowedList.current = suggestions;
+      if (firstStep && event.key === "ArrowDown") {
+        // The first option is already Headless UI's active one; swallowing
+        // this press keeps the first ArrowDown on the first suggestion
+        // instead of skipping to the second.
+        event.preventDefault();
+      }
+      return;
+    }
+    if (event.key !== "Enter") {
+      return;
+    }
+    if (suggestions.length > 0 && arrowedList.current === suggestions) {
+      return; // Headless UI selects the option the visitor arrowed to.
+    }
+    // preventDefault stops Headless UI's handler (it runs after this one and
+    // skips prevented events) and with it the native submit, so submit here.
+    event.preventDefault();
+    clearSuggestions();
+    event.currentTarget.form?.requestSubmit();
+  }
+
   async function onSelect(suggestion: AddressSuggestion | null) {
     if (!suggestion) {
       return;
@@ -139,6 +178,7 @@ export function AddressAutocomplete({
             onChange(event.target.value);
             onInputChanged(event.target.value);
           }}
+          onKeyDown={onKeyDown}
           onFocus={() => {
             setFocused(true);
             warmup();

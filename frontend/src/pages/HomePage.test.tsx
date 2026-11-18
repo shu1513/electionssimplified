@@ -795,6 +795,95 @@ describe("HomePage ZIP partial flow", () => {
     expect(body.coordinates).toBeUndefined();
   });
 
+  // Two suggestions a ZIP prefix really brings back: streets, not the ZIP.
+  const STREET_SUGGESTIONS = [
+    {
+      place_id: "place-breck",
+      description: "0297 Cr, Breckenridge, CO, USA",
+      main_text: "0297 Cr",
+      secondary_text: "Breckenridge, CO, USA",
+    },
+    {
+      place_id: "place-other",
+      description: "0297 Elm St, Aspen, CO, USA",
+      main_text: "0297 Elm St",
+      secondary_text: "Aspen, CO, USA",
+    },
+  ];
+
+  function stubSuggestionsFetch() {
+    const fetchMock = vi.fn().mockImplementation(async (path: string, init?: { body?: string }) => holdGeoHint(path) ?? ({
+      ok: true,
+      status: 200,
+      headers: new Headers(),
+      json: async () => {
+        if (path === "/api/address/autocomplete") {
+          return { suggestions: STREET_SUGGESTIONS };
+        }
+        if (path === "/api/address/autocomplete/retrieve") {
+          const picked = (JSON.parse(init?.body ?? "{}") as { place_id: string }).place_id;
+          return {
+            address: STREET_SUGGESTIONS.find((suggestion) => suggestion.place_id === picked)?.description,
+            location: { lat: 39.5, lng: -106 },
+            granularity: "address",
+            postal_code: null,
+          };
+        }
+        if (path === "/api/address/resolve") {
+          return { matched_address: "02912", address_match_count: 1, districts: [{ id: "d-ri" }], scope: "zip" };
+        }
+        return { user: null };
+      },
+    }));
+    vi.stubGlobal("fetch", fetchMock);
+    return fetchMock;
+  }
+
+  it("Enter searches the typed text even while suggestions are showing", async () => {
+    const fetchMock = stubSuggestionsFetch();
+    const user = userEvent.setup();
+    const { router } = renderHome();
+
+    await user.type(screen.getByLabelText(ADDRESS_LABEL), "02912");
+    await screen.findByRole("option", { name: /0297 Cr/ });
+    await user.keyboard("{Enter}");
+
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe("/ballot");
+    });
+    const resolveCall = fetchMock.mock.calls.find(([path]) => path === "/api/address/resolve");
+    const body = JSON.parse((resolveCall?.[1] as { body: string }).body) as Record<string, unknown>;
+    expect(body.address).toBe("02912");
+    expect(body.coordinates).toBeUndefined();
+    // No suggestion was picked: nothing was retrieved.
+    expect(fetchMock.mock.calls.some(([path]) => path === "/api/address/autocomplete/retrieve")).toBe(false);
+  });
+
+  it("Enter picks a suggestion only after the arrow keys moved onto it", async () => {
+    const fetchMock = stubSuggestionsFetch();
+    const user = userEvent.setup();
+    renderHome();
+    const field = screen.getByLabelText(ADDRESS_LABEL);
+
+    // One ArrowDown lands on the first suggestion.
+    await user.type(field, "0297");
+    await screen.findByRole("option", { name: /0297 Cr/ });
+    await user.keyboard("{ArrowDown}{Enter}");
+    await waitFor(() => {
+      expect(field).toHaveValue("0297 Cr, Breckenridge, CO, USA");
+    });
+
+    // Typing again resets it; two ArrowDowns land on the second.
+    await user.clear(field);
+    await user.type(field, "0297");
+    await screen.findByRole("option", { name: /0297 Elm St/ });
+    await user.keyboard("{ArrowDown}{ArrowDown}{Enter}");
+    await waitFor(() => {
+      expect(field).toHaveValue("0297 Elm St, Aspen, CO, USA");
+    });
+    expect(fetchMock.mock.calls.some(([path]) => path === "/api/address/resolve")).toBe(false);
+  });
+
   it("routes an exact result without partial=1 and saves the pending handoff", async () => {
     stubResolveFetch({
       matched_address: "123 Main St",
