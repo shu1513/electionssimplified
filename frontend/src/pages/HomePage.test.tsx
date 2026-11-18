@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createMemoryRouter, RouterProvider } from "react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -856,6 +856,22 @@ describe("HomePage ZIP partial flow", () => {
     expect(body.address).toBe("02912");
     expect(body.coordinates).toBeUndefined();
     // No suggestion was picked: nothing was retrieved.
+    expect(fetchMock.mock.calls.some(([path]) => path === "/api/address/autocomplete/retrieve")).toBe(false);
+  });
+
+  it("leaves the Enter that confirms IME text alone (Safari reports it as not composing)", async () => {
+    const fetchMock = stubSuggestionsFetch();
+    const user = userEvent.setup();
+    renderHome();
+    const field = screen.getByLabelText(ADDRESS_LABEL);
+
+    await user.type(field, "02912");
+    await screen.findByRole("option", { name: /0297 Cr/ });
+    fireEvent.compositionStart(field);
+    fireEvent.keyDown(field, { key: "Enter", keyCode: 229 });
+
+    expect(field).toHaveValue("02912");
+    expect(fetchMock.mock.calls.some(([path]) => path === "/api/address/resolve")).toBe(false);
     expect(fetchMock.mock.calls.some(([path]) => path === "/api/address/autocomplete/retrieve")).toBe(false);
   });
 

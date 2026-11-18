@@ -84,7 +84,10 @@ export function AddressAutocomplete({
   const arrowedList = useRef<AddressSuggestion[] | null>(null);
 
   function onKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
-    if (event.nativeEvent.isComposing) {
+    // keyCode 229: Safari ends the composition before the confirming Enter's
+    // keydown, so isComposing is already false on it. That Enter accepts IME
+    // text; it must not search.
+    if (event.nativeEvent.isComposing || event.keyCode === 229) {
       return;
     }
     if (event.key === "ArrowDown" || event.key === "ArrowUp") {
